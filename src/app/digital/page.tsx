@@ -46,7 +46,7 @@ export default function DigitalPage() {
                 <h1 className="text-4xl md:text-5xl font-bold mb-2">{album.title}</h1>
                 <p className="text-xl text-[var(--pf-text-secondary)] mb-2">{artist.name}</p>
                 <p className="text-[var(--pf-text-muted)] mb-6">
-                  {album.tracks} tracks • {TRACKS.reduce((sum, t) => sum + parseInt(t.plays), 0).toLocaleString()} total plays
+                  {album.tracks} tracks • {TRACKS.reduce((sum, t) => sum + (typeof t.plays === 'number' ? t.plays : parseInt(t.plays)), 0).toLocaleString()} total plays
                 </p>
 
                 <div className="mb-8">

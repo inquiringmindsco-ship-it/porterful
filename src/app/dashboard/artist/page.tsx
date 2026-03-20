@@ -23,6 +23,7 @@ export default function ArtistDashboardPage() {
     } else {
       setLoading(false)
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [supabase, user])
 
   async function loadProfile() {

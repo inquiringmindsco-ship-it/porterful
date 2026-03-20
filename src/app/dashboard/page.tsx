@@ -41,6 +41,7 @@ export default function DashboardPage() {
     } else {
       setLoading(false)
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [supabase, user])
 
   async function loadDashboard() {

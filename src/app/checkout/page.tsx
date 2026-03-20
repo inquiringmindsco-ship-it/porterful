@@ -15,6 +15,11 @@ export default function CheckoutPage() {
   const [step, setStep] = useState<'shipping' | 'payment' | 'review' | 'complete'>('shipping');
   const [processing, setProcessing] = useState(false);
   
+  const steps: readonly ('shipping' | 'payment' | 'review')[] = ['shipping', 'payment', 'review'] as const;
+  const stepIndex = steps.indexOf(step as any);
+  const currentStep = steps.find(s => s === step);
+  const isComplete = step === 'complete';
+  
   const [shipping, setShipping] = useState({
     name: '',
     email: '',
@@ -95,23 +100,26 @@ export default function CheckoutPage() {
 
         {/* Progress */}
         <div className="flex items-center gap-4 mb-8">
-          {['shipping', 'payment', 'review'].map((s, i) => (
-            <div key={s} className="flex items-center gap-2">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                step === s || (step === 'complete' && i === 2) 
-                  ? 'bg-[var(--pf-orange)] text-white' 
-                  : 'bg-[var(--pf-surface)] text-[var(--pf-text-muted)]'
-              }`}>
-                {i + 1}
+          {steps.map((s, i) => {
+            const isActive = step === s || (isComplete && i === 2);
+            return (
+              <div key={s} className="flex items-center gap-2">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                  isActive 
+                    ? 'bg-[var(--pf-orange)] text-white' 
+                    : 'bg-[var(--pf-surface)] text-[var(--pf-text-muted)]'
+                }`}>
+                  {i + 1}
+                </div>
+                <span className={`hidden sm:block capitalize ${
+                  step === s ? 'text-white' : 'text-[var(--pf-text-muted)]'
+                }`}>
+                  {s}
+                </span>
+                {i < 2 && <div className="w-8 h-px bg-[var(--pf-border)]" />}
               </div>
-              <span className={`hidden sm:block capitalize ${
-                step === s ? 'text-white' : 'text-[var(--pf-text-muted)]'
-              }`}>
-                {s}
-              </span>
-              {i < 2 && <div className="w-8 h-px bg-[var(--pf-border)]" />}
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
