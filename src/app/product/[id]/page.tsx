@@ -2,126 +2,150 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-
-// Placeholder product data
-const placeholderProduct = {
-  id: 'product-1',
-  name: 'Essential Tee',
-  price: 35,
-  description: 'Premium cotton t-shirt with minimalist design. Comfortable fit, built to last.',
-  artist: {
-    name: 'O D Porter',
-    id: 'artist-placeholder',
-  },
-  images: ['/placeholder-product.jpg'],
-  sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-  colors: ['Black', 'White', 'Orange'],
-  inStock: true,
-  type: 'merch',
-};
+import { Star, Heart, Share2 } from 'lucide-react';
+import { PRODUCTS } from '@/lib/data';
 
 export default function ProductPage({ params }: { params: { id: string } }) {
-  const [selectedSize, setSelectedSize] = useState<string>('');
-  const [selectedColor, setSelectedColor] = useState<string>('Black');
+  const [selectedSize, setSelectedSize] = useState('');
+  const [selectedColor, setSelectedColor] = useState('Black');
   const [quantity, setQuantity] = useState(1);
 
+  // Find product by ID
+  const product = PRODUCTS.find(p => p.id === params.id) || PRODUCTS[0];
+  
+  // Type guard for merch products
+  const hasColors = 'colors' in product;
+  const hasSizes = 'sizes' in product;
+
   const handleAddToCart = () => {
-    // Will integrate with cart system
-    alert(`Added to cart: ${quantity}x ${placeholderProduct.name} (${selectedSize}, ${selectedColor})`);
+    alert(`Added ${quantity}x ${product.name} to cart!`);
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white py-8 px-6">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen pt-24 pb-12">
+      <div className="pf-container max-w-6xl">
         {/* Breadcrumb */}
-        <nav className="text-sm text-gray-500 mb-6">
+        <nav className="text-sm text-[var(--pf-text-muted)] mb-6">
           <Link href="/" className="hover:text-white transition-colors">Home</Link>
           <span className="mx-2">/</span>
-          <Link href="/shop" className="hover:text-white transition-colors">Shop</Link>
+          <Link href="/marketplace" className="hover:text-white transition-colors">Shop</Link>
           <span className="mx-2">/</span>
-          <span className="text-white">{placeholderProduct.name}</span>
+          <span className="text-white">{product.name}</span>
         </nav>
 
         <div className="grid md:grid-cols-2 gap-12">
           {/* Image */}
-          <div className="aspect-square bg-[#1a1a1a] rounded-2xl overflow-hidden flex items-center justify-center">
-            <div className="text-9xl opacity-50">👕</div>
+          <div className="aspect-square bg-[var(--pf-surface)] rounded-2xl overflow-hidden">
+            <img 
+              src={product.image} 
+              alt={product.name}
+              className="w-full h-full object-cover"
+            />
           </div>
 
           {/* Details */}
           <div className="flex flex-col">
-            {/* Artist */}
+            {/* Artist/Brand */}
             <Link 
-              href={`/artist/${placeholderProduct.artist.id}`}
+              href={product.artist ? `/artist/od-porter` : '#'}
               className="flex items-center gap-3 mb-4 hover:opacity-80 transition-opacity"
             >
-              <div className="w-10 h-10 rounded-full bg-[#ff6b00]/20 flex items-center justify-center text-sm font-bold">
-                {placeholderProduct.artist.name.charAt(0)}
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[var(--pf-orange)] to-purple-600 flex items-center justify-center text-sm font-bold overflow-hidden">
+                {product.artist ? (
+                  <img src="https://images.unsplash.com/photo-1493225457124-a3eb1614b109?w=100" alt={product.artist} className="w-full h-full object-cover" />
+                ) : (
+                  product.brand?.[0] || '?'
+                )}
               </div>
-              <span className="text-gray-400">by {placeholderProduct.artist.name}</span>
+              <div>
+                <span className="text-[var(--pf-text-secondary)]">by </span>
+                <span className="font-medium hover:text-[var(--pf-orange)]">{product.artist || product.brand}</span>
+              </div>
             </Link>
 
             {/* Title */}
-            <h1 className="text-3xl font-bold mb-2">{placeholderProduct.name}</h1>
-            <p className="text-3xl font-bold text-[#ff6b00] mb-6">${placeholderProduct.price}</p>
+            <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
+            <p className="text-[var(--pf-text-muted)] mb-4">{product.type}</p>
+            
+            {/* Price & Rating */}
+            <div className="flex items-center gap-4 mb-6">
+              <span className="text-4xl font-bold">${product.price}</span>
+              <div className="flex items-center gap-1">
+                <Star size={18} className="text-yellow-400 fill-yellow-400" />
+                <span className="font-medium">{product.rating}</span>
+                <span className="text-[var(--pf-text-muted)]">({product.reviews} reviews)</span>
+              </div>
+            </div>
+
+            {/* Artist Cut */}
+            <div className="bg-[var(--pf-orange)]/10 border border-[var(--pf-orange)]/30 rounded-lg p-4 mb-6">
+              <p className="text-sm">
+                <span className="text-[var(--pf-orange)] font-bold">${(product.artistCut).toFixed(2)}</span>
+                <span className="text-[var(--pf-text-secondary)]"> goes to {product.artist ? 'the artist' : 'artists'}</span>
+              </p>
+            </div>
 
             {/* Description */}
-            <p className="text-gray-400 mb-8">{placeholderProduct.description}</p>
+            <p className="text-[var(--pf-text-secondary)] mb-6">{product.description}</p>
 
-            {/* Size */}
-            <div className="mb-6">
-              <label className="block font-semibold mb-3">Size</label>
-              <div className="flex gap-2">
-                {placeholderProduct.sizes.map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className={`px-4 py-2 rounded-lg border transition-colors ${
-                      selectedSize === size
-                        ? 'border-[#ff6b00] bg-[#ff6b00]/20 text-white'
-                        : 'border-gray-700 text-gray-400 hover:border-gray-500'
-                    }`}
-                  >
-                    {size}
-                  </button>
-                ))}
+            {/* Colors */}
+            {hasColors && (
+              <div className="mb-6">
+                <label className="block font-medium mb-2">Color</label>
+                <div className="flex gap-2">
+                  {(product as any).colors.map((color: string) => (
+                    <button
+                      key={color}
+                      onClick={() => setSelectedColor(color)}
+                      className={`px-4 py-2 rounded-lg border transition-colors ${
+                        selectedColor === color
+                          ? 'border-[var(--pf-orange)] bg-[var(--pf-orange)]/10'
+                          : 'border-[var(--pf-border)] hover:border-[var(--pf-orange)]'
+                      }`}
+                    >
+                      {color}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
-            {/* Color */}
-            <div className="mb-6">
-              <label className="block font-semibold mb-3">Color</label>
-              <div className="flex gap-2">
-                {placeholderProduct.colors.map((color) => (
-                  <button
-                    key={color}
-                    onClick={() => setSelectedColor(color)}
-                    className={`px-4 py-2 rounded-lg border transition-colors ${
-                      selectedColor === color
-                        ? 'border-[#ff6b00] bg-[#ff6b00]/20 text-white'
-                        : 'border-gray-700 text-gray-400 hover:border-gray-500'
-                    }`}
-                  >
-                    {color}
-                  </button>
-                ))}
+            {/* Sizes */}
+            {hasSizes && (
+              <div className="mb-6">
+                <label className="block font-medium mb-2">Size</label>
+                <div className="flex gap-2">
+                  {(product as any).sizes.map((size: string) => (
+                    <button
+                      key={size}
+                      onClick={() => setSelectedSize(size)}
+                      className={`px-4 py-2 rounded-lg border transition-colors ${
+                        selectedSize === size
+                          ? 'border-[var(--pf-orange)] bg-[var(--pf-orange)]/10'
+                          : 'border-[var(--pf-border)] hover:border-[var(--pf-orange)]'
+                      }`}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Quantity */}
-            <div className="mb-8">
-              <label className="block font-semibold mb-3">Quantity</label>
+            <div className="mb-6">
+              <label className="block font-medium mb-2">Quantity</label>
               <div className="flex items-center gap-4">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="w-10 h-10 rounded-lg border border-gray-700 flex items-center justify-center hover:border-gray-500 transition-colors"
+                  className="w-10 h-10 rounded-lg border border-[var(--pf-border)] flex items-center justify-center hover:border-[var(--pf-orange)]"
                 >
                   -
                 </button>
-                <span className="w-12 text-center font-semibold">{quantity}</span>
+                <span className="w-12 text-center text-xl font-bold">{quantity}</span>
                 <button
                   onClick={() => setQuantity(quantity + 1)}
-                  className="w-10 h-10 rounded-lg border border-gray-700 flex items-center justify-center hover:border-gray-500 transition-colors"
+                  className="w-10 h-10 rounded-lg border border-[var(--pf-border)] flex items-center justify-center hover:border-[var(--pf-orange)]"
                 >
                   +
                 </button>
@@ -131,44 +155,37 @@ export default function ProductPage({ params }: { params: { id: string } }) {
             {/* Add to Cart */}
             <button
               onClick={handleAddToCart}
-              disabled={!selectedSize || !placeholderProduct.inStock}
-              className={`w-full py-4 rounded-lg font-semibold transition-colors ${
-                !selectedSize || !placeholderProduct.inStock
-                  ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
-                  : 'bg-[#ff6b00] text-white hover:bg-[#ff8533]'
-              }`}
+              className="w-full pf-btn pf-btn-primary text-lg py-4 mb-4"
             >
-              {!selectedSize ? 'Select a size' : !placeholderProduct.inStock ? 'Out of stock' : 'Add to Cart'}
+              Add to Cart • ${(product.price * quantity).toFixed(2)}
             </button>
 
-            {/* Referral notice */}
-            <div className="mt-6 p-4 bg-[#1a1a1a] rounded-lg border border-gray-800">
-              <p className="text-sm text-gray-400">
-                💜 <span className="text-white">Superfans earn 5%</span> when you shop using a referral code. Support artists you love.
-              </p>
+            {/* Actions */}
+            <div className="flex gap-4">
+              <button className="flex-1 pf-btn pf-btn-secondary flex items-center justify-center gap-2">
+                <Heart size={18} />
+                Save
+              </button>
+              <button className="flex-1 pf-btn pf-btn-secondary flex items-center justify-center gap-2">
+                <Share2 size={18} />
+                Share
+              </button>
             </div>
-          </div>
-        </div>
 
-        {/* Additional Info */}
-        <div className="mt-16 grid md:grid-cols-3 gap-8">
-          <div className="bg-[#1a1a1a] rounded-xl p-6 border border-gray-800">
-            <h3 className="font-semibold mb-2">🚚 Shipping</h3>
-            <p className="text-gray-400 text-sm">
-              Ships within 3-5 business days. Free shipping on orders over $50.
-            </p>
-          </div>
-          <div className="bg-[#1a1a1a] rounded-xl p-6 border border-gray-800">
-            <h3 className="font-semibold mb-2">↩️ Returns</h3>
-            <p className="text-gray-400 text-sm">
-              30-day return policy. Contact support for exchanges.
-            </p>
-          </div>
-          <div className="bg-[#1a1a1a] rounded-xl p-6 border border-gray-800">
-            <h3 className="font-semibold mb-2">💎 Artist Revenue</h3>
-            <p className="text-gray-400 text-sm">
-              Artist keeps 80% of this sale. Your support matters.
-            </p>
+            {/* Features */}
+            {'features' in product && (
+              <div className="mt-6 pt-6 border-t border-[var(--pf-border)]">
+                <h3 className="font-medium mb-2">Features</h3>
+                <ul className="space-y-1">
+                  {(product as any).features.map((feature: string, i: number) => (
+                    <li key={i} className="flex items-center gap-2 text-sm text-[var(--pf-text-secondary)]">
+                      <span className="text-green-400">✓</span>
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         </div>
       </div>

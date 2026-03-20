@@ -1,7 +1,12 @@
 import Link from 'next/link'
 import { Play, Headphones, ArrowRight, Music, Star, Users, DollarSign } from 'lucide-react'
+import { TRACKS, ARTISTS, PRODUCTS } from '@/lib/data'
 
 export default function Home() {
+  const featuredTracks = TRACKS.slice(0, 3)
+  const featuredProducts = PRODUCTS.filter(p => p.category === 'merch' || p.category === 'music').slice(0, 3)
+  const artist = ARTISTS[0]
+
   return (
     <div className="min-h-screen">
       {/* Hero */}
@@ -32,12 +37,13 @@ export default function Home() {
 
               {/* CTAs */}
               <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-                <Link href="/store" className="pf-btn pf-btn-primary text-lg px-8 py-4">
+                <Link href="/marketplace" className="pf-btn pf-btn-primary text-lg px-8 py-4">
                   <Headphones className="inline mr-2" size={20} />
-                  Browse Music
+                  Browse Shop
                 </Link>
-                <Link href="/signup?role=artist" className="pf-btn pf-btn-secondary text-lg px-8 py-4">
-                  Upload Your Music
+                <Link href="/digital" className="pf-btn pf-btn-secondary text-lg px-8 py-4">
+                  <Music className="inline mr-2" size={20} />
+                  Listen Now
                 </Link>
               </div>
 
@@ -98,46 +104,51 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Featured Release */}
+      {/* Featured Products */}
       <section className="py-20">
         <div className="pf-container">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Album Art */}
-            <div className="relative">
-              <div className="aspect-square bg-gradient-to-br from-[var(--pf-orange)]/30 to-purple-600/30 rounded-3xl flex items-center justify-center text-[180px] shadow-2xl shadow-[var(--pf-orange)]/20">
-                💿
-              </div>
-              <div className="absolute -bottom-4 -right-4 bg-[var(--pf-orange)] text-white px-4 py-2 rounded-full font-bold text-sm">
-                NEW RELEASE
-              </div>
-            </div>
-
-            {/* Release Info */}
+          <div className="flex items-center justify-between mb-8">
             <div>
-              <span className="text-sm text-[var(--pf-orange)] font-medium mb-2 block">FEATURED ALBUM</span>
-              <h2 className="text-4xl font-bold mb-2">Ambiguous EP</h2>
-              <p className="text-xl text-[var(--pf-text-secondary)] mb-4">O D Porter • 5 tracks</p>
-              
-              <p className="text-[var(--pf-text-muted)] mb-6">
-                Hip-hop and R&B from New Orleans. Raw, authentic, independent.
-              </p>
-
-              {/* Pricing */}
-              <div className="flex items-center gap-4 mb-8">
-                <span className="text-4xl font-bold">$5</span>
-                <span className="text-[var(--pf-text-muted)]">minimum • pay what you want</span>
-              </div>
-
-              <div className="flex flex-wrap gap-3">
-                <Link href="/digital" className="pf-btn pf-btn-primary">
-                  <Play className="inline mr-2" size={18} />
-                  Listen Now
-                </Link>
-                <Link href="/artist/od-porter" className="pf-btn pf-btn-secondary">
-                  View Artist
-                </Link>
-              </div>
+              <h2 className="text-2xl font-bold">Featured Releases</h2>
+              <p className="text-[var(--pf-text-secondary)]">Support artists directly</p>
             </div>
+            <Link href="/marketplace" className="text-[var(--pf-orange)] hover:underline">
+              View all <ArrowRight className="inline ml-1" size={16} />
+            </Link>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {featuredProducts.map((product) => (
+              <Link 
+                key={product.id}
+                href={`/product/${product.id}`}
+                className="pf-card group overflow-hidden"
+              >
+                <div className="aspect-square bg-[var(--pf-surface)] overflow-hidden">
+                  <img 
+                    src={product.image} 
+                    alt={product.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+                <div className="p-4">
+                  <p className="text-xs text-[var(--pf-text-muted)] uppercase tracking-wider mb-1">
+                    {product.type}
+                  </p>
+                  <h3 className="font-semibold group-hover:text-[var(--pf-orange)] transition-colors">
+                    {product.name}
+                  </h3>
+                  <p className="text-sm text-[var(--pf-text-secondary)]">{product.artist || product.brand}</p>
+                  <div className="flex items-center justify-between mt-2">
+                    <span className="text-lg font-bold">${product.price}</span>
+                    <div className="flex items-center gap-1 text-sm text-[var(--pf-text-muted)]">
+                      <Star size={14} className="text-yellow-400 fill-yellow-400" />
+                      {product.rating}
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
@@ -146,10 +157,10 @@ export default function Home() {
       <section className="py-20 bg-[var(--pf-bg-secondary)]">
         <div className="pf-container">
           <div className="max-w-3xl mx-auto text-center">
-            <span className="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/10 border border-purple-500/30 rounded-full text-purple-400 text-sm font-medium mb-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/10 border border-purple-500/30 rounded-full text-purple-400 text-sm font-medium mb-6">
               <Star size={14} />
               PROUD TO PAY
-            </span>
+            </div>
             
             <h2 className="text-3xl md:text-5xl font-bold mb-4">
               Set Your Price
