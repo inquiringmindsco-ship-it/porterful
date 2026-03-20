@@ -3,30 +3,21 @@
 import { useState, useRef } from 'react';
 import Link from 'next/link';
 import { useSupabase } from '@/app/providers';
-import { Upload, Music, Play, Trash2, DollarSign, Clock, Disc } from 'lucide-react';
-
-interface Track {
-  id: string;
-  title: string;
-  artist: string;
-  album: string;
-  duration: string;
-  price: number;
-  file: File | null;
-  preview: string | null;
-}
+import { useRouter } from 'next/navigation';
+import { Upload, Music, Play, Trash2, DollarSign, Clock, Disc, Plus } from 'lucide-react';
 
 export default function UploadMusicPage() {
-  const { user, supabase } = useSupabase();
-  const [tracks, setTracks] = useState<Track[]>([]);
-  const [uploading, setUploading] = useState(false);
-  const [dragOver, setDragOver] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { user, supabase } = useSupabase()
+  const router = useRouter()
+  const [tracks, setTracks] = useState<any[]>([])
+  const [uploading, setUploading] = useState(false)
+  const [dragOver, setDragOver] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleFileSelect = (files: FileList | null) => {
-    if (!files) return;
+    if (!files) return
     
-    const newTracks: Track[] = Array.from(files)
+    const newTracks = Array.from(files)
       .filter(file => file.type.startsWith('audio/') || file.type === 'audio/mpeg')
       .map(file => ({
         id: Math.random().toString(36).substr(2, 9),
@@ -37,124 +28,117 @@ export default function UploadMusicPage() {
         price: 1,
         file,
         preview: URL.createObjectURL(file),
-      }));
+      }))
     
-    setTracks([...tracks, ...newTracks]);
-  };
+    setTracks([...tracks, ...newTracks])
+  }
 
   const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setDragOver(false);
-    handleFileSelect(e.dataTransfer.files);
-  };
+    e.preventDefault()
+    setDragOver(false)
+    handleFileSelect(e.dataTransfer.files)
+  }
 
   const removeTrack = (id: string) => {
-    setTracks(tracks.filter(t => t.id !== id));
-  };
+    setTracks(tracks.filter(t => t.id !== id))
+  }
 
-  const updateTrack = (id: string, updates: Partial<Track>) => {
-    setTracks(tracks.map(t => t.id === id ? { ...t, ...updates } : t));
-  };
+  const updateTrack = (id: string, updates: any) => {
+    setTracks(tracks.map(t => t.id === id ? { ...t, ...updates } : t))
+  }
 
   const formatDuration = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
+    const mins = Math.floor(seconds / 60)
+    const secs = seconds % 60
+    return `${mins}:${secs.toString().padStart(2, '0')}`
+  }
 
   const getAudioDuration = (file: File): Promise<number> => {
     return new Promise((resolve) => {
-      const audio = new Audio();
+      const audio = new Audio()
       audio.addEventListener('loadedmetadata', () => {
-        resolve(Math.floor(audio.duration));
-      });
-      audio.src = URL.createObjectURL(file);
-    });
-  };
+        resolve(Math.floor(audio.duration))
+      })
+      audio.src = URL.createObjectURL(file)
+    })
+  }
 
   const handleUpload = async () => {
-    if (!tracks.length) return;
-    setUploading(true);
+    if (!tracks.length) return
+    setUploading(true)
 
     try {
       // Get durations for all tracks
       const tracksWithDuration = await Promise.all(
         tracks.map(async (track) => {
           if (track.file) {
-            const duration = await getAudioDuration(track.file);
-            return { ...track, duration: formatDuration(duration) };
+            const duration = await getAudioDuration(track.file)
+            return { ...track, duration: formatDuration(duration) }
           }
-          return track;
+          return track
         })
-      );
+      )
 
       if (supabase && user) {
         // Upload each track to Supabase Storage
         for (const track of tracksWithDuration) {
-          if (!track.file) continue;
+          if (!track.file) continue
           
-          // Create unique filename with user ID
-          const fileName = `${user.id}/${Date.now()}-${track.file.name}`;
+          const fileName = `${user.id}/${Date.now()}-${track.file.name}`
           
-          // Upload to Supabase Storage
           const { data: uploadData, error: uploadError } = await supabase.storage
             .from('music')
             .upload(fileName, track.file, {
               cacheControl: '3600',
               upsert: false
-            });
+            })
           
           if (uploadError) {
-            console.error('Upload error:', uploadError);
-            continue;
+            console.error('Upload error:', uploadError)
+            continue
           }
           
-          // Get public URL
           const { data: { publicUrl } } = supabase.storage
             .from('music')
-            .getPublicUrl(fileName);
+            .getPublicUrl(fileName)
           
-          // Save track metadata to database
-          const { error: insertError } = await supabase.from('tracks').insert({
+          await supabase.from('tracks').insert({
             artist_id: user.id,
             title: track.title,
             artist: track.artist,
             album: track.album || null,
             duration: track.duration,
             price: track.price,
-            proud_to_pay_min: track.price,
             file_url: publicUrl,
             file_path: fileName,
             created_at: new Date().toISOString(),
-          });
-          
-          if (insertError) {
-            console.error('Insert error:', insertError);
-          }
+          })
         }
         
-        alert(`Successfully uploaded ${tracks.length} track(s)!`);
-        setTracks([]);
+        alert(`Uploaded ${tracks.length} track(s)!`)
+        setTracks([])
       } else {
-        // Not logged in - show demo message
-        alert(`Upload saved locally. In production with Supabase connected, this would persist to cloud storage.`);
-        setTracks([]);
+        alert('Please sign in to upload tracks.')
+        router.push('/login')
       }
     } catch (error) {
-      console.error('Upload error:', error);
-      alert('Upload failed. Please try again.');
+      console.error('Upload error:', error)
+      alert('Upload failed. Please try again.')
     } finally {
-      setUploading(false);
+      setUploading(false)
     }
-  };
+  }
 
   return (
     <div className="min-h-screen pt-24 pb-12">
       <div className="pf-container max-w-4xl">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Upload Your Music</h1>
-          <p className="text-[var(--pf-text-secondary)]">
+          <Link href="/dashboard/artist" className="text-[var(--pf-text-secondary)] hover:text-white mb-4 inline-block">
+            ← Back to Dashboard
+          </Link>
+          <h1 className="text-3xl font-bold mt-4">Upload Your Music</h1>
+          <p className="text-[var(--pf-text-secondary)] mt-2">
             Add your tracks, set your prices, and let your fans support you directly.
           </p>
         </div>
@@ -164,7 +148,7 @@ export default function UploadMusicPage() {
           className={`pf-card p-12 text-center mb-8 transition-all ${
             dragOver ? 'border-[var(--pf-orange)] bg-[var(--pf-orange)]/5' : ''
           }`}
-          onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+          onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
           onDragLeave={() => setDragOver(false)}
           onDrop={handleDrop}
         >
@@ -206,21 +190,10 @@ export default function UploadMusicPage() {
               {tracks.map((track) => (
                 <div key={track.id} className="p-4">
                   <div className="flex items-start gap-4">
-                    {/* Preview */}
-                    <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-[var(--pf-orange)] to-purple-600 flex items-center justify-center shrink-0">
-                      {track.preview ? (
-                        <audio 
-                          controls 
-                          src={track.preview} 
-                          className="w-12 h-8"
-                          style={{ filter: 'invert(1) hue-rotate(180deg)' }}
-                        />
-                      ) : (
-                        <Music className="text-white" size={24} />
-                      )}
+                    <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-[var(--pf-orange)] to-purple-600 flex items-center justify-center shrink-0 text-2xl">
+                      🎵
                     </div>
                     
-                    {/* Details */}
                     <div className="flex-1 min-w-0">
                       <div className="grid md:grid-cols-2 gap-4">
                         <div>
@@ -244,7 +217,6 @@ export default function UploadMusicPage() {
                         </div>
                       </div>
                       
-                      {/* Pricing */}
                       <div className="mt-4">
                         <label className="block text-sm text-[var(--pf-text-muted)] mb-1">
                           <DollarSign className="inline w-4 h-4" />
@@ -273,7 +245,6 @@ export default function UploadMusicPage() {
                       </div>
                     </div>
                     
-                    {/* Remove */}
                     <button
                       onClick={() => removeTrack(track.id)}
                       className="p-2 text-[var(--pf-text-muted)] hover:text-red-400 transition-colors"
@@ -327,7 +298,7 @@ export default function UploadMusicPage() {
             }`}
           >
             {uploading ? (
-              <>Uploading...</>
+              'Uploading...'
             ) : (
               <>
                 <Upload className="inline mr-2" size={18} />
@@ -357,5 +328,5 @@ export default function UploadMusicPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }
