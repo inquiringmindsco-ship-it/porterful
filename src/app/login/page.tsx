@@ -44,8 +44,13 @@ export default function LoginPage() {
           .eq('id', data.user.id)
           .single()
 
+        // Redirect based on role
         if (profile?.role === 'artist') {
           router.push('/dashboard/artist')
+        } else if (profile?.role === 'business') {
+          router.push('/dashboard')
+        } else if (profile?.role === 'brand') {
+          router.push('/dashboard')
         } else {
           router.push('/dashboard')
         }
