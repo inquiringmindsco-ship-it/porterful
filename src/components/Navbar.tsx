@@ -15,7 +15,12 @@ export function Navbar() {
 
   // Handle scroll
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20)
+    const onScroll = () => {
+      setScrolled(window.scrollY > 20)
+      // Close menus on scroll
+      setMobileOpen(false)
+      setProfileOpen(false)
+    }
     window.addEventListener('scroll', onScroll)
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
