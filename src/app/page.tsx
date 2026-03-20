@@ -176,41 +176,22 @@ export default function Home() {
       <section className="py-20 bg-[var(--pf-bg-secondary)]">
         <div className="pf-container">
           <div className="max-w-3xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/10 border border-purple-500/30 rounded-full text-purple-400 text-sm font-medium mb-6">
-              <Star size={14} />
-              PROUD TO PAY
-            </div>
-            
             <h2 className="text-3xl md:text-5xl font-bold mb-4">
-              Set Your Price
+              Pay What You Want
             </h2>
-            
             <p className="text-xl text-[var(--pf-text-secondary)] mb-8">
-              Music costs time and energy. You decide what it's worth.
+              Music isn't free. Artists set their price. You choose what to pay.
             </p>
 
-            <div className="grid grid-cols-4 gap-4 mb-8">
-              {[
-                { price: '$1', tier: 'Stream' },
-                { price: '$5', tier: 'Supporter' },
-                { price: '$10', tier: 'Champion', popular: true },
-                { price: '$20+', tier: 'Patron' },
-              ].map((t) => (
-                <div 
-                  key={t.tier}
-                  className={`pf-card p-6 text-center ${t.popular ? 'border-purple-500' : ''}`}
-                >
-                  {t.popular && (
-                    <span className="text-xs text-purple-400 font-medium">POPULAR</span>
-                  )}
-                  <div className="text-3xl font-bold text-[var(--pf-orange)] mb-1">{t.price}</div>
-                  <div className="text-sm text-[var(--pf-text-muted)]">{t.tier}</div>
-                </div>
-              ))}
+            <div className="pf-card p-8 mb-8">
+              <p className="text-2xl font-bold mb-2">$5 minimum</p>
+              <p className="text-[var(--pf-text-secondary)]">
+                Artists keep 80%. No middleman.
+              </p>
             </div>
 
-            <Link href="/support" className="pf-btn pf-btn-primary">
-              Find Artists to Support
+            <Link href="/digital" className="pf-btn pf-btn-primary">
+              Listen Now
               <ArrowRight className="inline ml-2" size={18} />
             </Link>
           </div>
