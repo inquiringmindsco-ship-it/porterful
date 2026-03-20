@@ -227,4 +227,4 @@ export default function Home() {
       </section>
     </div>
   )
-}
+}// trigger
