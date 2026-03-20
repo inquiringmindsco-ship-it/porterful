@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useSupabase } from '@/app/providers'
-import { Menu, X, User, LogOut, Music, ShoppingBag, TrendingUp, Store, Building2, Heart } from 'lucide-react'
+import { Menu, X, User, LogOut, Music, ShoppingBag, TrendingUp, Store, Building2, Heart, Headphones } from 'lucide-react'
 
 export function Navbar() {
   const { user, supabase } = useSupabase()
@@ -46,20 +46,20 @@ export function Navbar() {
 
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-1">
-            <Link href="/artists" className="px-4 py-2 rounded-lg text-[var(--pf-text-secondary)] hover:text-white hover:bg-[var(--pf-surface)] transition-all">
-              Artists
+            <Link href="/store" className="px-4 py-2 rounded-lg text-[var(--pf-text-secondary)] hover:text-white hover:bg-[var(--pf-surface)] transition-all">
+              Store
             </Link>
-            <Link href="/shop" className="flex items-center gap-2 px-4 py-2 rounded-lg text-[var(--pf-text-secondary)] hover:text-white hover:bg-[var(--pf-surface)] transition-all">
-              <ShoppingBag size={18} />
-              <span>Marketplace</span>
+            <Link href="/digital" className="flex items-center gap-2 px-4 py-2 rounded-lg text-[var(--pf-text-secondary)] hover:text-white hover:bg-[var(--pf-surface)] transition-all">
+              <Music size={18} />
+              <span>Digital</span>
             </Link>
             <Link href="/radio" className="flex items-center gap-2 px-4 py-2 rounded-lg text-[var(--pf-text-secondary)] hover:text-white hover:bg-[var(--pf-surface)] transition-all">
-              <Music size={18} />
+              <Headphones size={18} />
               <span>Radio</span>
             </Link>
             <Link href="/support" className="flex items-center gap-2 px-4 py-2 rounded-lg text-[var(--pf-text-secondary)] hover:text-white hover:bg-[var(--pf-surface)] transition-all">
               <Heart size={18} />
-              <span>Proud to Pay</span>
+              <span>Support</span>
             </Link>
           </div>
 
