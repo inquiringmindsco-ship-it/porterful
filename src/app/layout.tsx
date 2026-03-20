@@ -3,6 +3,7 @@ import './globals.css'
 import { Providers } from './providers'
 import { Navbar } from '@/components/Navbar'
 import { Player } from '@/components/Player'
+import { Footer } from '@/components/Footer'
 
 export const metadata: Metadata = {
   title: {
@@ -73,6 +74,7 @@ export default function RootLayout({
           <main className="min-h-screen pb-24">
             {children}
           </main>
+          <Footer />
           <Player />
         </Providers>
       </body>
