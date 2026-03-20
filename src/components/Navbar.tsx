@@ -75,6 +75,11 @@ export function Navbar() {
             <Link href="/radio" className="px-4 py-2 rounded-lg text-[var(--pf-text-secondary)] hover:text-white hover:bg-[var(--pf-surface)] transition-all">
               Radio
             </Link>
+            {user && (
+              <Link href="/dashboard/upload" className="px-4 py-2 rounded-lg bg-[var(--pf-orange)] text-white hover:bg-[var(--pf-orange-light)] transition-all">
+                Upload
+              </Link>
+            )}
           </div>
 
           {/* Right Side */}

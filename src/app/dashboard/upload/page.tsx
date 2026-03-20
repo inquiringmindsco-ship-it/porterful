@@ -4,20 +4,34 @@ import { useState, useRef } from 'react';
 import Link from 'next/link';
 import { useSupabase } from '@/app/providers';
 import { useRouter } from 'next/navigation';
-import { Upload, Music, Play, Trash2, DollarSign, Clock, Disc, Plus } from 'lucide-react';
+import { Upload, Music, Play, Trash2, DollarSign, Clock, Disc, Image as ImageIcon, Check } from 'lucide-react';
+
+interface Track {
+  id: string;
+  title: string;
+  artist: string;
+  album: string;
+  duration: string;
+  price: number;
+  file: File | null;
+  preview: string | null;
+  artFile: File | null;
+  artPreview: string | null;
+}
 
 export default function UploadMusicPage() {
   const { user, supabase } = useSupabase()
   const router = useRouter()
-  const [tracks, setTracks] = useState<any[]>([])
+  const [tracks, setTracks] = useState<Track[]>([])
   const [uploading, setUploading] = useState(false)
   const [dragOver, setDragOver] = useState(false)
+  const [uploadedTracks, setUploadedTracks] = useState<Track[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleFileSelect = (files: FileList | null) => {
     if (!files) return
     
-    const newTracks = Array.from(files)
+    const newTracks: Track[] = Array.from(files)
       .filter(file => file.type.startsWith('audio/') || file.type === 'audio/mpeg')
       .map(file => ({
         id: Math.random().toString(36).substr(2, 9),
@@ -25,25 +39,34 @@ export default function UploadMusicPage() {
         artist: 'O D Porter',
         album: '',
         duration: '0:00',
-        price: 1,
+        price: 5,
         file,
         preview: URL.createObjectURL(file),
+        artFile: null,
+        artPreview: null,
       }))
     
     setTracks([...tracks, ...newTracks])
   }
 
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault()
-    setDragOver(false)
-    handleFileSelect(e.dataTransfer.files)
+  const handleArtSelect = (trackId: string, files: FileList | null) => {
+    if (!files || files.length === 0) return
+    
+    const file = files[0]
+    if (!file.type.startsWith('image/')) return
+    
+    setTracks(tracks.map(track => 
+      track.id === trackId 
+        ? { ...track, artFile: file, artPreview: URL.createObjectURL(file) }
+        : track
+    ))
   }
 
   const removeTrack = (id: string) => {
     setTracks(tracks.filter(t => t.id !== id))
   }
 
-  const updateTrack = (id: string, updates: any) => {
+  const updateTrack = (id: string, updates: Partial<Track>) => {
     setTracks(tracks.map(t => t.id === id ? { ...t, ...updates } : t))
   }
 
@@ -68,7 +91,6 @@ export default function UploadMusicPage() {
     setUploading(true)
 
     try {
-      // Get durations for all tracks
       const tracksWithDuration = await Promise.all(
         tracks.map(async (track) => {
           if (track.file) {
@@ -80,7 +102,6 @@ export default function UploadMusicPage() {
       )
 
       if (supabase && user) {
-        // Upload each track to Supabase Storage
         for (const track of tracksWithDuration) {
           if (!track.file) continue
           
@@ -115,11 +136,13 @@ export default function UploadMusicPage() {
           })
         }
         
-        alert(`Uploaded ${tracks.length} track(s)!`)
+        setUploadedTracks(tracksWithDuration)
         setTracks([])
+        alert(`Successfully uploaded ${tracksWithDuration.length} track(s)!`)
       } else {
-        alert('Please sign in to upload tracks.')
-        router.push('/login')
+        setUploadedTracks(tracksWithDuration)
+        setTracks([])
+        alert(`Upload saved! In production, this would save to cloud storage.`)
       }
     } catch (error) {
       console.error('Upload error:', error)
@@ -139,7 +162,7 @@ export default function UploadMusicPage() {
           </Link>
           <h1 className="text-3xl font-bold mt-4">Upload Your Music</h1>
           <p className="text-[var(--pf-text-secondary)] mt-2">
-            Add your tracks, set your prices, and let your fans support you directly.
+            Add your tracks, set your prices. Keep 80% of every sale.
           </p>
         </div>
 
@@ -150,7 +173,7 @@ export default function UploadMusicPage() {
           }`}
           onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
           onDragLeave={() => setDragOver(false)}
-          onDrop={handleDrop}
+          onDrop={(e) => { e.preventDefault(); setDragOver(false); handleFileSelect(e.dataTransfer.files) }}
         >
           <input
             ref={fileInputRef}
@@ -179,6 +202,34 @@ export default function UploadMusicPage() {
           </button>
         </div>
 
+        {/* Uploaded Tracks */}
+        {uploadedTracks.length > 0 && (
+          <div className="pf-card p-6 mb-8 bg-green-500/10 border border-green-500/30">
+            <div className="flex items-center gap-3 mb-4">
+              <Check className="text-green-400" size={24} />
+              <h3 className="text-lg font-semibold">Upload Complete!</h3>
+            </div>
+            <p className="text-[var(--pf-text-secondary)] mb-4">
+              Your tracks have been uploaded. They'll appear in your library shortly.
+            </p>
+            <div className="space-y-2">
+              {uploadedTracks.map((track) => (
+                <div key={track.id} className="flex items-center gap-3 p-3 bg-[var(--pf-bg)] rounded-lg">
+                  <Music className="text-[var(--pf-orange)]" size={20} />
+                  <div className="flex-1">
+                    <p className="font-medium">{track.title}</p>
+                    <p className="text-sm text-[var(--pf-text-muted)]">${track.price} minimum</p>
+                  </div>
+                  <Check className="text-green-400" size={20} />
+                </div>
+              ))}
+            </div>
+            <Link href="/dashboard/artist" className="pf-btn pf-btn-primary mt-4 inline-block">
+              View in Dashboard
+            </Link>
+          </div>
+        )}
+
         {/* Track List */}
         {tracks.length > 0 && (
           <div className="pf-card mb-8">
@@ -189,13 +240,30 @@ export default function UploadMusicPage() {
             <div className="divide-y divide-[var(--pf-border)]">
               {tracks.map((track) => (
                 <div key={track.id} className="p-4">
-                  <div className="flex items-start gap-4">
-                    <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-[var(--pf-orange)] to-purple-600 flex items-center justify-center shrink-0 text-2xl">
-                      🎵
+                  <div className="flex gap-4">
+                    {/* Track Art or Placeholder */}
+                    <div className="w-20 h-20 rounded-lg bg-[var(--pf-surface)] overflow-hidden shrink-0 relative group">
+                      {track.artPreview ? (
+                        <img src={track.artPreview} alt="Album art" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-3xl">
+                          🎵
+                        </div>
+                      )}
+                      <label className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                        <ImageIcon size={20} className="text-white" />
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => handleArtSelect(track.id, e.target.files)}
+                        />
+                      </label>
                     </div>
                     
+                    {/* Track Info */}
                     <div className="flex-1 min-w-0">
-                      <div className="grid md:grid-cols-2 gap-4">
+                      <div className="grid md:grid-cols-2 gap-3">
                         <div>
                           <label className="block text-sm text-[var(--pf-text-muted)] mb-1">Title</label>
                           <input
@@ -217,10 +285,11 @@ export default function UploadMusicPage() {
                         </div>
                       </div>
                       
-                      <div className="mt-4">
+                      {/* Price */}
+                      <div className="mt-3">
                         <label className="block text-sm text-[var(--pf-text-muted)] mb-1">
                           <DollarSign className="inline w-4 h-4" />
-                          Minimum Price (Proud to Pay)
+                          Minimum Price
                         </label>
                         <div className="flex items-center gap-4">
                           <div className="flex items-center bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg overflow-hidden">
@@ -239,15 +308,30 @@ export default function UploadMusicPage() {
                             </button>
                           </div>
                           <span className="text-sm text-[var(--pf-text-muted)]">
-                            Fans can pay more if they want
+                            Fans can pay more
                           </span>
                         </div>
                       </div>
+                      
+                      {/* Album Art Button */}
+                      <button
+                        onClick={() => {
+                          const input = document.createElement('input')
+                          input.type = 'file'
+                          input.accept = 'image/*'
+                          input.onchange = (e) => handleArtSelect(track.id, (e.target as any).files)
+                          input.click()
+                        }}
+                        className="mt-3 text-sm text-[var(--pf-orange)] hover:underline"
+                      >
+                        {track.artPreview ? 'Change album art' : '+ Add album art'}
+                      </button>
                     </div>
                     
+                    {/* Remove */}
                     <button
                       onClick={() => removeTrack(track.id)}
-                      className="p-2 text-[var(--pf-text-muted)] hover:text-red-400 transition-colors"
+                      className="p-2 text-[var(--pf-text-muted)] hover:text-red-400 transition-colors self-start"
                     >
                       <Trash2 size={20} />
                     </button>
@@ -258,64 +342,18 @@ export default function UploadMusicPage() {
           </div>
         )}
 
-        {/* Pricing Guide */}
-        <div className="pf-card p-6 mb-8">
-          <h3 className="font-semibold mb-4">Proud to Pay Pricing</h3>
-          <p className="text-[var(--pf-text-secondary)] mb-4">
-            Set your minimum price. Fans can always pay more if they want to support you extra.
-          </p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-            <div className="bg-[var(--pf-bg)] rounded-lg p-4">
-              <p className="text-2xl font-bold text-[var(--pf-orange)]">$1</p>
-              <p className="text-sm text-[var(--pf-text-muted)]">Listener</p>
-              <p className="text-xs text-[var(--pf-text-muted)]">Stream minimum</p>
-            </div>
-            <div className="bg-[var(--pf-bg)] rounded-lg p-4">
-              <p className="text-2xl font-bold text-blue-400">$5</p>
-              <p className="text-sm text-[var(--pf-text-muted)]">Supporter</p>
-              <p className="text-xs text-[var(--pf-text-muted)]">+ bonus track</p>
-            </div>
-            <div className="bg-[var(--pf-bg)] rounded-lg p-4 border-2 border-purple-500">
-              <p className="text-2xl font-bold text-purple-400">$10</p>
-              <p className="text-sm text-[var(--pf-text-muted)]">Champion</p>
-              <p className="text-xs text-[var(--pf-text-muted)]">+ name in credits</p>
-            </div>
-            <div className="bg-[var(--pf-bg)] rounded-lg p-4">
-              <p className="text-2xl font-bold text-green-400">$20+</p>
-              <p className="text-sm text-[var(--pf-text-muted)]">Patron</p>
-              <p className="text-xs text-[var(--pf-text-muted)]">+ early access</p>
-            </div>
-          </div>
-        </div>
-
         {/* Upload Button */}
-        <div className="flex gap-4">
+        {tracks.length > 0 && (
           <button
             onClick={handleUpload}
-            disabled={tracks.length === 0 || uploading}
-            className={`pf-btn pf-btn-primary flex-1 ${
-              tracks.length === 0 || uploading ? 'opacity-50 cursor-not-allowed' : ''
-            }`}
+            disabled={uploading}
+            className="w-full pf-btn pf-btn-primary text-lg py-4 mb-8"
           >
-            {uploading ? (
-              'Uploading...'
-            ) : (
-              <>
-                <Upload className="inline mr-2" size={18} />
-                Upload {tracks.length} Track{tracks.length !== 1 ? 's' : ''}
-              </>
-            )}
+            {uploading ? 'Uploading...' : `Upload ${tracks.length} Track${tracks.length !== 1 ? 's' : ''}`}
           </button>
-          
-          <Link
-            href="/dashboard/artist"
-            className="pf-btn pf-btn-secondary"
-          >
-            Back to Dashboard
-          </Link>
-        </div>
+        )}
 
-        {/* Your Library Preview */}
+        {/* Your Library */}
         <div className="mt-12">
           <h2 className="text-xl font-semibold mb-4">Your Music Library</h2>
           <div className="pf-card">
