@@ -2,28 +2,23 @@
 
 import { useState } from 'react';
 import { useSupabase } from '@/app/providers';
-import { CreditCard, Lock, Check, DollarSign, Users, Music } from 'lucide-react';
+import { CreditCard, Lock, Check, DollarSign, Users, Gift, Zap } from 'lucide-react';
 import Link from 'next/link';
 
 export default function CheckoutPage() {
   const { user } = useSupabase();
   const [step, setStep] = useState<'shipping' | 'payment' | 'review' | 'complete'>('shipping');
   const [processing, setProcessing] = useState(false);
+  const [showSupportTip, setShowSupportTip] = useState(true);
   
   const [shipping, setShipping] = useState({
-    name: '',
-    email: '',
-    address: '',
-    city: '',
-    state: '',
-    zip: '',
-    country: 'United States',
+    name: '', email: '', address: '', city: '', state: '', zip: '', country: 'United States',
   });
 
-  // Demo cart - in production this would come from cart context
+  // Demo cart
   const cartItems = [
     { id: '1', title: 'Ambiguous LP', artist: 'O D Porter', price: 25, quantity: 1, type: 'music', artistCut: 20 },
-    { id: '2', title: 'Ambiguous Tee', artist: 'O D Porter', price: 28, quantity: 2, type: 'merch', artistCut: 22.40 },
+    { id: '2', title: 'Premium Tee', artist: 'O D Porter', price: 28, quantity: 2, type: 'merch', artistCut: 22.40 },
   ];
 
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -78,12 +73,8 @@ export default function CheckoutPage() {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/marketplace" className="pf-btn pf-btn-primary">
-                Continue Shopping
-              </Link>
-              <Link href="/dashboard/artist" className="pf-btn pf-btn-secondary">
-                View Your Library
-              </Link>
+              <Link href="/marketplace" className="pf-btn pf-btn-primary">Continue Shopping</Link>
+              <Link href="/dashboard/artist" className="pf-btn pf-btn-secondary">View Your Library</Link>
             </div>
           </div>
         </div>
@@ -94,23 +85,25 @@ export default function CheckoutPage() {
   return (
     <div className="min-h-screen pt-24 pb-12">
       <div className="pf-container max-w-4xl">
-        {/* Progress */}
-        <div className="flex items-center gap-4 mb-8">
-          {['shipping', 'payment', 'review'].map((s, i) => {
-            const isCurrentStep = step === s;
-            const isComplete = ['payment', 'review', 'complete'].includes(step) && i < ['shipping', 'payment', 'review'].indexOf(step);
-            return (
-              <div key={s} className="flex items-center gap-2">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${isCurrentStep || isComplete ? 'bg-[var(--pf-orange)] text-white' : 'bg-[var(--pf-surface)] text-[var(--pf-text-muted)]'}`}>
-                  {isComplete ? <Check size={16} /> : i + 1}
-                </div>
-                <span className={`hidden sm:block capitalize ${step === s ? 'text-white' : 'text-[var(--pf-text-muted)]'}`}>
-                  {s}
-                </span>
-                {i < 2 && <div className="w-8 h-px bg-[var(--pf-border)]" />}
+        {/* Progress - Simple 3-step */}
+        <div className="flex items-center justify-center gap-4 mb-8">
+          {['shipping', 'payment', 'review'].map((s, i) => (
+            <div key={s} className="flex items-center gap-2">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                ['payment', 'review', 'complete'].includes(step) && i < ['shipping', 'payment', 'review'].indexOf(step)
+                  ? 'bg-green-500 text-white'
+                  : step === s 
+                    ? 'bg-[var(--pf-orange)] text-white' 
+                    : 'bg-[var(--pf-surface)] text-[var(--pf-text-muted)]'
+              }`}>
+                {['payment', 'review', 'complete'].includes(step) && i < ['shipping', 'payment', 'review'].indexOf(step) ? <Check size={16} /> : i + 1}
               </div>
-            );
-          })}
+              <span className={`hidden sm:block capitalize ${step === s ? 'text-white' : 'text-[var(--pf-text-muted)]'}`}>
+                {s}
+              </span>
+              {i < 2 && <div className="w-8 h-px bg-[var(--pf-border)]" />}
+            </div>
+          ))}
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
@@ -119,74 +112,59 @@ export default function CheckoutPage() {
             {step === 'shipping' && (
               <div className="pf-card p-6">
                 <h2 className="text-xl font-bold mb-6">Shipping Information</h2>
+                
+                {/* Guest checkout option */}
+                {!user && showSupportTip && (
+                  <div className="bg-[var(--pf-orange)]/10 rounded-lg p-4 mb-6 flex items-start gap-3">
+                    <Gift className="text-[var(--pf-orange)] shrink-0" size={20} />
+                    <div>
+                      <p className="font-medium text-[var(--pf-orange)]">Create an account?</p>
+                      <p className="text-sm text-[var(--pf-text-secondary)]">Get 10% off your first order and support your favorite artists every time you shop.</p>
+                      <Link href="/signup" className="text-sm text-[var(--pf-orange)] underline">Sign up now →</Link>
+                    </div>
+                    <button onClick={() => setShowSupportTip(false)} className="text-[var(--pf-text-muted)] hover:text-white">
+                      ✕
+                    </button>
+                  </div>
+                )}
+
                 <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm text-[var(--pf-text-muted)] mb-1">Name</label>
-                    <input
-                      type="text"
-                      value={shipping.name}
-                      onChange={(e) => setShipping({ ...shipping, name: e.target.value })}
-                      className="w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 focus:border-[var(--pf-orange)] focus:outline-none"
-                      placeholder="Your name"
-                    />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm text-[var(--pf-text-muted)] mb-1">First Name</label>
+                      <input type="text" className="w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 focus:border-[var(--pf-orange)] focus:outline-none" placeholder="First" />
+                    </div>
+                    <div>
+                      <label className="block text-sm text-[var(--pf-text-muted)] mb-1">Last Name</label>
+                      <input type="text" className="w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 focus:border-[var(--pf-orange)] focus:outline-none" placeholder="Last" />
+                    </div>
                   </div>
                   <div>
                     <label className="block text-sm text-[var(--pf-text-muted)] mb-1">Email</label>
-                    <input
-                      type="email"
-                      value={shipping.email}
-                      onChange={(e) => setShipping({ ...shipping, email: e.target.value })}
-                      className="w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 focus:border-[var(--pf-orange)] focus:outline-none"
-                      placeholder="your@email.com"
-                    />
+                    <input type="email" className="w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 focus:border-[var(--pf-orange)] focus:outline-none" placeholder="you@email.com" />
                   </div>
                   <div>
                     <label className="block text-sm text-[var(--pf-text-muted)] mb-1">Address</label>
-                    <input
-                      type="text"
-                      value={shipping.address}
-                      onChange={(e) => setShipping({ ...shipping, address: e.target.value })}
-                      className="w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 focus:border-[var(--pf-orange)] focus:outline-none"
-                      placeholder="Street address"
-                    />
+                    <input type="text" className="w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 focus:border-[var(--pf-orange)] focus:outline-none" placeholder="Street address" />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm text-[var(--pf-text-muted)] mb-1">City</label>
-                      <input
-                        type="text"
-                        value={shipping.city}
-                        onChange={(e) => setShipping({ ...shipping, city: e.target.value })}
-                        className="w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 focus:border-[var(--pf-orange)] focus:outline-none"
-                      />
+                      <input type="text" className="w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 focus:border-[var(--pf-orange)] focus:outline-none" />
                     </div>
                     <div>
                       <label className="block text-sm text-[var(--pf-text-muted)] mb-1">State</label>
-                      <input
-                        type="text"
-                        value={shipping.state}
-                        onChange={(e) => setShipping({ ...shipping, state: e.target.value })}
-                        className="w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 focus:border-[var(--pf-orange)] focus:outline-none"
-                      />
+                      <input type="text" className="w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 focus:border-[var(--pf-orange)] focus:outline-none" />
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm text-[var(--pf-text-muted)] mb-1">ZIP</label>
-                      <input
-                        type="text"
-                        value={shipping.zip}
-                        onChange={(e) => setShipping({ ...shipping, zip: e.target.value })}
-                        className="w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 focus:border-[var(--pf-orange)] focus:outline-none"
-                      />
+                      <label className="block text-sm text-[var(--pf-text-muted)] mb-1">ZIP Code</label>
+                      <input type="text" className="w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 focus:border-[var(--pf-orange)] focus:outline-none" />
                     </div>
                     <div>
                       <label className="block text-sm text-[var(--pf-text-muted)] mb-1">Country</label>
-                      <select
-                        value={shipping.country}
-                        onChange={(e) => setShipping({ ...shipping, country: e.target.value })}
-                        className="w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 focus:border-[var(--pf-orange)] focus:outline-none"
-                      >
+                      <select className="w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 focus:border-[var(--pf-orange)] focus:outline-none">
                         <option>United States</option>
                         <option>Canada</option>
                         <option>United Kingdom</option>
@@ -195,10 +173,7 @@ export default function CheckoutPage() {
                     </div>
                   </div>
                 </div>
-                <button
-                  onClick={() => setStep('payment')}
-                  className="w-full pf-btn pf-btn-primary mt-6"
-                >
+                <button onClick={() => setStep('payment')} className="w-full pf-btn pf-btn-primary mt-6">
                   Continue to Payment
                 </button>
               </div>
@@ -207,39 +182,40 @@ export default function CheckoutPage() {
             {step === 'payment' && (
               <div className="pf-card p-6">
                 <h2 className="text-xl font-bold mb-6">Payment Method</h2>
-                <div className="bg-[var(--pf-bg)] rounded-lg p-4 mb-6 flex items-center gap-3">
-                  <CreditCard className="text-[var(--pf-orange)]" size={24} />
-                  <div>
-                    <p className="font-medium">Card Payment</p>
-                    <p className="text-sm text-[var(--pf-text-muted)]">Secure via Stripe</p>
+                
+                {/* Payment options */}
+                <div className="space-y-3 mb-6">
+                  <div className="bg-[var(--pf-bg)] rounded-lg p-4 flex items-center gap-4 border-2 border-[var(--pf-orange)]">
+                    <CreditCard className="text-[var(--pf-orange)]" size={24} />
+                    <div className="flex-1">
+                      <p className="font-medium">Credit or Debit Card</p>
+                      <p className="text-sm text-[var(--pf-text-muted)]">Visa, Mastercard, Amex, Discover</p>
+                    </div>
+                    <Check className="text-[var(--pf-orange)]" size={20} />
+                  </div>
+                  
+                  <div className="bg-[var(--pf-bg)] rounded-lg p-4 flex items-center gap-4 opacity-50">
+                    <Zap className="text-[var(--pf-text-muted)]" size={24} />
+                    <div className="flex-1">
+                      <p className="font-medium text-[var(--pf-text-muted)]">Pay with PayPal</p>
+                      <p className="text-sm text-[var(--pf-text-muted)]">Coming soon</p>
+                    </div>
                   </div>
                 </div>
-                
+
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm text-[var(--pf-text-muted)] mb-1">Card Number</label>
-                    <input
-                      type="text"
-                      placeholder="4242 4242 4242 4242"
-                      className="w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 focus:border-[var(--pf-orange)] focus:outline-none"
-                    />
+                    <input type="text" placeholder="4242 4242 4242 4242" className="w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 focus:border-[var(--pf-orange)] focus:outline-none" />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm text-[var(--pf-text-muted)] mb-1">Expiry</label>
-                      <input
-                        type="text"
-                        placeholder="MM/YY"
-                        className="w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 focus:border-[var(--pf-orange)] focus:outline-none"
-                      />
+                      <input type="text" placeholder="MM/YY" className="w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 focus:border-[var(--pf-orange)] focus:outline-none" />
                     </div>
                     <div>
                       <label className="block text-sm text-[var(--pf-text-muted)] mb-1">CVC</label>
-                      <input
-                        type="text"
-                        placeholder="123"
-                        className="w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 focus:border-[var(--pf-orange)] focus:outline-none"
-                      />
+                      <input type="text" placeholder="123" className="w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 focus:border-[var(--pf-orange)] focus:outline-none" />
                     </div>
                   </div>
                 </div>
@@ -250,12 +226,8 @@ export default function CheckoutPage() {
                 </div>
 
                 <div className="flex gap-4 mt-6">
-                  <button onClick={() => setStep('shipping')} className="pf-btn pf-btn-secondary">
-                    Back
-                  </button>
-                  <button onClick={() => setStep('review')} className="flex-1 pf-btn pf-btn-primary">
-                    Review Order
-                  </button>
+                  <button onClick={() => setStep('shipping')} className="pf-btn pf-btn-secondary">Back</button>
+                  <button onClick={() => setStep('review')} className="flex-1 pf-btn pf-btn-primary">Review Order</button>
                 </div>
               </div>
             )}
@@ -264,37 +236,49 @@ export default function CheckoutPage() {
               <div className="pf-card p-6">
                 <h2 className="text-xl font-bold mb-6">Review Order</h2>
                 
-                <div className="space-y-4 mb-6">
-                  <div>
-                    <h3 className="text-sm text-[var(--pf-text-muted)] mb-2">Shipping To</h3>
-                    <p className="font-medium">{shipping.name}</p>
-                    <p className="text-[var(--pf-text-secondary)]">{shipping.address}</p>
-                    <p className="text-[var(--pf-text-secondary)]">{shipping.city}, {shipping.state} {shipping.zip}</p>
+                {/* Shipping summary */}
+                <div className="bg-[var(--pf-bg)] rounded-lg p-4 mb-6">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="text-sm text-[var(--pf-text-muted)]">Ship to</p>
+                      <p className="font-medium">John Doe</p>
+                      <p className="text-sm">123 Main St, New Orleans, LA 70112</p>
+                    </div>
+                    <button onClick={() => setStep('shipping')} className="text-[var(--pf-orange)] text-sm">Edit</button>
                   </div>
                 </div>
 
+                {/* Items */}
                 <div className="border-t border-[var(--pf-border)] pt-4 mb-6">
                   <h3 className="text-sm text-[var(--pf-text-muted)] mb-4">Items</h3>
                   {cartItems.map((item) => (
-                    <div key={item.id} className="flex justify-between mb-2">
+                    <div key={item.id} className="flex justify-between mb-3">
                       <div>
                         <p className="font-medium">{item.title}</p>
-                        <p className="text-sm text-[var(--pf-text-muted)]">{item.artist} x{item.quantity}</p>
+                        <p className="text-sm text-[var(--pf-text-muted)]">{item.artist} × {item.quantity}</p>
                       </div>
                       <p className="font-medium">${(item.price * item.quantity).toFixed(2)}</p>
                     </div>
                   ))}
                 </div>
 
+                {/* Artist earnings highlight */}
+                <div className="bg-green-500/10 rounded-lg p-4 mb-6 border border-green-500/20">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Users className="text-green-400" size={20} />
+                      <span className="font-medium text-green-400">Artist Earnings</span>
+                    </div>
+                    <span className="text-xl font-bold text-green-400">${artistCut.toFixed(2)}</span>
+                  </div>
+                  <p className="text-sm text-[var(--pf-text-muted)] mt-1">
+                    {((artistCut / subtotal) * 100).toFixed(0)}% of your purchase goes directly to artists
+                  </p>
+                </div>
+
                 <div className="flex gap-4">
-                  <button onClick={() => setStep('payment')} className="pf-btn pf-btn-secondary">
-                    Back
-                  </button>
-                  <button
-                    onClick={handleSubmit}
-                    disabled={processing}
-                    className="flex-1 pf-btn pf-btn-primary"
-                  >
+                  <button onClick={() => setStep('payment')} className="pf-btn pf-btn-secondary">Back</button>
+                  <button onClick={handleSubmit} disabled={processing} className="flex-1 pf-btn pf-btn-primary">
                     {processing ? 'Processing...' : `Pay $${total.toFixed(2)}`}
                   </button>
                 </div>
@@ -302,19 +286,19 @@ export default function CheckoutPage() {
             )}
           </div>
 
-          {/* Order Summary */}
-          <div>
+          {/* Order Summary - Sticky Sidebar */}
+          <div className="hidden lg:block">
             <div className="pf-card p-6 sticky top-24">
               <h3 className="font-bold mb-4">Order Summary</h3>
               
               <div className="space-y-3 mb-4">
                 {cartItems.map((item) => (
-                  <div key={item.id} className="flex justify-between">
+                  <div key={item.id} className="flex justify-between text-sm">
                     <div>
-                      <p className="text-sm">{item.title}</p>
-                      <p className="text-xs text-[var(--pf-text-muted)]">{item.artist}</p>
+                      <p>{item.title}</p>
+                      <p className="text-[var(--pf-text-muted)]">{item.artist} × {item.quantity}</p>
                     </div>
-                    <p className="text-sm">${(item.price * item.quantity).toFixed(2)}</p>
+                    <p>${(item.price * item.quantity).toFixed(2)}</p>
                   </div>
                 ))}
               </div>
@@ -334,20 +318,23 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
-              <div className="mt-4 p-3 bg-[var(--pf-orange)]/10 rounded-lg">
-                <div className="flex items-center gap-2 mb-1">
-                  <Users size={16} className="text-[var(--pf-orange)]" />
-                  <span className="text-sm font-medium text-[var(--pf-orange)]">Artist Earnings</span>
-                </div>
-                <p className="text-xl font-bold text-[var(--pf-orange)]">${artistCut.toFixed(2)}</p>
-                <p className="text-xs text-[var(--pf-text-muted)]">{((artistCut / subtotal) * 100).toFixed(0)}% of purchase goes to artists</p>
-              </div>
-
+              {/* Free shipping progress */}
               {subtotal < 50 && (
-                <p className="text-xs text-[var(--pf-text-muted)] mt-4">
-                  Add ${(50 - subtotal).toFixed(2)} more for free shipping
-                </p>
+                <div className="mt-4 p-3 bg-[var(--pf-surface)] rounded-lg">
+                  <p className="text-sm text-[var(--pf-text-muted)]">
+                    Add <span className="text-[var(--pf-orange)] font-medium">${(50 - subtotal).toFixed(2)}</span> more for FREE shipping
+                  </p>
+                  <div className="w-full bg-[var(--pf-bg)] rounded-full h-2 mt-2">
+                    <div className="bg-[var(--pf-orange)] rounded-full h-2" style={{ width: `${(subtotal / 50) * 100}%` }} />
+                  </div>
+                </div>
               )}
+
+              {/* Trust badges */}
+              <div className="mt-4 flex items-center justify-center gap-4 text-[var(--pf-text-muted)]">
+                <Lock size={14} />
+                <span className="text-xs">Secure checkout</span>
+              </div>
             </div>
           </div>
         </div>
