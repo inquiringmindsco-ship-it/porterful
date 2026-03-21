@@ -33,7 +33,7 @@ export default function DigitalPage() {
   const [playing, setPlaying] = useState<string | null>(null);
   const [liked, setLiked] = useState<string[]>([]);
 
-  const artist = { name: 'O D Porter', bio: 'Independent artist from New Orleans', location: 'New Orleans, LA' };
+  const artist = { name: 'O D Porter', bio: 'Independent artist from St. Louis. Born in Miami, raised in NOLA & STL.', location: 'St. Louis, MO' };
   const album = { title: 'Ambiguous', type: 'EP', year: '2026', tracks: 5, price: 5 };
 
   // Load real tracks from Supabase

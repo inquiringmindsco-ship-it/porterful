@@ -52,7 +52,7 @@ export default function PressKitPage() {
               in the marketplace, with a portion of each sale going to artists.
             </p>
             <p className="text-[var(--pf-text-secondary)]">
-              Founded by O D Porter in 2024, Porterful is based in New Orleans, Louisiana.
+              Founded by O D Porter in 2024, Porterful is based in St. Louis, Missouri — with roots in Miami and New Orleans.
             </p>
           </div>
         </div>

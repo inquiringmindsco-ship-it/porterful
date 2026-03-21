@@ -45,10 +45,10 @@ export default function ArtistProfilePage({ params }: { params: { id: string } }
 
   const artist = {
     name: 'O D Porter',
-    bio: `Independent artist and founder of Porterful. Born and raised in New Orleans, I've seen firsthand how the music industry exploits artists—taking the majority of profits while leaving creators with scraps.`,
-    shortBio: 'Independent artist and founder of Porterful. Building a platform where artists keep 80% of every sale. New Orleans born, globally raised.',
+    bio: `Independent artist and founder of Porterful. Born in Miami, raised between New Orleans and St. Louis — most known from the STL. I've seen firsthand how the music industry exploits artists—taking the majority of profits while leaving creators with scraps.`,
+    shortBio: 'Independent artist and founder of Porterful. Born in Miami, raised in New Orleans & St. Louis — STL stand up. Building a platform where artists keep 80% of every sale.',
     genre: 'Hip-Hop, R&B, Soul',
-    location: 'New Orleans, LA',
+    location: 'St. Louis, MO',
     verified: true,
     earnings: 45000,
     supporters: 12500,

@@ -8,9 +8,9 @@ import { Play, Headphones, ShoppingBag, Heart, Share2 } from 'lucide-react';
 const ARTIST = {
   id: 'od-porter',
   name: 'O D Porter',
-  location: 'New Orleans, LA',
+  location: 'St. Louis, MO',
   genre: 'Hip-Hop / R&B',
-  bio: 'New Orleans artist blending hip-hop, R&B, and soul. Creating music that speaks to the human experience.',
+  bio: 'St. Louis artist blending hip-hop, R&B, and soul. Born in Miami, raised in New Orleans & St. Louis. Creating music that speaks to the human experience.',
   image: '🎤',
   supporters: 2847,
   earnings: 8947,
