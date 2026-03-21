@@ -13,6 +13,11 @@ const MUSIC_VIDEOS = [
   { title: 'Amen', album: 'God Is Good', youtubeId: 'juD-wfcw5Tw', views: '362' },
   { title: 'Get Involved (Official Video)', album: 'One Day', youtubeId: 'FPLtdIN9zbM', views: '1.2K' },
   { title: 'My Hustle (Snippet)', album: 'Singles', youtubeId: 'x_Ws5P9mH7w', views: '210' },
+  { title: 'Untold Story', album: 'God Is Good', youtubeId: 'PfHh1TCIB3s', views: '293' },
+  { title: 'Mike Tyson (Official Video)', album: 'One Day', youtubeId: '5523eYZ48GU', views: '554' },
+  { title: 'Street Love', album: 'One Day', youtubeId: 'oMEfjmdE2ls', views: '455' },
+  { title: 'Jai Jai - As If', album: 'Streets Thought I Left', youtubeId: 'sqxPRE3EiNI', views: '3.1K' },
+  { title: '82 FAM TTD', album: 'Levi', youtubeId: 'rieh1ku8oXw', views: '6.3K' },
 ];
 
 // Sample supporters for the wall
