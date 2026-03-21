@@ -123,26 +123,53 @@ export default function UploadMusicPage() {
             .from('music')
             .getPublicUrl(fileName)
           
+          // Upload album art if provided
+          let coverUrl = null
+          if (track.artFile) {
+            const artFileName = `${user.id}/${Date.now()}-art-${track.artFile.name}`
+            const { data: artData, error: artError } = await supabase.storage
+              .from('music')
+              .upload(artFileName, track.artFile, {
+                cacheControl: '3600',
+                upsert: false
+              })
+            
+            if (!artError) {
+              const { data: { publicUrl: artUrl } } = supabase.storage
+                .from('music')
+                .getPublicUrl(artFileName)
+              coverUrl = artUrl
+            }
+          }
+          
+          // Parse duration to seconds
+          const durationParts = track.duration.split(':')
+          const durationSeconds = parseInt(durationParts[0]) * 60 + (parseInt(durationParts[1]) || 0)
+          
           await supabase.from('tracks').insert({
             artist_id: user.id,
             title: track.title,
             artist: track.artist,
             album: track.album || null,
-            duration: track.duration,
-            price: track.price,
-            file_url: publicUrl,
-            file_path: fileName,
-            created_at: new Date().toISOString(),
+            duration: durationSeconds,
+            audio_url: publicUrl,
+            cover_url: coverUrl,
+            play_count: 0,
+            proud_to_pay_min: track.price,
+            is_active: true,
           })
         }
         
         setUploadedTracks(tracksWithDuration)
         setTracks([])
-        alert(`Successfully uploaded ${tracksWithDuration.length} track(s)!`)
+        
+        // Redirect to dashboard after successful upload
+        setTimeout(() => {
+          router.push('/dashboard/artist')
+        }, 2000)
       } else {
         setUploadedTracks(tracksWithDuration)
         setTracks([])
-        alert(`Upload saved! In production, this would save to cloud storage.`)
       }
     } catch (error) {
       console.error('Upload error:', error)

@@ -12,18 +12,18 @@ interface Track {
   album: string | null;
   duration: string;
   price: number;
-  file_url: string;
-  art_url?: string;
+  audio_url: string;
+  cover_url?: string;
   plays: number;
 }
 
 // Demo tracks as fallback
 const DEMO_TRACKS: Track[] = [
-  { id: '1', title: 'Oddysee', artist: 'O D Porter', album: 'Ambiguous EP', duration: '3:42', price: 5, file_url: '', plays: 12400 },
-  { id: '2', title: 'Midnight Drive', artist: 'O D Porter', album: 'Ambiguous EP', duration: '4:15', price: 5, file_url: '', plays: 8900 },
-  { id: '3', title: 'Movement', artist: 'O D Porter', album: 'Ambiguous EP', duration: '3:58', price: 5, file_url: '', plays: 15600 },
-  { id: '4', title: 'Lost in Transit', artist: 'O D Porter', album: 'Ambiguous EP', duration: '3:21', price: 5, file_url: '', plays: 6200 },
-  { id: '5', title: 'Ambiguous', artist: 'O D Porter', album: 'Ambiguous EP', duration: '4:02', price: 5, file_url: '', plays: 9800 },
+  { id: '1', title: 'Oddysee', artist: 'O D Porter', album: 'Ambiguous EP', duration: '3:42', price: 5, audio_url: '', plays: 12400 },
+  { id: '2', title: 'Midnight Drive', artist: 'O D Porter', album: 'Ambiguous EP', duration: '4:15', price: 5, audio_url: '', plays: 8900 },
+  { id: '3', title: 'Movement', artist: 'O D Porter', album: 'Ambiguous EP', duration: '3:58', price: 5, audio_url: '', plays: 15600 },
+  { id: '4', title: 'Lost in Transit', artist: 'O D Porter', album: 'Ambiguous EP', duration: '3:21', price: 5, audio_url: '', plays: 6200 },
+  { id: '5', title: 'Ambiguous', artist: 'O D Porter', album: 'Ambiguous EP', duration: '4:02', price: 5, audio_url: '', plays: 9800 },
 ];
 
 export default function DigitalPage() {
@@ -84,8 +84,8 @@ export default function DigitalPage() {
             <div className="grid md:grid-cols-[300px_1fr] gap-8 md:gap-12">
               {/* Cover */}
               <div className="aspect-square rounded-2xl overflow-hidden shadow-2xl shadow-[var(--pf-orange)]/20 bg-[var(--pf-surface)] flex items-center justify-center">
-                {tracks[0]?.art_url ? (
-                  <img src={tracks[0].art_url} alt={album.title} className="w-full h-full object-cover" />
+                {tracks[0]?.cover_url ? (
+                  <img src={tracks[0].cover_url} alt={album.title} className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-[var(--pf-orange)]/30 to-purple-600/30 flex items-center justify-center">
                     <span className="text-8xl">💿</span>
@@ -101,7 +101,7 @@ export default function DigitalPage() {
                 <h1 className="text-4xl md:text-5xl font-bold mb-2">{tracks[0]?.album || album.title}</h1>
                 <p className="text-xl text-[var(--pf-text-secondary)] mb-2">{artist.name}</p>
                 <p className="text-[var(--pf-text-muted)] mb-6">
-                  {tracks.length} tracks • {tracks.reduce((sum, t) => sum + (typeof t.plays === 'number' ? t.plays : parseInt(t.plays as any) || 0), 0).toLocaleString()} total plays
+                  {tracks.length} tracks • {tracks.reduce((sum, t) => sum + (typeof t.play_count === 'number' ? t.play_count : parseInt(t.play_count as any) || 0), 0).toLocaleString()} total plays
                 </p>
 
                 <div className="mb-8">
@@ -161,7 +161,7 @@ export default function DigitalPage() {
                         <p className="text-sm text-[var(--pf-text-muted)]">{track.artist}</p>
                       </div>
 
-                      <span className="text-sm text-[var(--pf-text-muted)] hidden sm:block">{(track.plays / 1000).toFixed(0)}K plays</span>
+                      <span className="text-sm text-[var(--pf-text-muted)] hidden sm:block">{(track.play_count / 1000).toFixed(0)}K plays</span>
                       <span className="text-sm text-[var(--pf-text-muted)]">{track.duration}</span>
                       
                       <button onClick={() => toggleLike(track.id)} className={`p-2 rounded-lg transition-colors ${liked.includes(track.id) ? 'text-red-500' : 'text-[var(--pf-text-muted)] hover:text-white'}`}>

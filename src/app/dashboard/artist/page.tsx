@@ -13,8 +13,8 @@ interface Track {
   album: string | null;
   duration: string;
   price: number;
-  file_url: string;
-  art_url?: string;
+  audio_url: string;
+  cover_url?: string;
   plays: number;
   created_at: string;
 }
@@ -93,9 +93,9 @@ export default function ArtistDashboardPage() {
     try {
       // Delete from storage
       const track = tracks.find(t => t.id === trackId)
-      if (track?.file_url) {
+      if (track?.audio_url) {
         // Extract file path from URL
-        const url = new URL(track.file_url)
+        const url = new URL(track.audio_url)
         const pathParts = url.pathname.split('/')
         const bucketIndex = pathParts.findIndex(p => p === 'storage' || p === 'object')
         if (bucketIndex !== -1 && pathParts.length > bucketIndex + 3) {
@@ -122,7 +122,7 @@ export default function ArtistDashboardPage() {
   const stats = {
     totalEarnings: 0,
     tracks: tracks.length,
-    totalPlays: tracks.reduce((sum, t) => sum + (t.plays || 0), 0),
+    totalPlays: tracks.reduce((sum, t) => sum + (t.play_count || 0), 0),
     supporters: 0
   }
 
@@ -265,8 +265,8 @@ export default function ArtistDashboardPage() {
                 <div key={track.id} className={`flex items-center gap-4 p-4 hover:bg-[var(--pf-surface-hover)] transition-colors ${playing === track.id ? 'bg-[var(--pf-orange)]/5' : ''}`}>
                   {/* Art */}
                   <div className="w-14 h-14 rounded-lg overflow-hidden shrink-0 bg-[var(--pf-surface)] flex items-center justify-center">
-                    {track.art_url ? (
-                      <img src={track.art_url} alt={track.title} className="w-full h-full object-cover" />
+                    {track.cover_url ? (
+                      <img src={track.cover_url} alt={track.title} className="w-full h-full object-cover" />
                     ) : (
                       <span className="text-2xl">🎵</span>
                     )}
@@ -298,7 +298,7 @@ export default function ArtistDashboardPage() {
                   {/* Stats */}
                   <div className="hidden sm:block text-right">
                     <p className="font-bold">${track.price}</p>
-                    <p className="text-sm text-[var(--pf-text-muted)]">{(track.plays || 0).toLocaleString()} plays</p>
+                    <p className="text-sm text-[var(--pf-text-muted)]">{(track.play_count || 0).toLocaleString()} plays</p>
                   </div>
 
                   {/* Actions */}

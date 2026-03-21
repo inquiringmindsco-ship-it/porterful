@@ -12,18 +12,18 @@ interface Track {
   album: string | null;
   duration: string;
   price: number;
-  file_url: string;
-  art_url?: string;
-  plays: number;
+  audio_url: string;
+  cover_url?: string;
+  play_count: number;
 }
 
 // Demo tracks as fallback
 const DEMO_TRACKS: Track[] = [
-  { id: '1', title: 'Oddysee', artist: 'O D Porter', album: 'Ambiguous EP', duration: '3:42', price: 5, file_url: '', plays: 12400 },
-  { id: '2', title: 'Midnight Drive', artist: 'O D Porter', album: 'Ambiguous EP', duration: '4:15', price: 5, file_url: '', plays: 8900 },
-  { id: '3', title: 'Movement', artist: 'O D Porter', album: 'Ambiguous EP', duration: '3:58', price: 5, file_url: '', plays: 15600 },
-  { id: '4', title: 'Lost in Transit', artist: 'O D Porter', album: 'Ambiguous EP', duration: '3:21', price: 5, file_url: '', plays: 6200 },
-  { id: '5', title: 'Ambiguous', artist: 'O D Porter', album: 'Ambiguous EP', duration: '4:02', price: 5, file_url: '', plays: 9800 },
+  { id: '1', title: 'Oddysee', artist: 'O D Porter', album: 'Ambiguous EP', duration: '3:42', price: 5, audio_url: '', play_count: 12400 },
+  { id: '2', title: 'Midnight Drive', artist: 'O D Porter', album: 'Ambiguous EP', duration: '4:15', price: 5, audio_url: '', play_count: 8900 },
+  { id: '3', title: 'Movement', artist: 'O D Porter', album: 'Ambiguous EP', duration: '3:58', price: 5, audio_url: '', play_count: 15600 },
+  { id: '4', title: 'Lost in Transit', artist: 'O D Porter', album: 'Ambiguous EP', duration: '3:21', price: 5, audio_url: '', play_count: 6200 },
+  { id: '5', title: 'Ambiguous', artist: 'O D Porter', album: 'Ambiguous EP', duration: '4:02', price: 5, audio_url: '', play_count: 9800 },
 ];
 
 export default function RadioPage() {
@@ -191,8 +191,8 @@ export default function RadioPage() {
           <div className="pf-card p-6 mb-8 bg-gradient-to-r from-[var(--pf-orange)]/10 to-purple-500/10">
             <div className="flex items-center gap-6">
               <div className="w-20 h-20 rounded-xl overflow-hidden shrink-0 bg-[var(--pf-surface)] flex items-center justify-center">
-                {currentTrack.art_url ? (
-                  <img src={currentTrack.art_url} alt={currentTrack.title} className="w-full h-full object-cover" />
+                {currentTrack.cover_url ? (
+                  <img src={currentTrack.cover_url} alt={currentTrack.title} className="w-full h-full object-cover" />
                 ) : (
                   <span className="text-3xl">🎵</span>
                 )}
@@ -259,7 +259,7 @@ export default function RadioPage() {
 
         {!loading && tracks.length > 0 && (
           <section>
-            <h2 className="text-xl font-bold mb-4">{tracks.some(t => t.file_url) ? 'Your Tracks' : 'Featured Tracks'}</h2>
+            <h2 className="text-xl font-bold mb-4">{tracks.some(t => t.audio_url) ? 'Your Tracks' : 'Featured Tracks'}</h2>
             <div className="pf-card overflow-hidden">
               <div className="divide-y divide-[var(--pf-border)]">
                 {tracks.map((track, i) => (
@@ -267,8 +267,8 @@ export default function RadioPage() {
                     <span className="w-8 text-center text-[var(--pf-text-muted)] font-bold">{i + 1}</span>
                     
                     <div className="w-14 h-14 rounded-lg overflow-hidden shrink-0 bg-[var(--pf-surface)] flex items-center justify-center">
-                      {track.art_url ? (
-                        <img src={track.art_url} alt={track.title} className="w-full h-full object-cover" />
+                      {track.cover_url ? (
+                        <img src={track.cover_url} alt={track.title} className="w-full h-full object-cover" />
                       ) : (
                         <span className="text-2xl">🎵</span>
                       )}
@@ -283,7 +283,7 @@ export default function RadioPage() {
                       <p className="text-sm text-[var(--pf-text-muted)]">{track.artist}{track.album ? ` • ${track.album}` : ''}</p>
                     </div>
 
-                    <span className="text-sm text-[var(--pf-text-muted)] hidden sm:block">{(track.plays / 1000).toFixed(0)}K plays</span>
+                    <span className="text-sm text-[var(--pf-text-muted)] hidden sm:block">{(track.play_count / 1000).toFixed(0)}K plays</span>
                     <span className="text-sm text-[var(--pf-text-muted)]">{track.duration}</span>
                     <span className="font-bold">${track.price}+</span>
 
@@ -354,7 +354,7 @@ export default function RadioPage() {
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-3 flex-1 min-w-0">
                 <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 bg-[var(--pf-surface)] flex items-center justify-center">
-                  {currentTrack.art_url ? <img src={currentTrack.art_url} alt={currentTrack.title} className="w-full h-full object-cover" /> : <span className="text-xl">🎵</span>}
+                  {currentTrack.cover_url ? <img src={currentTrack.cover_url} alt={currentTrack.title} className="w-full h-full object-cover" /> : <span className="text-xl">🎵</span>}
                 </div>
                 <div className="min-w-0">
                   <p className="font-medium truncate">{currentTrack.title}</p>
