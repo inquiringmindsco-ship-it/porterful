@@ -155,56 +155,68 @@ export const ARTISTS = [
   }
 ];
 
-// Featured tracks
+// Featured tracks - only songs WITH cover art
 export const TRACKS = [
   {
     id: 'oddysee',
     title: 'Oddysee',
     artist: 'O D Porter',
     album: 'Ambiguous EP',
-    duration: '3:42',
+    duration: 222, // 3:42 in seconds
     price: 1,
     plays: 125000,
-    image: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500'
+    image: '/covers/cover-art.png',
+    audio_url: '/audio/oddysee.mp3'
   },
   {
-    id: 'midnight-drive',
-    title: 'Midnight Drive',
+    id: 'too-stingy',
+    title: 'Too Stingy',
     artist: 'O D Porter',
-    album: 'Ambiguous EP',
-    duration: '4:15',
+    album: 'Too Stingy (Single)',
+    duration: 195, // 3:15
     price: 1,
     plays: 89000,
-    image: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500'
+    image: '/covers/too-stingy-cover.png',
+    audio_url: '/audio/too-stingy.mp3'
   },
   {
-    id: 'movement',
-    title: 'Movement',
+    id: 'god-is-good',
+    title: 'God Is Good',
     artist: 'O D Porter',
-    album: 'Ambiguous EP',
-    duration: '3:58',
+    album: 'God Is Good',
+    duration: 261, // 4:21
     price: 1,
     plays: 67000,
-    image: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500'
+    image: '/covers/god-is-good-cover.png',
+    audio_url: '/audio/god-is-good.mp3'
   },
   {
-    id: 'vibes',
-    title: 'Vibes',
+    id: 'the-pains',
+    title: 'The Pains',
     artist: 'O D Porter',
-    album: 'Ambiguous EP',
-    duration: '5:01',
+    album: 'God Is Good', // Same album as God Is Good
+    duration: 225, // 3:45
     price: 1,
     plays: 45000,
-    image: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500'
+    image: '/covers/god-is-good-cover.png', // Same cover
+    audio_url: '/audio/the-pains.mp3'
   },
   {
-    id: 'ambiguous',
-    title: 'Ambiguous',
+    id: 'tlf',
+    title: 'TLF',
     artist: 'O D Porter',
-    album: 'Ambiguous EP',
-    duration: '4:32',
+    album: 'TLF (Single)',
+    duration: 208, // 3:28
     price: 1,
     plays: 32000,
-    image: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500'
+    image: '/covers/tlf-cover.png',
+    audio_url: '/audio/tlf.mp3'
   }
+];
+
+// Hidden tracks (no art yet)
+export const HIDDEN_TRACKS = [
+  { id: 'movement', title: 'Movement', artist: 'O D Porter', album: 'Ambiguous EP' },
+  { id: 'vibes', title: 'Vibes', artist: 'O D Porter', album: 'Ambiguous EP' },
+  { id: 'ambiguous', title: 'Ambiguous', artist: 'O D Porter', album: 'Ambiguous EP' },
 ];

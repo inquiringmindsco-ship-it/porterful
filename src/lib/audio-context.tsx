@@ -10,6 +10,9 @@ interface Track {
   duration?: number;
   audio_url?: string;
   cover_url?: string;
+  image?: string; // Allow image as alias for cover_url
+  plays?: number;
+  price?: number;
 }
 
 interface AudioContext {
