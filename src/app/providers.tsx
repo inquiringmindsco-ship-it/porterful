@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState, useCallback } from 'rea
 import { createBrowserClient } from '@supabase/ssr'
 import { User, Session } from '@supabase/supabase-js'
 import { AudioProvider } from '@/lib/audio-context'
+import { ThemeProvider } from '@/lib/theme-context'
 
 const SupabaseContext = createContext<{
   supabase: ReturnType<typeof createBrowserClient> | null
@@ -58,9 +59,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <SupabaseContext.Provider value={{ supabase, user, session, loading }}>
-      <AudioProvider>
-        {children}
-      </AudioProvider>
+      <ThemeProvider>
+        <AudioProvider>
+          {children}
+        </AudioProvider>
+      </ThemeProvider>
     </SupabaseContext.Provider>
   )
 }

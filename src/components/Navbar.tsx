@@ -3,10 +3,12 @@
 import Link from 'next/link'
 import { useState, useEffect, useRef } from 'react'
 import { useSupabase } from '@/app/providers'
-import { Menu, X, User, LogOut, Music, ShoppingBag, Headphones, Upload } from 'lucide-react'
+import { useTheme } from '@/lib/theme-context'
+import { Menu, X, User, LogOut, Upload, Sun, Moon } from 'lucide-react'
 
 export function Navbar() {
   const { user, supabase } = useSupabase()
+  const { theme, toggleTheme } = useTheme()
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
@@ -84,6 +86,15 @@ export function Navbar() {
 
           {/* Right Side */}
           <div className="flex items-center gap-3">
+            {/* Theme Toggle */}
+            <button 
+              onClick={toggleTheme}
+              className="p-2 rounded-lg hover:bg-[var(--pf-surface)] transition-colors"
+              aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+              {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
+            
             {user ? (
               <div className="relative" ref={profileRef}>
                 <button 
