@@ -1,10 +1,34 @@
-import Link from 'next/link'
-import { ShoppingBag, Music, Headphones, Star, Shield } from 'lucide-react'
-import { PRODUCTS, TRACKS, ARTISTS } from '@/lib/data'
+'use client';
+
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { ShoppingBag, Music, Headphones, Star, Shield } from 'lucide-react';
+import { useSupabase } from '@/app/providers';
+
+interface Product {
+  id: string;
+  name: string;
+  artist?: string;
+  price: number;
+  description?: string;
+  image: string;
+  category: string;
+  sales?: number;
+  is_veteran?: boolean;
+  is_black_owned?: boolean;
+}
+
+const DEMO_PRODUCTS: Product[] = [
+  { id: '1', name: 'Ambiguous Tour Tee', artist: 'O D Porter', price: 28, category: 'merch', image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500', sales: 142, is_veteran: false },
+  { id: '2', name: 'Ambiguous Hoodie', artist: 'O D Porter', price: 65, category: 'merch', image: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=500', sales: 78 },
+  { id: '3', name: 'Premium Phone Case', price: 25, category: 'essentials', image: 'https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=500', sales: 234 },
+];
 
 export default function MarketplacePage() {
-  const merchProducts = PRODUCTS.filter(p => p.category === 'merch' || p.category === 'music')
-  const essentials = PRODUCTS.filter(p => p.category === 'essentials' || p.category === 'electronics')
+  const { supabase } = useSupabase();
+  const [products, setProducts] = useState<Product[]>(DEMO_PRODUCTS);
+  const [showVeteranOnly, setShowVeteranOnly] = useState(false);
+  const [showBlackOwnedOnly, setShowBlackOwnedOnly] = useState(false);
 
   return (
     <div className="min-h-screen bg-[var(--pf-bg)]">
@@ -36,7 +60,7 @@ export default function MarketplacePage() {
       <section className="py-8">
         <div className="pf-container">
           <div className="grid md:grid-cols-3 gap-4">
-            <div className="pf-card p-6 bg-blue-600/5 border border-blue-600/20">
+            <Link href="/marketplace?veteran=1" className="pf-card p-6 bg-blue-600/5 border border-blue-600/20 hover:border-blue-600/50 transition-colors">
               <div className="flex items-center gap-3 mb-3">
                 <span className="text-2xl">🎖️</span>
                 <h3 className="font-semibold">Veteran-Owned</h3>
@@ -44,8 +68,8 @@ export default function MarketplacePage() {
               <p className="text-sm text-[var(--pf-text-secondary)]">
                 Support veteran artists and businesses. 1% goes to veteran causes.
               </p>
-            </div>
-            <div className="pf-card p-6 bg-green-600/5 border border-green-600/20">
+            </Link>
+            <Link href="/marketplace?black=1" className="pf-card p-6 bg-green-600/5 border border-green-600/20 hover:border-green-600/50 transition-colors">
               <div className="flex items-center gap-3 mb-3">
                 <span className="text-2xl">✊</span>
                 <h3 className="font-semibold">Black-Owned</h3>
@@ -53,8 +77,8 @@ export default function MarketplacePage() {
               <p className="text-sm text-[var(--pf-text-secondary)]">
                 Discover and support Black-owned businesses on Porterful.
               </p>
-            </div>
-            <div className="pf-card p-6 bg-purple-600/5 border border-purple-600/20">
+            </Link>
+            <Link href="/marketplace?minority=1" className="pf-card p-6 bg-purple-600/5 border border-purple-600/20 hover:border-purple-600/50 transition-colors">
               <div className="flex items-center gap-3 mb-3">
                 <span className="text-2xl">🌍</span>
                 <h3 className="font-semibold">Minority-Owned</h3>
@@ -62,7 +86,7 @@ export default function MarketplacePage() {
               <p className="text-sm text-[var(--pf-text-secondary)]">
                 Support diverse creators and businesses on the platform.
               </p>
-            </div>
+            </Link>
           </div>
         </div>
       </section>
