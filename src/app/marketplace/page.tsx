@@ -67,8 +67,7 @@ export default function MarketplacePage() {
         <div className="bg-[#131921] py-2">
           <div className="pf-container flex items-center gap-4">
             <Link href="/" className="flex items-center gap-2 shrink-0">
-              <span className="text-2xl">🔔</span>
-              <span className="text-xl font-bold text-white">PORTERFUL</span>
+              <span className="text-xl font-bold text-[var(--pf-orange)]">PORTERFUL</span>
             </Link>
             
             {/* Deliver to */}
