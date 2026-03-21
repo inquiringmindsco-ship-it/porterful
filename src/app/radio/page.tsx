@@ -194,7 +194,7 @@ export default function RadioPage() {
 
                     <span className="text-sm text-[var(--pf-text-muted)] hidden sm:block">{(track.play_count / 1000).toFixed(0)}K plays</span>
                     <span className="text-sm text-[var(--pf-text-muted)]">{formatDuration(track.duration)}</span>
-                    <span className="font-bold">$5+</span>
+                    <span className="font-bold text-[var(--pf-orange)]">$5+</span>
 
                     <button onClick={() => toggleLike(track.id)} className={`p-2 rounded-lg transition-colors ${liked.includes(track.id) ? 'text-red-500' : 'text-[var(--pf-text-muted)] hover:text-white'}`} title="Like">
                       <Heart size={18} fill={liked.includes(track.id) ? 'currentColor' : 'none'} />

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Search, Music, Mic2, Star } from 'lucide-react';
+import { Search, Music, Mic2, Star, Crown, Zap } from 'lucide-react';
 
 // Demo artists for search
 const DEMO_ARTISTS = [
@@ -28,11 +28,12 @@ export default function ProudToPayPage() {
     artist.location.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Updated tiers - $5 minimum to unlock full tracks
   const TIERS = [
-    { id: 'listener', name: 'Listener', amount: 1, description: 'Stream minimum', color: 'bg-gray-500' },
-    { id: 'supporter', name: 'Supporter', amount: 5, description: 'Support tier', color: 'bg-blue-500' },
-    { id: 'champion', name: 'Champion', amount: 10, description: 'Invest tier', color: 'bg-purple-500', popular: true },
-    { id: 'patron', name: 'Patron', amount: 20, description: 'Superfan tier', color: 'bg-[#ff6b00]' },
+    { id: 'stream', name: 'Stream', amount: 1, description: '1 play minimum', color: 'bg-gray-500', unlocks: false },
+    { id: 'supporter', name: 'Supporter', amount: 5, description: 'Unlock ALL tracks', color: 'bg-blue-500', unlocks: true, popular: true },
+    { id: 'champion', name: 'Champion', amount: 10, description: 'Unlock + badge', color: 'bg-purple-500', unlocks: true },
+    { id: 'patron', name: 'Patron', amount: 25, description: 'Unlock + exclusive', color: 'bg-[#ff6b00]', unlocks: true },
   ];
 
   const handlePayment = () => {
@@ -58,6 +59,25 @@ export default function ProudToPayPage() {
             Choose an artist, pick your support level, and make a difference. 
             Music isn't free — it costs time, energy, and love.
           </p>
+        </div>
+
+        {/* Value Proposition */}
+        <div className="max-w-3xl mx-auto mb-12 p-6 rounded-2xl bg-gradient-to-r from-[var(--pf-orange)]/10 to-purple-500/10 border border-[var(--pf-border)]">
+          <h3 className="text-lg font-semibold text-center mb-4">Why $5+ ?</h3>
+          <p className="text-center text-[var(--pf-text-secondary)] mb-4">
+            On Spotify, an artist needs <strong className="text-white">1,666 plays</strong> to earn $5.
+            Your $5 here goes <strong className="text-white">directly to the artist</strong> — no middleman, no delay.
+          </p>
+          <div className="flex justify-center gap-8 text-sm">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-red-400">1,666</div>
+              <div className="text-[var(--pf-text-muted)]">Spotify plays = $5</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-green-400">1</div>
+              <div className="text-[var(--pf-text-muted)]">Porterful support = $5</div>
+            </div>
+          </div>
         </div>
 
         {/* Search */}
@@ -131,7 +151,10 @@ export default function ProudToPayPage() {
                 </div>
               </div>
 
-              <h3 className="text-xl font-semibold mb-6">Choose Your Support Level</h3>
+              <h3 className="text-xl font-semibold mb-2">Choose Your Support Level</h3>
+              <p className="text-sm text-[var(--pf-text-muted)] mb-6">
+                $5+ unlocks full tracks and removes the 1-minute preview limit.
+              </p>
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                 {TIERS.map((tier) => (
@@ -146,23 +169,32 @@ export default function ProudToPayPage() {
                   >
                     {tier.popular && (
                       <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-[var(--pf-orange)] text-white text-xs font-bold rounded">
-                        POPULAR
+                        BEST VALUE
                       </span>
                     )}
-                    <div className={`w-8 h-8 rounded-lg ${tier.color} mb-3`}></div>
+                    <div className={`w-8 h-8 rounded-lg ${tier.color} mb-3 flex items-center justify-center`}>
+                      {tier.unlocks && <Crown size={16} className="text-white" />}
+                    </div>
                     <p className="text-sm text-[var(--pf-text-muted)] mb-1">{tier.name}</p>
                     <p className="text-2xl font-bold">${tier.amount}</p>
                     <p className="text-xs text-[var(--pf-text-secondary)] mt-1">{tier.description}</p>
+                    {tier.unlocks && (
+                      <p className="text-xs text-green-400 mt-2 flex items-center gap-1">
+                        <Zap size={12} />
+                        Full access
+                      </p>
+                    )}
                   </button>
                 ))}
               </div>
 
               <div className="mb-8">
-                <label className="block text-sm font-medium mb-2">Or enter a custom amount</label>
+                <label className="block text-sm font-medium mb-2">Or enter a custom amount ($5 minimum for full access)</label>
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--pf-text-muted)]">$</span>
                   <input
                     type="number"
+                    min="1"
                     value={customAmount}
                     onChange={(e) => {
                       setCustomAmount(e.target.value)
@@ -172,6 +204,11 @@ export default function ProudToPayPage() {
                     className="w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-xl pl-8 pr-4 py-3 focus:outline-none focus:border-[var(--pf-orange)] transition-colors"
                   />
                 </div>
+                {customAmount && parseInt(customAmount) > 0 && parseInt(customAmount) < 5 && (
+                  <p className="text-sm text-yellow-400 mt-2">
+                    $5+ unlocks full tracks. $1-4 gives stream credit only.
+                  </p>
+                )}
               </div>
 
               <button
@@ -179,7 +216,7 @@ export default function ProudToPayPage() {
                 disabled={!selectedTier && !customAmount}
                 className={`w-full py-4 rounded-xl font-semibold transition-colors ${
                   selectedTier || customAmount
-                    ? 'bg-[var(--pf-orange)] hover:bg-[var(--pf-orange-light)] text-white'
+                    ? 'bg-[var(--pf-orange)] hover:bg-[var(--pf-orange)]/80 text-white'
                     : 'bg-[var(--pf-surface)] text-[var(--pf-text-muted)] cursor-not-allowed'
                 }`}
               >
@@ -245,7 +282,7 @@ export default function ProudToPayPage() {
               </div>
               <h3 className="font-semibold mb-2">Choose Your Support</h3>
               <p className="text-[var(--pf-text-secondary)] text-sm">
-                Start at $1 or go big. Every dollar goes directly to the artist.
+                $1 minimum per stream, or $5+ to unlock all tracks and support directly.
               </p>
             </div>
             <div className="text-center">
