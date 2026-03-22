@@ -1,370 +1,242 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
+import { useState } from 'react';
 import { useSupabase } from '@/app/providers';
-import { useRouter } from 'next/navigation';
-import { Music, Package, DollarSign, Users, Upload, Settings, ChevronRight, Headphones, Mic2, Star, Search, Play, Pause, Trash2, Edit } from 'lucide-react';
-
-interface Track {
-  id: string;
-  title: string;
-  artist: string;
-  album: string | null;
-  duration: string;
-  price: number;
-  audio_url: string;
-  cover_url?: string;
-  play_count: number;
-  created_at: string;
-}
+import { TRACKS, ALBUMS, PRODUCTS } from '@/lib/data';
+import Link from 'next/link';
+import { Music, Package, Upload, Settings, Star, Eye, EyeOff, Trash2, Edit, Plus, ChevronUp, ChevronDown, ArrowUp, ArrowDown } from 'lucide-react';
 
 export default function ArtistDashboardPage() {
-  const { user, supabase } = useSupabase()
-  const router = useRouter()
-  const [loading, setLoading] = useState(true)
-  const [profile, setProfile] = useState<{
-    name: string
-    email: string
-    role: string
-  } | null>(null)
-  const [tracks, setTracks] = useState<Track[]>([])
-  const [searchQuery, setSearchQuery] = useState('')
-  const [playing, setPlaying] = useState<string | null>(null)
+  const { user } = useSupabase();
+  const [activeTab, setActiveTab] = useState<'tracks' | 'albums' | 'products'>('albums');
+  const [albums, setAlbums] = useState(Object.values(ALBUMS));
+  const [featured, setFeatured] = useState<string[]>([]);
 
-  useEffect(() => {
-    if (supabase && user) {
-      loadProfile()
-      loadTracks()
-    } else {
-      setLoading(false)
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [supabase, user])
+  // Group tracks by album
+  const tracksByAlbum = TRACKS.reduce((acc, track) => {
+    const album = track.album || 'Singles';
+    if (!acc[album]) acc[album] = [];
+    acc[album].push(track);
+    return acc;
+  }, {} as Record<string, typeof TRACKS>);
 
-  async function loadProfile() {
-    try {
-      const { data } = await supabase!
-        .from('profiles')
-        .select('*')
-        .eq('id', user!.id)
-        .single()
+  const moveAlbumUp = (index: number) => {
+    if (index === 0) return;
+    const newAlbums = [...albums];
+    [newAlbums[index - 1], newAlbums[index]] = [newAlbums[index], newAlbums[index - 1]];
+    setAlbums(newAlbums);
+  };
 
-      if (data?.role !== 'artist') {
-        router.push('/dashboard')
-        return
-      }
+  const moveAlbumDown = (index: number) => {
+    if (index >= albums.length - 1) return;
+    const newAlbums = [...albums];
+    [newAlbums[index], newAlbums[index + 1]] = [newAlbums[index + 1], newAlbums[index]];
+    setAlbums(newAlbums);
+  };
 
-      setProfile({
-        name: data.full_name || data.username || 'Artist',
-        email: data.email || user!.email || '',
-        role: data.role
-      })
-    } catch (error) {
-      console.error('Error loading profile:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  async function loadTracks() {
-    if (!supabase || !user) return
-    
-    try {
-      const { data, error } = await supabase
-        .from('tracks')
-        .select('*')
-        .eq('artist_id', user.id)
-        .order('created_at', { ascending: false })
-      
-      if (data) {
-        setTracks(data as Track[])
-      }
-    } catch (error) {
-      console.error('Error loading tracks:', error)
-    }
-  }
-
-  async function deleteTrack(trackId: string) {
-    if (!supabase || !user) return
-    
-    if (!confirm('Are you sure you want to delete this track?')) return
-    
-    try {
-      // Delete from storage
-      const track = tracks.find(t => t.id === trackId)
-      if (track?.audio_url) {
-        // Extract file path from URL
-        const url = new URL(track.audio_url)
-        const pathParts = url.pathname.split('/')
-        const bucketIndex = pathParts.findIndex(p => p === 'storage' || p === 'object')
-        if (bucketIndex !== -1 && pathParts.length > bucketIndex + 3) {
-          const filePath = pathParts.slice(bucketIndex + 3).join('/')
-          await supabase.storage.from('music').remove([filePath])
-        }
-      }
-      
-      // Delete from database
-      await supabase.from('tracks').delete().eq('id', trackId)
-      
-      // Refresh tracks
-      loadTracks()
-    } catch (error) {
-      console.error('Error deleting track:', error)
-    }
-  }
-
-  const filteredTracks = tracks.filter(track => 
-    track.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (track.album && track.album.toLowerCase().includes(searchQuery.toLowerCase()))
-  )
-
-  const stats = {
-    totalEarnings: 0,
-    tracks: tracks.length,
-    totalPlays: tracks.reduce((sum, t) => sum + (t.play_count || 0), 0),
-    supporters: 0
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen pt-24 pb-12">
-        <div className="pf-container">
-          <div className="animate-pulse space-y-4">
-            <div className="h-8 bg-[var(--pf-surface)] rounded w-1/4" />
-            <div className="h-32 bg-[var(--pf-surface)] rounded" />
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (!user) {
-    return (
-      <div className="min-h-screen pt-24 pb-12">
-        <div className="pf-container">
-          <div className="pf-card p-12 text-center">
-            <Mic2 size={48} className="mx-auto mb-4 text-purple-400" />
-            <h1 className="text-2xl font-bold mb-4">Artist Dashboard</h1>
-            <p className="text-[var(--pf-text-secondary)] mb-6">
-              Sign in to manage your music, merch, and earnings.
-            </p>
-            <Link href="/login" className="pf-btn pf-btn-primary">
-              Sign In
-            </Link>
-          </div>
-        </div>
-      </div>
-    )
-  }
+  const toggleFeatured = (albumId: string) => {
+    setFeatured(prev => prev.includes(albumId) ? prev.filter(id => id !== albumId) : [...prev, albumId]);
+  };
 
   return (
     <div className="min-h-screen pt-24 pb-12">
-      <div className="pf-container">
+      <div className="pf-container max-w-4xl">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[var(--pf-orange)] to-purple-600 flex items-center justify-center text-2xl">
-              🎤
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold">Welcome, {profile?.name || 'Artist'}</h1>
-              <p className="text-[var(--pf-text-secondary)]">Your artist dashboard</p>
-            </div>
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold">Artist Dashboard</h1>
+            <p className="text-[var(--pf-text-secondary)]">Manage your music, albums, and products</p>
           </div>
           <Link href="/dashboard/upload" className="pf-btn pf-btn-primary">
-            <Upload className="inline mr-2" size={18} />
-            Upload Music
+            <Upload size={18} className="inline mr-2" />Upload New
           </Link>
         </div>
 
-        {/* Upload CTA (only show if no tracks) */}
-        {tracks.length === 0 && (
-          <div className="pf-card p-8 mb-8 text-center bg-gradient-to-r from-purple-500/10 to-[var(--pf-orange)]/10 border border-purple-500/30">
-            <Music size={48} className="mx-auto mb-4 text-purple-400" />
-            <h2 className="text-2xl font-bold mb-2">Upload Your First Track</h2>
-            <p className="text-[var(--pf-text-secondary)] mb-6 max-w-md mx-auto">
-              Start earning from your music. Set your price, upload your tracks, and let fans support you directly. Keep 80% of every sale.
-            </p>
-            <Link href="/dashboard/upload" className="pf-btn pf-btn-primary text-lg px-8 py-4 inline-flex items-center gap-2">
-              <Upload size={20} />
-              Upload Music
-            </Link>
-          </div>
-        )}
-
-        {/* Stats */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <div className="pf-card p-6">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[var(--pf-text-muted)]">Total Earnings</span>
-              <DollarSign className="text-green-400" size={20} />
+        {/* Quick Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <div className="pf-card p-4">
+            <div className="flex items-center gap-3">
+              <Music className="text-purple-400" size={24} />
+              <div>
+                <p className="text-2xl font-bold">{TRACKS.length}</p>
+                <p className="text-sm text-[var(--pf-text-muted)]">Tracks</p>
+              </div>
             </div>
-            <p className="text-3xl font-bold">${stats.totalEarnings.toFixed(2)}</p>
-            <p className="text-sm text-[var(--pf-text-muted)] mt-1">Lifetime earnings</p>
           </div>
-
-          <div className="pf-card p-6">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[var(--pf-text-muted)]">Tracks</span>
-              <Music className="text-purple-400" size={20} />
+          <div className="pf-card p-4">
+            <div className="flex items-center gap-3">
+              <Package className="text-[var(--pf-orange)]" size={24} />
+              <div>
+                <p className="text-2xl font-bold">{Object.keys(ALBUMS).length}</p>
+                <p className="text-sm text-[var(--pf-text-muted)]">Albums</p>
+              </div>
             </div>
-            <p className="text-3xl font-bold">{stats.tracks}</p>
-            <p className="text-sm text-[var(--pf-text-muted)] mt-1">Uploaded tracks</p>
           </div>
-
-          <div className="pf-card p-6">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[var(--pf-text-muted)]">Total Plays</span>
-              <Headphones className="text-blue-400" size={20} />
+          <div className="pf-card p-4">
+            <div className="flex items-center gap-3">
+              <Star className="text-yellow-400" size={24} />
+              <div>
+                <p className="text-2xl font-bold">{PRODUCTS.length}</p>
+                <p className="text-sm text-[var(--pf-text-muted)]">Products</p>
+              </div>
             </div>
-            <p className="text-3xl font-bold">{(stats.totalPlays / 1000).toFixed(1)}K</p>
-            <p className="text-sm text-[var(--pf-text-muted)] mt-1">All-time plays</p>
           </div>
-
-          <div className="pf-card p-6">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[var(--pf-text-muted)]">Supporters</span>
-              <Users className="text-[var(--pf-orange)]" size={20} />
+          <div className="pf-card p-4">
+            <div className="flex items-center gap-3">
+              <Eye className="text-blue-400" size={24} />
+              <div>
+                <p className="text-2xl font-bold">{TRACKS.reduce((sum, t) => sum + (t.plays || 0), 0) / 1000}K</p>
+                <p className="text-sm text-[var(--pf-text-muted)]">Plays</p>
+              </div>
             </div>
-            <p className="text-3xl font-bold">{stats.supporters}</p>
-            <p className="text-sm text-[var(--pf-text-muted)] mt-1">Total supporters</p>
           </div>
         </div>
 
-        {/* Your Tracks */}
-        <div className="pf-card mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 border-b border-[var(--pf-border)]">
-            <h2 className="font-semibold text-lg">Your Tracks ({tracks.length})</h2>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--pf-text-muted)]" size={18} />
-              <input
-                type="text"
-                placeholder="Search your tracks..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4 py-2 bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg focus:border-[var(--pf-orange)] focus:outline-none w-full sm:w-64"
-              />
-            </div>
+        {/* Tabs */}
+        <div className="border-b border-[var(--pf-border)] mb-6">
+          <div className="flex gap-8">
+            {(['albums', 'tracks', 'products'] as const).map((tab) => (
+              <button key={tab} onClick={() => setActiveTab(tab)} className={`pb-4 font-semibold capitalize ${activeTab === tab ? 'text-[var(--pf-orange)] border-b-2 border-[var(--pf-orange)]' : 'text-[var(--pf-text-muted)] hover:text-white'}`}>
+                {tab}
+              </button>
+            ))}
           </div>
+        </div>
 
-          {tracks.length === 0 ? (
-            <div className="p-8 text-center text-[var(--pf-text-muted)]">
-              <Headphones size={32} className="mx-auto mb-2 opacity-50" />
-              <p>No tracks uploaded yet</p>
-              <p className="text-sm mt-1">Upload your first track to get started</p>
+        {/* Albums Tab */}
+        {activeTab === 'albums' && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold">Album Order</h2>
+              <p className="text-sm text-[var(--pf-text-muted)]">Drag to reorder how albums appear on your profile</p>
             </div>
-          ) : filteredTracks.length === 0 ? (
-            <div className="p-8 text-center text-[var(--pf-text-muted)]">
-              <Search size={32} className="mx-auto mb-2 opacity-50" />
-              <p>No tracks found for "{searchQuery}"</p>
-            </div>
-          ) : (
-            <div className="divide-y divide-[var(--pf-border)]">
-              {filteredTracks.map((track) => (
-                <div key={track.id} className={`flex items-center gap-4 p-4 hover:bg-[var(--pf-surface-hover)] transition-colors ${playing === track.id ? 'bg-[var(--pf-orange)]/5' : ''}`}>
-                  {/* Art */}
-                  <div className="w-14 h-14 rounded-lg overflow-hidden shrink-0 bg-[var(--pf-surface)] flex items-center justify-center">
-                    {track.cover_url ? (
-                      <img src={track.cover_url} alt={track.title} className="w-full h-full object-cover" />
-                    ) : (
-                      <span className="text-2xl">🎵</span>
-                    )}
+            {albums.map((album, index) => (
+              <div key={album.id} className={`pf-card p-4 ${featured.includes(album.id) ? 'ring-2 ring-[var(--pf-orange)]' : ''}`}>
+                <div className="flex items-center gap-4">
+                  {/* Reorder buttons */}
+                  <div className="flex flex-col gap-1">
+                    <button onClick={() => moveAlbumUp(index)} disabled={index === 0} className="p-1 hover:bg-[var(--pf-surface)] rounded disabled:opacity-30">
+                      <ChevronUp size={16} />
+                    </button>
+                    <button onClick={() => moveAlbumDown(index)} disabled={index === albums.length - 1} className="p-1 hover:bg-[var(--pf-surface)] rounded disabled:opacity-30">
+                      <ChevronDown size={16} />
+                    </button>
                   </div>
-
-                  {/* Play Button */}
-                  <button
-                    onClick={() => setPlaying(playing === track.id ? null : track.id)}
-                    className="w-10 h-10 rounded-full bg-[var(--pf-surface)] flex items-center justify-center hover:bg-[var(--pf-orange)] transition-colors shrink-0"
-                    title={playing === track.id ? 'Pause' : 'Play'}
-                  >
-                    {playing === track.id ? (
-                      <Pause size={16} className="text-white" />
-                    ) : (
-                      <Play size={16} className="text-white ml-0.5" />
-                    )}
-                  </button>
-
-                  {/* Info */}
-                  <div className="flex-1 min-w-0">
-                    <p className={`font-semibold truncate ${playing === track.id ? 'text-[var(--pf-orange)]' : ''}`}>
-                      {track.title}
-                    </p>
-                    <p className="text-sm text-[var(--pf-text-muted)]">
-                      {track.album || 'Single'} • {track.duration || '0:00'}
-                    </p>
+                  
+                  {/* Album art */}
+                  <div className="w-16 h-16 rounded-lg overflow-hidden bg-gradient-to-br from-[var(--pf-orange)]/30 to-purple-600/30 flex items-center justify-center shrink-0">
+                    {album.image ? <img src={album.image} alt={album.name} className="w-full h-full object-cover" /> : <Music size={24} className="text-white/50" />}
                   </div>
-
-                  {/* Stats */}
-                  <div className="hidden sm:block text-right">
-                    <p className="font-bold">${track.price}</p>
-                    <p className="text-sm text-[var(--pf-text-muted)]">{(track.play_count || 0).toLocaleString()} plays</p>
+                  
+                  {/* Album info */}
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-bold">{album.name}</h3>
+                      {featured.includes(album.id) && <span className="bg-[var(--pf-orange)]/20 text-[var(--pf-orange)] text-xs px-2 py-0.5 rounded">Featured</span>}
+                    </div>
+                    <p className="text-sm text-[var(--pf-text-muted)]">{album.year} • {album.tracks} tracks</p>
+                    <p className="text-sm text-[var(--pf-text-secondary)]">{tracksByAlbum[album.name]?.length || 0} songs uploaded</p>
                   </div>
-
+                  
                   {/* Actions */}
                   <div className="flex items-center gap-2">
-                    <Link
-                      href={`/dashboard/upload?edit=${track.id}`}
-                      className="p-2 rounded-lg hover:bg-[var(--pf-surface)] transition-colors"
-                      title="Edit"
-                    >
-                      <Edit size={16} className="text-[var(--pf-text-muted)]" />
-                    </Link>
-                    <button
-                      onClick={() => deleteTrack(track.id)}
-                      className="p-2 rounded-lg hover:bg-red-500/20 transition-colors"
-                      title="Delete"
-                    >
-                      <Trash2 size={16} className="text-red-400" />
+                    <button onClick={() => toggleFeatured(album.id)} className={`pf-btn ${featured.includes(album.id) ? 'bg-[var(--pf-orange)] text-white' : 'pf-btn-secondary'}`} title={featured.includes(album.id) ? 'Remove from featured' : 'Feature this album'}>
+                      <Star size={16} className={featured.includes(album.id) ? 'fill-white' : ''} />
+                    </button>
+                    <button className="pf-btn pf-btn-secondary">
+                      <Edit size={16} />
+                    </button>
+                    <button className="pf-btn pf-btn-secondary">
+                      {true ? <Eye size={16} /> : <EyeOff size={16} />}
                     </button>
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Quick Links */}
-        <div className="grid md:grid-cols-2 gap-4">
-          <Link href="/dashboard/upload" className="pf-card p-6 hover:border-purple-500/50 transition-colors group">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center shrink-0">
-                <Music className="text-purple-400" size={24} />
               </div>
-              <div className="flex-1">
-                <h3 className="font-semibold group-hover:text-[var(--pf-orange)] transition-colors">Upload Music</h3>
-                <p className="text-sm text-[var(--pf-text-muted)]">Add tracks, set prices, earn 80%</p>
-              </div>
-              <ChevronRight className="text-[var(--pf-text-muted)]" size={20} />
-            </div>
-          </Link>
-
-          <Link href="/dashboard/add-product" className="pf-card p-6 hover:border-[var(--pf-orange)]/50 transition-colors group">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-[var(--pf-orange)]/20 flex items-center justify-center shrink-0">
-                <Package className="text-[var(--pf-orange)]" size={24} />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-semibold group-hover:text-[var(--pf-orange)] transition-colors">Add Merch</h3>
-                <p className="text-sm text-[var(--pf-text-muted)]">Sell products, reach fans</p>
-              </div>
-              <ChevronRight className="text-[var(--pf-text-muted)]" size={20} />
-            </div>
-          </Link>
-        </div>
-
-        {/* Recent Activity */}
-        <div className="mt-8 pf-card">
-          <div className="p-4 border-b border-[var(--pf-border)]">
-            <h2 className="font-semibold">Recent Activity</h2>
+            ))}
           </div>
-          <div className="p-8 text-center text-[var(--pf-text-muted)]">
-            <Star size={32} className="mx-auto mb-2 opacity-50" />
-            <p>No activity yet</p>
-            <p className="text-sm mt-1">Activity will appear here when you have sales or supporters</p>
+        )}
+
+        {/* Tracks Tab */}
+        {activeTab === 'tracks' && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold">All Tracks</h2>
+              <div className="flex gap-2">
+                <input type="text" placeholder="Search tracks..." className="pf-input w-48" />
+              </div>
+            </div>
+            {Object.entries(tracksByAlbum).map(([album, tracks]) => (
+              <div key={album} className="pf-card">
+                <div className="p-4 border-b border-[var(--pf-border)]">
+                  <h3 className="font-bold">{album}</h3>
+                  <p className="text-sm text-[var(--pf-text-muted)]">{tracks.length} tracks</p>
+                </div>
+                <div className="divide-y divide-[var(--pf-border)]">
+                  {tracks.slice(0, 5).map(track => (
+                    <div key={track.id} className="flex items-center gap-3 p-3 hover:bg-[var(--pf-surface-hover)]">
+                      <div className="w-10 h-10 rounded overflow-hidden bg-[var(--pf-surface)]">
+                        <img src={track.image} alt={track.title} className="w-full h-full object-cover" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium truncate">{track.title}</p>
+                        <p className="text-sm text-[var(--pf-text-muted)]">{track.plays?.toLocaleString() || '0'} plays</p>
+                      </div>
+                      <span className="text-sm font-medium">${track.price}</span>
+                      <button className="p-2 hover:bg-[var(--pf-surface)] rounded text-red-400">
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  ))}
+                  {tracks.length > 5 && (
+                    <button className="w-full p-3 text-center text-[var(--pf-orange)] hover:bg-[var(--pf-surface-hover)]">
+                      View all {tracks.length} tracks
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
+        )}
+
+        {/* Products Tab */}
+        {activeTab === 'products' && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold">Merch & Products</h2>
+              <Link href="/dashboard/add-product" className="pf-btn pf-btn-primary">
+                <Plus size={18} className="inline mr-2" />Add Product
+              </Link>
+            </div>
+            {PRODUCTS.map(product => (
+              <div key={product.id} className="pf-card p-4 flex items-center gap-4">
+                <div className="w-16 h-16 rounded-lg overflow-hidden bg-[var(--pf-surface)]">
+                  <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-bold">{product.name}</h3>
+                  <p className="text-sm text-[var(--pf-text-muted)]">{product.category} • ${product.price}</p>
+                  <p className="text-sm text-green-400">${product.artistCut} to artist</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={`px-2 py-1 rounded text-xs ${product.inStock ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+                    {product.inStock ? 'Live' : 'Draft'}
+                  </span>
+                  <button className="pf-btn pf-btn-secondary">
+                    <Edit size={16} />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Settings Link */}
+        <div className="mt-8 pt-8 border-t border-[var(--pf-border)]">
+          <Link href="/settings" className="pf-btn pf-btn-secondary">
+            <Settings size={18} className="inline mr-2" />Account Settings
+          </Link>
         </div>
       </div>
     </div>
-  )
+  );
 }

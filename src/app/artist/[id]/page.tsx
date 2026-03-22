@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useSupabase } from '@/app/providers';
+import { useState } from 'react';
 import { useAudio } from '@/lib/audio-context';
+import { TRACKS, ALBUMS } from '@/lib/data';
 import Link from 'next/link';
-import { Play, Pause, Heart, Share2, Music, Package, Users, DollarSign, ChevronDown, ChevronUp, X, Youtube } from 'lucide-react';
+import { Play, Pause, Heart, Share2, Music, Package, Users, DollarSign, ChevronDown, ChevronUp, Youtube, ListPlus } from 'lucide-react';
 
 // Music Videos from YouTube
 const MUSIC_VIDEOS = [
@@ -19,6 +19,27 @@ const MUSIC_VIDEOS = [
   { title: 'Jai Jai - As If', album: 'Streets Thought I Left', youtubeId: 'sqxPRE3EiNI', views: '3.1K' },
   { title: '82 FAM TTD', album: 'Levi', youtubeId: 'rieh1ku8oXw', views: '6.3K' },
 ];
+
+// Album order - newest first
+const ALBUM_ORDER = [
+  'Singles',
+  'Ambiguous',
+  'Roxannity', 
+  'One Day',
+  'From Feast to Famine',
+  'God Is Good',
+];
+
+// Group tracks by album
+function groupTracksByAlbum(tracks: typeof TRACKS) {
+  const groups: Record<string, typeof TRACKS> = {};
+  tracks.forEach(track => {
+    const album = track.album || 'Singles';
+    if (!groups[album]) groups[album] = [];
+    groups[album].push(track);
+  });
+  return groups;
+}
 
 // Sample supporters for the wall
 const SAMPLE_SUPPORTERS = [
@@ -35,13 +56,10 @@ const SAMPLE_SUPPORTERS = [
 ];
 
 export default function ArtistProfilePage({ params }: { params: { id: string } }) {
-  const { supabase } = useSupabase();
-  const { currentTrack, isPlaying, playTrack, togglePlay } = useAudio();
+  const { currentTrack, isPlaying, playTrack, togglePlay, setQueue } = useAudio();
   const [activeTab, setActiveTab] = useState<'music' | 'videos' | 'about'>('music');
   const [following, setFollowing] = useState(false);
-  const [tracks, setTracks] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [expandedAlbums, setExpandedAlbums] = useState<Record<string, boolean>>({});
+  const [expandedAlbums, setExpandedAlbums] = useState<Record<string, boolean>>({ Singles: true });
 
   const artist = {
     name: 'O D Porter',
@@ -52,42 +70,30 @@ export default function ArtistProfilePage({ params }: { params: { id: string } }
     verified: true,
     earnings: 45000,
     supporters: 12500,
-    tracks: 100,
     products: 12,
   };
 
-  useEffect(() => {
-    async function loadTracks() {
-      if (!supabase) { setLoading(false); return; }
-      const { data } = await supabase.from('tracks').select('*').order('album', { ascending: true });
-      if (data) {
-        setTracks(data);
-        const albums = data.reduce((acc: Record<string, any[]>, track: any) => {
-          const album = track.album || 'Singles';
-          if (!acc[album]) acc[album] = [];
-          acc[album].push(track);
-          return acc;
-        }, {});
-        const firstAlbum = Object.keys(albums)[0];
-        if (firstAlbum) setExpandedAlbums({ [firstAlbum]: true });
-      }
-      setLoading(false);
-    }
-    loadTracks();
-  }, [supabase]);
+  // Group tracks by album in proper order
+  const albums = groupTracksByAlbum(TRACKS);
+  const orderedAlbums = ALBUM_ORDER.filter(album => albums[album]?.length > 0);
 
   const toggleAlbum = (albumName: string) => {
     setExpandedAlbums(prev => ({ ...prev, [albumName]: !prev[albumName] }));
   };
 
-  const albums = tracks.reduce((acc: Record<string, any[]>, track: any) => {
-    const album = track.album || 'Singles';
-    if (!acc[album]) acc[album] = [];
-    acc[album].push(track);
-    return acc;
-  }, {});
-
-  const albumOrder = ['Ambiguous', 'Roxannity', 'One Day', 'From Feast to Famine', 'God Is Good', 'Streets Thought I Left', 'Levi', 'Artgasm', 'Singles'];
+  const playAlbum = (albumName: string) => {
+    const albumTracks = albums[albumName] || [];
+    if (albumTracks.length > 0) {
+      setQueue(albumTracks.map(t => ({
+        ...t,
+        duration: typeof t.duration === 'string' ? parseInt(t.duration.split(':').reduce((acc: number, t: string) => (60 * acc) + parseInt(t), 0)) : t.duration || 180
+      })));
+      playTrack({
+        ...albumTracks[0],
+        duration: typeof albumTracks[0].duration === 'string' ? parseInt(albumTracks[0].duration.split(':').reduce((acc: number, t: string) => (60 * acc) + parseInt(t), 0)) : albumTracks[0].duration || 180
+      } as any);
+    }
+  };
 
   return (
     <div className="min-h-screen pt-24 pb-12">
@@ -117,7 +123,7 @@ export default function ArtistProfilePage({ params }: { params: { id: string } }
                 <div className="w-px h-8 bg-[var(--pf-border)]" />
                 <div><p className="text-2xl font-bold">{artist.supporters.toLocaleString()}</p><p className="text-sm text-[var(--pf-text-muted)]">Supporters</p></div>
                 <div className="w-px h-8 bg-[var(--pf-border)]" />
-                <div><p className="text-2xl font-bold">{tracks.length || artist.tracks}</p><p className="text-sm text-[var(--pf-text-muted)]">Tracks</p></div>
+                <div><p className="text-2xl font-bold">{TRACKS.length}</p><p className="text-sm text-[var(--pf-text-muted)]">Tracks</p></div>
               </div>
               <div className="flex flex-wrap gap-3 mt-6">
                 <button onClick={() => setFollowing(!following)} className={`pf-btn ${following ? 'pf-btn-primary' : 'pf-btn-secondary'}`}>
@@ -165,47 +171,80 @@ export default function ArtistProfilePage({ params }: { params: { id: string } }
         {/* Tab Content */}
         {activeTab === 'music' && (
           <div>
-            {loading ? (
-              <div className="text-center py-12"><p className="text-[var(--pf-text-muted)]">Loading tracks...</p></div>
-            ) : tracks.length === 0 ? (
-              <div className="pf-card p-12 text-center"><Music size={48} className="mx-auto mb-4 text-[var(--pf-text-muted)]" /><p className="text-[var(--pf-text-muted)]">No tracks yet</p></div>
-            ) : (
-              <div className="space-y-4">
-                {albumOrder.map(albumName => {
-                  const albumTracks = albums[albumName];
-                  if (!albumTracks || albumTracks.length === 0) return null;
-                  const isExpanded = expandedAlbums[albumName];
-                  return (
-                    <div key={albumName} className="pf-card overflow-hidden">
-                      <button onClick={() => toggleAlbum(albumName)} className="w-full flex items-center gap-4 p-4 hover:bg-[var(--pf-surface-hover)] transition-colors text-left">
-                        <div className="w-14 h-14 rounded-lg overflow-hidden bg-gradient-to-br from-[var(--pf-orange)]/30 to-purple-600/30 flex items-center justify-center shrink-0">
-                          {albumTracks[0]?.cover_url ? <img src={albumTracks[0].cover_url} alt={albumName} className="w-full h-full object-cover" /> : <span className="text-xl">🎵</span>}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-bold text-lg">{albumName}</h3>
-                          <p className="text-sm text-[var(--pf-text-muted)]">{albumTracks.length} tracks • {albumTracks[0]?.artist || 'O D Porter'}</p>
-                        </div>
-                        <button onClick={(e) => { e.stopPropagation(); if (albumTracks[0]) playTrack(albumTracks[0]); }} className="p-2 rounded-full bg-[var(--pf-orange)] text-white hover:bg-[var(--pf-orange)]/80 transition-colors shrink-0"><Play size={18} className="ml-0.5" /></button>
-                        <div className="text-[var(--pf-text-muted)] shrink-0">{isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}</div>
+            {/* Featured Singles at top */}
+            {albums['Singles'] && albums['Singles'].length > 0 && (
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-bold flex items-center gap-2">
+                    <span className="text-2xl">⭐</span> Singles & New Releases
+                  </h2>
+                  <span className="text-sm text-[var(--pf-orange)]">Latest tracks</span>
+                </div>
+                <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+                  {albums['Singles'].map((track) => (
+                    <div key={track.id} className={`pf-card p-4 flex items-center gap-4 cursor-pointer hover:bg-[var(--pf-surface-hover)] ${currentTrack?.id === track.id ? 'ring-2 ring-[var(--pf-orange)]' : ''}`} onClick={() => playTrack({ ...track, duration: typeof track.duration === 'string' ? 180 : track.duration || 180 } as any)}>
+                      <div className="w-14 h-14 rounded-lg overflow-hidden bg-gradient-to-br from-[var(--pf-orange)]/30 to-purple-600/30 flex items-center justify-center shrink-0">
+                        {track.image ? <img src={track.image} alt={track.title} className="w-full h-full object-cover" /> : <span className="text-xl">🎵</span>}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className={`font-medium truncate ${currentTrack?.id === track.id ? 'text-[var(--pf-orange)]' : ''}`}>{track.title}</p>
+                        <p className="text-sm text-[var(--pf-text-muted)]">{track.duration}</p>
+                      </div>
+                      <button className="w-10 h-10 rounded-full bg-[var(--pf-orange)] flex items-center justify-center shrink-0">
+                        {currentTrack?.id === track.id && isPlaying ? <Pause size={18} className="text-white" /> : <Play size={18} className="text-white ml-0.5" />}
                       </button>
-                      {isExpanded && (
-                        <div className="border-t border-[var(--pf-border)]">
-                          {albumTracks.map((track: any, i: number) => (
-                            <div key={track.id} className={`flex items-center gap-4 p-4 hover:bg-[var(--pf-surface-hover)] transition-colors ${currentTrack?.id === track.id ? 'bg-[var(--pf-orange)]/5' : ''}`}>
-                              <span className="w-6 text-center text-[var(--pf-text-muted)] text-sm">{i + 1}</span>
-                              <button onClick={() => playTrack(track)} className="w-8 h-8 rounded-full bg-[var(--pf-surface)] flex items-center justify-center hover:bg-[var(--pf-orange)] transition-colors shrink-0">{currentTrack?.id === track.id && isPlaying ? <Pause size={14} className="text-white" /> : <Play size={14} className="text-white ml-0.5" />}</button>
-                              <div className="flex-1 min-w-0"><p className={`font-medium truncate text-sm ${currentTrack?.id === track.id ? 'text-[var(--pf-orange)]' : ''}`}>{track.title}</p></div>
-                              <span className="text-sm text-[var(--pf-text-muted)]">{track.play_count ? `${(track.play_count / 1000).toFixed(0)}K` : 'New'}</span>
-                              <span className="text-sm font-medium">${track.proud_to_pay_min || 5}+</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
                     </div>
-                  );
-                })}
+                  ))}
+                </div>
               </div>
             )}
+
+            {/* Albums */}
+            <div className="space-y-4">
+              {orderedAlbums.filter(a => a !== 'Singles').map(albumName => {
+                const albumTracks = albums[albumName];
+                if (!albumTracks || albumTracks.length === 0) return null;
+                const isExpanded = expandedAlbums[albumName];
+                const albumInfo = Object.values(ALBUMS).find(a => a.name === albumName);
+                
+                return (
+                  <div key={albumName} className="pf-card overflow-hidden">
+                    <button onClick={() => toggleAlbum(albumName)} className="w-full flex items-center gap-4 p-4 hover:bg-[var(--pf-surface-hover)] transition-colors text-left">
+                      <div className="w-14 h-14 rounded-lg overflow-hidden bg-gradient-to-br from-[var(--pf-orange)]/30 to-purple-600/30 flex items-center justify-center shrink-0">
+                        {albumInfo?.image ? <img src={albumInfo.image} alt={albumName} className="w-full h-full object-cover" /> : <span className="text-xl">🎵</span>}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-bold text-lg">{albumName}</h3>
+                        <p className="text-sm text-[var(--pf-text-muted)]">{albumTracks.length} tracks • {albumInfo?.year || '2024'}</p>
+                      </div>
+                      <button onClick={(e) => { e.stopPropagation(); playAlbum(albumName); }} className="p-2 rounded-full bg-[var(--pf-orange)] text-white hover:bg-[var(--pf-orange)]/80 transition-colors shrink-0">
+                        <Play size={18} className="ml-0.5" />
+                      </button>
+                      <div className="text-[var(--pf-text-muted)] shrink-0">
+                        {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                      </div>
+                    </button>
+                    {isExpanded && (
+                      <div className="border-t border-[var(--pf-border)]">
+                        {albumTracks.map((track, i) => (
+                          <div key={track.id} className={`flex items-center gap-4 p-4 hover:bg-[var(--pf-surface-hover)] transition-colors ${currentTrack?.id === track.id ? 'bg-[var(--pf-orange)]/5' : ''}`}>
+                            <span className="w-6 text-center text-[var(--pf-text-muted)] text-sm">{i + 1}</span>
+                            <button onClick={() => playTrack({ ...track, duration: typeof track.duration === 'string' ? 180 : track.duration || 180 } as any)} className="w-8 h-8 rounded-full bg-[var(--pf-surface)] flex items-center justify-center hover:bg-[var(--pf-orange)] transition-colors shrink-0">
+                              {currentTrack?.id === track.id && isPlaying ? <Pause size={14} className="text-white" /> : <Play size={14} className="text-white ml-0.5" />}
+                            </button>
+                            <div className="flex-1 min-w-0">
+                              <p className={`font-medium truncate text-sm ${currentTrack?.id === track.id ? 'text-[var(--pf-orange)]' : ''}`}>{track.title}</p>
+                            </div>
+                            <span className="text-sm text-[var(--pf-text-muted)]">{track.duration}</span>
+                            <span className="text-sm font-medium">${track.price || 1}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
 
@@ -219,13 +258,7 @@ export default function ArtistProfilePage({ params }: { params: { id: string } }
               {MUSIC_VIDEOS.map((video, i) => (
                 <div key={i} className="pf-card overflow-hidden">
                   <div className="aspect-video bg-[var(--pf-surface)]">
-                    <iframe
-                      src={`https://www.youtube.com/embed/${video.youtubeId}`}
-                      title={video.title}
-                      className="w-full h-full"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    />
+                    <iframe src={`https://www.youtube.com/embed/${video.youtubeId}`} title={video.title} className="w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
                   </div>
                   <div className="p-4">
                     <h3 className="font-semibold">{video.title}</h3>
@@ -243,7 +276,7 @@ export default function ArtistProfilePage({ params }: { params: { id: string } }
               <h2 className="text-xl font-bold mb-6">About {artist.name}</h2>
               <p className="text-[var(--pf-text-secondary)] mb-6">{artist.bio}</p>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-8 pt-8 border-t border-[var(--pf-border)]">
-                <div className="flex items-center gap-3"><Music className="text-purple-400" size={24} /><div><p className="text-xl font-bold">{tracks.length || artist.tracks}</p><p className="text-sm text-[var(--pf-text-muted)]">Tracks</p></div></div>
+                <div className="flex items-center gap-3"><Music className="text-purple-400" size={24} /><div><p className="text-xl font-bold">{TRACKS.length}</p><p className="text-sm text-[var(--pf-text-muted)]">Tracks</p></div></div>
                 <div className="flex items-center gap-3"><Users className="text-blue-400" size={24} /><div><p className="text-xl font-bold">{artist.supporters.toLocaleString()}</p><p className="text-sm text-[var(--pf-text-muted)]">Supporters</p></div></div>
                 <div className="flex items-center gap-3"><DollarSign className="text-green-400" size={24} /><div><p className="text-xl font-bold">${artist.earnings.toLocaleString()}</p><p className="text-sm text-[var(--pf-text-muted)]">Earned</p></div></div>
                 <div className="flex items-center gap-3"><Package className="text-[var(--pf-orange)]" size={24} /><div><p className="text-xl font-bold">{artist.products}</p><p className="text-sm text-[var(--pf-text-muted)]">Products</p></div></div>
