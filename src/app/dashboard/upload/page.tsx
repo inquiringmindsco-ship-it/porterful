@@ -1,397 +1,237 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import Link from 'next/link';
+import { useState } from 'react';
 import { useSupabase } from '@/app/providers';
-import { useRouter } from 'next/navigation';
-import { Upload, Music, Play, Trash2, DollarSign, Clock, Disc, Image as ImageIcon, Check } from 'lucide-react';
+import { Upload, Music, Loader2, Check, AlertCircle } from 'lucide-react';
+import Link from 'next/link';
 
-interface Track {
-  id: string;
-  title: string;
-  artist: string;
-  album: string;
-  duration: string;
-  price: number;
-  file: File | null;
-  preview: string | null;
-  artFile: File | null;
-  artPreview: string | null;
-}
+export default function UploadPage() {
+  const { user } = useSupabase();
+  const [files, setFiles] = useState<File[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState<Record<string, number>>({});
+  const [uploaded, setUploaded] = useState<string[]>([]);
+  const [errors, setErrors] = useState<string[]>([]);
 
-export default function UploadMusicPage() {
-  const { user, supabase } = useSupabase()
-  const router = useRouter()
-  const [tracks, setTracks] = useState<Track[]>([])
-  const [uploading, setUploading] = useState(false)
-  const [dragOver, setDragOver] = useState(false)
-  const [uploadedTracks, setUploadedTracks] = useState<Track[]>([])
-  const fileInputRef = useRef<HTMLInputElement>(null)
-
-  const handleFileSelect = (files: FileList | null) => {
-    if (!files) return
-    
-    const newTracks: Track[] = Array.from(files)
-      .filter(file => file.type.startsWith('audio/') || file.type === 'audio/mpeg')
-      .map(file => ({
-        id: Math.random().toString(36).substr(2, 9),
-        title: file.name.replace(/\.[^/.]+$/, ''),
-        artist: 'O D Porter',
-        album: '',
-        duration: '0:00',
-        price: 5,
-        file,
-        preview: URL.createObjectURL(file),
-        artFile: null,
-        artPreview: null,
-      }))
-    
-    setTracks([...tracks, ...newTracks])
-  }
-
-  const handleArtSelect = (trackId: string, files: FileList | null) => {
-    if (!files || files.length === 0) return
-    
-    const file = files[0]
-    if (!file.type.startsWith('image/')) return
-    
-    setTracks(tracks.map(track => 
-      track.id === trackId 
-        ? { ...track, artFile: file, artPreview: URL.createObjectURL(file) }
-        : track
-    ))
-  }
-
-  const removeTrack = (id: string) => {
-    setTracks(tracks.filter(t => t.id !== id))
-  }
-
-  const updateTrack = (id: string, updates: Partial<Track>) => {
-    setTracks(tracks.map(t => t.id === id ? { ...t, ...updates } : t))
-  }
-
-  const formatDuration = (seconds: number) => {
-    const mins = Math.floor(seconds / 60)
-    const secs = seconds % 60
-    return `${mins}:${secs.toString().padStart(2, '0')}`
-  }
-
-  const getAudioDuration = (file: File): Promise<number> => {
-    return new Promise((resolve) => {
-      const audio = new Audio()
-      audio.addEventListener('loadedmetadata', () => {
-        resolve(Math.floor(audio.duration))
-      })
-      audio.src = URL.createObjectURL(file)
-    })
-  }
-
-  const handleUpload = async () => {
-    if (!tracks.length) return
-    setUploading(true)
-
-    try {
-      const tracksWithDuration = await Promise.all(
-        tracks.map(async (track) => {
-          if (track.file) {
-            const duration = await getAudioDuration(track.file)
-            return { ...track, duration: formatDuration(duration) }
-          }
-          return track
-        })
-      )
-
-      if (supabase && user) {
-        for (const track of tracksWithDuration) {
-          if (!track.file) continue
-          
-          const fileName = `${user.id}/${Date.now()}-${track.file.name}`
-          
-          const { data: uploadData, error: uploadError } = await supabase.storage
-            .from('music')
-            .upload(fileName, track.file, {
-              cacheControl: '3600',
-              upsert: false
-            })
-          
-          if (uploadError) {
-            console.error('Upload error:', uploadError)
-            continue
-          }
-          
-          const { data: { publicUrl } } = supabase.storage
-            .from('music')
-            .getPublicUrl(fileName)
-          
-          // Upload album art if provided
-          let coverUrl = null
-          if (track.artFile) {
-            const artFileName = `${user.id}/${Date.now()}-art-${track.artFile.name}`
-            const { data: artData, error: artError } = await supabase.storage
-              .from('music')
-              .upload(artFileName, track.artFile, {
-                cacheControl: '3600',
-                upsert: false
-              })
-            
-            if (!artError) {
-              const { data: { publicUrl: artUrl } } = supabase.storage
-                .from('music')
-                .getPublicUrl(artFileName)
-              coverUrl = artUrl
-            }
-          }
-          
-          // Parse duration to seconds
-          const durationParts = track.duration.split(':')
-          const durationSeconds = parseInt(durationParts[0]) * 60 + (parseInt(durationParts[1]) || 0)
-          
-          await supabase.from('tracks').insert({
-            artist_id: user.id,
-            title: track.title,
-            artist: track.artist,
-            album: track.album || null,
-            duration: durationSeconds,
-            audio_url: publicUrl,
-            cover_url: coverUrl,
-            play_count: 0,
-            proud_to_pay_min: track.price,
-            is_active: true,
-          })
-        }
-        
-        setUploadedTracks(tracksWithDuration)
-        setTracks([])
-        
-        // Redirect to dashboard after successful upload
-        setTimeout(() => {
-          router.push('/dashboard/artist')
-        }, 2000)
-      } else {
-        setUploadedTracks(tracksWithDuration)
-        setTracks([])
-      }
-    } catch (error) {
-      console.error('Upload error:', error)
-      alert('Upload failed. Please try again.')
-    } finally {
-      setUploading(false)
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const selectedFiles = Array.from(e.target.files);
+      const audioFiles = selectedFiles.filter(f => 
+        f.type.startsWith('audio/') || 
+        f.name.endsWith('.mp3') || 
+        f.name.endsWith('.m4a') ||
+        f.name.endsWith('.wav')
+      );
+      setFiles(prev => [...prev, ...audioFiles]);
     }
+  };
+
+  const removeFile = (index: number) => {
+    setFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const uploadFiles = async () => {
+    if (!user || files.length === 0) return;
+    
+    setUploading(true);
+    setErrors([]);
+    setUploaded([]);
+
+    for (const file of files) {
+      try {
+        // Get Supabase client
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+        
+        if (!supabaseUrl || !supabaseKey) {
+          throw new Error('Supabase not configured');
+        }
+
+        const fileName = `${user.id}/${Date.now()}-${file.name}`;
+        
+        // Upload to Supabase Storage
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        // Use Supabase client for upload
+        const { createClient } = await import('@supabase/supabase-js');
+        const supabase = createClient(supabaseUrl, supabaseKey);
+        
+        const { data, error } = await supabase.storage
+          .from('audio')
+          .upload(fileName, file, {
+            cacheControl: '3600',
+            upsert: false
+          });
+
+        if (error) throw error;
+
+        // Get public URL
+        const { data: urlData } = supabase.storage
+          .from('audio')
+          .getPublicUrl(fileName);
+
+        setUploaded(prev => [...prev, `${file.name} → ${urlData.publicUrl}`]);
+        setProgress(prev => ({ ...prev, [file.name]: 100 }));
+        
+      } catch (err: any) {
+        console.error('Upload error:', err);
+        setErrors(prev => [...prev, `${file.name}: ${err.message}`]);
+      }
+    }
+
+    setUploading(false);
+    setFiles([]);
+  };
+
+  if (!user) {
+    return (
+      <div className="min-h-screen pt-24 pb-12">
+        <div className="pf-container max-w-2xl">
+          <div className="pf-card p-12 text-center">
+            <Music size={48} className="mx-auto mb-4 text-[var(--pf-orange)]" />
+            <h1 className="text-2xl font-bold mb-4">Upload Your Music</h1>
+            <p className="text-[var(--pf-text-secondary)] mb-6">
+              Sign in to upload your tracks and start earning.
+            </p>
+            <Link href="/login" className="pf-btn pf-btn-primary">
+              Sign In to Upload
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="min-h-screen pt-24 pb-12">
-      <div className="pf-container max-w-4xl">
-        {/* Header */}
+      <div className="pf-container max-w-3xl">
         <div className="mb-8">
-          <Link href="/dashboard/artist" className="text-[var(--pf-text-secondary)] hover:text-white mb-4 inline-block">
-            ← Back to Dashboard
-          </Link>
-          <h1 className="text-3xl font-bold mt-4">Upload Your Music</h1>
-          <p className="text-[var(--pf-text-secondary)] mt-2">
-            Add your tracks, set your prices. Keep 80% of every sale.
+          <h1 className="text-3xl font-bold">Upload Music</h1>
+          <p className="text-[var(--pf-text-secondary)]">
+            Upload your tracks to Porterful. Supported formats: MP3, M4A, WAV (max 50MB)
           </p>
         </div>
 
         {/* Upload Area */}
-        <div
-          className={`pf-card p-12 text-center mb-8 transition-all ${
-            dragOver ? 'border-[var(--pf-orange)] bg-[var(--pf-orange)]/5' : ''
-          }`}
-          onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
-          onDragLeave={() => setDragOver(false)}
-          onDrop={(e) => { e.preventDefault(); setDragOver(false); handleFileSelect(e.dataTransfer.files) }}
-        >
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="audio/*,.mp3,.wav,.m4a,.flac"
-            multiple
-            className="hidden"
-            onChange={(e) => handleFileSelect(e.target.files)}
-          />
-          
-          <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-[var(--pf-orange)]/20 flex items-center justify-center">
-            <Upload className="text-[var(--pf-orange)]" size={40} />
-          </div>
-          
-          <h3 className="text-xl font-semibold mb-2">Drag & Drop Your Tracks</h3>
-          <p className="text-[var(--pf-text-secondary)] mb-6">
-            or click to browse • MP3, WAV, M4A, FLAC supported
-          </p>
-          
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="pf-btn pf-btn-primary"
-          >
-            <Music className="inline mr-2" size={18} />
-            Select Files
-          </button>
+        <div className="pf-card p-8 mb-6">
+          <label className="block cursor-pointer">
+            <div className="border-2 border-dashed border-[var(--pf-border)] rounded-xl p-12 text-center hover:border-[var(--pf-orange)] transition-colors">
+              <Upload size={48} className="mx-auto mb-4 text-[var(--pf-text-muted)]" />
+              <p className="text-xl font-medium mb-2">Drop your audio files here</p>
+              <p className="text-[var(--pf-text-muted)] mb-4">or click to browse</p>
+              <input
+                type="file"
+                multiple
+                accept="audio/*,.mp3,.m4a,.wav"
+                onChange={handleFileSelect}
+                className="hidden"
+              />
+              <span className="pf-btn pf-btn-secondary">
+                Select Files
+              </span>
+            </div>
+          </label>
         </div>
 
-        {/* Uploaded Tracks */}
-        {uploadedTracks.length > 0 && (
-          <div className="pf-card p-6 mb-8 bg-green-500/10 border border-green-500/30">
-            <div className="flex items-center gap-3 mb-4">
-              <Check className="text-green-400" size={24} />
-              <h3 className="text-lg font-semibold">Upload Complete!</h3>
+        {/* File List */}
+        {files.length > 0 && (
+          <div className="pf-card p-6 mb-6">
+            <h2 className="font-bold mb-4">Files to Upload ({files.length})</h2>
+            <div className="space-y-3">
+              {files.map((file, i) => (
+                <div key={i} className="flex items-center gap-3 p-3 bg-[var(--pf-surface)] rounded-lg">
+                  <Music size={20} className="text-[var(--pf-orange)]" />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium truncate">{file.name}</p>
+                    <p className="text-sm text-[var(--pf-text-muted)]">
+                      {(file.size / 1024 / 1024).toFixed(2)} MB
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => removeFile(i)}
+                    className="p-2 hover:bg-[var(--pf-bg)] rounded text-red-400"
+                    disabled={uploading}
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
             </div>
-            <p className="text-[var(--pf-text-secondary)] mb-4">
-              Your tracks have been uploaded. They'll appear in your library shortly.
-            </p>
+            <div className="mt-4 flex gap-3">
+              <button
+                onClick={uploadFiles}
+                disabled={uploading || files.length === 0}
+                className="pf-btn pf-btn-primary flex-1"
+              >
+                {uploading ? (
+                  <>
+                    <Loader2 size={18} className="inline mr-2 animate-spin" />
+                    Uploading...
+                  </>
+                ) : (
+                  <>
+                    <Upload size={18} className="inline mr-2" />
+                    Upload {files.length} file{files.length !== 1 ? 's' : ''}
+                  </>
+                )}
+              </button>
+              <button
+                onClick={() => setFiles([])}
+                disabled={uploading}
+                className="pf-btn pf-btn-secondary"
+              >
+                Clear
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Uploaded Results */}
+        {uploaded.length > 0 && (
+          <div className="pf-card p-6 mb-6 border-green-500/50">
+            <h2 className="font-bold mb-4 flex items-center gap-2">
+              <Check size={20} className="text-green-500" />
+              Uploaded Successfully ({uploaded.length})
+            </h2>
             <div className="space-y-2">
-              {uploadedTracks.map((track) => (
-                <div key={track.id} className="flex items-center gap-3 p-3 bg-[var(--pf-bg)] rounded-lg">
-                  <Music className="text-[var(--pf-orange)]" size={20} />
-                  <div className="flex-1">
-                    <p className="font-medium">{track.title}</p>
-                    <p className="text-sm text-[var(--pf-text-muted)]">${track.price} minimum</p>
-                  </div>
-                  <Check className="text-green-400" size={20} />
-                </div>
-              ))}
-            </div>
-            <Link href="/dashboard/artist" className="pf-btn pf-btn-primary mt-4 inline-block">
-              View in Dashboard
-            </Link>
-          </div>
-        )}
-
-        {/* Track List */}
-        {tracks.length > 0 && (
-          <div className="pf-card mb-8">
-            <div className="p-4 border-b border-[var(--pf-border)]">
-              <h2 className="font-semibold">{tracks.length} Track{tracks.length !== 1 ? 's' : ''} Selected</h2>
-            </div>
-            
-            <div className="divide-y divide-[var(--pf-border)]">
-              {tracks.map((track) => (
-                <div key={track.id} className="p-4">
-                  <div className="flex gap-4">
-                    {/* Track Art or Placeholder */}
-                    <div className="w-20 h-20 rounded-lg bg-[var(--pf-surface)] overflow-hidden shrink-0 relative group">
-                      {track.artPreview ? (
-                        <img src={track.artPreview} alt="Album art" className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-3xl">
-                          🎵
-                        </div>
-                      )}
-                      <label className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                        <ImageIcon size={20} className="text-white" />
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={(e) => handleArtSelect(track.id, e.target.files)}
-                        />
-                      </label>
-                    </div>
-                    
-                    {/* Track Info */}
-                    <div className="flex-1 min-w-0">
-                      <div className="grid md:grid-cols-2 gap-3">
-                        <div>
-                          <label className="block text-sm text-[var(--pf-text-muted)] mb-1">Title</label>
-                          <input
-                            type="text"
-                            value={track.title}
-                            onChange={(e) => updateTrack(track.id, { title: e.target.value })}
-                            className="w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-3 py-2 focus:outline-none focus:border-[var(--pf-orange)]"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm text-[var(--pf-text-muted)] mb-1">Album (optional)</label>
-                          <input
-                            type="text"
-                            value={track.album}
-                            onChange={(e) => updateTrack(track.id, { album: e.target.value })}
-                            placeholder="Single or Album name"
-                            className="w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-3 py-2 focus:outline-none focus:border-[var(--pf-orange)]"
-                          />
-                        </div>
-                      </div>
-                      
-                      {/* Price */}
-                      <div className="mt-3">
-                        <label className="block text-sm text-[var(--pf-text-muted)] mb-1">
-                          <DollarSign className="inline w-4 h-4" />
-                          Minimum Price
-                        </label>
-                        <div className="flex items-center gap-4">
-                          <div className="flex items-center bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg overflow-hidden">
-                            <button
-                              onClick={() => updateTrack(track.id, { price: Math.max(1, track.price - 1) })}
-                              className="px-3 py-2 hover:bg-[var(--pf-surface)] transition-colors"
-                            >
-                              -
-                            </button>
-                            <span className="px-4 py-2 font-bold">${track.price}</span>
-                            <button
-                              onClick={() => updateTrack(track.id, { price: track.price + 1 })}
-                              className="px-3 py-2 hover:bg-[var(--pf-surface)] transition-colors"
-                            >
-                              +
-                            </button>
-                          </div>
-                          <span className="text-sm text-[var(--pf-text-muted)]">
-                            Fans can pay more
-                          </span>
-                        </div>
-                      </div>
-                      
-                      {/* Album Art Button */}
-                      <button
-                        onClick={() => {
-                          const input = document.createElement('input')
-                          input.type = 'file'
-                          input.accept = 'image/*'
-                          input.onchange = (e) => handleArtSelect(track.id, (e.target as any).files)
-                          input.click()
-                        }}
-                        className="mt-3 text-sm text-[var(--pf-orange)] hover:underline"
-                      >
-                        {track.artPreview ? 'Change album art' : '+ Add album art'}
-                      </button>
-                    </div>
-                    
-                    {/* Remove */}
-                    <button
-                      onClick={() => removeTrack(track.id)}
-                      className="p-2 text-[var(--pf-text-muted)] hover:text-red-400 transition-colors self-start"
-                    >
-                      <Trash2 size={20} />
-                    </button>
-                  </div>
+              {uploaded.map((url, i) => (
+                <div key={i} className="flex items-center gap-2 text-sm">
+                  <Check size={16} className="text-green-500" />
+                  <span className="truncate">{url}</span>
                 </div>
               ))}
             </div>
           </div>
         )}
 
-        {/* Upload Button */}
-        {tracks.length > 0 && (
-          <button
-            onClick={handleUpload}
-            disabled={uploading}
-            className="w-full pf-btn pf-btn-primary text-lg py-4 mb-8"
-          >
-            {uploading ? 'Uploading...' : `Upload ${tracks.length} Track${tracks.length !== 1 ? 's' : ''}`}
-          </button>
-        )}
-
-        {/* Your Library */}
-        <div className="mt-12">
-          <h2 className="text-xl font-semibold mb-4">Your Music Library</h2>
-          <div className="pf-card">
-            <div className="p-8 text-center text-[var(--pf-text-muted)]">
-              <Disc className="mx-auto mb-4 opacity-50" size={48} />
-              <p>Your uploaded tracks will appear here</p>
-              <p className="text-sm mt-2">Upload your first track above to get started</p>
+        {/* Errors */}
+        {errors.length > 0 && (
+          <div className="pf-card p-6 mb-6 border-red-500/50">
+            <h2 className="font-bold mb-4 flex items-center gap-2">
+              <AlertCircle size={20} className="text-red-500" />
+              Upload Errors
+            </h2>
+            <div className="space-y-2">
+              {errors.map((err, i) => (
+                <div key={i} className="text-sm text-red-400">{err}</div>
+              ))}
             </div>
           </div>
+        )}
+
+        {/* Info */}
+        <div className="pf-card p-6 bg-[var(--pf-orange)]/5 border-[var(--pf-orange)]/20">
+          <h3 className="font-bold mb-2">Upload Guidelines</h3>
+          <ul className="text-sm text-[var(--pf-text-secondary)] space-y-1">
+            <li>• Maximum file size: 50MB per track</li>
+            <li>• Supported formats: MP3, M4A, WAV</li>
+            <li>• You keep 80% of every sale</li>
+            <li>• Set your price after upload</li>
+            <li>• Add album art and metadata in the next step</li>
+          </ul>
         </div>
       </div>
     </div>
-  )
+  );
 }
