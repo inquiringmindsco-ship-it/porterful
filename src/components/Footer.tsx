@@ -29,7 +29,7 @@ export function Footer() {
                 </svg>
               </a>
               <a 
-                href="https://instagram.com/porterful" 
+                href="https://instagram.com/od.porter" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-[var(--pf-orange)] transition-colors"
