@@ -27,7 +27,11 @@ export function Navbar() {
     window.location.href = '/'
   }
 
-  const toggleMobile = () => setMobileOpen(!mobileOpen)
+  const toggleMobile = () => {
+    console.log('Toggle mobile menu:', !mobileOpen)
+    setMobileOpen(!mobileOpen)
+  }
+  
   const closeMobile = () => setMobileOpen(false)
 
   return (
@@ -53,23 +57,11 @@ export function Navbar() {
 
             {/* Desktop Nav */}
             <div className="hidden md:flex items-center gap-1">
-              <Link href="/marketplace" className="px-4 py-2 rounded-lg text-[var(--pf-text-secondary)] hover:text-white hover:bg-[var(--pf-surface)] transition-all">
-                Shop
-              </Link>
-              <Link href="/digital" className="px-4 py-2 rounded-lg text-[var(--pf-text-secondary)] hover:text-white hover:bg-[var(--pf-surface)] transition-all">
-                Music
-              </Link>
-              <Link href="/radio" className="px-4 py-2 rounded-lg text-[var(--pf-text-secondary)] hover:text-white hover:bg-[var(--pf-surface)] transition-all">
-                Radio
-              </Link>
-              <Link href="/playlists" className="px-4 py-2 rounded-lg text-[var(--pf-text-secondary)] hover:text-white hover:bg-[var(--pf-surface)] transition-all">
-                Playlists
-              </Link>
-              {user && (
-                <Link href="/dashboard/upload" className="px-4 py-2 rounded-lg bg-[var(--pf-orange)] text-white hover:bg-[var(--pf-orange-light)] transition-all">
-                  Upload
-                </Link>
-              )}
+              <Link href="/marketplace" className="px-4 py-2 rounded-lg text-[var(--pf-text-secondary)] hover:text-white hover:bg-[var(--pf-surface)] transition-all">Shop</Link>
+              <Link href="/digital" className="px-4 py-2 rounded-lg text-[var(--pf-text-secondary)] hover:text-white hover:bg-[var(--pf-surface)] transition-all">Music</Link>
+              <Link href="/radio" className="px-4 py-2 rounded-lg text-[var(--pf-text-secondary)] hover:text-white hover:bg-[var(--pf-surface)] transition-all">Radio</Link>
+              <Link href="/playlists" className="px-4 py-2 rounded-lg text-[var(--pf-text-secondary)] hover:text-white hover:bg-[var(--pf-surface)] transition-all">Playlists</Link>
+              {user && <Link href="/dashboard/upload" className="px-4 py-2 rounded-lg bg-[var(--pf-orange)] text-white hover:bg-[var(--pf-orange-light)] transition-all">Upload</Link>}
             </div>
 
             {/* Right Side */}
@@ -85,33 +77,19 @@ export function Navbar() {
               
               {user ? (
                 <div className="hidden md:block relative">
-                  <button 
-                    onClick={() => setProfileOpen(!profileOpen)}
-                    className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[var(--pf-surface)] border border-[var(--pf-border)] hover:border-[var(--pf-orange)]"
-                  >
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--pf-orange)] to-purple-600 flex items-center justify-center text-white text-sm font-semibold">
-                      {user.email?.[0].toUpperCase()}
-                    </div>
+                  <button onClick={() => setProfileOpen(!profileOpen)} className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[var(--pf-surface)] border border-[var(--pf-border)] hover:border-[var(--pf-orange)]">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--pf-orange)] to-purple-600 flex items-center justify-center text-white text-sm font-semibold">{user.email?.[0].toUpperCase()}</div>
                     <span className="hidden lg:block text-sm">{user.email?.split('@')[0]}</span>
                   </button>
-                  
                   {profileOpen && (
                     <div className="absolute right-0 mt-2 w-48 bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-xl shadow-xl overflow-hidden z-50">
-                      <div className="px-4 py-3 border-b border-[var(--pf-border)]">
-                        <p className="text-sm font-medium truncate">{user.email}</p>
-                      </div>
+                      <div className="px-4 py-3 border-b border-[var(--pf-border)]"><p className="text-sm font-medium truncate">{user.email}</p></div>
                       <div className="py-1">
-                        <Link href="/dashboard/artist" className="flex items-center gap-2 px-4 py-2 text-sm text-[var(--pf-text-secondary)] hover:bg-[var(--pf-bg)] hover:text-white" onClick={() => setProfileOpen(false)}>
-                          <User size={16} /> Dashboard
-                        </Link>
-                        <Link href="/dashboard/upload" className="flex items-center gap-2 px-4 py-2 text-sm text-[var(--pf-orange)] hover:bg-[var(--pf-bg)]" onClick={() => setProfileOpen(false)}>
-                          <Upload size={16} /> Upload Music
-                        </Link>
+                        <Link href="/dashboard/artist" className="flex items-center gap-2 px-4 py-2 text-sm text-[var(--pf-text-secondary)] hover:bg-[var(--pf-bg)] hover:text-white" onClick={() => setProfileOpen(false)}><User size={16} /> Dashboard</Link>
+                        <Link href="/dashboard/upload" className="flex items-center gap-2 px-4 py-2 text-sm text-[var(--pf-orange)] hover:bg-[var(--pf-bg)]" onClick={() => setProfileOpen(false)}><Upload size={16} /> Upload Music</Link>
                       </div>
                       <div className="border-t border-[var(--pf-border)] py-1">
-                        <button onClick={handleSignOut} className="flex items-center gap-2 px-4 py-2 w-full text-sm text-[var(--pf-text-secondary)] hover:bg-[var(--pf-bg)] hover:text-red-400">
-                          <LogOut size={16} /> Sign Out
-                        </button>
+                        <button onClick={handleSignOut} className="flex items-center gap-2 px-4 py-2 w-full text-sm text-[var(--pf-text-secondary)] hover:bg-[var(--pf-bg)] hover:text-red-400"><LogOut size={16} /> Sign Out</button>
                       </div>
                     </div>
                   )}
@@ -123,12 +101,8 @@ export function Navbar() {
                 </div>
               )}
 
-              {/* Mobile Toggle */}
-              <button 
-                onClick={toggleMobile}
-                className="p-2 rounded-lg hover:bg-[var(--pf-surface)] transition-colors touch-manipulation md:hidden"
-                aria-label="Toggle menu"
-              >
+              {/* Mobile Toggle - Always visible */}
+              <button onClick={toggleMobile} className="p-2 rounded-lg hover:bg-[var(--pf-surface)] transition-colors touch-manipulation" aria-label="Toggle menu">
                 {mobileOpen ? <X size={24} /> : <Menu size={24} />}
               </button>
             </div>
@@ -136,20 +110,16 @@ export function Navbar() {
         </div>
       </nav>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu - Always in DOM, controlled by state */}
       <div 
-        className={`fixed inset-0 z-[100] bg-[var(--pf-bg)] overflow-y-auto transition-transform duration-300 md:hidden ${
-          mobileOpen ? 'translate-x-0' : 'translate-x-full'
+        className={`fixed left-0 right-0 bottom-0 z-[100] bg-[var(--pf-bg)] overflow-y-auto transition-all duration-300 ${
+          mobileOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-full pointer-events-none'
         }`}
         style={{ top: '64px' }}
       >
         <div className="p-4 space-y-2">
           {/* Wallet */}
-          <Link 
-            href="/wallet" 
-            className="flex items-center gap-3 px-4 py-4 bg-[var(--pf-orange)]/10 rounded-xl text-[var(--pf-orange)] font-medium"
-            onClick={closeMobile}
-          >
+          <Link href="/wallet" className="flex items-center gap-3 px-4 py-4 bg-[var(--pf-orange)]/10 rounded-xl text-[var(--pf-orange)] font-medium" onClick={closeMobile}>
             <DollarSign size={20} />
             <span>Wallet: {formatWalletBalance()}</span>
           </Link>
