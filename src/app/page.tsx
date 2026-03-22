@@ -3,13 +3,19 @@
 import Link from 'next/link';
 import { Play, Headphones, ArrowRight, Music, Star, Users, DollarSign, Upload } from 'lucide-react';
 import { useSupabase } from '@/app/providers';
-import { TRACKS, ARTISTS, PRODUCTS } from '@/lib/data';
+import { TRACKS, PRODUCTS } from '@/lib/data';
 
 export default function Home() {
   const { user } = useSupabase();
   const featuredTracks = TRACKS.slice(0, 3);
   const featuredProducts = PRODUCTS.filter(p => p.category === 'merch' || p.category === 'music').slice(0, 3);
-  const artist = ARTISTS[0];
+  // Featured artist from first track
+  const artist = { 
+    name: 'O D Porter', 
+    bio: 'Independent artist from St. Louis. Born in Miami, raised in NOLA & STL.',
+    supporters: 12500,
+    earnings: 45000
+  };
 
   return (
     <div className="min-h-screen">

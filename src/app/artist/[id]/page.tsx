@@ -84,13 +84,17 @@ export default function ArtistProfilePage({ params }: { params: { id: string } }
   const playAlbum = (albumName: string) => {
     const albumTracks = albums[albumName] || [];
     if (albumTracks.length > 0) {
-      setQueue(albumTracks.map(t => ({
-        ...t,
-        duration: typeof t.duration === 'string' ? parseInt(t.duration.split(':').reduce((acc: number, t: string) => (60 * acc) + parseInt(t), 0)) : t.duration || 180
+      setQueue(albumTracks.map(track => ({
+        ...track,
+        duration: typeof track.duration === 'string' 
+          ? track.duration.split(':').reduce((acc: number, part: string) => (60 * acc) + parseInt(part), 0)
+          : track.duration || 180
       })));
       playTrack({
         ...albumTracks[0],
-        duration: typeof albumTracks[0].duration === 'string' ? parseInt(albumTracks[0].duration.split(':').reduce((acc: number, t: string) => (60 * acc) + parseInt(t), 0)) : albumTracks[0].duration || 180
+        duration: typeof albumTracks[0].duration === 'string' 
+          ? albumTracks[0].duration.split(':').reduce((acc: number, part: string) => (60 * acc) + parseInt(part), 0)
+          : albumTracks[0].duration || 180
       } as any);
     }
   };

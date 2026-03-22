@@ -136,4 +136,4 @@ export const ALBUMS = {
   levi: { id: 'levi', name: 'Levi', artist: 'Jai Jai', year: 2024, image: '/album-art/Levi.jpg', tracks: 9 },
 };
 
-export { TRACKS, audio };
+export { audio };
