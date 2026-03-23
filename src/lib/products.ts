@@ -212,8 +212,8 @@ export const ALL_PRODUCTS = [
   ...p,
   id: p.id || `product-${i}`,
   // Use Printful mockup image if available, otherwise use category placeholder
-  images: p.image 
-    ? [p.image]
+  images: (p as any).image 
+    ? [(p as any).image]
     : [`https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500`],
   rating: 4.3 + (Math.random() * 0.7),
   reviews: Math.floor(Math.random() * 150) + 20,
