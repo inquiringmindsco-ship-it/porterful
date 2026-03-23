@@ -154,7 +154,7 @@ textarea,
 select {
   @apply w-full px-4 py-3 rounded-lg border border-[var(--pf-border)] bg-[var(--pf-bg)] text-[var(--pf-text)];
   @apply placeholder:text-[var(--pf-text-muted)];
-  @apply focus:outline-none focus:border-[var(--pf-orange)] focus:ring-2 focus:ring-[var(--pf-orange)]/20;
+  @apply focus:outline-none focus:border-[var(--pf-orange)] focus:ring-2 focus:ring-orange-500/30;
 }
 
 input[type="text"]::placeholder,
