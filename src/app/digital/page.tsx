@@ -1,231 +1,444 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { useSupabase } from '@/app/providers';
-import { Play, Pause, Heart, Star } from 'lucide-react';
+import { useState, useRef, useEffect, useCallback } from 'react'
+import Link from 'next/link'
+import { useAudio } from '@/lib/audio-context'
+import { TRACKS, ALBUMS } from '@/lib/data'
 
-interface Track {
-  id: string;
-  title: string;
-  artist: string;
-  album: string | null;
-  duration: string;
-  price: number;
-  audio_url: string;
-  cover_url?: string;
-  play_count: number;
+// Custom Porterful Icons
+const Icon = {
+  Play: () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+      <polygon points="5,3 19,12 5,21" />
+    </svg>
+  ),
+  Pause: () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+      <rect x="6" y="4" width="4" height="16" rx="1" />
+      <rect x="14" y="4" width="4" height="16" rx="1" />
+    </svg>
+  ),
+  Search: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="11" cy="11" r="8" />
+      <line x1="21" y1="21" x2="16.65" y2="16.65" />
+    </svg>
+  ),
+  ChevronLeft: () => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <polyline points="15,18 9,12 15,6" />
+    </svg>
+  ),
+  ChevronRight: () => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <polyline points="9,18 15,12 9,6" />
+    </svg>
+  ),
+  Music: () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M9 18V5l12-2v13" />
+      <circle cx="6" cy="18" r="3" />
+      <circle cx="18" cy="16" r="3" />
+    </svg>
+  ),
+  Disc: () => (
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <circle cx="12" cy="12" r="10" />
+      <circle cx="12" cy="12" r="3" />
+      <path d="M12 2a10 10 0 0 1 10 10" opacity="0.3" />
+    </svg>
+  ),
 }
 
-// Demo tracks as fallback
-const DEMO_TRACKS: Track[] = [
-  { id: '1', title: 'Oddysee', artist: 'O D Porter', album: 'Ambiguous EP', duration: '3:42', price: 5, audio_url: '', play_count: 12400 },
-  { id: '2', title: 'Midnight Drive', artist: 'O D Porter', album: 'Ambiguous EP', duration: '4:15', price: 5, audio_url: '', play_count: 8900 },
-  { id: '3', title: 'Movement', artist: 'O D Porter', album: 'Ambiguous EP', duration: '3:58', price: 5, audio_url: '', play_count: 15600 },
-  { id: '4', title: 'Lost in Transit', artist: 'O D Porter', album: 'Ambiguous EP', duration: '3:21', price: 5, audio_url: '', play_count: 6200 },
-  { id: '5', title: 'Ambiguous', artist: 'O D Porter', album: 'Ambiguous EP', duration: '4:02', price: 5, audio_url: '', play_count: 9800 },
-];
+// EQ Visualizer Component
+function EQVisualizer({ isPlaying }: { isPlaying: boolean }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const animationRef = useRef<number>()
+  const barsRef = useRef<number[]>(Array(32).fill(0))
 
-export default function DigitalPage() {
-  const { supabase } = useSupabase();
-  const [tracks, setTracks] = useState<Track[]>(DEMO_TRACKS);
-  const [loading, setLoading] = useState(true);
-  const [playing, setPlaying] = useState<string | null>(null);
-  const [liked, setLiked] = useState<string[]>([]);
-
-  const artist = { name: 'O D Porter', bio: 'Independent artist from St. Louis. Born in Miami, raised in NOLA & STL.', location: 'St. Louis, MO' };
-  const album = { title: 'Ambiguous', type: 'EP', year: '2026', tracks: 5, price: 5 };
-
-  // Load real tracks from Supabase
   useEffect(() => {
-    async function loadTracks() {
-      if (!supabase) {
-        setLoading(false);
-        return;
+    const canvas = canvasRef.current
+    if (!canvas) return
+
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+      
+      const barCount = 32
+      const barWidth = canvas.width / barCount - 2
+      const centerY = canvas.height / 2
+
+      for (let i = 0; i < barCount; i++) {
+        // Simulate audio data with smooth randomness
+        if (isPlaying) {
+          const target = Math.random() * canvas.height * 0.4
+          barsRef.current[i] += (target - barsRef.current[i]) * 0.3
+        } else {
+          barsRef.current[i] *= 0.95 // Decay when paused
+        }
+        
+        const barHeight = barsRef.current[i]
+        const x = i * (barWidth + 2)
+        
+        // Gradient from orange to purple
+        const gradient = ctx.createLinearGradient(x, centerY - barHeight, x, centerY + barHeight)
+        gradient.addColorStop(0, '#f97316')
+        gradient.addColorStop(1, '#7c3aed')
+        
+        ctx.fillStyle = gradient
+        ctx.fillRect(x, centerY - barHeight, barWidth, barHeight * 2)
       }
       
-      try {
-        const { data, error } = await supabase
-          .from('tracks')
-          .select('*')
-          .order('created_at', { ascending: false });
-        
-        if (data && data.length > 0) {
-          setTracks(data as Track[]);
-        }
-      } catch (err) {
-        console.error('Failed to load tracks:', err);
-      } finally {
-        setLoading(false);
+      animationRef.current = requestAnimationFrame(draw)
+    }
+
+    draw()
+
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current)
       }
     }
-    
-    loadTracks();
-  }, [supabase]);
-
-  const togglePlay = (trackId: string) => {
-    setPlaying(playing === trackId ? null : trackId);
-  };
-
-  const toggleLike = (trackId: string) => {
-    setLiked(prev => prev.includes(trackId) ? prev.filter(id => id !== trackId) : [...prev, trackId]);
-  };
+  }, [isPlaying])
 
   return (
-    <div className="min-h-screen bg-[var(--pf-bg)]">
-      {/* Hero */}
-      <section className="py-12 md:py-20">
-        <div className="pf-container">
-          <div className="max-w-4xl mx-auto">
-            <Link href="/" className="text-[var(--pf-text-muted)] hover:text-white transition-colors mb-6 inline-block">
-              ← Back to home
-            </Link>
+    <canvas 
+      ref={canvasRef} 
+      width={300} 
+      height={100} 
+      className="w-full"
+      style={{ maxWidth: '100%' }}
+    />
+  )
+}
 
-            <div className="grid md:grid-cols-[300px_1fr] gap-8 md:gap-12">
-              {/* Cover */}
-              <div className="aspect-square rounded-2xl overflow-hidden shadow-2xl shadow-[var(--pf-orange)]/20 bg-[var(--pf-surface)] flex items-center justify-center">
-                {tracks[0]?.cover_url ? (
-                  <img src={tracks[0].cover_url} alt={album.title} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-[var(--pf-orange)]/30 to-purple-600/30 flex items-center justify-center">
-                    <span className="text-8xl">💿</span>
-                  </div>
-                )}
+// Scrollable Carousel Component
+function Carousel({ children }: { children: React.ReactNode }) {
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const [canScrollLeft, setCanScrollLeft] = useState(false)
+  const [canScrollRight, setCanScrollRight] = useState(true)
+
+  const checkScroll = useCallback(() => {
+    if (!scrollRef.current) return
+    const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current
+    setCanScrollLeft(scrollLeft > 0)
+    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10)
+  }, [])
+
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
+    el.addEventListener('scroll', checkScroll)
+    checkScroll()
+    return () => el.removeEventListener('scroll', checkScroll)
+  }, [checkScroll])
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (!scrollRef.current) return
+    const scrollAmount = scrollRef.current.clientWidth * 0.8
+    scrollRef.current.scrollBy({
+      left: direction === 'left' ? -scrollAmount : scrollAmount,
+      behavior: 'smooth'
+    })
+  }
+
+  return (
+    <div className="relative">
+      {canScrollLeft && (
+        <button 
+          onClick={() => scroll('left')}
+          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-black/80 rounded-full flex items-center justify-center text-white hover:bg-black"
+        >
+          <Icon.ChevronLeft />
+        </button>
+      )}
+      <div 
+        ref={scrollRef}
+        className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth"
+        style={{ scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch' }}
+      >
+        {children}
+      </div>
+      {canScrollRight && (
+        <button 
+          onClick={() => scroll('right')}
+          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-black/80 rounded-full flex items-center justify-center text-white hover:bg-black"
+        >
+          <Icon.ChevronRight />
+        </button>
+      )}
+    </div>
+  )
+}
+
+export default function MusicPage() {
+  const { currentTrack, isPlaying, playTrack, setQueue } = useAudio()
+  const [search, setSearch] = useState('')
+  const [activeTab, setActiveTab] = useState<'artists' | 'albums' | 'songs'>('artists')
+
+  // Filter tracks by search
+  const filteredTracks = search 
+    ? TRACKS.filter(t => 
+        t.title.toLowerCase().includes(search.toLowerCase()) ||
+        t.artist.toLowerCase().includes(search.toLowerCase()) ||
+        t.album?.toLowerCase().includes(search.toLowerCase())
+      )
+    : []
+
+  // Get unique artists
+  const artists = [...new Set(TRACKS.map(t => t.artist))]
+  
+  // Group albums
+  const albums = Object.values(ALBUMS)
+
+  // Play all tracks
+  const playAll = () => {
+    setQueue(TRACKS.map(t => ({
+      ...t,
+      duration: typeof t.duration === 'string' 
+        ? t.duration.split(':').reduce((acc: number, part: string) => (60 * acc) + parseInt(part), 0)
+        : t.duration || 180
+    })))
+    playTrack({
+      ...TRACKS[0],
+      duration: typeof TRACKS[0].duration === 'string'
+        ? TRACKS[0].duration.split(':').reduce((acc: number, part: string) => (60 * acc) + parseInt(part), 0)
+        : TRACKS[0].duration || 180
+    } as any)
+  }
+
+  return (
+    <div className="min-h-screen pt-20 pb-24 overflow-x-hidden">
+      <div className="pf-container max-w-4xl">
+        {/* Header with EQ Visualizer */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className="text-3xl font-bold text-[var(--pf-text)]">Music</h1>
+              <p className="text-[var(--pf-text-secondary)]">{TRACKS.length} tracks • {albums.length} albums</p>
+            </div>
+            <button
+              onClick={playAll}
+              className="pf-btn pf-btn-primary flex items-center gap-2"
+            >
+              {isPlaying ? <Icon.Pause /> : <Icon.Play />}
+              <span className="hidden sm:inline">Play All</span>
+            </button>
+          </div>
+          
+          {/* EQ Visualizer */}
+          <div className="bg-[var(--pf-surface)] rounded-xl p-4 border border-[var(--pf-border)]">
+            <EQVisualizer isPlaying={isPlaying} />
+            {currentTrack && (
+              <div className="mt-3 text-center">
+                <p className="font-medium text-[var(--pf-text)]">{currentTrack.title}</p>
+                <p className="text-sm text-[var(--pf-text-secondary)]">{currentTrack.artist}</p>
               </div>
+            )}
+          </div>
+        </div>
 
-              {/* Info */}
-              <div className="flex flex-col justify-center">
-                <span className="text-sm text-[var(--pf-orange)] font-medium mb-2">
-                  {album.type} • {album.year}
-                </span>
-                <h1 className="text-4xl md:text-5xl font-bold mb-2">{tracks[0]?.album || album.title}</h1>
-                <p className="text-xl text-[var(--pf-text-secondary)] mb-2">{artist.name}</p>
-                <p className="text-[var(--pf-text-muted)] mb-6">
-                  {tracks.length} tracks • {tracks.reduce((sum, t) => sum + (typeof t.play_count === 'number' ? t.play_count : parseInt(t.play_count as any) || 0), 0).toLocaleString()} total plays
-                </p>
-
-                <div className="mb-8">
-                  <span className="text-4xl font-bold">${album.price}</span>
-                  <span className="text-[var(--pf-text-muted)] ml-2">minimum • pay what you want</span>
-                </div>
-
-                <div className="flex flex-wrap gap-3">
-                  <button className="pf-btn pf-btn-primary">
-                    <Play className="inline mr-2" size={18} />
-                    Play All
-                  </button>
-                  <button className="pf-btn pf-btn-secondary">
-                    <Heart className="inline mr-2" size={18} />
-                    Save
-                  </button>
-                </div>
-              </div>
+        {/* Search */}
+        <div className="mb-6">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search artists, albums, songs..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full px-4 py-3 pl-10 rounded-xl border border-[var(--pf-border)] bg-[var(--pf-bg)] text-[var(--pf-text)] placeholder:text-[var(--pf-text-muted)] focus:border-[var(--pf-orange)] focus:outline-none"
+            />
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--pf-text-muted)]">
+              <Icon.Search />
             </div>
           </div>
         </div>
-      </section>
 
-      {/* Tracklist */}
-      <section className="py-12 bg-[var(--pf-bg-secondary)]">
-        <div className="pf-container">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-xl font-bold mb-6">Tracklist</h2>
+        {/* Search Results */}
+        {search && (
+          <div className="mb-8">
+            <h2 className="text-lg font-bold mb-3 text-[var(--pf-text)]">Results for "{search}"</h2>
+            {filteredTracks.length === 0 ? (
+              <p className="text-[var(--pf-text-secondary)]">No results found</p>
+            ) : (
+              <div className="space-y-2">
+                {filteredTracks.slice(0, 10).map(track => (
+                  <button
+                    key={track.id}
+                    onClick={() => playTrack({
+                      ...track,
+                      duration: typeof track.duration === 'string'
+                        ? track.duration.split(':').reduce((acc: number, part: string) => (60 * acc) + parseInt(part), 0)
+                        : track.duration || 180
+                    } as any)}
+                    className={`w-full flex items-center gap-3 p-3 rounded-xl transition-colors ${
+                      currentTrack?.id === track.id
+                        ? 'bg-[var(--pf-orange)]/10 border border-[var(--pf-orange)]'
+                        : 'bg-[var(--pf-surface)] border border-[var(--pf-border)] hover:border-[var(--pf-orange)]'
+                    }`}
+                  >
+                    <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0">
+                      <img src={track.image} alt={track.title} className="w-full h-full object-cover" />
+                    </div>
+                    <div className="flex-1 text-left min-w-0">
+                      <p className={`font-medium truncate ${currentTrack?.id === track.id ? 'text-[var(--pf-orange)]' : 'text-[var(--pf-text)]'}`}>
+                        {track.title}
+                      </p>
+                      <p className="text-sm text-[var(--pf-text-secondary)] truncate">
+                        {track.artist} • {track.album}
+                      </p>
+                    </div>
+                    <span className="text-sm text-[var(--pf-text-secondary)]">${track.price}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
-            {loading && (
-              <div className="text-center py-12">
-                <p className="text-[var(--pf-text-muted)]">Loading tracks...</p>
+        {/* Tabs */}
+        {!search && (
+          <>
+            <div className="flex gap-2 mb-6 overflow-x-auto scrollbar-hide">
+              {['artists', 'albums', 'songs'].map(tab => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab as any)}
+                  className={`px-4 py-2 rounded-lg whitespace-nowrap transition-colors ${
+                    activeTab === tab
+                      ? 'bg-[var(--pf-orange)] text-white'
+                      : 'bg-[var(--pf-surface)] text-[var(--pf-text-secondary)] hover:text-[var(--pf-text)]'
+                  }`}
+                >
+                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                </button>
+              ))}
+            </div>
+
+            {/* Artists Tab */}
+            {activeTab === 'artists' && (
+              <div className="mb-8">
+                <h2 className="text-lg font-bold mb-4 text-[var(--pf-text)]">Artists</h2>
+                <Carousel>
+                  {artists.map(artist => (
+                    <Link
+                      key={artist}
+                      href={`/artist/${artist.toLowerCase().replace(/\s+/g, '-')}`}
+                      className="flex-shrink-0 w-40"
+                    >
+                      <div className="bg-[var(--pf-surface)] rounded-xl overflow-hidden border border-[var(--pf-border)] hover:border-[var(--pf-orange)] transition-colors">
+                        <div className="aspect-square bg-gradient-to-br from-[var(--pf-orange)]/30 to-purple-600/30 flex items-center justify-center">
+                          <span className="text-4xl font-bold text-white/80">
+                            {artist.charAt(0)}
+                          </span>
+                        </div>
+                        <div className="p-3">
+                          <p className="font-medium text-[var(--pf-text)] truncate">{artist}</p>
+                          <p className="text-xs text-[var(--pf-text-secondary)]">
+                            {TRACKS.filter(t => t.artist === artist).length} tracks
+                          </p>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </Carousel>
               </div>
             )}
 
-            {!loading && tracks.length === 0 && (
-              <div className="pf-card p-12 text-center">
-                <h3 className="text-xl font-bold mb-2">No Tracks Yet</h3>
-                <p className="text-[var(--pf-text-secondary)] mb-4">Upload your first track to get started!</p>
-                <Link href="/dashboard/upload" className="pf-btn pf-btn-primary">Upload Music</Link>
+            {/* Albums Tab */}
+            {activeTab === 'albums' && (
+              <div className="mb-8">
+                <h2 className="text-lg font-bold mb-4 text-[var(--pf-text)]">Albums</h2>
+                <Carousel>
+                  {albums.map(album => {
+                    const albumTracks = TRACKS.filter(t => t.album === album.name)
+                    return (
+                      <div
+                        key={album.id}
+                        className="flex-shrink-0 w-44"
+                      >
+                        <div className="bg-[var(--pf-surface)] rounded-xl overflow-hidden border border-[var(--pf-border)] hover:border-[var(--pf-orange)] transition-colors cursor-pointer"
+                          onClick={() => {
+                            setQueue(albumTracks.map(t => ({
+                              ...t,
+                              duration: typeof t.duration === 'string'
+                                ? t.duration.split(':').reduce((acc: number, part: string) => (60 * acc) + parseInt(part), 0)
+                                : t.duration || 180
+                            })))
+                            playTrack({
+                              ...albumTracks[0],
+                              duration: typeof albumTracks[0].duration === 'string'
+                                ? albumTracks[0].duration.split(':').reduce((acc: number, part: string) => (60 * acc) + parseInt(part), 0)
+                                : albumTracks[0].duration || 180
+                            } as any)
+                          }}
+                        >
+                          <div className="aspect-square relative">
+                            <img 
+                              src={album.image} 
+                              alt={album.name}
+                              className="w-full h-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                              <div className="w-12 h-12 rounded-full bg-[var(--pf-orange)] flex items-center justify-center">
+                                <Icon.Play />
+                              </div>
+                            </div>
+                          </div>
+                          <div className="p-3">
+                            <p className="font-medium text-[var(--pf-text)] truncate">{album.name}</p>
+                            <p className="text-xs text-[var(--pf-text-secondary)]">{albumTracks.length} tracks</p>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </Carousel>
               </div>
             )}
 
-            {!loading && tracks.length > 0 && (
-              <div className="pf-card overflow-hidden">
-                <div className="divide-y divide-[var(--pf-border)]">
-                  {tracks.map((track, i) => (
-                    <div key={track.id} className={`flex items-center gap-4 p-4 hover:bg-[var(--pf-surface-hover)] transition-colors ${playing === track.id ? 'bg-[var(--pf-orange)]/5' : ''}`}>
-                      <span className="w-8 text-center text-[var(--pf-text-muted)] font-bold">{i + 1}</span>
-                      
-                      <button onClick={() => togglePlay(track.id)} className="w-10 h-10 rounded-full bg-[var(--pf-surface)] flex items-center justify-center hover:bg-[var(--pf-orange)] transition-colors">
-                        {playing === track.id ? <Pause size={16} className="text-white" /> : <Play size={16} className="text-white ml-0.5" />}
-                      </button>
-
-                      <div className="flex-1 min-w-0">
-                        <p className={`font-semibold truncate ${playing === track.id ? 'text-[var(--pf-orange)]' : ''}`}>{track.title}</p>
-                        <p className="text-sm text-[var(--pf-text-muted)]">
-                          <Link href="/artist/od-porter" className="hover:text-[var(--pf-orange)]">{track.artist}</Link>
+            {/* Songs Tab */}
+            {activeTab === 'songs' && (
+              <div className="mb-8">
+                <h2 className="text-lg font-bold mb-4 text-[var(--pf-text)]">All Songs</h2>
+                <div className="space-y-2">
+                  {TRACKS.slice(0, 20).map(track => (
+                    <button
+                      key={track.id}
+                      onClick={() => playTrack({
+                        ...track,
+                        duration: typeof track.duration === 'string'
+                          ? track.duration.split(':').reduce((acc: number, part: string) => (60 * acc) + parseInt(part), 0)
+                          : track.duration || 180
+                      } as any)}
+                      className={`w-full flex items-center gap-3 p-3 rounded-xl transition-colors ${
+                        currentTrack?.id === track.id
+                          ? 'bg-[var(--pf-orange)]/10 border border-[var(--pf-orange)]'
+                          : 'bg-[var(--pf-surface)] border border-[var(--pf-border)] hover:border-[var(--pf-orange)]'
+                      }`}
+                    >
+                      <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0">
+                        <img src={track.image} alt={track.title} className="w-full h-full object-cover" />
+                      </div>
+                      <div className="flex-1 text-left min-w-0">
+                        <p className={`font-medium truncate ${currentTrack?.id === track.id ? 'text-[var(--pf-orange)]' : 'text-[var(--pf-text)]'}`}>
+                          {track.title}
+                        </p>
+                        <p className="text-sm text-[var(--pf-text-secondary)] truncate">
+                          {track.artist} • {track.album}
                         </p>
                       </div>
-
-                      <span className="text-sm text-[var(--pf-text-muted)] hidden sm:block">{(track.play_count / 1000).toFixed(0)}K plays</span>
-                      <span className="text-sm text-[var(--pf-text-muted)]">{track.duration}</span>
-                      
-                      <button onClick={() => toggleLike(track.id)} className={`p-2 rounded-lg transition-colors ${liked.includes(track.id) ? 'text-red-500' : 'text-[var(--pf-text-muted)] hover:text-white'}`}>
-                        <Heart size={18} fill={liked.includes(track.id) ? 'currentColor' : 'none'} />
-                      </button>
-                    </div>
+                      <span className="text-sm text-[var(--pf-text-secondary)]">${track.price}</span>
+                    </button>
                   ))}
                 </div>
               </div>
             )}
-          </div>
-        </div>
-      </section>
-
-      {/* Artist */}
-      <section className="py-12">
-        <div className="pf-container">
-          <div className="max-w-4xl mx-auto">
-            <div className="pf-card p-8">
-              <div className="flex items-center gap-6">
-                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[var(--pf-orange)] to-purple-600 flex items-center justify-center text-3xl">
-                  🎤
-                </div>
-                <div>
-                  <h3 className="text-2xl font-bold mb-1">{artist.name}</h3>
-                  <p className="text-[var(--pf-text-muted)]">{artist.location}</p>
-                </div>
-                <div className="ml-auto">
-                  <Link href="/artist/od-porter" className="pf-btn pf-btn-secondary">View Profile</Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Proud to Pay */}
-      <section className="py-12 bg-[var(--pf-bg-secondary)]">
-        <div className="pf-container">
-          <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/10 border border-purple-500/30 rounded-full text-purple-400 text-sm font-medium mb-6">
-              <Star size={14} />
-              PROUD TO PAY
-            </div>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">80% Goes to the Artist</h2>
-            <p className="text-xl text-[var(--pf-text-secondary)] mb-8 max-w-2xl mx-auto">
-              When you buy music here, the artist keeps the majority. No label, no middlemen. Just direct support.
-            </p>
-            <div className="flex justify-center gap-8 mb-8">
-              <div className="text-center">
-                <div className="text-4xl font-bold text-[var(--pf-orange)]">80%</div>
-                <div className="text-sm text-[var(--pf-text-muted)]">To Artist</div>
-              </div>
-              <div className="text-center">
-                <div className="text-4xl font-bold text-[var(--pf-text-secondary)]">20%</div>
-                <div className="text-sm text-[var(--pf-text-muted)]">Platform Fee</div>
-              </div>
-            </div>
-            <Link href="/support" className="pf-btn pf-btn-primary">Find Artists to Support</Link>
-          </div>
-        </div>
-      </section>
+          </>
+        )}
+      </div>
     </div>
-  );
+  )
 }
