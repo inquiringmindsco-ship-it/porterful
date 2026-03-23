@@ -67,13 +67,13 @@ export default function ProudToPayPage() {
                   Other songs locked
                 </li>
               </ul>
-              <Link href="/digital" className="pf-btn pf-btn-secondary w-full">
+              <Link href="/digital" className="block w-full py-3 px-6 bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-xl font-medium text-center hover:border-[var(--pf-orange)] transition-colors">
                 Browse Songs
               </Link>
             </div>
 
             {/* Album */}
-            <div className="pf-card p-6 text-center border-purple-500/50">
+            <div className="pf-card p-6 text-center border-2 border-purple-500/50">
               <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-purple-500/20 flex items-center justify-center">
                 <Music className="text-purple-400" size={28} />
               </div>
@@ -94,13 +94,13 @@ export default function ProudToPayPage() {
                   Other albums locked
                 </li>
               </ul>
-              <Link href="/digital" className="pf-btn pf-btn-secondary w-full">
+              <Link href="/digital" className="block w-full py-3 px-6 bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-xl font-medium text-center hover:border-purple-500 transition-colors">
                 Browse Albums
               </Link>
             </div>
 
             {/* Full Access */}
-            <div className="pf-card p-6 text-center border-[var(--pf-orange)] relative overflow-hidden">
+            <div className="pf-card p-6 text-center border-2 border-[var(--pf-orange)] relative overflow-hidden">
               <div className="absolute top-0 left-0 right-0 bg-[var(--pf-orange)] text-white text-xs font-bold py-1 text-center">
                 BEST VALUE
               </div>
@@ -128,7 +128,7 @@ export default function ProudToPayPage() {
                   No subscription
                 </li>
               </ul>
-              <Link href="/support?tier=full" className="pf-btn pf-btn-primary w-full">
+              <Link href="/support?tier=full" className="block w-full py-3 px-6 bg-[var(--pf-orange)] text-white rounded-xl font-medium text-center hover:bg-[var(--pf-orange-dark)] transition-colors">
                 Unlock Everything
               </Link>
             </div>
@@ -137,13 +137,13 @@ export default function ProudToPayPage() {
 
         {/* Marketplace Alternative */}
         <div className="max-w-3xl mx-auto mb-16">
-          <div className="pf-card p-8 text-center bg-gradient-to-r from-purple-500/10 to-[var(--pf-orange)]/10">
+          <div className="pf-card p-8 text-center bg-gradient-to-r from-purple-500/10 to-[var(--pf-orange)]/10 border border-[var(--pf-orange)]/30">
             <h3 className="text-xl font-bold mb-3">Or Shop the Marketplace</h3>
-            <p className="text-[var(--pf-text-secondary)] mb-4">
+            <p className="text-[var(--pf-text-secondary)] mb-6">
               Spend <strong>$10+ in the marketplace</strong> and get full music access included.
               Buy what you need, support artists, unlock everything.
             </p>
-            <Link href="/marketplace" className="pf-btn pf-btn-primary">
+            <Link href="/marketplace" className="inline-block py-3 px-8 bg-[var(--pf-orange)] text-white rounded-xl font-medium hover:bg-[var(--pf-orange-dark)] transition-colors">
               Shop Marketplace
             </Link>
           </div>
