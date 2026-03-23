@@ -4,7 +4,18 @@ import { useState } from 'react';
 import { useSupabase } from '@/app/providers';
 import { TRACKS, ALBUMS, PRODUCTS } from '@/lib/data';
 import Link from 'next/link';
-import { Music, Package, Upload, Settings, Star, Eye, EyeOff, Trash2, Edit, Plus, ChevronUp, ChevronDown, ArrowUp, ArrowDown } from 'lucide-react';
+
+// Custom Icons
+const Icon = {
+  Music: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></svg>,
+  Package: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16.5 9.4l-9-5.19M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" /><polyline points="3.27,6.96 12,12.01 20.73,6.96" /><line x1="12" y1="22.08" x2="12" y2="12" /></svg>,
+  Upload: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" /><polyline points="17,8 12,3 7,8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>,
+  Star: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" /></svg>,
+  Eye: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>,
+  Users: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 00-3-3.87" /><path d="M16 3.13a4 4 0 010 7.75" /></svg>,
+  ChevronUp: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="18,15 12,9 6,15" /></svg>,
+  ChevronDown: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6,9 12,15 18,9" /></svg>,
+};
 
 export default function ArtistDashboardPage() {
   const { user } = useSupabase();
@@ -44,19 +55,24 @@ export default function ArtistDashboardPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold">Artist Dashboard</h1>
+            <h1 className="text-3xl font-bold text-[var(--pf-text)]">Artist Dashboard</h1>
             <p className="text-[var(--pf-text-secondary)]">Manage your music, albums, and products</p>
           </div>
-          <Link href="/dashboard/upload" className="pf-btn pf-btn-primary">
-            <Upload size={18} className="inline mr-2" />Upload New
-          </Link>
+          <div className="flex gap-3">
+            <Link href="/dashboard/collaborations" className="pf-btn pf-btn-secondary flex items-center gap-2">
+              <Icon.Users /> Collaborations
+            </Link>
+            <Link href="/dashboard/upload" className="pf-btn pf-btn-primary flex items-center gap-2">
+              <Icon.Upload /> Upload New
+            </Link>
+          </div>
         </div>
 
         {/* Quick Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <div className="pf-card p-4">
             <div className="flex items-center gap-3">
-              <Music className="text-purple-400" size={24} />
+              <div className="text-purple-400"><Icon.Music /></div>
               <div>
                 <p className="text-2xl font-bold">{TRACKS.length}</p>
                 <p className="text-sm text-[var(--pf-text-muted)]">Tracks</p>
@@ -65,7 +81,7 @@ export default function ArtistDashboardPage() {
           </div>
           <div className="pf-card p-4">
             <div className="flex items-center gap-3">
-              <Package className="text-[var(--pf-orange)]" size={24} />
+              <div className="text-[var(--pf-orange)]"><Icon.Package /></div>
               <div>
                 <p className="text-2xl font-bold">{Object.keys(ALBUMS).length}</p>
                 <p className="text-sm text-[var(--pf-text-muted)]">Albums</p>
@@ -74,7 +90,7 @@ export default function ArtistDashboardPage() {
           </div>
           <div className="pf-card p-4">
             <div className="flex items-center gap-3">
-              <Star className="text-yellow-400" size={24} />
+              <div className="text-yellow-400"><Icon.Star /></div>
               <div>
                 <p className="text-2xl font-bold">{PRODUCTS.length}</p>
                 <p className="text-sm text-[var(--pf-text-muted)]">Products</p>
@@ -83,7 +99,7 @@ export default function ArtistDashboardPage() {
           </div>
           <div className="pf-card p-4">
             <div className="flex items-center gap-3">
-              <Eye className="text-blue-400" size={24} />
+              <div className="text-blue-400"><Icon.Eye /></div>
               <div>
                 <p className="text-2xl font-bold">{TRACKS.reduce((sum, t) => sum + (t.plays || 0), 0) / 1000}K</p>
                 <p className="text-sm text-[var(--pf-text-muted)]">Plays</p>
@@ -116,16 +132,16 @@ export default function ArtistDashboardPage() {
                   {/* Reorder buttons */}
                   <div className="flex flex-col gap-1">
                     <button onClick={() => moveAlbumUp(index)} disabled={index === 0} className="p-1 hover:bg-[var(--pf-surface)] rounded disabled:opacity-30">
-                      <ChevronUp size={16} />
+                      <Icon.ChevronUp />
                     </button>
                     <button onClick={() => moveAlbumDown(index)} disabled={index === albums.length - 1} className="p-1 hover:bg-[var(--pf-surface)] rounded disabled:opacity-30">
-                      <ChevronDown size={16} />
+                      <Icon.ChevronDown />
                     </button>
                   </div>
                   
                   {/* Album art */}
                   <div className="w-16 h-16 rounded-lg overflow-hidden bg-gradient-to-br from-[var(--pf-orange)]/30 to-purple-600/30 flex items-center justify-center shrink-0">
-                    {album.image ? <img src={album.image} alt={album.name} className="w-full h-full object-cover" /> : <Music size={24} className="text-white/50" />}
+                    {album.image ? <img src={album.image} alt={album.name} className="w-full h-full object-cover" /> : <Icon.Music />}
                   </div>
                   
                   {/* Album info */}
