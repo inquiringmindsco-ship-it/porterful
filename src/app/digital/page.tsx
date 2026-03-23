@@ -34,84 +34,36 @@ const Icon = {
       <polyline points="9,18 15,12 9,6" />
     </svg>
   ),
-  Music: () => (
+  Heart: () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2">
+      <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
+    </svg>
+  ),
+  DollarSign: () => (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M9 18V5l12-2v13" />
-      <circle cx="6" cy="18" r="3" />
-      <circle cx="18" cy="16" r="3" />
+      <line x1="12" y1="1" x2="12" y2="23" />
+      <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
     </svg>
   ),
-  Disc: () => (
-    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-      <circle cx="12" cy="12" r="10" />
-      <circle cx="12" cy="12" r="3" />
-      <path d="M12 2a10 10 0 0 1 10 10" opacity="0.3" />
+  ShoppingCart: () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="9" cy="21" r="1" />
+      <circle cx="20" cy="21" r="1" />
+      <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6" />
     </svg>
   ),
-}
-
-// EQ Visualizer Component
-function EQVisualizer({ isPlaying }: { isPlaying: boolean }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const animationRef = useRef<number>()
-  const barsRef = useRef<number[]>(Array(32).fill(0))
-
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-
-    const draw = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
-      
-      const barCount = 32
-      const barWidth = canvas.width / barCount - 2
-      const centerY = canvas.height / 2
-
-      for (let i = 0; i < barCount; i++) {
-        // Simulate audio data with smooth randomness
-        if (isPlaying) {
-          const target = Math.random() * canvas.height * 0.4
-          barsRef.current[i] += (target - barsRef.current[i]) * 0.3
-        } else {
-          barsRef.current[i] *= 0.95 // Decay when paused
-        }
-        
-        const barHeight = barsRef.current[i]
-        const x = i * (barWidth + 2)
-        
-        // Gradient from orange to purple
-        const gradient = ctx.createLinearGradient(x, centerY - barHeight, x, centerY + barHeight)
-        gradient.addColorStop(0, '#f97316')
-        gradient.addColorStop(1, '#7c3aed')
-        
-        ctx.fillStyle = gradient
-        ctx.fillRect(x, centerY - barHeight, barWidth, barHeight * 2)
-      }
-      
-      animationRef.current = requestAnimationFrame(draw)
-    }
-
-    draw()
-
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current)
-      }
-    }
-  }, [isPlaying])
-
-  return (
-    <canvas 
-      ref={canvasRef} 
-      width={300} 
-      height={100} 
-      className="w-full"
-      style={{ maxWidth: '100%' }}
-    />
-  )
+  Plus: () => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <line x1="12" y1="5" x2="12" y2="19" />
+      <line x1="5" y1="12" x2="19" y2="12" />
+    </svg>
+  ),
+  X: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <line x1="18" y1="6" x2="6" y2="18" />
+      <line x1="6" y1="6" x2="18" y2="18" />
+    </svg>
+  ),
 }
 
 // Scrollable Carousel Component
@@ -173,10 +125,103 @@ function Carousel({ children }: { children: React.ReactNode }) {
   )
 }
 
+// Buy Button Component
+function BuyButton({ track, onBuy }: { track: typeof TRACKS[0], onBuy: (track: typeof TRACKS[0], tip: number) => void }) {
+  const [showTip, setShowTip] = useState(false)
+  const [tip, setTip] = useState(0)
+  
+  return (
+    <div className="flex items-center gap-2">
+      <button
+        onClick={() => setShowTip(true)}
+        className="px-3 py-1.5 bg-[var(--pf-orange)] text-white rounded-lg text-sm font-medium hover:bg-[var(--pf-orange)]/80 transition-colors flex items-center gap-1"
+      >
+        <Icon.DollarSign />
+        ${track.price}
+      </button>
+      <button
+        onClick={() => setShowTip(true)}
+        className="p-1.5 rounded-lg text-[var(--pf-text-secondary)] hover:text-red-400 hover:bg-red-500/10 transition-colors"
+        title="Tip artist"
+      >
+        <Icon.Heart />
+      </button>
+      
+      {showTip && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <div className="bg-[var(--pf-bg)] rounded-2xl p-6 w-full max-w-md shadow-2xl">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-[var(--pf-text)]">Support {track.artist}</h3>
+              <button onClick={() => setShowTip(false)} className="p-2 hover:bg-[var(--pf-surface)] rounded-lg">
+                <Icon.X />
+              </button>
+            </div>
+            
+            <p className="text-[var(--pf-text-secondary)] mb-4">{track.title}</p>
+            
+            <div className="mb-4">
+              <p className="text-sm text-[var(--pf-text-secondary)] mb-2">Add a tip (optional)</p>
+              <div className="flex gap-2">
+                {[0, 1, 2, 5, 10].map(amount => (
+                  <button
+                    key={amount}
+                    onClick={() => setTip(amount)}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      tip === amount
+                        ? 'bg-[var(--pf-orange)] text-white'
+                        : 'bg-[var(--pf-surface)] text-[var(--pf-text-secondary)] hover:border-[var(--pf-orange)] border border-[var(--pf-border)]'
+                    }`}
+                  >
+                    {amount === 0 ? 'No tip' : `+$${amount}`}
+                  </button>
+                ))}
+              </div>
+            </div>
+            
+            <div className="bg-[var(--pf-surface)] rounded-xl p-4 mb-4">
+              <div className="flex justify-between items-center">
+                <span className="text-[var(--pf-text-secondary)]">Track price</span>
+                <span className="font-bold text-[var(--pf-text)]">${track.price}.00</span>
+              </div>
+              {tip > 0 && (
+                <div className="flex justify-between items-center mt-2">
+                  <span className="text-[var(--pf-text-secondary)]">Tip</span>
+                  <span className="font-bold text-green-400">+${tip}.00</span>
+                </div>
+              )}
+              <div className="flex justify-between items-center mt-3 pt-3 border-t border-[var(--pf-border)]">
+                <span className="font-medium text-[var(--pf-text)]">Total</span>
+                <span className="font-bold text-xl text-[var(--pf-orange)]">${track.price + tip}.00</span>
+              </div>
+            </div>
+            
+            <button
+              onClick={() => {
+                onBuy(track, tip)
+                setShowTip(false)
+              }}
+              className="w-full py-3 bg-[var(--pf-orange)] text-white rounded-xl font-medium hover:bg-[var(--pf-orange-dark)] transition-colors"
+            >
+              Buy Now — One-Time Payment
+            </button>
+            
+            <p className="text-center text-xs text-[var(--pf-text-muted)] mt-3">
+              One-time payment. No subscription. You own it forever.
+            </p>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function MusicPage() {
-  const { currentTrack, isPlaying, playTrack, setQueue } = useAudio()
+  const { currentTrack, isPlaying, playTrack, pause, setQueue } = useAudio()
   const [search, setSearch] = useState('')
   const [activeTab, setActiveTab] = useState<'artists' | 'albums' | 'songs'>('artists')
+  const [previewEnded, setPreviewEnded] = useState(false)
+  const [showSupportPrompt, setShowSupportPrompt] = useState(false)
+  const previewTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   // Filter tracks by search
   const filteredTracks = search 
@@ -192,6 +237,27 @@ export default function MusicPage() {
   
   // Group albums
   const albums = Object.values(ALBUMS)
+
+  // Play track with preview
+  const handlePlayTrack = (track: typeof TRACKS[0]) => {
+    setPreviewEnded(false)
+    setShowSupportPrompt(false)
+    
+    playTrack({
+      ...track,
+      duration: typeof track.duration === 'string'
+        ? track.duration.split(':').reduce((acc: number, part: string) => (60 * acc) + parseInt(part), 0)
+        : track.duration || 180
+    } as any)
+  }
+
+  // Handle buy
+  const handleBuy = (track: typeof TRACKS[0], tip: number) => {
+    // TODO: Integrate with cart/checkout
+    console.log('Buying track:', track.title, 'with tip:', tip)
+    // For now, redirect to checkout with track
+    window.location.href = `/checkout?track=${track.id}&tip=${tip}`
+  }
 
   // Play all tracks
   const playAll = () => {
@@ -212,7 +278,7 @@ export default function MusicPage() {
   return (
     <div className="min-h-screen pt-20 pb-24 overflow-x-hidden">
       <div className="pf-container max-w-4xl">
-        {/* Header with EQ Visualizer */}
+        {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <div>
@@ -228,16 +294,30 @@ export default function MusicPage() {
             </button>
           </div>
           
-          {/* EQ Visualizer */}
-          <div className="bg-[var(--pf-surface)] rounded-xl p-4 border border-[var(--pf-border)]">
-            <EQVisualizer isPlaying={isPlaying} />
-            {currentTrack && (
-              <div className="mt-3 text-center">
-                <p className="font-medium text-[var(--pf-text)]">{currentTrack.title}</p>
-                <p className="text-sm text-[var(--pf-text-secondary)]">{currentTrack.artist}</p>
+          {/* Now Playing - Simple */}
+          {currentTrack && (
+            <div className="bg-[var(--pf-surface)] rounded-xl p-4 border border-[var(--pf-border)]">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0">
+                  <img 
+                    src={currentTrack.image || '/album-art/default.jpg'} 
+                    alt={currentTrack.title}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className={`font-medium truncate ${isPlaying ? 'text-[var(--pf-orange)]' : 'text-[var(--pf-text)]'}`}>
+                    {currentTrack.title}
+                  </p>
+                  <p className="text-sm text-[var(--pf-text-secondary)]">{currentTrack.artist}</p>
+                  <p className="text-xs text-[var(--pf-text-muted)]">{currentTrack.album}</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <BuyButton track={currentTrack as any} onBuy={handleBuy} />
+                </div>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         {/* Search */}
@@ -265,19 +345,14 @@ export default function MusicPage() {
             ) : (
               <div className="space-y-2">
                 {filteredTracks.slice(0, 10).map(track => (
-                  <button
+                  <div
                     key={track.id}
-                    onClick={() => playTrack({
-                      ...track,
-                      duration: typeof track.duration === 'string'
-                        ? track.duration.split(':').reduce((acc: number, part: string) => (60 * acc) + parseInt(part), 0)
-                        : track.duration || 180
-                    } as any)}
-                    className={`w-full flex items-center gap-3 p-3 rounded-xl transition-colors ${
+                    className={`flex items-center gap-3 p-3 rounded-xl transition-colors cursor-pointer ${
                       currentTrack?.id === track.id
                         ? 'bg-[var(--pf-orange)]/10 border border-[var(--pf-orange)]'
                         : 'bg-[var(--pf-surface)] border border-[var(--pf-border)] hover:border-[var(--pf-orange)]'
                     }`}
+                    onClick={() => handlePlayTrack(track)}
                   >
                     <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0">
                       <img src={track.image} alt={track.title} className="w-full h-full object-cover" />
@@ -290,8 +365,8 @@ export default function MusicPage() {
                         {track.artist} • {track.album}
                       </p>
                     </div>
-                    <span className="text-sm text-[var(--pf-text-secondary)]">${track.price}</span>
-                  </button>
+                    <BuyButton track={track} onBuy={handleBuy} />
+                  </div>
                 ))}
               </div>
             )}
@@ -360,20 +435,7 @@ export default function MusicPage() {
                         className="flex-shrink-0 w-44"
                       >
                         <div className="bg-[var(--pf-surface)] rounded-xl overflow-hidden border border-[var(--pf-border)] hover:border-[var(--pf-orange)] transition-colors cursor-pointer"
-                          onClick={() => {
-                            setQueue(albumTracks.map(t => ({
-                              ...t,
-                              duration: typeof t.duration === 'string'
-                                ? t.duration.split(':').reduce((acc: number, part: string) => (60 * acc) + parseInt(part), 0)
-                                : t.duration || 180
-                            })))
-                            playTrack({
-                              ...albumTracks[0],
-                              duration: typeof albumTracks[0].duration === 'string'
-                                ? albumTracks[0].duration.split(':').reduce((acc: number, part: string) => (60 * acc) + parseInt(part), 0)
-                                : albumTracks[0].duration || 180
-                            } as any)
-                          }}
+                          onClick={() => handlePlayTrack(albumTracks[0])}
                         >
                           <div className="aspect-square relative">
                             <img 
@@ -404,20 +466,15 @@ export default function MusicPage() {
               <div className="mb-8">
                 <h2 className="text-lg font-bold mb-4 text-[var(--pf-text)]">All Songs</h2>
                 <div className="space-y-2">
-                  {TRACKS.slice(0, 20).map(track => (
-                    <button
+                  {TRACKS.slice(0, 50).map(track => (
+                    <div
                       key={track.id}
-                      onClick={() => playTrack({
-                        ...track,
-                        duration: typeof track.duration === 'string'
-                          ? track.duration.split(':').reduce((acc: number, part: string) => (60 * acc) + parseInt(part), 0)
-                          : track.duration || 180
-                      } as any)}
-                      className={`w-full flex items-center gap-3 p-3 rounded-xl transition-colors ${
+                      className={`flex items-center gap-3 p-3 rounded-xl transition-colors cursor-pointer ${
                         currentTrack?.id === track.id
                           ? 'bg-[var(--pf-orange)]/10 border border-[var(--pf-orange)]'
                           : 'bg-[var(--pf-surface)] border border-[var(--pf-border)] hover:border-[var(--pf-orange)]'
                       }`}
+                      onClick={() => handlePlayTrack(track)}
                     >
                       <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0">
                         <img src={track.image} alt={track.title} className="w-full h-full object-cover" />
@@ -430,8 +487,8 @@ export default function MusicPage() {
                           {track.artist} • {track.album}
                         </p>
                       </div>
-                      <span className="text-sm text-[var(--pf-text-secondary)]">${track.price}</span>
-                    </button>
+                      <BuyButton track={track} onBuy={handleBuy} />
+                    </div>
                   ))}
                 </div>
               </div>
