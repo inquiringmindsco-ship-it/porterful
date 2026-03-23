@@ -31,9 +31,11 @@ export async function POST(request: NextRequest) {
     // Check if Stripe is configured
     if (!stripe) {
       // Demo mode - return mock session
+      const demoSessionId = `demo_session_${Date.now()}`
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://porterful.com'
       return NextResponse.json({
-        sessionId: `demo_session_${Date.now()}`,
-        url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/checkout/success?demo=true`,
+        sessionId: demoSessionId,
+        url: `${baseUrl}/checkout/success?demo=true&session_id=${demoSessionId}`,
         demo: true,
         message: 'Stripe not configured. Running in demo mode.',
         breakdown: {
@@ -53,13 +55,14 @@ export async function POST(request: NextRequest) {
         price_data: {
           currency: 'usd',
           product_data: {
-            name: item.title,
-            description: item.artist || item.description || '',
+            name: item.name || item.title,
+            description: item.artist ? `by ${item.artist}` : (item.description || ''),
             images: item.image ? [item.image] : [],
           },
-          unit_amount: Math.round(item.price),
+          // Convert dollars to cents (Stripe expects cents)
+          unit_amount: Math.round(item.price * 100),
         },
-        quantity: item.quantity,
+        quantity: item.quantity || 1,
       })),
       mode: 'payment',
       success_url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
@@ -71,6 +74,7 @@ export async function POST(request: NextRequest) {
         artist_fund: artistFund.toString(),
         superfan_share: superfanShare.toString(),
         referral_code: referralCode || '',
+        type: items[0]?.type || 'product',
       },
     })
 
