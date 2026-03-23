@@ -1,24 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server'
-import Stripe from 'stripe'
-
-const stripe = process.env.STRIPE_SECRET_KEY 
-  ? new Stripe(process.env.STRIPE_SECRET_KEY)
-  : null
 
 export async function POST(request: NextRequest) {
   try {
-    if (!stripe) {
+    // Debug: Check env vars
+    const stripeKey = process.env.STRIPE_SECRET_KEY
+    const stripeKeyPreview = stripeKey ? `${stripeKey.slice(0, 10)}...` : 'NOT SET'
+    
+    console.log('STRIPE_SECRET_KEY:', stripeKeyPreview)
+    
+    if (!stripeKey) {
       return NextResponse.json({ 
-        error: 'Stripe not configured',
-        demo: true,
-        url: 'https://porterful.com/checkout/success?demo=true'
+        error: 'Stripe key not found',
+        debug: { 
+          stripeKey: stripeKeyPreview,
+          hasKey: false
+        }
       })
     }
 
+    // Dynamic import Stripe
+    const Stripe = (await import('stripe')).default
+    const stripe = new Stripe(stripeKey)
+    
+    console.log('Stripe initialized, creating session...')
+
     const body = await request.json()
     const { items } = body
-
-    console.log('Items received:', JSON.stringify(items))
+    
+    console.log('Items:', JSON.stringify(items))
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -26,30 +35,33 @@ export async function POST(request: NextRequest) {
         price_data: {
           currency: 'usd',
           product_data: {
-            name: items[0]?.name || 'Track',
-            description: items[0]?.artist ? `by ${items[0].artist}` : undefined,
+            name: items?.[0]?.name || 'Track',
           },
-          unit_amount: 100, // $1.00
+          unit_amount: 100,
         },
         quantity: 1,
       }],
       mode: 'payment',
-      success_url: 'https://porterful.com/checkout/success?session_id={CHECKOUT_SESSION_ID}',
+      success_url: 'https://porterful.com/checkout/success',
       cancel_url: 'https://porterful.com/',
     })
 
-    console.log('Session created:', session.id)
+    console.log('Session created:', session.id, session.url)
 
     return NextResponse.json({
       sessionId: session.id,
-      url: session.url
+      url: session.url,
+      debug: {
+        stripeKey: stripeKeyPreview,
+        hasKey: true
+      }
     })
   } catch (error: any) {
-    console.error('Checkout error:', error)
+    console.error('Error:', error)
     return NextResponse.json({ 
       error: error.message,
       type: error.type,
-      stack: error.stack
+      stack: error.stack?.split('\n').slice(0, 5)
     }, { status: 500 })
   }
 }
