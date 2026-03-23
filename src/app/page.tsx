@@ -202,7 +202,7 @@ export default function Home() {
                   {featuredTracks.slice(0, 5).map(track => (
                     <Link 
                       key={track.id}
-                      href="/digital"
+                      href={`/artist/od-porter`}
                       className="flex items-center gap-3 p-2 rounded-lg hover:bg-[var(--pf-bg)] transition-colors group"
                     >
                       <img src={track.image} alt={track.title} className="w-12 h-12 rounded object-cover" />
@@ -210,7 +210,7 @@ export default function Home() {
                         <p className="font-medium truncate group-hover:text-[var(--pf-orange)] transition-colors">
                           {track.title}
                         </p>
-                        <p className="text-sm text-[var(--pf-text-muted)] truncate">{track.album}</p>
+                        <p className="text-sm text-[var(--pf-text-muted)] truncate hover:text-[var(--pf-orange)]">{track.artist}</p>
                       </div>
                       <span className="text-xs text-[var(--pf-text-muted)]">${track.price}</span>
                     </Link>

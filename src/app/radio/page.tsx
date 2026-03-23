@@ -186,7 +186,13 @@ export default function RadioPage() {
             {/* Track Info Overlay */}
             <div className="absolute bottom-0 left-0 right-0 p-6">
               <h2 className="text-2xl font-bold text-white mb-1 drop-shadow-lg">{currentTrack?.title}</h2>
-              <p className="text-white/90 drop-shadow">{currentTrack?.artist} • {currentTrack?.album}</p>
+              <Link 
+                href={`/artist/${currentTrack?.artist?.toLowerCase().replace(/\s+/g, '-') || 'unknown'}`}
+                className="text-white/90 drop-shadow hover:text-[var(--pf-orange)] transition-colors"
+              >
+                {currentTrack?.artist}
+              </Link>
+              <span className="text-white/70"> • {currentTrack?.album}</span>
             </div>
           </div>
           
@@ -270,7 +276,12 @@ export default function RadioPage() {
             />
             <div className="flex-1 min-w-0">
               <p className="font-medium truncate">{nextTrack?.title}</p>
-              <p className="text-sm text-[var(--pf-text-muted)]">{nextTrack?.artist}</p>
+              <Link 
+                href={`/artist/${nextTrack?.artist?.toLowerCase().replace(/\s+/g, '-') || 'unknown'}`}
+                className="text-sm text-[var(--pf-text-muted)] hover:text-[var(--pf-orange)] transition-colors"
+              >
+                {nextTrack?.artist}
+              </Link>
             </div>
             <span className="text-sm text-[var(--pf-text-muted)]">1 min</span>
           </div>

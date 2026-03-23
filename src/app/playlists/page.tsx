@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { useAudio } from '@/lib/audio-context'
 import { TRACKS } from '@/lib/data'
 
@@ -280,7 +281,9 @@ export default function PlaylistPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-[var(--pf-text)] truncate">{track.title}</p>
-                      <p className="text-sm text-[var(--pf-text-secondary)] truncate">{track.artist}</p>
+                      <Link href={`/artist/${track.artist.toLowerCase().replace(/\s+/g, '-')}`} className="text-sm text-[var(--pf-text-secondary)] truncate hover:text-[var(--pf-orange)] transition-colors block">
+                        {track.artist}
+                      </Link>
                     </div>
                     <span className="text-sm text-[var(--pf-text-secondary)] shrink-0">{track.duration}</span>
                   </button>

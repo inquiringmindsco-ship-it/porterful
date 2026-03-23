@@ -106,9 +106,13 @@ export function GlobalPlayer() {
               <p className={`font-medium truncate ${isPlaying ? 'text-[var(--pf-orange)]' : ''}`}>
                 {currentTrack.title}
               </p>
-              <p className="text-sm text-[var(--pf-text-muted)] truncate">
+              <Link 
+                href={`/artist/${currentTrack.artist?.toLowerCase().replace(/\s+/g, '-') || 'unknown'}`}
+                className="text-sm text-[var(--pf-text-muted)] truncate hover:text-[var(--pf-orange)] transition-colors"
+                onClick={(e) => e.stopPropagation()}
+              >
                 {currentTrack.artist}
-              </p>
+              </Link>
             </div>
 
             {/* Controls */}
@@ -184,7 +188,12 @@ export function GlobalPlayer() {
           {/* Track Info */}
           <div className="px-8 text-center">
             <h2 className="text-2xl font-bold truncate">{currentTrack.title}</h2>
-            <p className="text-lg text-[var(--pf-text-secondary)] truncate">{currentTrack.artist}</p>
+            <Link 
+              href={`/artist/${currentTrack.artist?.toLowerCase().replace(/\s+/g, '-') || 'unknown'}`}
+              className="text-lg text-[var(--pf-text-secondary)] truncate hover:text-[var(--pf-orange)] transition-colors block"
+            >
+              {currentTrack.artist}
+            </Link>
             {currentTrack.album && (
               <p className="text-sm text-[var(--pf-text-muted)] truncate">{currentTrack.album}</p>
             )}
@@ -253,7 +262,13 @@ export function GlobalPlayer() {
             <div className="flex items-start justify-between">
               <div className="flex-1 min-w-0">
                 <h2 className="text-2xl font-bold text-white truncate">{currentTrack.title}</h2>
-                <p className="text-lg text-white/80 truncate">{currentTrack.artist}</p>
+                <Link 
+                  href={`/artist/${currentTrack.artist?.toLowerCase().replace(/\s+/g, '-') || 'unknown'}`}
+                  className="text-lg text-white/80 truncate hover:text-[var(--pf-orange)] transition-colors block"
+                  onClick={() => setShowVisualizer(false)}
+                >
+                  {currentTrack.artist}
+                </Link>
                 {currentTrack.album && (
                   <p className="text-sm text-white/60 truncate">{currentTrack.album}</p>
                 )}

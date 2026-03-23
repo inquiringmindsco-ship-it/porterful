@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useAudio } from '@/lib/audio-context'
 import { TRACKS, ALBUMS } from '@/lib/data'
 import Link from 'next/link'
+import { ArtistLink } from '@/components/ArtistLink'
 
 // Custom Porterful Icons
 const Icon = {
@@ -94,14 +95,14 @@ function BuyButton({ track }: { track: typeof TRACKS[0] }) {
               </button>
             </div>
             
-            <p className="text-[var(--pf-text-secondary)] mb-4">by {track.artist}</p>
+            <p className="text-[var(--pf-text-secondary)] mb-4">by <ArtistLink artist={track.artist} /></p>
             
             {/* Track preview */}
             <div className="flex items-center gap-3 p-3 bg-[var(--pf-surface)] rounded-xl mb-4">
               <img src={track.image} alt={track.title} className="w-16 h-16 rounded-lg object-cover" />
               <div className="flex-1">
                 <p className="font-medium text-[var(--pf-text)]">{track.title}</p>
-                <p className="text-sm text-[var(--pf-text-secondary)]">{track.artist}</p>
+                <p className="text-sm text-[var(--pf-text-secondary)]"><ArtistLink artist={track.artist} className="text-[var(--pf-text-secondary)]" /></p>
                 {track.album && <p className="text-xs text-[var(--pf-text-muted)]">{track.album}</p>}
               </div>
             </div>
@@ -380,7 +381,7 @@ export default function MusicPage() {
                       <p className={`font-medium truncate ${currentTrack?.id === track.id ? 'text-[var(--pf-orange)]' : 'text-[var(--pf-text)]'}`}>
                         {track.title}
                       </p>
-                      <p className="text-sm text-[var(--pf-text-secondary)] truncate">{track.artist} • {track.album}</p>
+                      <p className="text-sm text-[var(--pf-text-secondary)] truncate"><ArtistLink artist={track.artist} className="text-[var(--pf-text-secondary)]" /> • {track.album}</p>
                     </div>
                     <BuyButton track={track} />
                   </div>
@@ -497,7 +498,7 @@ export default function MusicPage() {
                         <p className={`font-medium truncate ${currentTrack?.id === track.id ? 'text-[var(--pf-orange)]' : 'text-[var(--pf-text)]'}`}>
                           {track.title}
                         </p>
-                        <p className="text-sm text-[var(--pf-text-secondary)] truncate">{track.artist} • {track.album}</p>
+                        <p className="text-sm text-[var(--pf-text-secondary)] truncate"><ArtistLink artist={track.artist} className="text-[var(--pf-text-secondary)]" /> • {track.album}</p>
                       </div>
                       <BuyButton track={track} />
                     </div>

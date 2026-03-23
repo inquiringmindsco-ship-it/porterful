@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX } from 'lucide-react';
+import Link from 'next/link';
 
 // Demo tracks
 const DEMO_TRACKS = [
@@ -61,7 +62,9 @@ export function Player() {
           </div>
           <div className="min-w-0">
             <p className="font-medium truncate">{track.title}</p>
-            <p className="text-sm text-[var(--pf-text-muted)] truncate">{track.artist}</p>
+            <Link href={`/artist/${track.artist.toLowerCase().replace(/\s+/g, '-')}`} className="text-sm text-[var(--pf-text-muted)] truncate hover:text-[var(--pf-orange)] transition-colors">
+              {track.artist}
+            </Link>
           </div>
         </div>
 

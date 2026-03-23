@@ -131,10 +131,9 @@ export const TRACKS = [
   { id: 'lev-08', title: 'Pain', artist: 'Jai Jai', album: 'Levi', duration: '3:28', price: 1, plays: 39000, image: ALBUM_ART.Levi, audio_url: audio('Levi', 'Jai_Jai_-_Pain__LEVI_501_Vol.1_.mp3') },
   { id: 'lev-09', title: 'Struggle', artist: 'Jai Jai', album: 'Levi', duration: '4:45', price: 1, plays: 55000, image: ALBUM_ART.Levi, audio_url: audio('Levi', 'Jai_Jai_-_Struggle__LEVI_501_Vol.1_.mp3') },
 
-  // SINGLES - using various album art
-  { id: 'sg-01', title: 'Amen', artist: 'O D Porter', album: 'Singles', duration: '3:42', price: 1, plays: 125000, image: ALBUM_ART.GodIsGood, audio_url: audio('GodIsGood', 'Amen_2.mp3') },
-  { id: 'sg-02', title: "C'est La Vie", artist: 'O D Porter', album: 'Singles', duration: '4:15', price: 1, plays: 89000, image: ALBUM_ART.GodIsGood, audio_url: audio('GodIsGood', 'C_est_La_Vie_2.mp3') },
-  { id: 'sg-03', title: 'Breathe', artist: 'O D Porter', album: 'Singles', duration: '3:30', price: 1, plays: 156000, image: ALBUM_ART.FromFeastToFamine, audio_url: audio('FromFeastToFamine', '02_Breathe.mp3') },
+  // SINGLES - standalone releases
+  { id: 'sg-01', title: 'My Hustle', artist: 'O D Porter', album: 'Singles', duration: '3:15', price: 1, plays: 45000, image: ALBUM_ART.Singles, audio_url: audio('Singles', 'My_Hustle.mp3') },
+  { id: 'sg-02', title: 'Get Involved', artist: 'O D Porter', album: 'Singles', duration: '4:01', price: 1, plays: 67000, image: ALBUM_ART.Singles, audio_url: audio('Singles', 'Get_Involved.mp3') },
 ];
 
 // Album data
