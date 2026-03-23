@@ -4,6 +4,7 @@ import { Providers } from './providers'
 import { Navbar } from '@/components/Navbar'
 import { GlobalPlayer } from '@/components/GlobalPlayer'
 import { Footer } from '@/components/Footer'
+import { InstallPrompt, IOSInstallInstructions } from '@/components/InstallPrompt'
 import Script from 'next/script'
 
 export const metadata: Metadata = {
@@ -136,6 +137,8 @@ export default function RootLayout({
           </main>
           <Footer />
           <GlobalPlayer />
+          <InstallPrompt />
+          <IOSInstallInstructions />
           {/* Structured Data for SEO */}
           <script
             type="application/ld+json"
