@@ -1,22 +1,14 @@
 'use client'
 
 import Script from 'next/script'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 
-// Product categories for filtering
-const CATEGORIES = [
-  'All',
-  'Apparel',
-  'Tech',
-  'Home & Living',
-  'Art',
-  'Accessories',
-]
+// Shopify Buy Button instance for filtering
+let shopifyUI: any = null
 
 export default function MarketplacePage() {
-  const [search, setSearch] = useState('')
-  const [category, setCategory] = useState('All')
   const [loaded, setLoaded] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   // Force light theme on this page only
   useEffect(() => {
@@ -39,77 +31,6 @@ export default function MarketplacePage() {
     }
   }, [])
 
-  // Initialize Shopify after script loads
-  useEffect(() => {
-    const initShopify = () => {
-      if ((window as any).ShopifyBuy && (window as any).ShopifyBuy.UI) {
-        const client = (window as any).ShopifyBuy.buildClient({
-          domain: 'swqtx2-z2.myshopify.com',
-          storefrontAccessToken: 'db4a3ef899f653e334757557b8ab8fba',
-        })
-        
-        ;(window as any).ShopifyBuy.UI.onReady(client).then((ui: any) => {
-          ui.createComponent('collection', {
-            id: '292162404446',
-            node: document.getElementById('collection-component-1774238539516'),
-            moneyFormat: '%24%7B%7Bamount%7D%7D',
-            options: {
-              product: {
-                styles: {
-                  product: {
-                    '@media (min-width: 601px)': {
-                      'max-width': 'calc(25% - 20px)',
-                      'margin-left': '20px',
-                      'margin-bottom': '50px',
-                      width: 'calc(25% - 20px)'
-                    },
-                    img: {
-                      height: 'calc(100% - 15px)',
-                      position: 'absolute',
-                      left: '0',
-                      right: '0',
-                      top: '0'
-                    },
-                    imgWrapper: {
-                      'padding-top': 'calc(75% + 15px)',
-                      position: 'relative',
-                      height: '0'
-                    }
-                  },
-                  button: {
-                    'background-color': '#f97316',
-                    ':hover': { 'background-color': '#ea580c' }
-                  }
-                },
-                text: {
-                  button: 'Add to Cart'
-                }
-              },
-              cart: {
-                styles: {
-                  button: {
-                    'background-color': '#f97316',
-                    ':hover': { 'background-color': '#ea580c' }
-                  }
-                },
-                text: {
-                  total: 'Subtotal',
-                  button: 'Checkout'
-                }
-              }
-            }
-          })
-          setLoaded(true)
-        })
-      }
-    }
-
-    // Check if already loaded
-    if ((window as any).ShopifyBuy && (window as any).ShopifyBuy.UI) {
-      initShopify()
-    }
-  }, [])
-
   return (
     <>
       {/* Shopify Buy Button Script */}
@@ -117,51 +38,68 @@ export default function MarketplacePage() {
         src="https://sdks.shopifycdn.com/buy-button/latest/buy-button-storefront.min.js"
         strategy="afterInteractive"
         onLoad={() => {
-          const initShopify = () => {
-            if ((window as any).ShopifyBuy && (window as any).ShopifyBuy.UI) {
-              const client = (window as any).ShopifyBuy.buildClient({
-                domain: 'swqtx2-z2.myshopify.com',
-                storefrontAccessToken: 'db4a3ef899f653e334757557b8ab8fba',
-              })
-              
-              ;(window as any).ShopifyBuy.UI.onReady(client).then((ui: any) => {
-                ui.createComponent('collection', {
-                  id: '292162404446',
-                  node: document.getElementById('collection-component-1774238539516'),
-                  moneyFormat: '%24%7B%7Bamount%7D%7D',
-                  options: {
-                    product: {
-                      styles: {
-                        product: {
-                          '@media (min-width: 601px)': {
-                            'max-width': 'calc(25% - 20px)',
-                            'margin-left': '20px',
-                            'margin-bottom': '50px',
-                            width: 'calc(25% - 20px)'
-                          }
+          if ((window as any).ShopifyBuy && (window as any).ShopifyBuy.UI) {
+            const client = (window as any).ShopifyBuy.buildClient({
+              domain: 'swqtx2-z2.myshopify.com',
+              storefrontAccessToken: 'db4a3ef899f653e334757557b8ab8fba',
+            })
+            
+            ;(window as any).ShopifyBuy.UI.onReady(client).then((ui: any) => {
+              shopifyUI = ui
+              ui.createComponent('collection', {
+                id: '292162404446',
+                node: document.getElementById('shopify-collection'),
+                moneyFormat: '%24%7B%7Bamount%7D%7D',
+                options: {
+                  product: {
+                    styles: {
+                      product: {
+                        '@media (min-width: 601px)': {
+                          'max-width': 'calc(25% - 20px)',
+                          'margin-left': '20px',
+                          'margin-bottom': '50px',
+                          width: 'calc(25% - 20px)'
                         },
-                        button: {
-                          'background-color': '#f97316',
-                          ':hover': { 'background-color': '#ea580c' }
+                        img: {
+                          height: 'calc(100% - 15px)',
+                          position: 'absolute',
+                          left: '0',
+                          right: '0',
+                          top: '0'
+                        },
+                        imgWrapper: {
+                          'padding-top': 'calc(75% + 15px)',
+                          position: 'relative',
+                          height: '0'
                         }
                       },
-                      text: { button: 'Add to Cart' }
+                      button: {
+                        'background-color': '#f97316',
+                        'font-weight': '600',
+                        ':hover': { 'background-color': '#ea580c' }
+                      }
                     },
-                    cart: {
-                      styles: {
-                        button: {
-                          'background-color': '#f97316',
-                          ':hover': { 'background-color': '#ea580c' }
-                        }
-                      },
-                      text: { total: 'Subtotal', button: 'Checkout' }
+                    text: {
+                      button: 'Add to Cart'
+                    }
+                  },
+                  cart: {
+                    styles: {
+                      button: {
+                        'background-color': '#f97316',
+                        ':hover': { 'background-color': '#ea580c' }
+                      }
+                    },
+                    text: {
+                      total: 'Subtotal',
+                      button: 'Checkout'
                     }
                   }
-                })
+                }
               })
-            }
+              setLoaded(true)
+            })
           }
-          initShopify()
         }}
       />
 
@@ -170,113 +108,76 @@ export default function MarketplacePage() {
           {/* Header */}
           <div className="mb-6">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Marketplace</h1>
-            <p className="text-gray-600">Official Porterful merch — all sales support independent artists</p>
+            <p className="text-gray-600">Official Porterful merch — your purchase supports independent artists</p>
           </div>
 
-          {/* Search and Filters */}
-          <div className="mb-6 space-y-4">
-            {/* Search Bar */}
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search products..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full px-4 py-3 pl-12 rounded-xl border border-gray-200 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
-              />
-              <svg 
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" 
-                width="20" 
-                height="20" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
-                strokeWidth="2"
-              >
-                <circle cx="11" cy="11" r="8" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-              </svg>
-            </div>
-
-            {/* Category Pills */}
-            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-              {CATEGORIES.map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => setCategory(cat)}
-                  className={`px-4 py-2 rounded-full whitespace-nowrap text-sm font-medium transition-colors ${
-                    category === cat
-                      ? 'bg-orange-500 text-white'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
-
-            {/* Quick Filters */}
-            <div className="flex flex-wrap gap-3 text-sm">
-              <span className="text-gray-500">Sort by:</span>
-              <button className="text-orange-500 font-medium hover:underline">Popular</button>
-              <button className="text-gray-600 hover:text-orange-500">Newest</button>
-              <button className="text-gray-600 hover:text-orange-500">Price: Low to High</button>
-              <button className="text-gray-600 hover:text-orange-500">Price: High to Low</button>
-            </div>
+          {/* Quick Category Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+            <a href="#shopify-collection" className="bg-gradient-to-br from-orange-100 to-orange-50 rounded-xl p-4 text-center hover:shadow-md transition-shadow">
+              <div className="text-2xl mb-1">👕</div>
+              <p className="font-medium text-gray-900 text-sm">Apparel</p>
+            </a>
+            <a href="#shopify-collection" className="bg-gradient-to-br from-purple-100 to-purple-50 rounded-xl p-4 text-center hover:shadow-md transition-shadow">
+              <div className="text-2xl mb-1">📱</div>
+              <p className="font-medium text-gray-900 text-sm">Tech</p>
+            </a>
+            <a href="#shopify-collection" className="bg-gradient-to-br from-blue-100 to-blue-50 rounded-xl p-4 text-center hover:shadow-md transition-shadow">
+              <div className="text-2xl mb-1">🏠</div>
+              <p className="font-medium text-gray-900 text-sm">Home</p>
+            </a>
+            <a href="#shopify-collection" className="bg-gradient-to-br from-green-100 to-green-50 rounded-xl p-4 text-center hover:shadow-md transition-shadow">
+              <div className="text-2xl mb-1">🎵</div>
+              <p className="font-medium text-gray-900 text-sm">Music</p>
+            </a>
           </div>
 
-          {/* Featured Categories Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div className="bg-gradient-to-br from-orange-100 to-orange-50 rounded-xl p-4 text-center cursor-pointer hover:shadow-lg transition-shadow">
-              <div className="text-3xl mb-2">👕</div>
-              <p className="font-medium text-gray-900">Apparel</p>
-              <p className="text-sm text-gray-500">Tees, Hoodies & More</p>
-            </div>
-            <div className="bg-gradient-to-br from-purple-100 to-purple-50 rounded-xl p-4 text-center cursor-pointer hover:shadow-lg transition-shadow">
-              <div className="text-3xl mb-2">📱</div>
-              <p className="font-medium text-gray-900">Tech</p>
-              <p className="text-sm text-gray-500">Cases & Accessories</p>
-            </div>
-            <div className="bg-gradient-to-br from-blue-100 to-blue-50 rounded-xl p-4 text-center cursor-pointer hover:shadow-lg transition-shadow">
-              <div className="text-3xl mb-2">🏠</div>
-              <p className="font-medium text-gray-900">Home</p>
-              <p className="text-sm text-gray-500">Mugs, Posters & More</p>
-            </div>
-            <div className="bg-gradient-to-br from-green-100 to-green-50 rounded-xl p-4 text-center cursor-pointer hover:shadow-lg transition-shadow">
-              <div className="text-3xl mb-2">🎵</div>
-              <p className="font-medium text-gray-900">Music</p>
-              <p className="text-sm text-gray-500">Vinyl & CDs</p>
-            </div>
-          </div>
-
-          {/* Info Banner */}
+          {/* Free Shipping Banner */}
           <div className="bg-gradient-to-r from-orange-50 to-purple-50 rounded-xl p-4 mb-6 border border-orange-100">
             <div className="flex items-center gap-3">
-              <div className="text-2xl">🛒</div>
+              <div className="text-2xl">🚚</div>
               <div>
-                <p className="font-medium text-gray-900">Free Shipping on Orders $50+</p>
+                <p className="font-medium text-gray-900">Free shipping on orders $50+</p>
                 <p className="text-sm text-gray-600">All products printed on demand and shipped directly to you</p>
               </div>
             </div>
           </div>
 
-          {/* Shopify Collection */}
-          <div id="collection-component-1774238539516"></div>
+          {/* Shopify Products */}
+          <div ref={containerRef} className="mb-8">
+            {!loaded && (
+              <div className="text-center py-12">
+                <div className="inline-block animate-spin w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full mb-4"></div>
+                <p className="text-gray-500">Loading products...</p>
+              </div>
+            )}
+            <div id="shopify-collection"></div>
+          </div>
 
-          {/* Loading State */}
-          {!loaded && (
-            <div className="text-center py-12">
-              <div className="inline-block animate-spin w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full mb-4"></div>
-              <p className="text-gray-500">Loading products...</p>
+          {/* How to Submit Your Own Merch */}
+          <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
+            <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
+              <div className="text-4xl">🎨</div>
+              <div className="flex-1">
+                <h3 className="font-bold text-gray-900 mb-1">Want to sell your own merch?</h3>
+                <p className="text-gray-600 text-sm">
+                  Artists can submit designs for print-on-demand products. No inventory needed — we handle printing and shipping.
+                </p>
+              </div>
+              <a 
+                href="/dashboard/upload?type=product" 
+                className="px-6 py-3 bg-orange-500 text-white rounded-xl font-medium hover:bg-orange-600 transition-colors whitespace-nowrap"
+              >
+                Submit Design
+              </a>
             </div>
-          )}
+          </div>
 
-          {/* Footer Note */}
-          <div className="mt-12 text-center">
+          {/* Footer */}
+          <div className="mt-8 text-center">
             <p className="text-sm text-gray-500">
-              Checkout powered by Shopify — Your purchase supports independent artists
+              Secure checkout powered by Shopify
             </p>
-            <p className="text-xs text-gray-400 mt-2">
+            <p className="text-xs text-gray-400 mt-1">
               Questions? Contact us at support@porterful.com
             </p>
           </div>
