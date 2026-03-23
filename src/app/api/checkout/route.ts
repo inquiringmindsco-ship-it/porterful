@@ -57,6 +57,15 @@ export async function POST(request: NextRequest) {
     }
 
     // Create Stripe checkout session
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://porterful.com'
+    
+    // Convert relative image URLs to absolute URLs
+    const absoluteImageUrl = (imagePath: string) => {
+      if (!imagePath) return []
+      if (imagePath.startsWith('http')) return [imagePath]
+      return [`${baseUrl}${imagePath}`]
+    }
+    
     const sessionConfig: Stripe.Checkout.SessionCreateParams = {
       payment_method_types: ['card'],
       line_items: items.map((item: any) => ({
@@ -65,7 +74,7 @@ export async function POST(request: NextRequest) {
           product_data: {
             name: item.name || item.title,
             description: item.artist ? `by ${item.artist}` : (item.description || ''),
-            images: item.image ? [item.image] : [],
+            images: absoluteImageUrl(item.image),
           },
           unit_amount: Math.round(item.price * 100),
         },
