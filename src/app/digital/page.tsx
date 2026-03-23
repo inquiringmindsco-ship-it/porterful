@@ -12,20 +12,28 @@ const Icon = {
   Search: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
   ChevronLeft: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15,18 9,12 15,6"/></svg>,
   ChevronRight: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="9,18 15,12 9,6"/></svg>,
-  Heart: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 00-7.78-7.78z"/></svg>,
   X: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
+  Plus: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>,
+  Minus: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="5" y1="12" x2="19" y2="12"/></svg>,
 }
 
-// Simple Buy Button - goes straight to Stripe checkout
+// Buy Button with Quantity and Custom Amount
 function BuyButton({ track }: { track: typeof TRACKS[0] }) {
   const [loading, setLoading] = useState(false)
-  const [showTip, setShowTip] = useState(false)
+  const [showModal, setShowModal] = useState(false)
+  const [quantity, setQuantity] = useState(1)
   const [tip, setTip] = useState(0)
+  const [customTip, setCustomTip] = useState('')
+  const [error, setError] = useState('')
   
   const handleBuy = async () => {
     setLoading(true)
+    setError('')
+    
     try {
-      // Create checkout session
+      const totalTip = tip + (customTip ? parseFloat(customTip) || 0 : 0)
+      const totalPrice = (track.price * quantity) + totalTip
+      
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -35,38 +43,53 @@ function BuyButton({ track }: { track: typeof TRACKS[0] }) {
             name: track.title,
             artist: track.artist,
             image: track.image,
-            price: track.price + tip,
+            price: totalPrice,
+            quantity: quantity,
             type: 'track'
           }]
         })
       })
+      
       const data = await res.json()
+      
+      if (data.error) {
+        setError(data.error)
+        setLoading(false)
+        return
+      }
       
       if (data.url) {
         window.location.href = data.url
+      } else {
+        setError('Could not create checkout session. Please try again.')
+        setLoading(false)
       }
     } catch (err) {
       console.error('Checkout error:', err)
-    } finally {
+      setError('Something went wrong. Please try again.')
       setLoading(false)
     }
   }
   
+  const totalTip = tip + (customTip ? parseFloat(customTip) || 0 : 0)
+  const totalPrice = (track.price * quantity) + totalTip
+  
   return (
     <>
       <button
-        onClick={() => setShowTip(true)}
-        className="px-4 py-2 bg-[var(--pf-orange)] text-white rounded-lg font-medium hover:bg-[var(--pf-orange-dark)] transition-colors flex items-center gap-2"
+        onClick={() => setShowModal(true)}
+        className="px-4 py-2 bg-gradient-to-r from-[var(--pf-orange)] to-orange-500 text-white rounded-lg font-medium hover:opacity-90 transition-opacity flex items-center gap-2 shadow-lg"
       >
         Buy ${track.price}
       </button>
       
-      {showTip && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-[var(--pf-bg)] rounded-2xl p-6 w-full max-w-md shadow-2xl border border-[var(--pf-border)]">
+      {showModal && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={(e) => e.target === e.currentTarget && setShowModal(false)}>
+          <div className="bg-[var(--pf-bg)] rounded-2xl p-6 w-full max-w-md shadow-2xl border border-[var(--pf-border)]" onClick={e => e.stopPropagation()}>
+            {/* Header */}
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-bold text-[var(--pf-text)]">Buy "{track.title}"</h3>
-              <button onClick={() => setShowTip(false)} className="p-2 hover:bg-[var(--pf-surface)] rounded-lg">
+              <button onClick={() => setShowModal(false)} className="p-2 hover:bg-[var(--pf-surface)] rounded-lg transition-colors">
                 <Icon.X />
               </button>
             </div>
@@ -74,64 +97,131 @@ function BuyButton({ track }: { track: typeof TRACKS[0] }) {
             <p className="text-[var(--pf-text-secondary)] mb-4">by {track.artist}</p>
             
             {/* Track preview */}
-            <div className="flex items-center gap-3 p-3 bg-[var(--pf-surface)] rounded-lg mb-4">
+            <div className="flex items-center gap-3 p-3 bg-[var(--pf-surface)] rounded-xl mb-4">
               <img src={track.image} alt={track.title} className="w-16 h-16 rounded-lg object-cover" />
               <div className="flex-1">
                 <p className="font-medium text-[var(--pf-text)]">{track.title}</p>
                 <p className="text-sm text-[var(--pf-text-secondary)]">{track.artist}</p>
+                {track.album && <p className="text-xs text-[var(--pf-text-muted)]">{track.album}</p>}
               </div>
             </div>
             
-            {/* Tip options */}
+            {/* Quantity Selector */}
+            <div className="mb-4">
+              <p className="text-sm text-[var(--pf-text-secondary)] mb-2">Quantity</p>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  className="w-10 h-10 rounded-lg bg-[var(--pf-surface)] border border-[var(--pf-border)] flex items-center justify-center hover:border-[var(--pf-orange)] transition-colors"
+                  disabled={quantity <= 1}
+                >
+                  <Icon.Minus />
+                </button>
+                <input
+                  type="number"
+                  value={quantity}
+                  onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                  className="w-20 h-10 text-center rounded-lg bg-[var(--pf-surface)] border border-[var(--pf-border)] text-[var(--pf-text)] font-medium"
+                  min="1"
+                />
+                <button
+                  onClick={() => setQuantity(quantity + 1)}
+                  className="w-10 h-10 rounded-lg bg-[var(--pf-surface)] border border-[var(--pf-border)] flex items-center justify-center hover:border-[var(--pf-orange)] transition-colors"
+                >
+                  <Icon.Plus />
+                </button>
+              </div>
+            </div>
+            
+            {/* Tip Options */}
             <div className="mb-4">
               <p className="text-sm text-[var(--pf-text-secondary)] mb-2">Add a tip (supports the artist)</p>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2 mb-2">
                 {[0, 1, 2, 5, 10].map(amount => (
                   <button
                     key={amount}
-                    onClick={() => setTip(amount)}
-                    className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      tip === amount
+                    onClick={() => { setTip(amount); setCustomTip(''); }}
+                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      tip === amount && !customTip
                         ? 'bg-[var(--pf-orange)] text-white'
-                        : 'bg-[var(--pf-surface)] text-[var(--pf-text-secondary)] border border-[var(--pf-border)]'
+                        : 'bg-[var(--pf-surface)] text-[var(--pf-text-secondary)] border border-[var(--pf-border)] hover:border-[var(--pf-orange)]'
                     }`}
                   >
                     {amount === 0 ? 'No tip' : `+$${amount}`}
                   </button>
                 ))}
               </div>
+              {/* Custom tip input */}
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-[var(--pf-text-secondary)]">Custom:</span>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--pf-text-muted)]">$</span>
+                  <input
+                    type="number"
+                    value={customTip}
+                    onChange={(e) => { setCustomTip(e.target.value); setTip(0); }}
+                    placeholder="0"
+                    className="w-24 h-10 pl-7 pr-3 rounded-lg bg-[var(--pf-surface)] border border-[var(--pf-border)] text-[var(--pf-text)] focus:border-[var(--pf-orange)] focus:outline-none"
+                    min="0"
+                    step="0.01"
+                  />
+                </div>
+              </div>
             </div>
             
-            {/* Total */}
-            <div className="bg-[var(--pf-surface)] rounded-lg p-4 mb-4">
-              <div className="flex justify-between items-center">
-                <span className="text-[var(--pf-text-secondary)]">Track</span>
-                <span className="font-medium text-[var(--pf-text)]">${track.price}.00</span>
+            {/* Total Breakdown */}
+            <div className="bg-[var(--pf-surface)] rounded-xl p-4 mb-4">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-[var(--pf-text-secondary)]">{track.title} × {quantity}</span>
+                <span className="text-[var(--pf-text)]">${(track.price * quantity).toFixed(2)}</span>
               </div>
-              {tip > 0 && (
-                <div className="flex justify-between items-center mt-2">
+              {totalTip > 0 && (
+                <div className="flex justify-between items-center mt-2 text-sm">
                   <span className="text-[var(--pf-text-secondary)]">Tip</span>
-                  <span className="font-medium text-green-400">+${tip}.00</span>
+                  <span className="text-green-400">+${totalTip.toFixed(2)}</span>
                 </div>
               )}
               <div className="flex justify-between items-center mt-3 pt-3 border-t border-[var(--pf-border)]">
                 <span className="font-medium text-[var(--pf-text)]">Total</span>
-                <span className="font-bold text-xl text-[var(--pf-orange)]">${track.price + tip}.00</span>
+                <span className="font-bold text-xl text-[var(--pf-orange)]">${totalPrice.toFixed(2)}</span>
               </div>
             </div>
+            
+            {/* Error message */}
+            {error && (
+              <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
+                {error}
+              </div>
+            )}
             
             {/* Buy button */}
             <button
               onClick={handleBuy}
               disabled={loading}
-              className="w-full py-3 bg-[var(--pf-orange)] text-white rounded-xl font-medium hover:bg-[var(--pf-orange-dark)] transition-colors disabled:opacity-50"
+              className="w-full py-3 bg-gradient-to-r from-[var(--pf-orange)] to-orange-500 text-white rounded-xl font-medium hover:opacity-90 transition-opacity disabled:opacity-50 shadow-lg"
             >
-              {loading ? 'Loading...' : `Pay $${track.price + tip}.00`}
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="animate-spin w-5 h-5" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                  </svg>
+                  Processing...
+                </span>
+              ) : (
+                `Pay $${totalPrice.toFixed(2)}`
+              )}
             </button>
             
-            <p className="text-center text-xs text-[var(--pf-text-muted)] mt-3">
-              One-time payment. No subscription.
-            </p>
+            {/* One-time payment message */}
+            <div className="mt-4 text-center">
+              <p className="text-xs text-[var(--pf-text-muted)] mb-1">
+                One-time payment. No subscription.
+              </p>
+              <p className="text-xs text-[var(--pf-text-muted)]">
+                You'll receive a download link after purchase.
+              </p>
+            </div>
           </div>
         </div>
       )}
