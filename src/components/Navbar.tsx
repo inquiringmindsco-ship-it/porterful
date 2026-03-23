@@ -196,24 +196,24 @@ export function Navbar() {
 
             {/* Desktop Nav */}
             <div className="hidden md:flex items-center gap-1">
-              <Link href="/marketplace" className="flex items-center gap-2 px-4 py-2 rounded-lg text-[var(--pf-text)] hover:text-[var(--pf-orange)] hover:bg-[var(--pf-surface)] transition-all">
+              <Link href="/marketplace" className="flex items-center gap-2 px-4 py-2 rounded-lg text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] hover:bg-[var(--pf-surface)] transition-colors">
                 <PorterfulIcon name="shop" size={18} />
                 <span>Shop</span>
               </Link>
-              <Link href="/digital" className="flex items-center gap-2 px-4 py-2 rounded-lg text-[var(--pf-text)] hover:text-[var(--pf-orange)] hover:bg-[var(--pf-surface)] transition-all">
+              <Link href="/digital" className="flex items-center gap-2 px-4 py-2 rounded-lg text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] hover:bg-[var(--pf-surface)] transition-colors">
                 <PorterfulIcon name="music" size={18} />
                 <span>Music</span>
               </Link>
-              <Link href="/radio" className="flex items-center gap-2 px-4 py-2 rounded-lg text-[var(--pf-text)] hover:text-[var(--pf-orange)] hover:bg-[var(--pf-surface)] transition-all">
+              <Link href="/radio" className="flex items-center gap-2 px-4 py-2 rounded-lg text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] hover:bg-[var(--pf-surface)] transition-colors">
                 <PorterfulIcon name="radio" size={18} />
                 <span>Radio</span>
               </Link>
-              <Link href="/playlists" className="flex items-center gap-2 px-4 py-2 rounded-lg text-[var(--pf-text)] hover:text-[var(--pf-orange)] hover:bg-[var(--pf-surface)] transition-all">
+              <Link href="/playlists" className="flex items-center gap-2 px-4 py-2 rounded-lg text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] hover:bg-[var(--pf-surface)] transition-colors">
                 <PorterfulIcon name="playlist" size={18} />
                 <span>Playlists</span>
               </Link>
               {user && (
-                <Link href="/dashboard/upload" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--pf-orange)] text-white hover:bg-[var(--pf-orange-dark)] transition-all">
+                <Link href="/dashboard/upload" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--pf-orange)] text-white hover:bg-[var(--pf-orange-dark)] transition-colors">
                   <PorterfulIcon name="upload" size={18} />
                   <span>Upload</span>
                 </Link>
@@ -320,23 +320,23 @@ export function Navbar() {
 
           {/* Nav Links */}
           <div className="pt-2 space-y-1">
-            <Link href="/marketplace" className="flex items-center gap-3 px-4 py-4 text-[var(--pf-text)] hover:bg-[var(--pf-surface)] rounded-xl transition-colors" onClick={closeMobile}>
+            <Link href="/marketplace" className="flex items-center gap-3 px-4 py-4 text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] hover:bg-[var(--pf-surface)] rounded-xl transition-colors" onClick={closeMobile}>
               <PorterfulIcon name="shop" size={20} />
               <span>Shop</span>
             </Link>
-            <Link href="/digital" className="flex items-center gap-3 px-4 py-4 text-[var(--pf-text)] hover:bg-[var(--pf-surface)] rounded-xl transition-colors" onClick={closeMobile}>
+            <Link href="/digital" className="flex items-center gap-3 px-4 py-4 text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] hover:bg-[var(--pf-surface)] rounded-xl transition-colors" onClick={closeMobile}>
               <PorterfulIcon name="music" size={20} />
               <span>Music</span>
             </Link>
-            <Link href="/radio" className="flex items-center gap-3 px-4 py-4 text-[var(--pf-text)] hover:bg-[var(--pf-surface)] rounded-xl transition-colors" onClick={closeMobile}>
+            <Link href="/radio" className="flex items-center gap-3 px-4 py-4 text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] hover:bg-[var(--pf-surface)] rounded-xl transition-colors" onClick={closeMobile}>
               <PorterfulIcon name="radio" size={20} />
               <span>Radio</span>
             </Link>
-            <Link href="/playlists" className="flex items-center gap-3 px-4 py-4 text-[var(--pf-text)] hover:bg-[var(--pf-surface)] rounded-xl transition-colors" onClick={closeMobile}>
+            <Link href="/playlists" className="flex items-center gap-3 px-4 py-4 text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] hover:bg-[var(--pf-surface)] rounded-xl transition-colors" onClick={closeMobile}>
               <PorterfulIcon name="playlist" size={20} />
               <span>Playlists</span>
             </Link>
-            <Link href="/artist/od-porter" className="flex items-center gap-3 px-4 py-4 text-[var(--pf-text)] hover:bg-[var(--pf-surface)] rounded-xl transition-colors" onClick={closeMobile}>
+            <Link href="/artist/od-porter" className="flex items-center gap-3 px-4 py-4 text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] hover:bg-[var(--pf-surface)] rounded-xl transition-colors" onClick={closeMobile}>
               <PorterfulIcon name="artist" size={20} />
               <span>Artist Profile</span>
             </Link>
@@ -348,7 +348,7 @@ export function Navbar() {
           {/* User Actions */}
           {user ? (
             <div className="space-y-1">
-              <Link href="/dashboard/artist" className="flex items-center gap-3 px-4 py-4 text-[var(--pf-text)] hover:bg-[var(--pf-surface)] rounded-xl transition-colors" onClick={closeMobile}>
+              <Link href="/dashboard/artist" className="flex items-center gap-3 px-4 py-4 text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] hover:bg-[var(--pf-surface)] rounded-xl transition-colors" onClick={closeMobile}>
                 <PorterfulIcon name="dashboard" size={20} /> Dashboard
               </Link>
               <Link href="/dashboard/upload" className="flex items-center gap-3 px-4 py-4 text-[var(--pf-orange)] font-medium hover:bg-[var(--pf-orange)]/10 rounded-xl transition-colors" onClick={closeMobile}>
@@ -364,7 +364,7 @@ export function Navbar() {
               <Link href="/login" className="flex items-center justify-center px-4 py-4 text-[var(--pf-text-secondary)] hover:text-[var(--pf-text)] border border-[var(--pf-border)] rounded-xl transition-colors" onClick={closeMobile}>
                 Sign In
               </Link>
-              <Link href="/signup" className="flex items-center justify-center px-4 py-4 bg-[var(--pf-orange)] text-white rounded-xl font-medium" onClick={closeMobile}>
+              <Link href="/signup" className="flex items-center justify-center px-4 py-4 bg-[var(--pf-orange)] text-white rounded-xl font-medium hover:bg-[var(--pf-orange-dark)] transition-colors" onClick={closeMobile}>
                 Get Started
               </Link>
             </div>

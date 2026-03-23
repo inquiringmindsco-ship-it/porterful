@@ -186,7 +186,8 @@ textarea::placeholder {
 }
 
 .pf-badge-orange {
-  @apply bg-[var(--pf-orange)]/10 text-[var(--pf-orange)];
+  background-color: rgba(251, 146, 60, 0.1);
+  color: var(--pf-orange);
 }
 
 .pf-badge-purple {
