@@ -64,8 +64,9 @@ interface Product {
   name: string
   category: string
   subcategory?: string
-  basePrice: number
-  salePrice: number
+  basePrice?: number
+  price?: number
+  salePrice?: number
   colors?: string[]
   sizes?: string[]
   images: string[]
@@ -119,9 +120,11 @@ export default function MarketplacePage() {
 
   // Sort products
   const sortedProducts = [...products].sort((a, b) => {
+    const aPrice = (a as any).salePrice || (a as any).price || 0
+    const bPrice = (b as any).salePrice || (b as any).price || 0
     switch (sortBy) {
-      case 'price-low': return a.salePrice - b.salePrice
-      case 'price-high': return b.salePrice - a.salePrice
+      case 'price-low': return aPrice - bPrice
+      case 'price-high': return bPrice - aPrice
       case 'rating': return b.rating - a.rating
       case 'newest': return 0 // Already sorted by newest
       default: return b.reviews - a.reviews // popular
@@ -340,7 +343,7 @@ export default function MarketplacePage() {
 
                       <div className="flex items-center justify-between mt-2">
                         <div>
-                          <span className="font-bold text-[var(--pf-orange)]">${product.salePrice.toFixed(2)}</span>
+                          <span className="font-bold text-[var(--pf-orange)]">${((product as any).salePrice || (product as any).price || 9.99).toFixed(2)}</span>
                           {product.colors && product.colors.length > 1 && (
                             <span className="text-xs text-[var(--pf-text-muted)] ml-2">
                               {product.colors.length} colors
