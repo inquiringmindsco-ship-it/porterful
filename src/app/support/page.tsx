@@ -128,8 +128,8 @@ export default function ProudToPayPage() {
                   No subscription
                 </li>
               </ul>
-              <Link href="/support?tier=full" className="block w-full py-3 px-6 bg-[var(--pf-orange)] text-white rounded-xl font-medium text-center hover:bg-[var(--pf-orange-dark)] transition-colors">
-                Unlock Everything
+              <Link href="/unlock" className="block w-full py-3 px-6 bg-[var(--pf-orange)] text-white rounded-xl font-medium text-center hover:bg-[var(--pf-orange-dark)] transition-colors">
+                Unlock Everything — $5.99
               </Link>
             </div>
           </div>
