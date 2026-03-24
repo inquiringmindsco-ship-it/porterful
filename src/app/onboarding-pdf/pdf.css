@@ -1,4 +1,4 @@
-/* Porterful Pilot Onboarding — Responsive + Print Styles */
+/* Porterful Pilot Onboarding — Mobile-first webpage */
 
 * {
   box-sizing: border-box;
@@ -6,16 +6,20 @@
   padding: 0;
 }
 
-/* ─── SCREEN (mobile-first) ─── */
-.pdf-page {
+body {
   background: #0D0D0D;
   color: #FFFFFF;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  padding: 24px 20px;
-  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+.pdf-page {
+  padding: 24px 20px 80px;
   display: flex;
   flex-direction: column;
   gap: 0;
+  max-width: 640px;
+  margin: 0 auto;
 }
 
 /* HEADER */
@@ -23,7 +27,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: 28px;
 }
 
 .logo {
@@ -45,26 +49,26 @@
 
 /* HERO */
 .pdf-hero {
-  margin-bottom: 24px;
+  margin-bottom: 32px;
 }
 
 .pdf-hero h1 {
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 800;
   line-height: 1.1;
   color: #FFFFFF;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .hero-sub {
-  font-size: 14px;
+  font-size: 15px;
   color: rgba(255,255,255,0.5);
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 /* SECTIONS */
 .pdf-section {
-  margin-bottom: 24px;
+  margin-bottom: 32px;
 }
 
 .step-label {
@@ -77,41 +81,37 @@
 }
 
 .pdf-section h2 {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
   color: #FF6B00;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
   border-bottom: 1px solid rgba(255,255,255,0.07);
-  padding-bottom: 6px;
+  padding-bottom: 8px;
 }
 
 /* DISCORD SECTION */
-.discord-grid {
-  display: grid;
-  gap: 12px;
-}
-
 .discord-steps {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
+  margin-bottom: 14px;
 }
 
 .discord-step {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
+  gap: 12px;
 }
 
 .discord-num {
-  width: 22px;
-  height: 22px;
-  min-width: 22px;
+  width: 26px;
+  height: 26px;
+  min-width: 26px;
   border-radius: 50%;
   background: rgba(255,107,0,0.15);
   border: 1px solid rgba(255,107,0,0.3);
   color: #FF6B00;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -120,28 +120,28 @@
 }
 
 .discord-step p {
-  font-size: 14px;
+  font-size: 15px;
   color: rgba(255,255,255,0.7);
   line-height: 1.5;
-  padding-top: 3px;
+  padding-top: 4px;
 }
 
 .discord-note {
   background: rgba(255,107,0,0.08);
   border: 1px solid rgba(255,107,0,0.2);
-  border-radius: 10px;
-  padding: 12px 14px;
+  border-radius: 12px;
+  padding: 14px 16px;
 }
 
 .note-title {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
   color: #FF6B00;
   margin-bottom: 6px;
 }
 
 .discord-note p {
-  font-size: 13px;
+  font-size: 14px;
   color: rgba(255,255,255,0.55);
   line-height: 1.5;
 }
@@ -154,16 +154,17 @@ a {
 
 .link {
   font-weight: 600;
+  font-size: 15px;
 }
 
 /* CODE */
 .code {
   font-family: 'Courier New', Courier, monospace;
-  font-size: 13px;
+  font-size: 14px;
   background: rgba(255,107,0,0.15);
   color: #FF6B00;
-  padding: 2px 6px;
-  border-radius: 4px;
+  padding: 2px 7px;
+  border-radius: 5px;
 }
 
 /* PORTERFUL GRID */
@@ -176,21 +177,21 @@ a {
 .porterful-card {
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 12px;
-  padding: 14px 16px;
+  border-radius: 14px;
+  padding: 16px 18px;
 }
 
 .porterful-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-  padding-bottom: 8px;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
   border-bottom: 1px solid rgba(255,255,255,0.06);
 }
 
 .porterful-label {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -199,24 +200,24 @@ a {
 .porterful-steps {
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 9px;
 }
 
 .porterful-step {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
+  gap: 12px;
 }
 
 .porterful-num {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
-  min-width: 18px;
-  margin-top: 2px;
+  min-width: 20px;
+  margin-top: 3px;
 }
 
 .porterful-step p {
-  font-size: 13px;
+  font-size: 14px;
   color: rgba(255,255,255,0.65);
   line-height: 1.5;
 }
@@ -225,12 +226,12 @@ a {
 .rules-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: 10px;
 }
 
 .rule {
-  border-radius: 10px;
-  padding: 12px 14px;
+  border-radius: 12px;
+  padding: 14px 16px;
   border: 1px solid;
 }
 
@@ -250,9 +251,9 @@ a {
 }
 
 .rule-title {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
-  margin-bottom: 4px;
+  margin-bottom: 5px;
 }
 
 .rule.green .rule-title { color: #22c55e; }
@@ -260,14 +261,48 @@ a {
 .rule.red .rule-title { color: #ef4444; }
 
 .rule p {
-  font-size: 12px;
+  font-size: 13px;
   color: rgba(255,255,255,0.5);
   line-height: 1.4;
 }
 
+/* CHANNEL GUIDE */
+.channels {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.channel {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.channel-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.8);
+  white-space: nowrap;
+  font-family: 'Courier New', Courier, monospace;
+  min-width: 100px;
+}
+
+.channel-desc {
+  font-size: 13px;
+  color: rgba(255,255,255,0.4);
+  line-height: 1.4;
+}
+
+.channel-note {
+  font-size: 13px;
+  color: rgba(255,255,255,0.3);
+  font-style: italic;
+}
+
 /* FOOTER */
 .pdf-footer {
-  margin-top: auto;
+  margin-top: 16px;
   padding-top: 20px;
   border-top: 1px solid rgba(255,255,255,0.08);
   display: flex;
@@ -284,8 +319,8 @@ a {
 
 .footer-links {
   display: flex;
-  gap: 12px;
-  font-size: 13px;
+  gap: 16px;
+  font-size: 14px;
   color: rgba(255,255,255,0.3);
   flex-wrap: wrap;
 }
@@ -300,352 +335,7 @@ a {
 }
 
 .footer-tagline {
-  font-size: 12px;
+  font-size: 13px;
   color: rgba(255,255,255,0.2);
   font-style: italic;
-}
-
-/* ─── DESKTOP — wider screens ─── */
-@media (min-width: 640px) {
-  .pdf-page {
-    padding: 32px 40px;
-  }
-
-  .pdf-hero h1 {
-    font-size: 36px;
-  }
-
-  .porterful-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-
-  .porterful-card {
-    padding: 12px 14px;
-  }
-
-  .porterful-label {
-    font-size: 12px;
-  }
-
-  .porterful-step p {
-    font-size: 12px;
-  }
-
-  .discord-step p {
-    font-size: 13px;
-  }
-
-  .rules-grid {
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-    gap: 8px;
-  }
-
-  .footer-footer {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-  }
-}
-
-/* ─── PRINT — single page landscape PDF ─── */
-@media print {
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
-
-  body {
-    background: #0D0D0D;
-  }
-
-  .pdf-page {
-    width: 11in;
-    height: 8.5in;
-    background: #0D0D0D;
-    color: #FFFFFF;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    padding: 0.42in 0.52in;
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-    overflow: hidden;
-    print-color-adjust: exact;
-    -webkit-print-color-adjust: exact;
-  }
-
-  /* HEADER */
-  .pdf-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 0.13in;
-  }
-
-  .logo {
-    font-size: 20px;
-    font-weight: 900;
-    letter-spacing: 0.15em;
-    color: #FF6B00;
-  }
-
-  .header-tag {
-    font-size: 10px;
-    color: rgba(255,255,255,0.4);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    border: 1px solid rgba(255,255,255,0.15);
-    padding: 3px 10px;
-    border-radius: 20px;
-  }
-
-  /* HERO */
-  .pdf-hero {
-    margin-bottom: 0.14in;
-  }
-
-  .pdf-hero h1 {
-    font-size: 30px;
-    font-weight: 800;
-    line-height: 1.1;
-    color: #FFFFFF;
-    margin-bottom: 0.07in;
-  }
-
-  .hero-sub {
-    font-size: 10.5px;
-    color: rgba(255,255,255,0.5);
-    line-height: 1.5;
-  }
-
-  /* SECTIONS */
-  .pdf-section {
-    margin-bottom: 0.12in;
-  }
-
-  .step-label {
-    font-size: 9px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: rgba(255,255,255,0.3);
-    margin-bottom: 2px;
-  }
-
-  .pdf-section h2 {
-    font-size: 12px;
-    font-weight: 700;
-    color: #FF6B00;
-    margin-bottom: 0.08in;
-    border-bottom: 1px solid rgba(255,255,255,0.07);
-    padding-bottom: 3px;
-  }
-
-  /* DISCORD SECTION */
-  .discord-grid {
-    display: grid;
-    grid-template-columns: 1.35fr 1fr;
-    gap: 8px;
-  }
-
-  .discord-steps {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .discord-step {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-  }
-
-  .discord-num {
-    width: 17px;
-    height: 17px;
-    min-width: 17px;
-    border-radius: 50%;
-    background: rgba(255,107,0,0.15);
-    border: 1px solid rgba(255,107,0,0.3);
-    color: #FF6B00;
-    font-size: 8.5px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .discord-step p {
-    font-size: 9px;
-    color: rgba(255,255,255,0.65);
-    line-height: 1.4;
-    padding-top: 0;
-  }
-
-  .discord-note {
-    background: rgba(255,107,0,0.08);
-    border: 1px solid rgba(255,107,0,0.2);
-    border-radius: 8px;
-    padding: 7px 9px;
-  }
-
-  .note-title {
-    font-size: 9.5px;
-    font-weight: 700;
-    color: #FF6B00;
-    margin-bottom: 4px;
-  }
-
-  .discord-note p {
-    font-size: 8.5px;
-    color: rgba(255,255,255,0.5);
-    line-height: 1.45;
-  }
-
-  /* CODE */
-  .code {
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 8.5px;
-    background: rgba(255,107,0,0.15);
-    color: #FF6B00;
-    padding: 1px 4px;
-    border-radius: 3px;
-  }
-
-  /* PORTERFUL GRID */
-  .porterful-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 7px;
-  }
-
-  .porterful-card {
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 8px;
-    padding: 8px 10px;
-  }
-
-  .porterful-header {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-bottom: 7px;
-    padding-bottom: 5px;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-  }
-
-  .porterful-label {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-  }
-
-  .porterful-steps {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .porterful-step {
-    display: flex;
-    align-items: flex-start;
-    gap: 6px;
-  }
-
-  .porterful-num {
-    font-size: 8.5px;
-    font-weight: 700;
-    min-width: 12px;
-    margin-top: 1px;
-  }
-
-  .porterful-step p {
-    font-size: 8.5px;
-    color: rgba(255,255,255,0.6);
-    line-height: 1.45;
-  }
-
-  /* RULES GRID */
-  .rules-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-    gap: 6px;
-  }
-
-  .rule {
-    border-radius: 7px;
-    padding: 7px 9px;
-    border: 1px solid;
-  }
-
-  .rule.green {
-    background: rgba(34,197,94,0.08);
-    border-color: rgba(34,197,94,0.25);
-  }
-
-  .rule.yellow {
-    background: rgba(234,179,8,0.08);
-    border-color: rgba(234,179,8,0.25);
-  }
-
-  .rule.red {
-    background: rgba(239,68,68,0.08);
-    border-color: rgba(239,68,68,0.25);
-  }
-
-  .rule-title {
-    font-size: 9.5px;
-    font-weight: 700;
-    margin-bottom: 3px;
-  }
-
-  .rule.green .rule-title { color: #22c55e; }
-  .rule.yellow .rule-title { color: #eab208; }
-  .rule.red .rule-title { color: #ef4444; }
-
-  .rule p {
-    font-size: 8px;
-    color: rgba(255,255,255,0.5);
-    line-height: 1.4;
-  }
-
-  /* FOOTER */
-  .pdf-footer {
-    margin-top: auto;
-    padding-top: 0.09in;
-    border-top: 1px solid rgba(255,255,255,0.08);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-direction: row;
-    gap: 0;
-  }
-
-  .footer-logo {
-    font-size: 11px;
-    font-weight: 900;
-    letter-spacing: 0.12em;
-    color: #FF6B00;
-  }
-
-  .footer-links {
-    display: flex;
-    gap: 12px;
-    font-size: 8.5px;
-    color: rgba(255,255,255,0.3);
-  }
-
-  .footer-link {
-    color: rgba(255,255,255,0.3);
-    text-decoration: none;
-  }
-
-  .footer-tagline {
-    font-size: 9px;
-    color: rgba(255,255,255,0.2);
-    font-style: italic;
-  }
 }
