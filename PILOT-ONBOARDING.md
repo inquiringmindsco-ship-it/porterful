@@ -8,110 +8,101 @@ This pilot is a working beta. We're testing everything together. Your real feedb
 
 ---
 
-## Your Pilot Checklist
+## Your First Week Checklist
 
-Complete these in your first week:
+Complete these to get the most out of the pilot:
 
-- [ ] **Join the Discord** (you're already here ✅)
-- [ ] **Type `/verify`** to unlock pilot channels
-- [ ] **Download the app** at porterful.com — explore the shop, browse artists
-- [ ] **Upload something** — one track, one piece, whatever you got
-- [ ] **Make a purchase** — even $1 buys you credibility as a real user
-- [ ] **Share feedback** — what felt right, what was confusing, what you'd change
+**Day 1 — Get Set Up**
+- [ ] Type `/verify` in any Discord channel to unlock pilot access
+- [ ] Explore porterful.com — browse the shop, click around
+- [ ] Find an artist whose work you like
+
+**Day 2-3 — Take Action**
+- [ ] Upload at least one piece of your work (music, art, merch — whatever you've got)
+- [ ] Set a price on something (we'll help you figure out what makes sense)
+- [ ] Make a small purchase — even $1 proves the checkout works
+
+**Day 4-7 — Engage**
+- [ ] Follow an artist you want to support
+- [ ] Share what you bought and what you thought in #feedback
+- [ ] Report anything that felt confusing or broken in #bugs
 
 ---
 
 ## How To Talk To Us
 
-**#feedback** — Questions, ideas, what you want to see happen
-**#bugs** — Something's broken, tell us what you did and what went wrong
-**#general** — Talk to the other pilots, share what you're working on
-**#artist-talk** — Artists only (fans, stay in the other channels)
+**No @mentions needed. Just post in the channel.**
 
-Don't @ the bot. Just post in the channel.
+- **#feedback** — Questions, ideas, what you want to see happen
+- **#bugs** — Something's broken — tell us what you did and what went wrong
+- **#general** — Chat with other pilots, share what you're working on
+- **#artist-talk** — Artists only (fans, stay in the other channels)
+
+Don't @ the bot. Don't DM us. Just post in the channel — we read it.
 
 ---
 
-## Pilot Earnings — How It Works
+## What Happens Each Week
 
-This is the whole point. Here's the simple version:
+**Week 1** — Set up, upload, make a purchase
+**Week 2** — Try the referral system, share honest feedback
+**Week 3** — Vote on what we build next — your voice shapes priorities
+**Week 4** — Pilot review — tell us what worked, what didn't
 
-| Who | Gets |
-|-----|------|
-| Artist | **80%** of every sale |
-| Referrer (superfan) | **3%** of every sale they refer |
-| Porterful | **10%** (keeps the lights on) |
+---
 
-No hidden fees. No monthly charges. You sell, you get paid.
+## Terms Agreement
+
+By completing your pilot checklist, you confirm:
+
+- [ ] **I have read and agree to the Pilot Program Agreement**
+  - Full agreement: [PILOT-AGREEMENT.md](https://github.com/odporter/porterful/blob/main/PILOT-AGREEMENT.md)
+- [ ] **I understand the pilot rules**
+  - No screenshots outside this server
+  - No sharing unreleased features publicly
+  - 12-month non-compete on competing platforms
+- [ ] **I understand this is a beta — things change and real money is involved**
+
+*Check the boxes above by posting "agreed" in #feedback. This acts as your confirmation.*
 
 ---
 
 ## Terms Summary (Traffic Light)
 
-We've simplified the legal stuff. Here's what matters:
+Quick reference for what matters most:
 
-### 🟢 GREEN — All Good, Standard Stuff
-- **You keep your art** — we don't own what you upload
-- **Your data is yours** — you can ask us to delete it anytime
-- **Free to use** — no cost to join the pilot
-- **Public feedback is yours** — if you share your experience publicly with permission, that's fine
+### 🟢 GREEN — Standard, All Good
+- You keep your art — we don't own what you upload
+- Your data is yours — ask us to delete it anytime
+- Free to join — no cost to participate
+- Public feedback you choose to share is yours
 
 ### 🟡 YELLOW — Pay Attention
-- **Your ideas become ours** — feedback you give, we can use freely (but we appreciate you)
-- **12-month non-compete** — during and after pilot, don't build a competing direct-to-artist platform (working in music generally is fine)
-- **Beta means changes** — features may shift as we improve
-- **Real money, real transactions** — this isn't a sandbox, purchases are binding
+- Your ideas become ours — we can use all feedback freely
+- 12-month non-compete — don't build a competing platform
+- Beta means things shift as we improve
+- Real money, real purchases — not a sandbox
 
-### 🔴 RED — The Important Ones
-- **Keep it private** — no screenshots of the beta outside this server
-- **Confidentiality** — unreleased features, pricing, artist splits are proprietary
-- **No cloning** — don't try to replicate Porterful's model elsewhere
-
----
-
-## The Full Legal Stuff
-
-By participating in this pilot, you agree to the full Pilot Program Agreement.
-
-The short version above is for convenience. The full agreement is what legally governs your participation.
+### 🔴 RED — Important
+- Keep it private — no beta screenshots outside this server
+- Confidentiality — unreleased features and pricing are proprietary
+- No cloning — don't replicate Porterful's model elsewhere
 
 ---
 
-## What We Need From You
+## Pilot Earnings — The Simple Version
 
-This pilot only works if you're actually in it. That means:
+| Who | Gets |
+|-----|------|
+| Artist | **80%** of every sale |
+| Referrer (superfan) | **3%** of every sale they refer |
+| Porterful | **10%** |
 
-**Artists:**
-- Upload at least one piece of work
-- Set a price (we'll help you figure out what makes sense)
-- Tell us what you'd want to sell that you're not currently
-
-**Fans:**
-- Browse the shop, buy something small
-- Follow an artist you like
-- Tell us what you'd actually pay for
-
-**Everyone:**
-- Check the app at least 2-3 times per week
-- Report what breaks — we can't fix what we don't know about
-- Be honest — we can handle criticism, we can't improve on silence
-
----
-
-## Pilot Timeline
-
-**Week 1** — Get set up, upload something, make one transaction
-**Week 2** — Use the referral system, share feedback, report bugs
-**Week 3** — Help us prioritize what's next — your votes count
-**Week 4** — Review session with the team
+No hidden fees. No monthly costs. You sell, you get paid.
 
 ---
 
 ## Questions?
 
-Email: support@porterful.com
-Or post in #feedback — we read it.
-
----
-
-*By completing your pilot checklist, you confirm you've read and agree to the Pilot Program Agreement and these terms.*
+- **Email:** support@porterful.com
+- **Discord:** Post in #feedback — we read every message
