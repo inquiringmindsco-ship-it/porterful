@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { createClient } from '@supabase/supabase-js'
+import { useSupabase } from '@/app/providers'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -13,8 +14,8 @@ interface WalletContextType {
   spendFunds(amount: number): Promise<boolean>
   formatBalance(): string
   isLoading: boolean
-  resetWallet(userId: string): Promise<void>
-  getWallet(userId: string): Promise<number>
+  resetWallet(uid?: string): Promise<void>
+  getWallet(uid?: string): Promise<number>
 }
 
 const WalletContext = createContext<WalletContextType | undefined>(undefined)
@@ -22,20 +23,23 @@ const WalletContext = createContext<WalletContextType | undefined>(undefined)
 export function WalletProvider({ children }: { children: ReactNode }) {
   const [balance, setBalance] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
-  const [userId] = useState('default-user')
+  const { user } = useSupabase()
+  const userId = user?.id || null
 
-  async function getWallet(uid: string): Promise<number> {
+  async function getWallet(uid?: string): Promise<number> {
+    const targetId = uid || userId
+    if (!targetId) return 0
     try {
       const { data, error } = await supabase
         .from('wallets')
         .select('balance')
-        .eq('user_id', uid)
+        .eq('user_id', targetId)
         .single()
       
       if (error && error.code === 'PGRST116') {
         const { data: newWallet } = await supabase
           .from('wallets')
-          .insert({ user_id: uid, balance: 0 })
+          .insert({ user_id: targetId, balance: 0 })
           .select('balance')
           .single()
         return newWallet?.balance || 0
@@ -53,14 +57,16 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  async function resetWallet(uid: string) {
+  async function resetWallet(uid?: string) {
+    const targetId = uid || userId
+    if (!targetId) return
     try {
       await supabase
         .from('wallets')
         .update({ balance: 0, updated_at: new Date().toISOString() })
-        .eq('user_id', uid)
+        .eq('user_id', targetId)
       
-      if (uid === userId) {
+      if (!uid || uid === userId) {
         setBalance(0)
       }
     } catch (err) {
@@ -70,6 +76,11 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     async function loadBalance() {
+      if (!userId) {
+        setBalance(0)
+        setIsLoading(false)
+        return
+      }
       setIsLoading(true)
       const savedBalance = await getWallet(userId)
       setBalance(savedBalance)
@@ -79,6 +90,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   }, [userId])
 
   async function addFunds(amount: number) {
+    if (!userId) return
     const newBalance = balance + amount
     setBalance(newBalance)
     
@@ -92,6 +104,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   }
 
   async function spendFunds(amount: number): Promise<boolean> {
+    if (!userId) return false
     if (balance < amount) {
       return false
     }
