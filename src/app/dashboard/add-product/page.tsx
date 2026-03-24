@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useSupabase } from '@/app/providers'
 import { useRouter } from 'next/navigation'
 import { 
@@ -29,6 +29,8 @@ export default function AddProductPage() {
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [pageLoading, setPageLoading] = useState(true)
+  const [profile, setProfile] = useState<any>(null)
   
   const [formData, setFormData] = useState({
     name: '',
@@ -43,6 +45,41 @@ export default function AddProductPage() {
     dropship_product_id: '',
     linked_artist_id: '',
   })
+
+  useEffect(() => {
+    async function checkAccess() {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.user) {
+        router.push('/login')
+        return
+      }
+      const { data } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', session.user.id)
+        .single()
+      setProfile(data)
+      if (data?.role !== 'artist') {
+        router.push('/dashboard')
+        return
+      }
+      setPageLoading(false)
+    }
+    checkAccess()
+  }, [supabase, router])
+
+  if (pageLoading) {
+    return (
+      <div className="min-h-screen pt-24 pb-12">
+        <div className="pf-container">
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 bg-[var(--pf-surface)] rounded w-1/4" />
+            <div className="h-32 bg-[var(--pf-surface)] rounded" />
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target

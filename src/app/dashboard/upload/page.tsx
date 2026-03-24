@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { useSupabase } from '@/app/providers'
 import Link from 'next/link'
 
@@ -61,12 +62,50 @@ const Icon = {
 }
 
 export default function UploadPage() {
-  const { user } = useSupabase()
+  const router = useRouter()
+  const { user, supabase, loading: authLoading } = useSupabase()
+  const [profile, setProfile] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
   const [files, setFiles] = useState<File[]>([])
   const [uploading, setUploading] = useState(false)
   const [progress, setProgress] = useState<Record<string, number>>({})
   const [uploaded, setUploaded] = useState<string[]>([])
   const [errors, setErrors] = useState<string[]>([])
+
+  useEffect(() => {
+    async function checkAccess() {
+      if (authLoading) return
+      if (!user) {
+        router.push('/login')
+        return
+      }
+      const { data } = await supabase!
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single()
+      setProfile(data)
+      if (data?.role !== 'artist') {
+        router.push('/dashboard')
+        return
+      }
+      setLoading(false)
+    }
+    checkAccess()
+  }, [user, supabase, authLoading, router])
+
+  if (authLoading || loading) {
+    return (
+      <div className="min-h-screen pt-24 pb-12">
+        <div className="pf-container">
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 bg-[var(--pf-surface)] rounded w-1/4" />
+            <div className="h-32 bg-[var(--pf-surface)] rounded" />
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {

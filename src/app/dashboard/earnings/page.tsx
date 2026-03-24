@@ -1,17 +1,45 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { usePayout, getTierInfo, formatCurrency, PAYOUT_TIERS } from '@/lib/payout-context'
+import { useSupabase } from '@/app/providers'
 import { DollarSign, TrendingUp, Clock, Award, ArrowUp, ArrowDown, Wallet, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 
 export default function ArtistDashboardPage() {
-  const { earnings, isLoading, requestPayout } = usePayout()
+  const router = useRouter()
+  const { user, supabase, loading: authLoading } = useSupabase()
+  const { earnings, isLoading: payoutLoading, requestPayout } = usePayout()
   const [withdrawAmount, setWithdrawAmount] = useState('')
   const [isWithdrawing, setIsWithdrawing] = useState(false)
   const [error, setError] = useState('')
+  const [profile, setProfile] = useState<any>(null)
+  const [pageLoading, setPageLoading] = useState(true)
 
-  if (isLoading) {
+  useEffect(() => {
+    async function checkAccess() {
+      if (authLoading) return
+      if (!user) {
+        router.push('/login')
+        return
+      }
+      const { data } = await supabase!
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single()
+      setProfile(data)
+      if (data?.role !== 'artist') {
+        router.push('/dashboard')
+        return
+      }
+      setPageLoading(false)
+    }
+    checkAccess()
+  }, [user, supabase, authLoading, router])
+
+  if (authLoading || pageLoading || payoutLoading) {
     return (
       <div className="min-h-screen bg-[var(--pf-bg)] text-[var(--pf-text)] flex items-center justify-center">
         <div className="text-center">
