@@ -42,6 +42,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     url: `${baseUrl}${page}`,
     lastModified: currentDate,
     changeFrequency: page === '' ? 'daily' : 'weekly',
-    priority: page === '' ? 1 : page.startsWith('/album') ? 0.7 : 0.8,
+    priority: page === '' ? 1.0 : page.startsWith('/album') ? 0.7 : page === '/digital' || page === '/marketplace' || page === '/store' ? 0.9 : 0.8,
+  }))
+}rity: page === '' ? 1 : page.startsWith('/album') ? 0.7 : 0.8,
   }))
 }
