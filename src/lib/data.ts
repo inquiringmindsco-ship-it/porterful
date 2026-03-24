@@ -93,16 +93,16 @@ export const TRACKS = [
   { id: 'od-18', title: 'Plus', artist: 'O D Porter', album: 'One Day', duration: '2:45', price: 1, plays: 38000, image: ALBUM_ART.OneDay, audio_url: audio('OneDay', '18_Plus.mp3') },
   { id: 'od-19', title: 'Mike Tyson (One Round)', artist: 'O D Porter', album: 'One Day', duration: '3:15', price: 1, plays: 78000, image: ALBUM_ART.OneDay, audio_url: audio('OneDay', '19_Mike_Tyson__One_Round_.mp3') },
 
-  // STREETS THOUGHT I LEFT - 9 tracks
-  { id: 'stl-01', title: 'Aint Gone Let Up', artist: 'Jai Jai', album: 'Streets Thought I Left', duration: '3:15', price: 1, plays: 125000, image: ALBUM_ART.StreetsThoughtILeft, audio_url: audio('StreetsThoughtILeft', 'Jai_Jai_-_Aint_Gone_Let_Up.mp3') },
-  { id: 'stl-02', title: 'Aired Em Out', artist: 'Jai Jai', album: 'Streets Thought I Left', duration: '2:45', price: 1, plays: 98000, image: ALBUM_ART.StreetsThoughtILeft, audio_url: audio('StreetsThoughtILeft', 'Jai_Jai_-_Aired_Em_Out.mp3') },
-  { id: 'stl-03', title: 'Forever Young', artist: 'Jai Jai', album: 'Streets Thought I Left', duration: '3:58', price: 1, plays: 76000, image: ALBUM_ART.StreetsThoughtILeft, audio_url: audio('StreetsThoughtILeft', 'Jai_Jai_-_Forever_Young.mp3') },
-  { id: 'stl-04', title: 'Intro To My World', artist: 'Jai Jai', album: 'Streets Thought I Left', duration: '2:22', price: 1, plays: 89000, image: ALBUM_ART.StreetsThoughtILeft, audio_url: audio('StreetsThoughtILeft', 'Jai_Jai_-__Intro_To_My_World.mp3') },
-  { id: 'stl-05', title: 'Sometime', artist: 'Jai Jai', album: 'Streets Thought I Left', duration: '3:45', price: 1, plays: 54000, image: ALBUM_ART.StreetsThoughtILeft, audio_url: audio('StreetsThoughtILeft', 'Jai_Jai_-_Sometime.mp3') },
-  { id: 'stl-06', title: 'Cutta Money', artist: 'Jai Jai', album: 'Streets Thought I Left', duration: '3:12', price: 1, plays: 67000, image: ALBUM_ART.StreetsThoughtILeft, audio_url: audio('StreetsThoughtILeft', 'Jai_Jai_-_Cutta_Money.mp3') },
-  { id: 'stl-07', title: 'Issues', artist: 'Jai Jai', album: 'Streets Thought I Left', duration: '4:01', price: 1, plays: 45000, image: ALBUM_ART.StreetsThoughtILeft, audio_url: audio('StreetsThoughtILeft', 'Jai_Jai_-_Issues.mp3') },
-  { id: 'stl-08', title: 'Bounce Dat Azz', artist: 'Jai Jai', album: 'Streets Thought I Left', duration: '2:58', price: 1, plays: 82000, image: ALBUM_ART.StreetsThoughtILeft, audio_url: audio('StreetsThoughtILeft', 'Jai_Jai_-_Bounce_Dat_Azz.mp3') },
-  { id: 'stl-09', title: 'On Errthang', artist: 'Jai Jai', album: 'Streets Thought I Left', duration: '3:33', price: 1, plays: 71000, image: ALBUM_ART.StreetsThoughtILeft, audio_url: audio('StreetsThoughtILeft', 'Jai_Jai_-_On_Errthang.mp3') },
+  // STREETS THOUGHT I LEFT - 9 tracks (O D Porter)
+  { id: 'stl-01', title: 'Aint Gone Let Up', artist: 'O D Porter', album: 'Streets Thought I Left', duration: '3:15', price: 1, plays: 125000, image: ALBUM_ART.StreetsThoughtILeft, audio_url: audio('StreetsThoughtILeft', 'Jai_Jai_-_Aint_Gone_Let_Up.mp3') },
+  { id: 'stl-02', title: 'Aired Em Out', artist: 'O D Porter', album: 'Streets Thought I Left', duration: '2:45', price: 1, plays: 98000, image: ALBUM_ART.StreetsThoughtILeft, audio_url: audio('StreetsThoughtILeft', 'Jai_Jai_-_Aired_Em_Out.mp3') },
+  { id: 'stl-03', title: 'Forever Young', artist: 'O D Porter', album: 'Streets Thought I Left', duration: '3:58', price: 1, plays: 76000, image: ALBUM_ART.StreetsThoughtILeft, audio_url: audio('StreetsThoughtILeft', 'Jai_Jai_-_Forever_Young.mp3') },
+  { id: 'stl-04', title: 'Intro To My World', artist: 'O D Porter', album: 'Streets Thought I Left', duration: '2:22', price: 1, plays: 89000, image: ALBUM_ART.StreetsThoughtILeft, audio_url: audio('StreetsThoughtILeft', 'Jai_Jai_-__Intro_To_My_World.mp3') },
+  { id: 'stl-05', title: 'Sometime', artist: 'O D Porter', album: 'Streets Thought I Left', duration: '3:45', price: 1, plays: 54000, image: ALBUM_ART.StreetsThoughtILeft, audio_url: audio('StreetsThoughtILeft', 'Jai_Jai_-_Sometime.mp3') },
+  { id: 'stl-06', title: 'Cutta Money', artist: 'O D Porter', album: 'Streets Thought I Left', duration: '3:12', price: 1, plays: 67000, image: ALBUM_ART.StreetsThoughtILeft, audio_url: audio('StreetsThoughtILeft', 'Jai_Jai_-_Cutta_Money.mp3') },
+  { id: 'stl-07', title: 'Issues', artist: 'O D Porter', album: 'Streets Thought I Left', duration: '4:01', price: 1, plays: 45000, image: ALBUM_ART.StreetsThoughtILeft, audio_url: audio('StreetsThoughtILeft', 'Jai_Jai_-_Issues.mp3') },
+  { id: 'stl-08', title: 'Bounce Dat Azz', artist: 'O D Porter', album: 'Streets Thought I Left', duration: '2:58', price: 1, plays: 82000, image: ALBUM_ART.StreetsThoughtILeft, audio_url: audio('StreetsThoughtILeft', 'Jai_Jai_-_Bounce_Dat_Azz.mp3') },
+  { id: 'stl-09', title: 'On Errthang', artist: 'O D Porter', album: 'Streets Thought I Left', duration: '3:33', price: 1, plays: 71000, image: ALBUM_ART.StreetsThoughtILeft, audio_url: audio('StreetsThoughtILeft', 'Jai_Jai_-_On_Errthang.mp3') },
 
   // ROXANNITY - 9 tracks (track 10 not available on CDN)
   { id: 'rox-01', title: 'Roxannity (Intro)', artist: 'O D Porter', album: 'Roxannity', duration: '3:23', price: 1, plays: 54000, image: ALBUM_ART.Roxannity, audio_url: audio('Roxannity', '01_Roxannity__Intro_.mp3') },
@@ -120,16 +120,16 @@ export const TRACKS = [
   { id: 'art-01', title: 'Good Bye Kisses', artist: 'O D Porter', album: 'Artgasm', duration: '3:15', price: 1, plays: 34000, image: ALBUM_ART.Artgasm, audio_url: audio('Artgasm', '01_Good_Bye_Kisses.mp3') },
   { id: 'art-02', title: 'Twerk-A-Thon 2', artist: 'O D Porter', album: 'Artgasm', duration: '4:22', price: 1, plays: 28000, image: ALBUM_ART.Artgasm, audio_url: audio('Artgasm', 'Twerk-A-Thon_2.mp3') },
 
-  // LEVI - 9 tracks
-  { id: 'lev-01', title: 'Decomposure (LEVI)', artist: 'Jai Jai', album: 'Levi', duration: '2:45', price: 1, plays: 45000, image: ALBUM_ART.Levi, audio_url: audio('Levi', 'Jai_Jai_-_Decomposure__LEVI_501_Vol.1_.mp3') },
-  { id: 'lev-02', title: 'Hero', artist: 'Jai Jai', album: 'Levi', duration: '4:01', price: 1, plays: 67000, image: ALBUM_ART.Levi, audio_url: audio('Levi', 'Jai_Jai_-_Hero__LEVI_501_Vol.1_.mp3') },
-  { id: 'lev-03', title: 'Keep It Real', artist: 'Jai Jai', album: 'Levi', duration: '3:22', price: 1, plays: 52000, image: ALBUM_ART.Levi, audio_url: audio('Levi', 'Jai_Jai_-_Keep_It_Real__LEVI_501_Vol.1_.mp3') },
-  { id: 'lev-04', title: 'Lifestyle', artist: 'Jai Jai', album: 'Levi', duration: '3:45', price: 1, plays: 58000, image: ALBUM_ART.Levi, audio_url: audio('Levi', 'Jai_Jai_-_Lifestyle__LEVI_501_Vol.1_.mp3') },
-  { id: 'lev-05', title: 'Lust', artist: 'Jai Jai', album: 'Levi', duration: '2:58', price: 1, plays: 41000, image: ALBUM_ART.Levi, audio_url: audio('Levi', 'Jai_Jai_-_Lust__LEVI_501_Vol.1_.mp3') },
-  { id: 'lev-06', title: 'No Limits', artist: 'Jai Jai', album: 'Levi', duration: '4:12', price: 1, plays: 63000, image: ALBUM_ART.Levi, audio_url: audio('Levi', 'Jai_Jai_-_No_Limits__LEVI_501_Vol.1_.mp3') },
-  { id: 'lev-07', title: 'Only Real Niggaz', artist: 'Jai Jai', album: 'Levi', duration: '3:55', price: 1, plays: 47000, image: ALBUM_ART.Levi, audio_url: audio('Levi', 'Jai_Jai_-_Only_Real_Niggaz__LEVI_501_Vol.1_.mp3') },
-  { id: 'lev-08', title: 'Pain', artist: 'Jai Jai', album: 'Levi', duration: '3:28', price: 1, plays: 39000, image: ALBUM_ART.Levi, audio_url: audio('Levi', 'Jai_Jai_-_Pain__LEVI_501_Vol.1_.mp3') },
-  { id: 'lev-09', title: 'Struggle', artist: 'Jai Jai', album: 'Levi', duration: '4:45', price: 1, plays: 55000, image: ALBUM_ART.Levi, audio_url: audio('Levi', 'Jai_Jai_-_Struggle__LEVI_501_Vol.1_.mp3') },
+  // LEVI - 9 tracks (O D Porter)
+  { id: 'lev-01', title: 'Decomposure (LEVI)', artist: 'O D Porter', album: 'Levi', duration: '2:45', price: 1, plays: 45000, image: ALBUM_ART.Levi, audio_url: audio('Levi', 'Jai_Jai_-_Decomposure__LEVI_501_Vol.1_.mp3') },
+  { id: 'lev-02', title: 'Hero', artist: 'O D Porter', album: 'Levi', duration: '4:01', price: 1, plays: 67000, image: ALBUM_ART.Levi, audio_url: audio('Levi', 'Jai_Jai_-_Hero__LEVI_501_Vol.1_.mp3') },
+  { id: 'lev-03', title: 'Keep It Real', artist: 'O D Porter', album: 'Levi', duration: '3:22', price: 1, plays: 52000, image: ALBUM_ART.Levi, audio_url: audio('Levi', 'Jai_Jai_-_Keep_It_Real__LEVI_501_Vol.1_.mp3') },
+  { id: 'lev-04', title: 'Lifestyle', artist: 'O D Porter', album: 'Levi', duration: '3:45', price: 1, plays: 58000, image: ALBUM_ART.Levi, audio_url: audio('Levi', 'Jai_Jai_-_Lifestyle__LEVI_501_Vol.1_.mp3') },
+  { id: 'lev-05', title: 'Lust', artist: 'O D Porter', album: 'Levi', duration: '2:58', price: 1, plays: 41000, image: ALBUM_ART.Levi, audio_url: audio('Levi', 'Jai_Jai_-_Lust__LEVI_501_Vol.1_.mp3') },
+  { id: 'lev-06', title: 'No Limits', artist: 'O D Porter', album: 'Levi', duration: '4:12', price: 1, plays: 63000, image: ALBUM_ART.Levi, audio_url: audio('Levi', 'Jai_Jai_-_No_Limits__LEVI_501_Vol.1_.mp3') },
+  { id: 'lev-07', title: 'Only Real Niggaz', artist: 'O D Porter', album: 'Levi', duration: '3:55', price: 1, plays: 47000, image: ALBUM_ART.Levi, audio_url: audio('Levi', 'Jai_Jai_-_Only_Real_Niggaz__LEVI_501_Vol.1_.mp3') },
+  { id: 'lev-08', title: 'Pain', artist: 'O D Porter', album: 'Levi', duration: '3:28', price: 1, plays: 39000, image: ALBUM_ART.Levi, audio_url: audio('Levi', 'Jai_Jai_-_Pain__LEVI_501_Vol.1_.mp3') },
+  { id: 'lev-09', title: 'Struggle', artist: 'O D Porter', album: 'Levi', duration: '4:45', price: 1, plays: 55000, image: ALBUM_ART.Levi, audio_url: audio('Levi', 'Jai_Jai_-_Struggle__LEVI_501_Vol.1_.mp3') },
 ];
 
 // Album data
@@ -138,10 +138,10 @@ export const ALBUMS = {
   fromFeastToFamine: { id: 'from-feast-to-famine', name: 'From Feast to Famine', artist: 'O D Porter', year: 2023, image: ALBUM_ART.FromFeastToFamine, tracks: 10 },
   godIsGood: { id: 'god-is-good', name: 'God Is Good', artist: 'O D Porter', year: 2023, image: ALBUM_ART.GodIsGood, tracks: 9 },
   oneDay: { id: 'one-day', name: 'One Day', artist: 'O D Porter', year: 2024, image: ALBUM_ART.OneDay, tracks: 19 },
-  streetsThoughtILeft: { id: 'streets-thought-i-left', name: 'Streets Thought I Left', artist: 'Jai Jai', year: 2023, image: ALBUM_ART.StreetsThoughtILeft, tracks: 9 },
+  streetsThoughtILeft: { id: 'streets-thought-i-left', name: 'Streets Thought I Left', artist: 'O D Porter', year: 2023, image: ALBUM_ART.StreetsThoughtILeft, tracks: 9 },
   roxannity: { id: 'roxannity', name: 'Roxannity', artist: 'O D Porter', year: 2024, image: ALBUM_ART.Roxannity, tracks: 9 },
   artgasm: { id: 'artgasm', name: 'Artgasm', artist: 'O D Porter', year: 2024, image: ALBUM_ART.Artgasm, tracks: 2 },
-  levi: { id: 'levi', name: 'Levi', artist: 'Jai Jai', year: 2024, image: ALBUM_ART.Levi, tracks: 9 },
+  levi: { id: 'levi', name: 'Levi', artist: 'O D Porter', year: 2024, image: ALBUM_ART.Levi, tracks: 9 },
 };
 
 export { audio };

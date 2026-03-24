@@ -81,6 +81,20 @@ export default function ArtistProfilePage({ params }: { params: { id: string } }
     }
   };
 
+  const playAllArtistTracks = () => {
+    const artistTracks = TRACKS.filter(t => t.artist === 'O D Porter');
+    if (artistTracks.length > 0) {
+      setQueue(artistTracks.map(t => ({
+        ...t,
+        duration: typeof t.duration === 'string' ? t.duration.split(':').reduce((acc: number, part: string) => (60 * acc) + parseInt(part), 0) : t.duration || 180
+      })));
+      playTrack({
+        ...artistTracks[0],
+        duration: typeof artistTracks[0].duration === 'string' ? artistTracks[0].duration.split(':').reduce((acc: number, part: string) => (60 * acc) + parseInt(part), 0) : artistTracks[0].duration || 180
+      } as any);
+    }
+  };
+
   return (
     <div className="min-h-screen pt-20 pb-24">
       <div className="pf-container">
@@ -133,10 +147,10 @@ export default function ArtistProfilePage({ params }: { params: { id: string } }
                   <Heart size={16} className={`inline mr-1 ${following ? 'fill-white' : ''}`} />
                   {following ? 'Following' : 'Follow'}
                 </button>
-                <Link href="/digital" className="px-4 py-2 bg-[var(--pf-orange)] text-white rounded-lg font-medium hover:bg-[var(--pf-orange-dark)] transition-colors">
+                <button onClick={playAllArtistTracks} className="px-4 py-2 bg-[var(--pf-orange)] text-white rounded-lg font-medium hover:bg-[var(--pf-orange-dark)] transition-colors">
                   <Play size={16} className="inline mr-1" />
                   Play Music
-                </Link>
+                </button>
                 <button className="px-4 py-2 bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-lg font-medium hover:border-[var(--pf-orange)] transition-colors">
                   <Share2 size={16} className="inline mr-1" />
                   Share
