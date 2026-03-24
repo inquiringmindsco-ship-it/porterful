@@ -310,8 +310,3 @@
     -webkit-print-color-adjust: exact;
   }
 }
-
-@page {
-  size: letter landscape;
-  margin: 0;
-}
