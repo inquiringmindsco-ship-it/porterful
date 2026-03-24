@@ -26,6 +26,25 @@ function BuyButton({ track }: { track: typeof TRACKS[0] }) {
   const [tip, setTip] = useState(0)
   const [customTip, setCustomTip] = useState('')
   const [error, setError] = useState('')
+  const modalRef = useRef<HTMLDivElement>(null)
+
+  // Close modal on Escape key
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && showModal) {
+        setShowModal(false)
+      }
+    }
+    document.addEventListener('keydown', handleEscape)
+    return () => document.removeEventListener('keydown', handleEscape)
+  }, [showModal])
+
+  // Focus trap within modal
+  useEffect(() => {
+    if (showModal && modalRef.current) {
+      modalRef.current.focus()
+    }
+  }, [showModal])
   
   const handleBuy = async () => {
     setLoading(true)
@@ -85,12 +104,20 @@ function BuyButton({ track }: { track: typeof TRACKS[0] }) {
       </button>
       
       {showModal && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={(e) => e.target === e.currentTarget && setShowModal(false)}>
+        <div 
+          ref={modalRef}
+          className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" 
+          onClick={(e) => e.target === e.currentTarget && setShowModal(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="buy-modal-title"
+          tabIndex={-1}
+        >
           <div className="bg-[var(--pf-bg)] rounded-2xl p-6 w-full max-w-md shadow-2xl border border-[var(--pf-border)]" onClick={e => e.stopPropagation()}>
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold text-[var(--pf-text)]">Buy "{track.title}"</h3>
-              <button onClick={() => setShowModal(false)} className="p-2 hover:bg-[var(--pf-surface)] rounded-lg transition-colors">
+              <h3 id="buy-modal-title" className="text-xl font-bold text-[var(--pf-text)]">Buy "{track.title}"</h3>
+              <button onClick={() => setShowModal(false)} className="p-2 hover:bg-[var(--pf-surface)] rounded-lg transition-colors" aria-label="Close modal">
                 <Icon.X />
               </button>
             </div>
