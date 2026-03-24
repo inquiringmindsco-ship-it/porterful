@@ -307,3 +307,10 @@ textarea::placeholder {
   border-radius: 0.5rem;
   border: 1px solid var(--pf-border);
 }
+/* Details/Summary collapsible */
+details[open] .details-chevron {
+  transform: rotate(180deg);
+}
+details .details-chevron {
+  transition: transform 0.2s ease;
+}

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSupabase } from '@/app/providers';
-import { CreditCard, Lock, Check, DollarSign, Users, Gift, Zap } from 'lucide-react';
+import { CreditCard, Lock, Check, DollarSign, Users, Gift, Zap, ShoppingCart, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
 import { useCart } from '@/lib/cart-context';
 
@@ -567,7 +567,46 @@ export default function CheckoutPage() {
             )}
           </div>
 
-          {/* Order Summary - Sticky Sidebar */}
+          {/* Order Summary - Mobile collapsible */}
+          <div className="lg:hidden mb-6">
+            <details className="pf-card p-4">
+              <summary className="font-bold cursor-pointer list-none flex items-center justify-between">
+                <span className="flex items-center gap-2">
+                  <ShoppingCart size={18} />
+                  Order Summary ({cartItems.length} item{cartItems.length !== 1 ? 's' : ''})
+                </span>
+                <span className="flex items-center gap-2">
+                  <span className="font-bold">${total.toFixed(2)}</span>
+                  <ChevronDown size={18} className="details-chevron" />
+                </span>
+              </summary>
+              <div className="mt-4 pt-4 border-t border-[var(--pf-border)] space-y-2">
+                {cartItems.map((item) => (
+                  <div key={item.productId} className="flex justify-between text-sm">
+                    <div>
+                      <p>{item.name}</p>
+                      <p className="text-[var(--pf-text-muted)]">{item.artist} × {item.quantity}</p>
+                    </div>
+                    <p>${(item.price * item.quantity).toFixed(2)}</p>
+                  </div>
+                ))}
+                <div className="flex justify-between text-sm pt-2 border-t border-[var(--pf-border)]">
+                  <span className="text-[var(--pf-text-muted)]">Subtotal</span>
+                  <span>${subtotal.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-[var(--pf-text-muted)]">Shipping</span>
+                  <span>{shippingCost === 0 ? 'FREE' : `$${shippingCost.toFixed(2)}`}</span>
+                </div>
+                <div className="flex justify-between text-sm text-green-400">
+                  <span>To Artists</span>
+                  <span>${artistCut.toFixed(2)}</span>
+                </div>
+              </div>
+            </details>
+          </div>
+
+          {/* Order Summary - Sticky Sidebar (Desktop) */}
           <div className="hidden lg:block">
             <div className="pf-card p-6 sticky top-24">
               <h3 className="font-bold mb-4">Order Summary</h3>
