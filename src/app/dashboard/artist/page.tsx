@@ -28,6 +28,9 @@ export default function ArtistDashboardPage() {
   const { user, supabase, loading: authLoading } = useSupabase();
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'tracks' | 'albums' | 'products'>('albums');
+  const [albums, setAlbums] = useState(Object.values(ALBUMS));
+  const [featured, setFeatured] = useState<string[]>([]);
 
   useEffect(() => {
     async function checkAccess() {
@@ -71,9 +74,6 @@ export default function ArtistDashboardPage() {
       </div>
     )
   }
-  const [activeTab, setActiveTab] = useState<'tracks' | 'albums' | 'products'>('albums');
-  const [albums, setAlbums] = useState(Object.values(ALBUMS));
-  const [featured, setFeatured] = useState<string[]>([]);
 
   // Group tracks by album
   const tracksByAlbum = TRACKS.reduce((acc, track) => {
