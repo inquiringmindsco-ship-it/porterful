@@ -122,18 +122,6 @@ function BuyButton({ track }: { track: typeof TRACKS[0] }) {
               </button>
             </div>
             
-            <p className="text-[var(--pf-text-secondary)] mb-4">by <ArtistLink artist={track.artist} /></p>
-            
-            {/* Track preview */}
-            <div className="flex items-center gap-3 p-3 bg-[var(--pf-surface)] rounded-xl mb-4">
-              <img src={track.image} alt={track.title} className="w-16 h-16 rounded-lg object-cover" />
-              <div className="flex-1">
-                <p className="font-medium text-[var(--pf-text)]">{track.title}</p>
-                <p className="text-sm text-[var(--pf-text-secondary)]"><ArtistLink artist={track.artist} className="text-[var(--pf-text-secondary)]" /></p>
-                {track.album && <p className="text-xs text-[var(--pf-text-muted)]">{track.album}</p>}
-              </div>
-            </div>
-            
             {/* Quantity Selector */}
             <div className="mb-4">
               <p className="text-sm text-[var(--pf-text-secondary)] mb-2">Quantity</p>
@@ -357,7 +345,6 @@ export default function MusicPage() {
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-[var(--pf-text)] truncate">{currentTrack.title}</p>
                   <p className="text-sm text-[var(--pf-text-secondary)]">{currentTrack.artist}</p>
-                  {currentTrack.album && <p className="text-xs text-[var(--pf-text-muted)]">{currentTrack.album}</p>}
                 </div>
                 <BuyButton track={currentTrack as any} />
               </div>
