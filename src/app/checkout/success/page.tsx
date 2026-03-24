@@ -15,16 +15,26 @@ function SuccessContent() {
   useEffect(() => {
     const sessionId = searchParams.get('session_id');
     const demo = searchParams.get('demo');
+    const itemParam = searchParams.get('item');
 
     if (sessionId || demo) {
       setOrderId(sessionId || `ORD-${Date.now().toString(36).toUpperCase()}`);
-      
-      // In production, fetch purchased items from Stripe session
-      // For now, show demo items
-      setPurchasedItems([
-        { type: 'track', name: 'Your purchased track', artist: 'Artist Name', downloadUrl: '#' }
-      ]);
-      
+
+      let items: any[] = [];
+      if (itemParam) {
+        try {
+          items = [JSON.parse(decodeURIComponent(itemParam))];
+        } catch {
+          items = [];
+        }
+      }
+
+      // Also check for demo items
+      if (demo && items.length === 0) {
+        items = [{ type: 'track', name: 'Demo Track', artist: 'O D Porter', downloadUrl: null }];
+      }
+
+      setPurchasedItems(items);
       setLoading(false);
     } else {
       router.push('/');
@@ -97,13 +107,23 @@ function SuccessContent() {
                         <p className="text-sm text-[var(--pf-text-muted)]">{item.artist}</p>
                       </div>
                     </div>
-                    <a 
-                      href={item.downloadUrl}
-                      className="px-4 py-2 bg-[var(--pf-orange)] text-white rounded-lg font-medium hover:bg-[var(--pf-orange-dark)] transition-colors flex items-center gap-2"
-                    >
-                      <Download size={16} />
-                      Download
-                    </a>
+                    {(() => {
+                      const dl = item.downloadUrl || item.audioUrl || item.audio_url;
+                      if (dl && dl !== '#') {
+                        return (
+                          <a href={dl} download target="_blank" rel="noopener noreferrer"
+                            className="px-4 py-2 bg-[var(--pf-orange)] text-white rounded-lg font-medium hover:bg-[var(--pf-orange-dark)] transition-colors flex items-center gap-2">
+                            <Download size={16} />
+                            Download
+                          </a>
+                        );
+                      }
+                      return (
+                        <span className="px-4 py-2 bg-[var(--pf-bg)] text-[var(--pf-text-muted)] rounded-lg text-sm">
+                          No download available
+                        </span>
+                      );
+                    })()}
                   </div>
                 ))}
               </div>
