@@ -12,7 +12,7 @@
   background: #0D0D0D;
   color: #FFFFFF;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  padding: 0.45in 0.55in;
+  padding: 0.42in 0.52in;
   display: flex;
   flex-direction: column;
   gap: 0;
@@ -26,7 +26,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.15in;
+  margin-bottom: 0.13in;
 }
 
 .logo {
@@ -48,7 +48,7 @@
 
 /* HERO */
 .pdf-hero {
-  margin-bottom: 0.18in;
+  margin-bottom: 0.14in;
 }
 
 .pdf-hero h1 {
@@ -56,37 +56,43 @@
   font-weight: 800;
   line-height: 1.1;
   color: #FFFFFF;
-  margin-bottom: 0.08in;
+  margin-bottom: 0.07in;
 }
 
 .hero-sub {
-  font-size: 11px;
+  font-size: 10.5px;
   color: rgba(255,255,255,0.5);
   line-height: 1.5;
-  max-width: 9in;
 }
 
 /* SECTIONS */
 .pdf-section {
-  margin-bottom: 0.14in;
+  margin-bottom: 0.12in;
+}
+
+.step-label {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.3);
+  margin-bottom: 2px;
 }
 
 .pdf-section h2 {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
   color: #FF6B00;
   margin-bottom: 0.08in;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  padding-bottom: 3px;
 }
 
 /* DISCORD SECTION */
 .discord-grid {
   display: grid;
-  grid-template-columns: 1.4fr 1fr;
-  gap: 10px;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 8px;
 }
 
 .discord-steps {
@@ -98,18 +104,18 @@
 .discord-step {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
 }
 
 .discord-num {
-  width: 18px;
-  height: 18px;
-  min-width: 18px;
+  width: 17px;
+  height: 17px;
+  min-width: 17px;
   border-radius: 50%;
   background: rgba(255,107,0,0.15);
   border: 1px solid rgba(255,107,0,0.3);
   color: #FF6B00;
-  font-size: 9px;
+  font-size: 8.5px;
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -117,7 +123,7 @@
 }
 
 .discord-step p {
-  font-size: 9.5px;
+  font-size: 9px;
   color: rgba(255,255,255,0.65);
   line-height: 1.4;
 }
@@ -126,83 +132,33 @@
   background: rgba(255,107,0,0.08);
   border: 1px solid rgba(255,107,0,0.2);
   border-radius: 8px;
-  padding: 8px 10px;
+  padding: 7px 9px;
 }
 
 .note-title {
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 700;
   color: #FF6B00;
   margin-bottom: 4px;
 }
 
 .discord-note p {
-  font-size: 9px;
-  color: rgba(255,255,255,0.55);
+  font-size: 8.5px;
+  color: rgba(255,255,255,0.5);
   line-height: 1.45;
 }
 
-/* ROLES GRID */
-.roles-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
+/* LINKS */
+a {
+  color: #FF6B00;
+  text-decoration: underline;
 }
 
-.role-card {
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 8px;
-  overflow: hidden;
+.link {
+  font-weight: 600;
 }
 
-.role-header {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 10px;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-  border-left: 3px solid;
-}
-
-.role-icon {
-  font-size: 14px;
-}
-
-.role-label {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.role-steps {
-  padding: 7px 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.role-step {
-  display: flex;
-  align-items: flex-start;
-  gap: 7px;
-}
-
-.role-step-num {
-  font-size: 9px;
-  font-weight: 700;
-  min-width: 12px;
-  margin-top: 1px;
-}
-
-.role-step p {
-  font-size: 9px;
-  color: rgba(255,255,255,0.6);
-  line-height: 1.45;
-}
-
-/* CODE SPANS */
+/* CODE */
 .code {
   font-family: 'Courier New', Courier, monospace;
   font-size: 8.5px;
@@ -212,46 +168,109 @@
   border-radius: 3px;
 }
 
-/* CHANNELS */
-.channels {
+/* PORTERFUL GRID */
+.porterful-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 4px 12px;
-  margin-bottom: 6px;
+  gap: 7px;
 }
 
-.channel {
+.porterful-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+.porterful-header {
   display: flex;
-  align-items: baseline;
-  gap: 8px;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 7px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
 }
 
-.channel-name {
+.porterful-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.porterful-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.porterful-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.porterful-num {
+  font-size: 8.5px;
+  font-weight: 700;
+  min-width: 12px;
+  margin-top: 1px;
+}
+
+.porterful-step p {
+  font-size: 8.5px;
+  color: rgba(255,255,255,0.6);
+  line-height: 1.45;
+}
+
+/* RULES GRID */
+.rules-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 6px;
+}
+
+.rule {
+  border-radius: 7px;
+  padding: 7px 9px;
+  border: 1px solid;
+}
+
+.rule.green {
+  background: rgba(34,197,94,0.08);
+  border-color: rgba(34,197,94,0.25);
+}
+
+.rule.yellow {
+  background: rgba(234,179,8,0.08);
+  border-color: rgba(234,179,8,0.25);
+}
+
+.rule.red {
+  background: rgba(239,68,68,0.08);
+  border-color: rgba(239,68,68,0.25);
+}
+
+.rule-title {
   font-size: 9.5px;
   font-weight: 700;
-  color: rgba(255,255,255,0.75);
-  white-space: nowrap;
-  font-family: 'Courier New', Courier, monospace;
-  min-width: 90px;
+  margin-bottom: 3px;
 }
 
-.channel-desc {
-  font-size: 9px;
-  color: rgba(255,255,255,0.4);
+.rule.green .rule-title { color: #22c55e; }
+.rule.yellow .rule-title { color: #eab208; }
+.rule.red .rule-title { color: #ef4444; }
+
+.rule p {
+  font-size: 8px;
+  color: rgba(255,255,255,0.5);
   line-height: 1.4;
-}
-
-.channel-note {
-  font-size: 9px;
-  color: rgba(255,255,255,0.35);
-  font-style: italic;
-  margin-top: 4px;
 }
 
 /* FOOTER */
 .pdf-footer {
   margin-top: auto;
-  padding-top: 0.1in;
+  padding-top: 0.09in;
   border-top: 1px solid rgba(255,255,255,0.08);
   display: flex;
   align-items: center;
@@ -267,9 +286,18 @@
 
 .footer-links {
   display: flex;
-  gap: 14px;
+  gap: 12px;
   font-size: 8.5px;
   color: rgba(255,255,255,0.3);
+}
+
+.footer-link {
+  color: rgba(255,255,255,0.3);
+  text-decoration: none;
+}
+
+.footer-link:hover {
+  color: #FF6B00;
 }
 
 .footer-tagline {
