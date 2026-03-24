@@ -41,18 +41,45 @@ export default function ArtistDashboardPage() {
         return
       }
 
-      // Fetch profile to check role
-      const { data } = await supabase!
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single()
-      
-      setProfile(data)
+      // SECURITY: Re-validate user session from server to prevent session mixing
+      // This ensures the logged-in user is actually the artist
+      let validUserId: string | null = null
+      try {
+        const { data: serverUser, error: profileError } = await supabase!
+          .from('profiles')
+          .select('id, role')
+          .eq('id', user.id)
+          .single()
+        
+        if (profileError) {
+          console.error('Profile fetch error:', profileError)
+          router.push('/login')
+          return
+        }
+        
+        if (!serverUser) {
+          console.error('No profile found for user')
+          router.push('/login')
+          return
+        }
+        
+        if (serverUser.role !== 'artist') {
+          console.error('User is not an artist, role:', serverUser.role)
+          router.push('/dashboard')
+          return
+        }
+        
+        validUserId = serverUser.id
+        setProfile(serverUser)
+      } catch (err) {
+        console.error('Session re-validation error:', err)
+        router.push('/login')
+        return
+      }
       
       // Only artists can access this page
-      if (data?.role !== 'artist') {
-        router.push('/dashboard')
+      if (!validUserId) {
+        router.push('/login')
         return
       }
       
