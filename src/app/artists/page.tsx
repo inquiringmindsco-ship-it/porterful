@@ -113,7 +113,7 @@ export default function ArtistsPage() {
                   </div>
                 </div>
                 <button className="w-full py-2 rounded-lg bg-[var(--pf-orange)]/10 text-[var(--pf-orange)] text-sm font-medium group-hover:bg-[var(--pf-orange)] group-hover:text-white transition-colors">
-                  Support ${artist.name.split(' ')[0]}
+                  Support {artist.name.split(' ')[0]}
                 </button>
               </div>
             </Link>
