@@ -290,7 +290,7 @@ export default function CheckoutPage() {
                       <input 
                         type="text" 
                         autoComplete="given-name"
-                        className={`w-full bg-[var(--pf-bg)] border rounded-lg px-4 py-3 focus:outline-none ${
+                        className={`w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 focus:outline-none focus:border-[var(--pf-orange)] ${
                           shippingErrors.name ? 'border-red-500' : 'border-[var(--pf-border)] focus:border-[var(--pf-orange)]'
                         }`}
                         placeholder="First"
@@ -319,7 +319,7 @@ export default function CheckoutPage() {
                     <input 
                       type="email" 
                       autoComplete="email"
-                      className={`w-full bg-[var(--pf-bg)] border rounded-lg px-4 py-3 focus:outline-none ${
+                      className={`w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 focus:outline-none focus:border-[var(--pf-orange)] ${
                         shippingErrors.email ? 'border-red-500' : 'border-[var(--pf-border)] focus:border-[var(--pf-orange)]'
                       }`}
                       placeholder="you@email.com"
@@ -336,7 +336,7 @@ export default function CheckoutPage() {
                     <input 
                       type="text" 
                       autoComplete="street-address"
-                      className={`w-full bg-[var(--pf-bg)] border rounded-lg px-4 py-3 focus:outline-none ${
+                      className={`w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 focus:outline-none focus:border-[var(--pf-orange)] ${
                         shippingErrors.address ? 'border-red-500' : 'border-[var(--pf-border)] focus:border-[var(--pf-orange)]'
                       }`}
                       placeholder="Street address"
@@ -354,7 +354,7 @@ export default function CheckoutPage() {
                       <input 
                         type="text" 
                         autoComplete="address-level2"
-                        className={`w-full bg-[var(--pf-bg)] border rounded-lg px-4 py-3 focus:outline-none ${
+                        className={`w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 focus:outline-none focus:border-[var(--pf-orange)] ${
                           shippingErrors.city ? 'border-red-500' : 'border-[var(--pf-border)] focus:border-[var(--pf-orange)]'
                         }`}
                         value={shipping.city}
@@ -370,7 +370,7 @@ export default function CheckoutPage() {
                       <input 
                         type="text" 
                         autoComplete="address-level1"
-                        className={`w-full bg-[var(--pf-bg)] border rounded-lg px-4 py-3 focus:outline-none ${
+                        className={`w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 focus:outline-none focus:border-[var(--pf-orange)] ${
                           shippingErrors.state ? 'border-red-500' : 'border-[var(--pf-border)] focus:border-[var(--pf-orange)]'
                         }`}
                         value={shipping.state}
@@ -389,7 +389,7 @@ export default function CheckoutPage() {
                         type="text" 
                         autoComplete="postal-code"
                         inputMode="numeric"
-                        className={`w-full bg-[var(--pf-bg)] border rounded-lg px-4 py-3 focus:outline-none ${
+                        className={`w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 focus:outline-none focus:border-[var(--pf-orange)] ${
                           shippingErrors.zip ? 'border-red-500' : 'border-[var(--pf-border)] focus:border-[var(--pf-orange)]'
                         }`}
                         value={shipping.zip}
@@ -469,7 +469,7 @@ export default function CheckoutPage() {
                       inputMode="numeric"
                       autoComplete="cc-number"
                       placeholder="4242 4242 4242 4242" 
-                      className={`w-full bg-[var(--pf-bg)] border rounded-lg px-4 py-3 focus:outline-none ${
+                      className={`w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 focus:outline-none focus:border-[var(--pf-orange)] ${
                         errors.cardNumber ? 'border-red-500' : 'border-[var(--pf-border)] focus:border-[var(--pf-orange)]'
                       }`}
                       value={payment.cardNumber}
@@ -493,7 +493,7 @@ export default function CheckoutPage() {
                         inputMode="numeric"
                         autoComplete="cc-exp"
                         placeholder="MM/YY" 
-                        className={`w-full bg-[var(--pf-bg)] border rounded-lg px-4 py-3 focus:outline-none ${
+                        className={`w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 focus:outline-none focus:border-[var(--pf-orange)] ${
                           errors.expiry ? 'border-red-500' : 'border-[var(--pf-border)] focus:border-[var(--pf-orange)]'
                         }`}
                         value={payment.expiry}
@@ -516,7 +516,7 @@ export default function CheckoutPage() {
                         inputMode="numeric"
                         autoComplete="cc-csc"
                         placeholder="123" 
-                        className={`w-full bg-[var(--pf-bg)] border rounded-lg px-4 py-3 focus:outline-none ${
+                        className={`w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 focus:outline-none focus:border-[var(--pf-orange)] ${
                           errors.cvc ? 'border-red-500' : 'border-[var(--pf-border)] focus:border-[var(--pf-orange)]'
                         }`}
                         value={payment.cvc}
