@@ -33,23 +33,21 @@ export default function TrendingPage() {
           </p>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-          <div className="pf-card p-6 text-center">
-            <p className="text-3xl font-bold text-[var(--pf-orange)]">+42%</p>
-            <p className="text-sm text-[var(--pf-text-muted)]">Sales this week</p>
-          </div>
-          <div className="pf-card p-6 text-center">
-            <p className="text-3xl font-bold text-green-400">12,847</p>
-            <p className="text-sm text-[var(--pf-text-muted)]">Items sold today</p>
-          </div>
-          <div className="pf-card p-6 text-center">
-            <p className="text-3xl font-bold text-blue-400">847</p>
-            <p className="text-sm text-[var(--pf-text-muted)]">Active artists</p>
-          </div>
-          <div className="pf-card p-6 text-center">
-            <p className="text-3xl font-bold text-purple-400">$8.4K</p>
-            <p className="text-sm text-[var(--pf-text-muted)]">To artist fund today</p>
+        {/* How It Works Banner */}
+        <div className="bg-gradient-to-r from-[var(--pf-orange)]/10 to-purple-500/10 rounded-2xl p-6 mb-12 border border-[var(--pf-orange)]/20">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-xl bg-[var(--pf-orange)]/20 flex items-center justify-center">
+                <TrendingUp className="text-[var(--pf-orange)]" size={28} />
+              </div>
+              <div>
+                <h3 className="font-bold text-lg">Products That Support Artists</h3>
+                <p className="text-sm text-[var(--pf-text-secondary)]">Every purchase contributes to the artist fund</p>
+              </div>
+            </div>
+            <Link href="/about" className="pf-btn pf-btn-secondary whitespace-nowrap">
+              Learn More
+            </Link>
           </div>
         </div>
 
@@ -139,12 +137,12 @@ export default function TrendingPage() {
               </p>
             </div>
             <div className="text-center">
-              <div className="w-12 h-12 mx-auto mb-4 rounded-xl bg-green-500/20 flex items-center justify-center">
-                <Clock className="text-green-400" size={24} />
+              <div className="w-12 h-12 mx-auto mb-4 rounded-xl bg-purple-500/20 flex items-center justify-center">
+                <TrendingUp className="text-purple-400" size={24} />
               </div>
-              <h3 className="font-semibold mb-2">Limited Availability</h3>
+              <h3 className="font-semibold mb-2">Artist-Curated</h3>
               <p className="text-sm text-[var(--pf-text-secondary)]">
-                Some trending items may sell out. Grab them while you can.
+                Products hand-picked by the artists you love.
               </p>
             </div>
           </div>
