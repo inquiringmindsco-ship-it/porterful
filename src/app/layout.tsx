@@ -139,32 +139,7 @@ export default function RootLayout({
           <GlobalPlayer />
           <InstallPrompt />
           <IOSInstallInstructions />
-          {/* Structured Data for SEO */}
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{
-              __html: JSON.stringify({
-                "@context": "https://schema.org",
-                "@type": "MusicPlatform",
-                "name": "Porterful",
-                "description": "Music + Merch platform for independent artists. 80% goes to artists.",
-                "url": "https://porterful.com",
-                "logo": "https://porterful.com/logo.svg",
-                "sameAs": [
-                  "https://twitter.com/porterful",
-                  "https://instagram.com/porterful",
-                  "https://youtube.com/@odporter"
-                ],
-                "potentialAction": {
-                  "@type": "SearchAction",
-                  "target": "https://porterful.com/digital?search={search_term_string}",
-                  "query-input": "required name=search_term_string"
-                },
-
-              })
-            }}
-          />
-        </Providers>
+          </Providers>
       </body>
     </html>
   )

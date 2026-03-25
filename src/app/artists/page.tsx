@@ -6,7 +6,7 @@ import { Music, Users, TrendingUp, Heart, ChevronRight } from 'lucide-react'
 
 // Demo artists
 const ARTISTS = [
-  { id: 'od', name: 'O D Porter', genre: 'Hip-Hop / R&B', followers: 2847, goal: 2500, current: 1847, image: '🎤' },
+  { id: 'od-porter', name: 'O D Porter', genre: 'Hip-Hop / R&B', followers: 2847, goal: 2500, current: 1847, image: '🎤' },
   { id: 'alex', name: 'Alex Rivers', genre: 'Indie Pop', followers: 1205, goal: 1500, current: 890, image: '🎸' },
   { id: 'maya', name: 'Maya Sol', genre: 'Electronic', followers: 983, goal: 1000, current: 672, image: '🎹' },
   { id: 'jordan', name: 'Jordan Blake', genre: 'Alternative', followers: 756, goal: 800, current: 534, image: '🎷' },
@@ -64,7 +64,7 @@ export default function ArtistsPage() {
   
   const featuredArtist = ARTISTS[0]
   const filteredArtists = ARTISTS.filter(a => 
-    a.id !== 'od' && (activeGenre === 'All' || a.genre === activeGenre)
+    a.id !== 'od-porter' && (activeGenre === 'All' || a.genre === activeGenre)
   )
 
   return (
