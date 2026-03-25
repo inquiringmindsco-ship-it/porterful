@@ -175,11 +175,11 @@ export default function Home() {
                 
                 <div className="flex gap-4 mb-6">
                   <div>
-                    <div className="text-2xl font-bold text-[var(--pf-orange)]">114</div>
+                    <div className="text-2xl font-bold text-[var(--pf-orange)]">{TRACKS.length}</div>
                     <div className="text-xs text-[var(--pf-text-muted)]">Tracks</div>
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-[var(--pf-orange)]">8</div>
+                    <div className="text-2xl font-bold text-[var(--pf-orange)]">{new Set(TRACKS.map(t => t.album)).size}</div>
                     <div className="text-xs text-[var(--pf-text-muted)]">Albums</div>
                   </div>
                   <div>

@@ -160,13 +160,7 @@ export default function RootLayout({
                   "target": "https://porterful.com/digital?search={search_term_string}",
                   "query-input": "required name=search_term_string"
                 },
-                "offers": {
-                  "@type": "AggregateOffer",
-                  "priceCurrency": "USD",
-                  "lowPrice": "1.00",
-                  "highPrice": "5.99",
-                  "offerCount": "114"
-                }
+
               })
             }}
           />

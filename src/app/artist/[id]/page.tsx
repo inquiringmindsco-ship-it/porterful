@@ -440,7 +440,7 @@ export default function ArtistProfilePage({ params }: { params: { id: string } }
                 </div>
                 <div className="text-center p-3 bg-[var(--pf-bg)] rounded-lg">
                   <Package className="text-[var(--pf-orange)] mx-auto mb-2" size={24} />
-                  <p className="text-xl font-bold">{artist.products}</p>
+                  <p className="text-xl font-bold">{PRODUCTS.length}</p>
                   <p className="text-xs text-[var(--pf-text-muted)]">Products</p>
                 </div>
               </div>
