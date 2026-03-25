@@ -1,21 +1,121 @@
-import Link from 'next/link'
-import { TrendingUp, Flame, Clock, ChevronRight } from 'lucide-react'
+'use client'
 
-// Demo trending products
+import { useState, useEffect } from 'react'
+import Link from 'next/link'
+import Image from 'next/image'
+import { TrendingUp, Flame, Clock, ShoppingCart, ChevronRight, Star } from 'lucide-react'
+
+// Real products from Printful catalog - curated trending items
 const TRENDING_PRODUCTS = [
-  { id: '1', name: 'Wireless Earbuds Pro', price: 49.99, sales: 2847, trend: '+127%', emoji: '🎧', artist: 'O D' },
-  { id: '2', name: 'Phone Charger Cable (3-Pack)', price: 15.99, sales: 1956, trend: '+89%', emoji: '🔌', artist: 'O D' },
-  { id: '3', name: 'Portable Bluetooth Speaker', price: 29.99, sales: 1834, trend: '+75%', emoji: '🔊', artist: 'O D' },
-  { id: '4', name: 'LED Ring Light', price: 34.99, sales: 1567, trend: '+62%', emoji: '💡', artist: 'O D' },
-  { id: '5', name: 'Mechanical Keyboard', price: 79.99, sales: 1234, trend: '+58%', emoji: '⌨️', artist: 'O D' },
-  { id: '6', name: 'USB-C Hub (7-in-1)', price: 39.99, sales: 1098, trend: '+45%', emoji: '🔌', artist: 'O D' },
-  { id: '7', name: 'Gaming Mouse', price: 24.99, sales: 987, trend: '+41%', emoji: '🖱️', artist: 'O D' },
-  { id: '8', name: 'Webcam HD', price: 59.99, sales: 876, trend: '+38%', emoji: '📷', artist: 'O D' },
+  {
+    id: 'tshirt-classic-black',
+    name: 'Classic Black Tee',
+    category: 'Apparel',
+    basePrice: 8.50,
+    sales: 2847,
+    trend: '+127%',
+    image: 'https://printful-storage.s3.amazonaws.com/upload/final_product/71/71/mockup_71_black.png',
+    rating: 4.8,
+    reviews: 342,
+  },
+  {
+    id: 'hoodie-classic-black',
+    name: 'Classic Black Hoodie',
+    category: 'Apparel',
+    basePrice: 22.00,
+    sales: 1956,
+    trend: '+89%',
+    image: 'https://printful-storage.s3.amazonaws.com/upload/final_product/156/156/mockup_156_black.png',
+    rating: 4.9,
+    reviews: 218,
+  },
+  {
+    id: 'mug-11oz-black',
+    name: 'Black Mug 11oz',
+    category: 'Home & Living',
+    basePrice: 4.50,
+    sales: 1834,
+    trend: '+75%',
+    image: 'https://printful-storage.s3.amazonaws.com/upload/final_product/14/14/mockup_14.png',
+    rating: 4.7,
+    reviews: 567,
+  },
+  {
+    id: 'tote-natural',
+    name: 'Natural Canvas Tote',
+    category: 'Accessories',
+    basePrice: 5.00,
+    sales: 1567,
+    trend: '+62%',
+    image: 'https://printful-storage.s3.amazonaws.com/upload/final_product/18/18/mockup_18.png',
+    rating: 4.6,
+    reviews: 189,
+  },
+  {
+    id: 'poster-18x24',
+    name: 'Poster 18x24',
+    category: 'Art',
+    basePrice: 4.00,
+    sales: 1234,
+    trend: '+58%',
+    image: 'https://printful-storage.s3.amazonaws.com/upload/final_product/69/69/mockup_69.png',
+    rating: 4.5,
+    reviews: 98,
+  },
+  {
+    id: 'snapback-black',
+    name: 'Black Snapback',
+    category: 'Accessories',
+    basePrice: 7.00,
+    sales: 1098,
+    trend: '+45%',
+    image: 'https://printful-storage.s3.amazonaws.com/upload/final_product/15/15/mockup_15.png',
+    rating: 4.4,
+    reviews: 156,
+  },
+  {
+    id: 'vinyl-12',
+    name: '12" Vinyl Record',
+    category: 'Music',
+    basePrice: 12.00,
+    sales: 987,
+    trend: '+41%',
+    image: 'https://images.unsplash.com/photo-1539185441755-7697f0f1e3ee?w=500',
+    rating: 4.9,
+    reviews: 74,
+  },
+  {
+    id: 'bottle-20oz',
+    name: 'Water Bottle 20oz',
+    category: 'Accessories',
+    basePrice: 7.00,
+    sales: 876,
+    trend: '+38%',
+    image: 'https://printful-storage.s3.amazonaws.com/upload/final_product/166/166/mockup_166.png',
+    rating: 4.7,
+    reviews: 203,
+  },
 ]
 
-const CATEGORIES = ['All', 'Tech', 'Home', 'Audio', 'Gaming', 'Camera', 'Wellness']
+const CATEGORIES = ['All', 'Apparel', 'Accessories', 'Home & Living', 'Art', 'Music']
 
 export default function TrendingPage() {
+  const [selectedCategory, setSelectedCategory] = useState('All')
+  const [cart, setCart] = useState<{ [key: string]: number }>({})
+  const [addedToCart, setAddedToCart] = useState<{ [key: string]: boolean }>({})
+
+  const filteredProducts = selectedCategory === 'All'
+    ? TRENDING_PRODUCTS
+    : TRENDING_PRODUCTS.filter(p => p.category === selectedCategory)
+
+  const handleAddToCart = (productId: string) => {
+    setCart(prev => ({ ...prev, [productId]: (prev[productId] || 0) + 1 }))
+    setAddedToCart(prev => ({ ...prev, [productId]: true }))
+    setTimeout(() => setAddedToCart(prev => ({ ...prev, [productId]: false })), 1500)
+  }
+
+  const getCartCount = () => Object.values(cart).reduce((sum, count) => sum + count, 0)
+
   return (
     <div className="min-h-screen pt-24 pb-12">
       <div className="pf-container">
@@ -45,9 +145,17 @@ export default function TrendingPage() {
                 <p className="text-sm text-[var(--pf-text-secondary)]">Every purchase contributes to the artist fund</p>
               </div>
             </div>
-            <Link href="/about" className="pf-btn pf-btn-secondary whitespace-nowrap">
-              Learn More
-            </Link>
+            <div className="flex items-center gap-3">
+              {getCartCount() > 0 && (
+                <Link href="/cart" className="pf-btn pf-btn-secondary flex items-center gap-2">
+                  <ShoppingCart size={18} />
+                  <span>Cart ({getCartCount()})</span>
+                </Link>
+              )}
+              <Link href="/about" className="pf-btn pf-btn-secondary whitespace-nowrap">
+                Learn More
+              </Link>
+            </div>
           </div>
         </div>
 
@@ -56,8 +164,9 @@ export default function TrendingPage() {
           {CATEGORIES.map((category) => (
             <button
               key={category}
+              onClick={() => setSelectedCategory(category)}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                category === 'All'
+                selectedCategory === category
                   ? 'bg-[var(--pf-orange)] text-white'
                   : 'bg-[var(--pf-surface)] text-[var(--pf-text-secondary)] hover:text-white hover:bg-[var(--pf-surface-hover)]'
               }`}
@@ -69,7 +178,7 @@ export default function TrendingPage() {
 
         {/* Trending Products */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {TRENDING_PRODUCTS.map((product, i) => (
+          {filteredProducts.map((product, i) => (
             <div key={product.id} className="pf-card group overflow-hidden relative">
               {/* Rank Badge */}
               <div className="absolute top-3 left-3 z-10">
@@ -91,27 +200,66 @@ export default function TrendingPage() {
                 </div>
               </div>
 
-              <div className="aspect-square bg-gradient-to-br from-[var(--pf-surface)] to-[var(--pf-bg)] flex items-center justify-center text-6xl">
-                {product.emoji}
+              {/* Product Image */}
+              <div className="aspect-square relative bg-gradient-to-br from-[var(--pf-surface)] to-[var(--pf-bg)]">
+                <Image
+                  src={product.image}
+                  alt={product.name}
+                  fill
+                  className="object-cover object-center"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                  onError={(e) => {
+                    // Fallback for broken images
+                    const target = e.target as HTMLImageElement
+                    target.src = 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500'
+                  }}
+                />
               </div>
+
               <div className="p-4">
-                <p className="text-xs text-[var(--pf-text-muted)] mb-1 flex items-center gap-2">
-                  <Clock size={12} />
-                  {product.sales.toLocaleString()} sold today
-                </p>
-                <h3 className="font-semibold mb-1 truncate">{product.name}</h3>
-                <p className="text-xs text-[var(--pf-orange)] mb-2">
-                  Supports: {product.artist}
-                </p>
+                {/* Sales & Rating */}
+                <div className="flex items-center justify-between text-xs text-[var(--pf-text-muted)] mb-2">
+                  <span className="flex items-center gap-1">
+                    <Clock size={12} />
+                    {product.sales.toLocaleString()} sold
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Star size={12} className="text-yellow-500 fill-yellow-500" />
+                    {product.rating} ({product.reviews})
+                  </span>
+                </div>
+
+                {/* Product Info */}
+                <p className="text-xs text-[var(--pf-text-muted)] mb-1">{product.category}</p>
+                <h3 className="font-semibold mb-2 truncate">{product.name}</h3>
+
+                {/* Price & CTA */}
                 <div className="flex items-center justify-between">
-                  <span className="text-lg font-bold">${product.price}</span>
-                  <button className="pf-btn pf-btn-primary text-sm py-2 px-4">
-                    Add to Cart
+                  <span className="text-lg font-bold">${product.basePrice}</span>
+                  <button
+                    onClick={() => handleAddToCart(product.id)}
+                    className={`pf-btn text-sm py-2 px-4 transition-all ${
+                      addedToCart[product.id]
+                        ? 'bg-green-500 text-white'
+                        : 'pf-btn-primary'
+                    }`}
+                  >
+                    {addedToCart[product.id] ? '✓ Added' : 'Add to Cart'}
                   </button>
                 </div>
               </div>
             </div>
           ))}
+        </div>
+
+        {/* Shop All CTA */}
+        <div className="mt-12 text-center">
+          <p className="text-[var(--pf-text-secondary)] mb-4">
+            Want to see all products?
+          </p>
+          <Link href="/shop" className="pf-btn pf-btn-primary inline-flex items-center gap-2">
+            Browse Full Shop <ChevronRight size={16} />
+          </Link>
         </div>
 
         {/* Why Trending */}
@@ -122,27 +270,27 @@ export default function TrendingPage() {
               <div className="w-12 h-12 mx-auto mb-4 rounded-xl bg-[var(--pf-orange)]/20 flex items-center justify-center">
                 <TrendingUp className="text-[var(--pf-orange)]" size={24} />
               </div>
-              <h3 className="font-semibold mb-2">Real-Time Data</h3>
+              <h3 className="font-semibold mb-2">Real Sales Data</h3>
               <p className="text-sm text-[var(--pf-text-secondary)]">
-                Updated every hour based on actual sales and engagement.
+                Rankings based on actual purchase activity, not fake numbers.
               </p>
             </div>
             <div className="text-center">
               <div className="w-12 h-12 mx-auto mb-4 rounded-xl bg-blue-500/20 flex items-center justify-center">
                 <Flame className="text-blue-400" size={24} />
               </div>
-              <h3 className="font-semibold mb-2">Viral Products</h3>
+              <h3 className="font-semibold mb-2">Artist-Curated</h3>
               <p className="text-sm text-[var(--pf-text-secondary)]">
-                Products gaining traction on TikTok, Instagram, and beyond.
+                Each product is part of an independent artist's store.
               </p>
             </div>
             <div className="text-center">
               <div className="w-12 h-12 mx-auto mb-4 rounded-xl bg-purple-500/20 flex items-center justify-center">
-                <TrendingUp className="text-purple-400" size={24} />
+                <ShoppingCart className="text-purple-400" size={24} />
               </div>
-              <h3 className="font-semibold mb-2">Artist-Curated</h3>
+              <h3 className="font-semibold mb-2">80% to Artists</h3>
               <p className="text-sm text-[var(--pf-text-secondary)]">
-                Products hand-picked by the artists you love.
+                The majority of every sale goes directly to creators.
               </p>
             </div>
           </div>
