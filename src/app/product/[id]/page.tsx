@@ -7,10 +7,12 @@ import { useRouter } from 'next/navigation';
 import { Star, Heart, Share2, ShoppingCart, Check } from 'lucide-react';
 import { PRODUCTS } from '@/lib/data';
 import { useCart } from '@/lib/cart-context';
+import { useToast } from '@/components/Toast';
 
 export default function ProductPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const { addItem, items } = useCart();
+  const { showToast } = useToast();
   const [selectedSize, setSelectedSize] = useState('');
   const [selectedColor, setSelectedColor] = useState('');
   const [quantity, setQuantity] = useState(1);
@@ -39,11 +41,11 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   const handleAddToCart = () => {
     // Validate selections
     if (hasSizes && !selectedSize) {
-      alert('Please select a size');
+      showToast('Please select a size', 'error');
       return;
     }
     if (hasColors && !selectedColor) {
-      alert('Please select a color');
+      showToast('Please select a color', 'error');
       return;
     }
 
@@ -59,6 +61,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     });
 
     setAdded(true);
+    showToast(`${product.name} added to cart!`, 'success');
     setTimeout(() => setAdded(false), 2000);
   };
 

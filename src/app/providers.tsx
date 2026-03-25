@@ -8,6 +8,7 @@ import { ThemeProvider } from '@/lib/theme-context'
 import { WalletProvider } from '@/lib/wallet-context'
 import { PayoutProvider } from '@/lib/payout-context'
 import { CartProvider } from '@/lib/cart-context'
+import { ToastProvider } from '@/components/Toast'
 
 const SupabaseContext = createContext<{
   supabase: ReturnType<typeof createBrowserClient> | null
@@ -132,7 +133,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
           <CartProvider>
             <WalletProvider>
               <PayoutProvider>
-                {children}
+                <ToastProvider>
+                  {children}
+                </ToastProvider>
               </PayoutProvider>
             </WalletProvider>
           </CartProvider>
