@@ -39,7 +39,12 @@ export default function SignupPage() {
       })
 
       if (signUpError) {
-        setError(signUpError.message)
+        // Handle Supabase email rate limit errors with friendly message
+        if (signUpError.message.includes('rate limit') || signUpError.message.includes('Email rate limit')) {
+          setError('Too many signup attempts right now. Please wait a few minutes and try again, or contact support if you need help.')
+        } else {
+          setError(signUpError.message)
+        }
         return
       }
 
