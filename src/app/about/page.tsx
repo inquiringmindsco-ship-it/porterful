@@ -178,39 +178,35 @@ export default function AboutPage() {
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-8">Where Your Money Goes</h2>
           <div className="bg-[var(--pf-surface)] rounded-2xl p-8 border border-[var(--pf-border)]">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="text-center">
-                <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center text-white text-2xl font-bold">
+                <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg">
                   80%
                 </div>
-                <div className="font-bold text-[var(--pf-text)]">Artist</div>
-                <div className="text-sm text-[var(--pf-text-muted)]">Direct earnings</div>
+                <div className="font-bold text-lg text-[var(--pf-text)]">Artist</div>
+                <div className="text-sm text-[var(--pf-text-muted)]">Direct earnings on every sale</div>
               </div>
               <div className="text-center">
-                <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold">
-                  20%
+                <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg">
+                  15%
                 </div>
-                <div className="font-bold text-[var(--pf-text)]">Artist Fund</div>
-                <div className="text-sm text-[var(--pf-text-muted)]">Supports all artists</div>
+                <div className="font-bold text-lg text-[var(--pf-text)]">Payment Processing</div>
+                <div className="text-sm text-[var(--pf-text-muted)]">Stripe, PayPal fees</div>
               </div>
               <div className="text-center">
-                <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center text-white text-2xl font-bold">
+                <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg">
                   5%
                 </div>
-                <div className="font-bold text-[var(--pf-text)]">Superfans</div>
-                <div className="text-sm text-[var(--pf-text-muted)]">Referral earnings</div>
-              </div>
-              <div className="text-center">
-                <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-gray-500 to-gray-600 flex items-center justify-center text-white text-2xl font-bold">
-                  10%
-                </div>
-                <div className="font-bold text-[var(--pf-text)]">Platform</div>
+                <div className="font-bold text-lg text-[var(--pf-text)]">Platform</div>
                 <div className="text-sm text-[var(--pf-text-muted)]">Keeps the lights on</div>
               </div>
             </div>
-            <p className="text-[var(--pf-text-secondary)] mt-6 text-sm">
-              Note: Artist Fund helps emerging artists grow. Superfans earn by referring new buyers.
-            </p>
+            <div className="mt-8 pt-6 border-t border-[var(--pf-border)]">
+              <p className="text-[var(--pf-text-secondary)] text-sm">
+                <strong className="text-[var(--pf-orange)]">Compare:</strong> Spotify pays artists ~$0.003 per stream. 
+                On Porterful, a $1 track purchase = $0.80 to the artist. That's <strong>267x more</strong> than 267 Spotify streams.
+              </p>
+            </div>
           </div>
         </div>
       </section>

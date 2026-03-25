@@ -7,7 +7,7 @@ export default function FAQPage() {
     {
       title: 'For Artists',
       faqs: [
-        { q: 'How much do I earn from my merch?', a: 'You keep 80% of every sale. The remaining 20% covers payment processing (15%) and our platform fee (5%). No hidden fees.' },
+        { q: 'How much do I earn from my merch?', a: 'You keep 80% of every sale. The remaining 20% covers payment processing (15%) and platform operations (5%). No hidden fees.' },
         { q: 'How do I get paid?', a: 'Payments are processed via Stripe. You can withdraw anytime with a $10 minimum. Payments typically arrive in 2-3 business days.' },
         { q: 'Can I use a dropship supplier?', a: 'Yes! We integrate with Printful, Zendrop, and CJ Dropshipping. You can also self-fulfill if you prefer.' },
         { q: 'Do I earn from marketplace purchases?', a: 'Yes! When your superfans shop marketplace items from other businesses, you earn a share. That\'s the Porterful difference.' },
