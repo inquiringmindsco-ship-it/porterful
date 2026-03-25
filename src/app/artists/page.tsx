@@ -1,9 +1,12 @@
+'use client'
+
 import Link from 'next/link'
-import { Music, Users, TrendingUp, Heart, ChevronRight, ExternalLink } from 'lucide-react'
+import { useState } from 'react'
+import { Music, Users, TrendingUp, Heart, ChevronRight } from 'lucide-react'
 
 // Demo artists
 const ARTISTS = [
-  { id: 'od', name: 'O D Music', genre: 'Hip-Hop / R&B', followers: 2847, goal: 2500, current: 1847, image: '🎤' },
+  { id: 'od', name: 'O D Porter', genre: 'Hip-Hop / R&B', followers: 2847, goal: 2500, current: 1847, image: '🎤' },
   { id: 'alex', name: 'Alex Rivers', genre: 'Indie Pop', followers: 1205, goal: 1500, current: 890, image: '🎸' },
   { id: 'maya', name: 'Maya Sol', genre: 'Electronic', followers: 983, goal: 1000, current: 672, image: '🎹' },
   { id: 'jordan', name: 'Jordan Blake', genre: 'Alternative', followers: 756, goal: 800, current: 534, image: '🎷' },
@@ -13,7 +16,57 @@ const ARTISTS = [
 
 const GENRES = ['All', 'Hip-Hop / R&B', 'Indie Pop', 'Electronic', 'Alternative', 'Lo-Fi', 'Latin', 'Rock', 'Jazz']
 
+function ArtistCard({ artist }: { artist: typeof ARTISTS[0] }) {
+  const [hovered, setHovered] = useState(false)
+  
+  return (
+    <Link 
+      href={`/artist/${artist.id}`} 
+      className="pf-card group overflow-hidden"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <div className="aspect-square bg-gradient-to-br from-[var(--pf-surface)] to-[var(--pf-bg-secondary)] flex items-center justify-center text-7xl relative">
+        {artist.image}
+        <div className={`absolute inset-0 bg-gradient-to-t from-[var(--pf-bg)]/80 to-transparent transition-opacity duration-300 ${hovered ? 'opacity-100' : 'opacity-0'}`} />
+      </div>
+      <div className="p-5">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="font-semibold text-lg">{artist.name}</h3>
+          <span className="text-xs text-[var(--pf-text-muted)] flex items-center gap-1">
+            <Users size={12} />
+            {artist.followers.toLocaleString()}
+          </span>
+        </div>
+        <p className="text-sm text-[var(--pf-text-muted)] mb-4">{artist.genre}</p>
+        <div className="mb-3">
+          <div className="flex justify-between text-xs mb-1">
+            <span className="text-[var(--pf-text-muted)]">Goal</span>
+            <span>${artist.current.toLocaleString()} / ${artist.goal.toLocaleString()}</span>
+          </div>
+          <div className="h-2 bg-[var(--pf-border)] rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-[var(--pf-orange)] rounded-full transition-all duration-500"
+              style={{ width: `${Math.min((artist.current / artist.goal) * 100, 100)}%` }}
+            />
+          </div>
+        </div>
+        <button className="w-full py-2 rounded-lg bg-[var(--pf-orange)]/10 text-[var(--pf-orange)] text-sm font-medium group-hover:bg-[var(--pf-orange)] group-hover:text-white transition-colors">
+          Support {artist.name.split(' ')[0]}
+        </button>
+      </div>
+    </Link>
+  )
+}
+
 export default function ArtistsPage() {
+  const [activeGenre, setActiveGenre] = useState('All')
+  
+  const featuredArtist = ARTISTS[0]
+  const filteredArtists = ARTISTS.filter(a => 
+    a.id !== 'od' && (activeGenre === 'All' || a.genre === activeGenre)
+  )
+
   return (
     <div className="min-h-screen pt-24 pb-12">
       <div className="pf-container">
@@ -32,8 +85,9 @@ export default function ArtistsPage() {
           {GENRES.map((genre) => (
             <button
               key={genre}
+              onClick={() => setActiveGenre(genre)}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                genre === 'All'
+                activeGenre === genre
                   ? 'bg-[var(--pf-orange)] text-white'
                   : 'bg-[var(--pf-surface)] text-[var(--pf-text-secondary)] hover:text-white hover:bg-[var(--pf-surface-hover)]'
               }`}
@@ -53,19 +107,19 @@ export default function ArtistsPage() {
                   <TrendingUp size={16} />
                   Featured Artist
                 </div>
-                <h2 className="text-3xl font-bold mb-2">O D Music</h2>
-                <p className="text-[var(--pf-text-secondary)] mb-4">Hip-Hop / R&B • 2,847 followers</p>
+                <h2 className="text-3xl font-bold mb-2">{featuredArtist.name}</h2>
+                <p className="text-[var(--pf-text-secondary)] mb-4">{featuredArtist.genre} • {featuredArtist.followers.toLocaleString()} followers</p>
                 <div className="mb-4">
                   <div className="flex justify-between text-sm mb-2">
                     <span className="text-[var(--pf-text-muted)]">March Goal</span>
-                    <span className="font-bold">$1,847 / $2,500</span>
+                    <span className="font-bold">${featuredArtist.current.toLocaleString()} / ${featuredArtist.goal.toLocaleString()}</span>
                   </div>
                   <div className="h-3 bg-[var(--pf-border)] rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-[var(--pf-orange)] to-[var(--pf-orange-light)] rounded-full" style={{ width: '74%' }} />
+                    <div className="h-full bg-gradient-to-r from-[var(--pf-orange)] to-[var(--pf-orange-light)] rounded-full transition-all duration-500" style={{ width: `${Math.min((featuredArtist.current / featuredArtist.goal) * 100, 100)}%` }} />
                   </div>
                 </div>
                 <div className="flex gap-3">
-                  <Link href="/artist/od-porter" className="pf-btn pf-btn-primary">
+                  <Link href="/store" className="pf-btn pf-btn-primary">
                     Visit Store <ChevronRight className="inline ml-1" size={16} />
                   </Link>
                   <button className="pf-btn pf-btn-secondary flex items-center gap-2">
@@ -76,7 +130,7 @@ export default function ArtistsPage() {
               </div>
               <div className="flex justify-center">
                 <div className="w-48 h-48 rounded-2xl bg-gradient-to-br from-[var(--pf-orange)] to-[var(--pf-orange-dark)] flex items-center justify-center text-8xl shadow-2xl shadow-[var(--pf-orange)]/30">
-                  🎤
+                  {featuredArtist.image}
                 </div>
               </div>
             </div>
@@ -84,41 +138,23 @@ export default function ArtistsPage() {
         </div>
 
         {/* Artists Grid */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {ARTISTS.filter(a => a.id !== 'od').map((artist) => (
-            <Link key={artist.id} href={`/artist/${artist.id}`} className="pf-card group overflow-hidden">
-              <div className="aspect-square bg-gradient-to-br from-[var(--pf-surface)] to-[var(--pf-bg-secondary)] flex items-center justify-center text-7xl relative">
-                {artist.image}
-                <div className="absolute inset-0 bg-gradient-to-t from-[var(--pf-bg)]/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              </div>
-              <div className="p-5">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="font-semibold text-lg">{artist.name}</h3>
-                  <span className="text-xs text-[var(--pf-text-muted)] flex items-center gap-1">
-                    <Users size={12} />
-                    {artist.followers.toLocaleString()}
-                  </span>
-                </div>
-                <p className="text-sm text-[var(--pf-text-muted)] mb-4">{artist.genre}</p>
-                <div className="mb-3">
-                  <div className="flex justify-between text-xs mb-1">
-                    <span className="text-[var(--pf-text-muted)]">Goal</span>
-                    <span>${artist.current.toLocaleString()} / ${artist.goal.toLocaleString()}</span>
-                  </div>
-                  <div className="h-2 bg-[var(--pf-border)] rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-[var(--pf-orange)] rounded-full"
-                      style={{ width: `${(artist.current / artist.goal) * 100}%` }}
-                    />
-                  </div>
-                </div>
-                <button className="w-full py-2 rounded-lg bg-[var(--pf-orange)]/10 text-[var(--pf-orange)] text-sm font-medium group-hover:bg-[var(--pf-orange)] group-hover:text-white transition-colors">
-                  Support {artist.name.split(' ')[0]}
-                </button>
-              </div>
-            </Link>
-          ))}
-        </div>
+        {filteredArtists.length > 0 ? (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredArtists.map((artist) => (
+              <ArtistCard key={artist.id} artist={artist} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <p className="text-[var(--pf-text-muted)] text-lg mb-4">No artists found for this genre.</p>
+            <button 
+              onClick={() => setActiveGenre('All')}
+              className="pf-btn pf-btn-secondary"
+            >
+              View all artists
+            </button>
+          </div>
+        )}
 
         {/* CTA for Artists */}
         <div className="mt-16 text-center">
