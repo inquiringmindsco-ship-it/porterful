@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 
 // Custom Porterful Icons
 const Icon = {
@@ -310,10 +311,12 @@ export default function MarketplacePage() {
                   >
                     {/* Product Image */}
                     <div className={`${viewMode === 'list' ? 'w-32 h-32 shrink-0' : 'aspect-square'} relative bg-[var(--pf-bg)]`}>
-                      <img
+                      <Image
                         src={product.images[0]}
                         alt={product.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                        fill
+                        sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                        className="object-cover group-hover:scale-105 transition-transform"
                       />
                       {product.category && (
                         <div className="absolute top-2 left-2 bg-[var(--pf-orange)] text-white text-xs px-2 py-0.5 rounded-full">
