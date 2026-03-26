@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { X, Trophy, Star, Clock, Rocket, Check } from 'lucide-react';
+import { CompetitionIcons } from './CompetitionIcons';
 
 interface CompetitionModalProps {
   onClose?: () => void;
@@ -11,13 +11,11 @@ interface CompetitionModalProps {
 export function CompetitionModal({ onClose }: CompetitionModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [hasClosed, setHasClosed] = useState(false);
-  const [spotsLeft] = useState(38); // Could fetch from API
+  const [spotsLeft] = useState(38);
 
   useEffect(() => {
-    // Check if user has closed before
     const closed = localStorage.getItem('competition_modal_closed');
     if (!closed) {
-      // Show after 2 seconds
       const timer = setTimeout(() => setIsOpen(true), 2000);
       return () => clearTimeout(timer);
     }
@@ -47,13 +45,13 @@ export function CompetitionModal({ onClose }: CompetitionModalProps) {
           onClick={handleClose}
           className="absolute top-4 right-4 z-10 p-2 rounded-full bg-[var(--pf-surface)] hover:bg-[var(--pf-border)] transition-colors"
         >
-          <X size={20} className="text-[var(--pf-text-muted)]" />
+          {CompetitionIcons.close(20)}
         </button>
 
         {/* Header Banner */}
         <div className="bg-gradient-to-r from-[var(--pf-orange)] to-purple-600 px-6 py-8 text-center">
           <div className="inline-flex items-center gap-2 bg-white/20 px-4 py-1 rounded-full text-white text-sm font-medium mb-4">
-            <Rocket size={16} />
+            {CompetitionIcons.rocket(16)}
             <span>Coming Soon</span>
           </div>
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">
@@ -86,20 +84,20 @@ export function CompetitionModal({ onClose }: CompetitionModalProps) {
           {/* Benefits */}
           <div className="space-y-3 mb-6">
             <div className="flex items-center gap-3 text-sm">
-              <div className="w-6 h-6 rounded-full bg-[var(--pf-orange)]/20 flex items-center justify-center">
-                <Check size={14} className="text-[var(--pf-orange)]" />
+              <div className="w-6 h-6 rounded-full bg-[var(--pf-orange)]/20 flex items-center justify-center text-[var(--pf-orange)]">
+                {CompetitionIcons.check(14)}
               </div>
               <span>2X bonus prizes for your first 30 days</span>
             </div>
             <div className="flex items-center gap-3 text-sm">
-              <div className="w-6 h-6 rounded-full bg-[var(--pf-orange)]/20 flex items-center justify-center">
-                <Check size={14} className="text-[var(--pf-orange)]" />
+              <div className="w-6 h-6 rounded-full bg-[var(--pf-orange)]/20 flex items-center justify-center text-[var(--pf-orange)]">
+                {CompetitionIcons.check(14)}
               </div>
               <span>Permanent "Founding Artist" badge</span>
             </div>
             <div className="flex items-center gap-3 text-sm">
-              <div className="w-6 h-6 rounded-full bg-[var(--pf-orange)]/20 flex items-center justify-center">
-                <Check size={14} className="text-[var(--pf-orange)]" />
+              <div className="w-6 h-6 rounded-full bg-[var(--pf-orange)]/20 flex items-center justify-center text-[var(--pf-orange)]">
+                {CompetitionIcons.check(14)}
               </div>
               <span>Exclusive Discord channel access</span>
             </div>
@@ -108,7 +106,7 @@ export function CompetitionModal({ onClose }: CompetitionModalProps) {
           {/* Tiers Preview */}
           <div className="bg-[var(--pf-surface)] rounded-xl p-4 mb-6">
             <div className="flex items-center gap-2 mb-3">
-              <Trophy size={16} className="text-[var(--pf-orange)]" />
+              {CompetitionIcons.trophy(16)}
               <span className="font-semibold text-sm">Milestone Prizes</span>
             </div>
             <div className="grid grid-cols-2 gap-2 text-xs">
@@ -160,7 +158,6 @@ export function CompetitionModal({ onClose }: CompetitionModalProps) {
   );
 }
 
-// Hook to show the modal programmatically
 export function useCompetitionModal() {
   const [showModal, setShowModal] = useState(false);
   const [hasShown, setHasShown] = useState(false);
