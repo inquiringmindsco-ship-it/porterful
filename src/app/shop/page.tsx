@@ -367,13 +367,11 @@ export default function MarketplacePage() {
               </div>
             )}
 
-            {/* Load More */}
-            {!loading && sortedProducts.length >= 50 && (
-              <div className="text-center mt-8">
-                <button className="pf-btn pf-btn-secondary px-8">
-                  Load More Products
-                </button>
-              </div>
+            {/* Products count */}
+            {!loading && sortedProducts.length > 0 && (
+              <p className="text-center text-[var(--pf-text-muted)] mt-6 text-sm">
+                Showing {sortedProducts.length} product{sortedProducts.length !== 1 ? 's' : ''}
+              </p>
             )}
           </div>
         </div>

@@ -95,6 +95,27 @@ export const metadata: Metadata = {
   },
 }
 
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Porterful',
+  url: 'https://porterful.com',
+  logo: 'https://porterful.com/logo.svg',
+  description: 'Stream music, buy tracks, shop merch. 80% goes to artists. No label. No middleman.',
+  sameAs: [
+    'https://twitter.com/porterful',
+    'https://instagram.com/od.porter',
+    'https://youtube.com/@odporter',
+    'https://discord.gg/porterful',
+    'https://tiktok.com/@Porterful',
+  ],
+  contactPoint: {
+    '@type': 'ContactPoint',
+    email: 'support@porterful.com',
+    contactType: 'customer service',
+  },
+}
+
 export const viewport: Viewport = {
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#ff6b00' },
@@ -128,6 +149,11 @@ export default function RootLayout({
         <meta name="msapplication-config" content="/browserconfig.xml" />
       </head>
       <body className="antialiased">
+        <Script
+          id="organization-jsonld"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <Script src="/pwa.js" strategy="afterInteractive" />
         <Providers>
           <KeyboardShortcuts />
