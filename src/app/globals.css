@@ -314,3 +314,55 @@ details[open] .details-chevron {
 details .details-chevron {
   transition: transform 0.2s ease;
 }
+
+/* Little P Animations */
+@keyframes bounce-gentle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  25% { transform: translateY(-8px) rotate(0deg); }
+  75% { transform: translateY(-4px) rotate(2deg); }
+}
+
+@keyframes walk-in-right {
+  0% { transform: translateX(100vw) scale(0.5); opacity: 0; }
+  20% { transform: translateX(80vw) scale(0.7); opacity: 0.7; }
+  50% { transform: translateX(50vw) scale(0.9); opacity: 1; }
+  80% { transform: translateX(20vw) scale(1); opacity: 1; }
+  100% { transform: translateX(0) scale(1); opacity: 1; }
+}
+
+@keyframes pop-up {
+  0% { transform: scale(0) rotate(-20deg); opacity: 0; }
+  60% { transform: scale(1.2) rotate(5deg); }
+  80% { transform: scale(0.95) rotate(-2deg); }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.05); }
+}
+
+.animate-bounce-gentle {
+  animation: bounce-gentle 2s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-walk-in-right {
+  animation: walk-in-right 2s ease-out forwards;
+}
+
+.animate-pop-up {
+  animation: pop-up 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 2s ease-in-out infinite;
+}

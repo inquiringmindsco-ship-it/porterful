@@ -61,6 +61,17 @@ const PorterfulIcon = ({ name, size = 24, className = '' }: { name: string; size
         <path d="M19 3l-2 2m2-2l2 2" opacity="0.5" />
       </svg>
     ),
+    // Trophy - for challenge
+    trophy: (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <path d="M6 9H4.5a2.5 2.5 0 010-5H6" />
+        <path d="M18 9h1.5a2.5 2.5 0 000-5H18" />
+        <path d="M4 22h16" />
+        <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
+        <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
+        <path d="M18 2H6v7a6 6 0 0012 0V2z" />
+      </svg>
+    ),
     // Upload - arrow up with P
     upload: (
       <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -146,6 +157,15 @@ const PorterfulIcon = ({ name, size = 24, className = '' }: { name: string; size
         <path d="M12 2a10 10 0 0110 10" opacity="0.5" />
       </svg>
     ),
+    // Resources - app grid with dots
+    resources: (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <rect x="2" y="2" width="9" height="9" rx="2" />
+        <rect x="13" y="2" width="9" height="9" rx="2" />
+        <rect x="2" y="13" width="9" height="9" rx="2" />
+        <rect x="13" y="13" width="9" height="9" rx="2" />
+      </svg>
+    ),
   }
 
   return icons[name] || <span>?</span>
@@ -219,9 +239,13 @@ export function Navbar() {
                 <PorterfulIcon name="playlist" size={18} />
                 <span>Playlists</span>
               </Link>
-              <Link href="/competition" aria-label="Competition" className="flex items-center gap-2 px-4 py-2 rounded-lg text-[var(--pf-orange)] hover:bg-[var(--pf-orange)]/10 transition-colors">
-                <Trophy size={18} />
-                <span>Competition</span>
+              <Link href="/resources" className="flex items-center gap-2 px-4 py-2 rounded-lg text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] hover:bg-[var(--pf-surface)] transition-colors">
+                <PorterfulIcon name="resources" size={18} />
+                <span>Resources</span>
+              </Link>
+              <Link href="/challenge" className="flex items-center gap-2 px-4 py-2 rounded-lg text-[var(--pf-orange)] bg-[var(--pf-orange)]/10 hover:bg-[var(--pf-orange)]/20 transition-colors font-semibold">
+                <PorterfulIcon name="trophy" size={18} />
+                <span>$10K Challenge</span>
               </Link>
               {user && (
                 <Link href="/dashboard/upload" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--pf-orange)] text-white hover:bg-[var(--pf-orange-dark)] transition-colors">
@@ -366,9 +390,9 @@ export function Navbar() {
               <PorterfulIcon name="playlist" size={20} />
               <span>Playlists</span>
             </Link>
-            <Link href="/competition" className="flex items-center gap-3 px-4 py-4 text-[var(--pf-orange)] font-medium hover:bg-[var(--pf-orange)]/10 rounded-xl transition-colors" onClick={closeMobile}>
-              <Trophy size={20} />
-              <span>Competition</span>
+            <Link href="/challenge" className="flex items-center gap-3 px-4 py-4 text-[var(--pf-orange)] bg-[var(--pf-orange)]/10 font-semibold hover:bg-[var(--pf-orange)]/20 rounded-xl transition-colors" onClick={closeMobile}>
+              <PorterfulIcon name="trophy" size={20} />
+              <span>$10K Challenge</span>
             </Link>
             <Link href="/artist/od-porter" className="flex items-center gap-3 px-4 py-4 text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] hover:bg-[var(--pf-surface)] rounded-xl transition-colors" onClick={closeMobile}>
               <PorterfulIcon name="artist" size={20} />

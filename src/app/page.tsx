@@ -101,6 +101,25 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Search Bar */}
+      <section className="py-8 bg-[var(--pf-bg-secondary)] border-y border-[var(--pf-border)]">
+        <div className="pf-container">
+          <div className="max-w-2xl mx-auto">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search artists, tracks, or products..."
+                className="w-full px-5 py-4 pl-12 bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-xl text-[var(--pf-text)] placeholder-[var(--pf-text-muted)] focus:outline-none focus:border-[var(--pf-orange)]"
+              />
+              <svg className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--pf-text-muted)]" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.35-4.35" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* How It Works */}
       <section className="py-16 md:py-24 bg-[var(--pf-bg-secondary)]">
         <div className="pf-container">

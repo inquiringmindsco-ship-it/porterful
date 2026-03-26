@@ -1,9 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAudio } from '@/lib/audio-context';
 import { TRACKS, ALBUMS, PRODUCTS } from '@/lib/data';
+import { getArtistById, getArtistTracks, getAllArtistIds } from '@/lib/artists';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Play, Pause, Heart, Share2, Music, Package, Users, DollarSign, ChevronDown, ChevronUp, Youtube, ShoppingCart, ExternalLink } from 'lucide-react';
 
 // Music Videos from YouTube
@@ -57,21 +59,64 @@ export default function ArtistProfilePage({ params }: { params: { id: string } }
   const { currentTrack, isPlaying, playTrack, setQueue } = useAudio();
   const [activeTab, setActiveTab] = useState<'music' | 'store' | 'videos' | 'about'>('music');
   const [following, setFollowing] = useState(false);
+  const [shareToast, setShareToast] = useState(false);
   const [expandedAlbums, setExpandedAlbums] = useState<Record<string, boolean>>({ Singles: true });
+  const [notFound, setNotFound] = useState(false);
 
+  // Look up artist by ID from URL
+  const artistData = getArtistById(params.id);
+  
+  // Redirect to /artists if artist not found
+  const router = useRouter();
+  useEffect(() => {
+    if (!artistData && params.id) {
+      setNotFound(true);
+      // Could redirect: router.push('/artists');
+    }
+  }, [artistData, params.id, router]);
+
+  // Show 404 message if artist not found
+  if (notFound || !artistData) {
+    return (
+      <div className="min-h-screen pt-20 pb-24">
+        <div className="pf-container">
+          <div className="text-center py-20">
+            <h1 className="text-3xl font-bold mb-4">Artist Not Found</h1>
+            <p className="text-[var(--pf-text-secondary)] mb-6">
+              We couldn't find an artist with that ID.
+            </p>
+            <Link href="/artists" className="pf-btn pf-btn-primary">
+              Browse Artists
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Use real artist data
   const artist = {
-    name: 'O D Porter',
-    bio: `Independent artist and founder of Porterful. Born in Miami, raised between New Orleans and St. Louis — most known from the STL. I've seen firsthand how the music industry exploits artists—taking the majority of profits while leaving creators with scraps.`,
-    shortBio: 'Independent artist and founder of Porterful. Born in Miami, raised in New Orleans & St. Louis.',
-    genre: 'Hip-Hop, R&B, Soul',
-    location: 'St. Louis, MO',
-    verified: true,
-    earnings: 45000,
-    supporters: 12500,
-    products: 12,
+    name: artistData.name,
+    bio: artistData.bio,
+    shortBio: artistData.shortBio,
+    genre: artistData.genre,
+    location: artistData.location,
+    verified: artistData.verified,
+    earnings: artistData.earnings,
+    supporters: artistData.supporters,
+    products: artistData.products,
   };
 
-  const albums = groupTracksByAlbum(TRACKS);
+  // Get tracks for this specific artist (filter by artist name)
+  const artistTracks = TRACKS.filter(t => 
+    t.artist?.toLowerCase().includes(artistData.name.toLowerCase().split(' ')[0]) ||
+    t.artist?.toLowerCase().includes(artistData.id.toLowerCase())
+  );
+  
+  // For now, show all tracks since we only have O D Porter's music
+  const displayTracks = artistTracks.length > 0 ? artistTracks : TRACKS;
+
+  const albums = groupTracksByAlbum(displayTracks);
   const orderedAlbums = ALBUM_ORDER.filter(album => albums[album]?.length > 0);
 
   const playSingles = () => {
@@ -109,15 +154,15 @@ export default function ArtistProfilePage({ params }: { params: { id: string } }
   };
 
   const playAllArtistTracks = () => {
-    const artistTracks = TRACKS.filter(t => t.artist === 'O D Porter');
-    if (artistTracks.length > 0) {
-      setQueue(artistTracks.map(t => ({
+    const tracksToPlay = displayTracks.length > 0 ? displayTracks : TRACKS;
+    if (tracksToPlay.length > 0) {
+      setQueue(tracksToPlay.map(t => ({
         ...t,
         duration: typeof t.duration === 'string' ? t.duration.split(':').reduce((acc: number, part: string) => (60 * acc) + parseInt(part), 0) : t.duration || 180
       })));
       playTrack({
-        ...artistTracks[0],
-        duration: typeof artistTracks[0].duration === 'string' ? artistTracks[0].duration.split(':').reduce((acc: number, part: string) => (60 * acc) + parseInt(part), 0) : artistTracks[0].duration || 180
+        ...tracksToPlay[0],
+        duration: typeof tracksToPlay[0].duration === 'string' ? tracksToPlay[0].duration.split(':').reduce((acc: number, part: string) => (60 * acc) + parseInt(part), 0) : tracksToPlay[0].duration || 180
       } as any);
     }
   };
@@ -127,7 +172,7 @@ export default function ArtistProfilePage({ params }: { params: { id: string } }
       <div className="pf-container">
         {/* Hero */}
         <div className="relative mb-8">
-          <div className="h-32 md:h-48 rounded-2xl overflow-hidden bg-gradient-to-r from-[var(--pf-orange)] to-purple-600">
+          <div className={`h-32 md:h-48 rounded-2xl overflow-hidden bg-gradient-to-r ${artistData.coverGradient}`}>
             <div className="absolute inset-0 bg-black/20" />
           </div>
         </div>
@@ -135,8 +180,8 @@ export default function ArtistProfilePage({ params }: { params: { id: string } }
         {/* Artist Info */}
         <div className="relative -mt-16 mb-8">
           <div className="flex flex-col md:flex-row gap-4 items-start">
-            <div className="w-24 h-24 md:w-32 md:h-32 rounded-xl overflow-hidden border-4 border-[var(--pf-bg)] shadow-xl bg-gradient-to-br from-[var(--pf-orange)] to-purple-600 flex items-center justify-center shrink-0">
-              <span className="text-4xl md:text-5xl">🎤</span>
+            <div className={`w-24 h-24 md:w-32 md:h-32 rounded-xl overflow-hidden border-4 border-[var(--pf-bg)] shadow-xl bg-gradient-to-br ${artistData.coverGradient} flex items-center justify-center shrink-0`}>
+              <span className="text-4xl md:text-5xl">{artistData.image}</span>
             </div>
             <div className="flex-1 pt-4 md:pt-8">
               <div className="flex flex-wrap items-center gap-2 mb-1">
@@ -150,11 +195,11 @@ export default function ArtistProfilePage({ params }: { params: { id: string } }
               <p className="text-[var(--pf-text-secondary)] text-sm mb-2">{artist.genre} • {artist.location}</p>
               <div className="flex flex-wrap gap-4 mb-4">
                 <div className="text-center">
-                  <p className="text-xl font-bold text-[var(--pf-orange)]">${artist.earnings.toLocaleString()}</p>
+                  <p className="text-xl font-bold text-[var(--pf-orange)]">{artist.earnings !== null ? `$${artist.earnings.toLocaleString()}` : '$0'}</p>
                   <p className="text-xs text-[var(--pf-text-muted)]">Earned</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-xl font-bold">{artist.supporters.toLocaleString()}</p>
+                  <p className="text-xl font-bold">{artist.supporters !== null ? artist.supporters.toLocaleString() : '—'}</p>
                   <p className="text-xs text-[var(--pf-text-muted)]">Supporters</p>
                 </div>
                 <div className="text-center">
@@ -181,7 +226,8 @@ export default function ArtistProfilePage({ params }: { params: { id: string } }
                 <button 
                   onClick={() => {
                     navigator.clipboard.writeText(window.location.href);
-                    // Could add toast notification here
+                    setShareToast(true);
+                    setTimeout(() => setShareToast(false), 2000);
                   }} 
                   className="px-4 py-2 bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-lg font-medium hover:border-[var(--pf-orange)] transition-colors"
                 >
@@ -192,6 +238,13 @@ export default function ArtistProfilePage({ params }: { params: { id: string } }
             </div>
           </div>
         </div>
+
+        {/* Share Toast */}
+        {shareToast && (
+          <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 px-4 py-2 bg-green-500 text-white rounded-lg shadow-lg text-sm font-medium animate-pulse">
+            ✓ Link copied to clipboard!
+          </div>
+        )}
 
         {/* Tabs */}
         <div className="flex gap-1 mb-6 overflow-x-auto scrollbar-hide">

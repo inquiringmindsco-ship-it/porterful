@@ -93,6 +93,17 @@ export function Footer() {
             </ul>
           </div>
 
+          {/* Resources */}
+          <div>
+            <h3 className="font-semibold mb-4 text-[var(--pf-text)]">Resources</h3>
+            <ul className="space-y-2">
+              <li><Link href="/resources" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">All Resources</Link></li>
+              <li><a href="http://localhost:3002" target="_blank" rel="noopener noreferrer" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">CreditKlimb ↗</a></li>
+              <li><a href="https://stripe.com" target="_blank" rel="noopener noreferrer" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">Stripe ↗</a></li>
+              <li><a href="https://www.waveapps.com" target="_blank" rel="noopener noreferrer" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">Wave Accounting ↗</a></li>
+            </ul>
+          </div>
+
           {/* Company */}
           <div>
             <h3 className="font-semibold mb-4 text-[var(--pf-text)]">Company</h3>
