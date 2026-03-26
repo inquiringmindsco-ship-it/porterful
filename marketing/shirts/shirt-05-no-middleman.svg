@@ -1,0 +1,34 @@
+---
+name: "No Middleman"
+type: shirt-design
+description: Streetwear-style with bold statement
+colors: Heather gray, black text, orange accent
+use: Screen print or DTG
+---
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" width="400" height="500">
+  <!-- Heather gray shirt -->
+  <rect width="400" height="500" fill="#3f3f46"/>
+  
+  <!-- Noise texture for heather effect -->
+  <filter id="heather">
+    <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" result="noise"/>
+    <feColorMatrix type="saturate" values="0"/>
+    <feBlend in="SourceGraphic" in2="noise" mode="overlay"/>
+  </filter>
+  <rect width="400" height="500" fill="#3f3f46" filter="url(#heather)" opacity="0.3"/>
+  
+  <!-- Big diagonal statement -->
+  <text x="200" y="180" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="48" font-weight="900" fill="#ffffff" transform="rotate(-5, 200, 180)">NO</text>
+  <text x="200" y="250" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="48" font-weight="900" fill="#ffffff" transform="rotate(-5, 200, 250)">MIDDLE</text>
+  <text x="200" y="320" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="48" font-weight="900" fill="#ff6b00" transform="rotate(-5, 200, 320)">MAN</text>
+  
+  <!-- Crossed out streaming logos (abstract) -->
+  <circle cx="100" cy="420" r="25" fill="none" stroke="#666666" stroke-width="2" stroke-dasharray="4,4"/>
+  <circle cx="140" cy="420" r="25" fill="none" stroke="#666666" stroke-width="2" stroke-dasharray="4,4"/>
+  <line x1="75" y1="445" x2="165" y2="395" stroke="#ff6b00" stroke-width="4"/>
+  
+  <!-- Porterful P -->
+  <circle cx="300" cy="420" r="30" fill="#ff6b00"/>
+  <text x="300" y="430" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="28" font-weight="900" fill="#ffffff">P</text>
+</svg>

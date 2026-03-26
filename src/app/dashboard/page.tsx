@@ -37,6 +37,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState<DashboardStats>(EMPTY_STATS)
   const [profile, setProfile] = useState<any>(null)
+  const [activeTab, setActiveTab] = useState<'overview' | 'products' | 'orders' | 'analytics'>('overview')
 
   useEffect(() => {
     if (authLoading) return
@@ -305,12 +306,12 @@ export default function DashboardPage() {
 
         {/* Tabs */}
         <div className="flex gap-4 mb-6 border-b border-[var(--pf-border)]">
-          {['overview', 'products', 'orders', 'analytics'].map((tab) => (
+          {(['overview', 'products', 'orders', 'analytics'] as const).map((tab) => (
             <button
               key={tab}
-              onClick={() => {}}
+              onClick={() => setActiveTab(tab)}
               className={`pb-3 px-2 capitalize font-medium transition-colors ${
-                tab === 'overview'
+                activeTab === tab
                   ? 'text-[var(--pf-orange)] border-b-2 border-[var(--pf-orange)]'
                   : 'text-[var(--pf-text-secondary)] hover:text-white'
               }`}
@@ -321,7 +322,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Overview Tab */}
-        <div className="grid lg:grid-cols-3 gap-6">
+        {activeTab === 'overview' && (
           {/* Recent Orders */}
           <div className="lg:col-span-2">
             <div className="pf-card">
@@ -393,23 +394,66 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
+        )}
 
         {/* Products Tab */}
-        <div className="pf-card mt-6">
-          <div className="flex items-center justify-between p-4 border-b border-[var(--pf-border)]">
-            <h2 className="font-semibold">Your Products</h2>
-            <button className="pf-btn pf-btn-primary text-sm py-2">
-              <Plus size={16} className="mr-1" /> Add Product
-            </button>
-          </div>
-          {stats.total_products === 0 ? (
-            <div className="p-8 text-center text-[var(--pf-text-muted)]">
-              <Store size={32} className="mx-auto mb-2 opacity-50" />
-              <p>No products yet</p>
-              <p className="text-sm mt-1">Add your first product to start selling</p>
+        {activeTab === 'products' && (
+          <div className="pf-card">
+            <div className="flex items-center justify-between p-4 border-b border-[var(--pf-border)]">
+              <h2 className="font-semibold">Your Products</h2>
+              <Link href="/dashboard/add-product" className="pf-btn pf-btn-primary text-sm py-2">
+                <Plus size={16} className="mr-1" /> Add Product
+              </Link>
             </div>
-          ) : null}
-        </div>
+            {stats.total_products === 0 ? (
+              <div className="p-8 text-center text-[var(--pf-text-muted)]">
+                <Store size={32} className="mx-auto mb-2 opacity-50" />
+                <p>No products yet</p>
+                <p className="text-sm mt-1">Click "Add Product" to create your first product</p>
+              </div>
+            ) : (
+              <div className="p-4 text-center text-[var(--pf-text-muted)]">
+                Loading products...
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Orders Tab */}
+        {activeTab === 'orders' && (
+          <div className="pf-card">
+            <div className="flex items-center justify-between p-4 border-b border-[var(--pf-border)]">
+              <h2 className="font-semibold">Orders</h2>
+              <span className="text-sm text-[var(--pf-text-muted)]">{stats.total_orders} total</span>
+            </div>
+            {stats.total_orders === 0 ? (
+              <div className="p-8 text-center text-[var(--pf-text-muted)]">
+                <Package size={32} className="mx-auto mb-2 opacity-50" />
+                <p>No orders yet</p>
+                <p className="text-sm mt-1">Orders will appear here when customers make purchases</p>
+              </div>
+            ) : (
+              <div className="p-4 text-center text-[var(--pf-text-muted)]">
+                Loading orders...
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Analytics Tab */}
+        {activeTab === 'analytics' && (
+          <div className="pf-card">
+            <div className="p-4 border-b border-[var(--pf-border)]">
+              <h2 className="font-semibold">Analytics</h2>
+              <p className="text-sm text-[var(--pf-text-muted)]">View your sales performance</p>
+            </div>
+            <div className="p-8 text-center text-[var(--pf-text-muted)]">
+              <BarChart3 size={32} className="mx-auto mb-2 opacity-50" />
+              <p>Analytics coming soon</p>
+              <p className="text-sm mt-1">Track your sales, views, and conversions</p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

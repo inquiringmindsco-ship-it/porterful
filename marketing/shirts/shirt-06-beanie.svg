@@ -1,0 +1,32 @@
+---
+name: "Porterful Beanie"
+type: hat-design
+description: Black beanie with embroidered P logo
+colors: Black beanie, orange P logo
+use: Embroidery
+---
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300">
+  <!-- Beanie body -->
+  <ellipse cx="200" cy="250" rx="180" ry="40" fill="#1a1a1a"/>
+  <path d="M 20 250 Q 20 100 200 80 Q 380 100 380 250" fill="#1a1a1a"/>
+  
+  <!-- Ribbed texture lines -->
+  <path d="M 30 250 Q 30 110 200 90 Q 370 110 370 250" fill="none" stroke="#333333" stroke-width="2"/>
+  <path d="M 50 250 Q 50 120 200 100 Q 350 120 350 250" fill="none" stroke="#2a2a2a" stroke-width="2"/>
+  <path d="M 70 250 Q 70 130 200 110 Q 330 130 330 250" fill="none" stroke="#333333" stroke-width="2"/>
+  
+  <!-- Pom pom on top -->
+  <circle cx="200" cy="80" r="25" fill="#ff6b00"/>
+  <circle cx="190" cy="75" r="5" fill="#ff8533"/>
+  <circle cx="210" cy="85" r="4" fill="#cc5500"/>
+  <circle cx="200" cy="70" r="3" fill="#ffaa66"/>
+  
+  <!-- Front P logo patch -->
+  <circle cx="200" cy="200" r="50" fill="#0f0f0f"/>
+  <circle cx="200" cy="200" r="45" fill="none" stroke="#ff6b00" stroke-width="3"/>
+  <text x="200" y="218" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="50" font-weight="900" fill="#ff6b00">P</text>
+  
+  <!-- PORTERFUL text curved at bottom -->
+  <text x="200" y="270" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#666666" letter-spacing="4">PORTERFUL</text>
+</svg>

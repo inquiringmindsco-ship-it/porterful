@@ -1,0 +1,32 @@
+---
+name: "Porterful Logo Black"
+type: shirt-design
+description: Minimalist black shirt with white Porterful text and orange accent
+colors: Black shirt, white text, orange accent
+use: Screen print or DTG
+---
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" width="400" height="500">
+  <!-- Black shirt silhouette -->
+  <rect width="400" height="500" fill="#1a1a1a"/>
+  
+  <!-- Subtle texture overlay -->
+  <filter id="noise">
+    <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" result="noise"/>
+    <feColorMatrix type="saturate" values="0"/>
+    <feBlend in="SourceGraphic" in2="noise" mode="multiply"/>
+  </filter>
+  
+  <!-- PORTERFUL text -->
+  <text x="200" y="230" text-anchor="middle" font-family="Arial Black, Impact, sans-serif" font-size="52" font-weight="900" fill="#ffffff" letter-spacing="4">PORTERFUL</text>
+  
+  <!-- Orange underline accent -->
+  <rect x="80" y="245" width="240" height="6" fill="#ff6b00" rx="3"/>
+  
+  <!-- Tagline -->
+  <text x="200" y="280" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#888888" letter-spacing="2">WHERE ARTISTS OWN EVERYTHING</text>
+  
+  <!-- Bottom corner logo mark -->
+  <circle cx="200" cy="400" r="30" fill="none" stroke="#ff6b00" stroke-width="3"/>
+  <text x="200" y="408" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="28" font-weight="900" fill="#ff6b00">P</text>
+</svg>

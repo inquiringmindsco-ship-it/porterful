@@ -1,0 +1,39 @@
+---
+name: "Porterful Cap"
+type: hat-design
+description: Six-panel cap with embroidered P logo
+colors: Black cap, orange P logo
+use: Embroidery
+---
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300">
+  <!-- Cap crown (front panels) -->
+  <path d="M 60 200 L 60 120 Q 60 60 130 50 L 200 45 L 270 50 Q 340 60 340 120 L 340 200 Z" fill="#1a1a1a"/>
+  
+  <!-- Cap button on top -->
+  <ellipse cx="200" cy="48" rx="12" ry="8" fill="#333333"/>
+  
+  <!-- Panel seams -->
+  <line x1="130" y1="55" x2="130" y2="200" stroke="#333333" stroke-width="2"/>
+  <line x1="200" y1="45" x2="200" y2="200" stroke="#333333" stroke-width="2"/>
+  <line x1="270" y1="55" x2="270" y2="200" stroke="#333333" stroke-width="2"/>
+  
+  <!-- Sweatband -->
+  <path d="M 65 195 Q 200 210 335 195 L 335 200 Q 200 215 65 200 Z" fill="#333333"/>
+  
+  <!-- P Logo patch on front -->
+  <rect x="155" y="110" width="90" height="70" rx="8" fill="#0f0f0f"/>
+  <rect x="160" y="115" width="80" height="60" rx="5" fill="none" stroke="#ff6b00" stroke-width="2"/>
+  <text x="200" y="158" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="48" font-weight="900" fill="#ff6b00">P</text>
+  
+  <!-- PORTERFUL text below patch -->
+  <text x="200" y="185" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="700" fill="#666666" letter-spacing="3">PORTERFUL</text>
+  
+  <!-- Brim -->
+  <path d="M 50 200 Q 30 210 40 240 Q 80 250 200 250 Q 320 250 360 240 Q 370 210 350 200" fill="#0f0f0f"/>
+  <path d="M 50 200 Q 30 210 40 240 Q 80 250 200 250" fill="#1a1a1a"/>
+  
+  <!-- Brim stitching -->
+  <path d="M 55 208 Q 50 225 60 240" fill="none" stroke="#333333" stroke-width="1" stroke-dasharray="3,2"/>
+  <path d="M 345 208 Q 350 225 340 240" fill="none" stroke="#333333" stroke-width="1" stroke-dasharray="3,2"/>
+</svg>
