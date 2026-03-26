@@ -1,25 +1,54 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { CompetitionIcons } from './CompetitionIcons';
 
-interface CompetitionModalProps {
-  onClose?: () => void;
+const FOUNDING_LIMIT = 100;
+
+interface CompetitionData {
+  artistsJoined: number;
+  competitionLive: boolean;
 }
 
-export function CompetitionModal({ onClose }: CompetitionModalProps) {
+export function CompetitionModal({ onClose }: { onClose?: () => void }) {
   const [isOpen, setIsOpen] = useState(false);
   const [hasClosed, setHasClosed] = useState(false);
-  const [spotsLeft] = useState(38);
+  const [data, setData] = useState<CompetitionData>({ artistsJoined: 0, competitionLive: false });
+  const [loading, setLoading] = useState(true);
+
+  const fetchData = useCallback(async () => {
+    try {
+      const res = await fetch('/api/competition');
+      if (res.ok) {
+        const json = await res.json();
+        setData({
+          artistsJoined: json.foundingWindow?.artistsJoined || 0,
+          competitionLive: json.competitionLive || false,
+        });
+      }
+    } catch (err) {
+      console.error('Failed to fetch competition data:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+    
+    // Refresh every 30 seconds
+    const interval = setInterval(fetchData, 30000);
+    return () => clearInterval(interval);
+  }, [fetchData]);
 
   useEffect(() => {
     const closed = localStorage.getItem('competition_modal_closed');
-    if (!closed) {
+    if (!closed && !hasClosed) {
       const timer = setTimeout(() => setIsOpen(true), 2000);
       return () => clearTimeout(timer);
     }
-  }, []);
+  }, [hasClosed]);
 
   const handleClose = () => {
     setIsOpen(false);
@@ -27,6 +56,9 @@ export function CompetitionModal({ onClose }: CompetitionModalProps) {
     localStorage.setItem('competition_modal_closed', 'true');
     onClose?.();
   };
+
+  const spotsLeft = FOUNDING_LIMIT - data.artistsJoined;
+  const percentFilled = (data.artistsJoined / FOUNDING_LIMIT) * 100;
 
   if (!isOpen || hasClosed) return null;
 
@@ -52,13 +84,13 @@ export function CompetitionModal({ onClose }: CompetitionModalProps) {
         <div className="bg-gradient-to-r from-[var(--pf-orange)] to-purple-600 px-6 py-8 text-center">
           <div className="inline-flex items-center gap-2 bg-white/20 px-4 py-1 rounded-full text-white text-sm font-medium mb-4">
             {CompetitionIcons.rocket(16)}
-            <span>Coming Soon</span>
+            <span>{data.competitionLive ? 'Live Now' : 'Coming Soon'}</span>
           </div>
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">
             $10K Sign<br />Yourself Challenge
           </h2>
           <p className="text-white/80 text-sm">
-            First 50 artists to join lock in 2X prizes
+            First {FOUNDING_LIMIT} artists to join lock in 2X prizes
           </p>
         </div>
 
@@ -68,16 +100,18 @@ export function CompetitionModal({ onClose }: CompetitionModalProps) {
           <div className="mb-6">
             <div className="flex justify-between text-sm mb-2">
               <span className="text-[var(--pf-text-muted)]">Founding Artists</span>
-              <span className="font-bold text-[var(--pf-orange)]">{50 - spotsLeft}/50</span>
+              <span className="font-bold text-[var(--pf-orange)]">
+                {loading ? '...' : `${data.artistsJoined}/${FOUNDING_LIMIT}`}
+              </span>
             </div>
             <div className="h-3 bg-[var(--pf-surface)] rounded-full overflow-hidden">
               <div 
-                className="h-full bg-gradient-to-r from-[var(--pf-orange)] to-purple-500 rounded-full"
-                style={{ width: `${((50 - spotsLeft) / 50) * 100}%` }}
+                className="h-full bg-gradient-to-r from-[var(--pf-orange)] to-purple-500 rounded-full transition-all duration-500"
+                style={{ width: `${Math.min(percentFilled, 100)}%` }}
               />
             </div>
             <p className="text-xs text-[var(--pf-text-muted)] mt-2 text-center">
-              {spotsLeft} spots remaining
+              {loading ? 'Loading...' : `${spotsLeft > 0 ? spotsLeft : 0} spots remaining`}
             </p>
           </div>
 
@@ -156,19 +190,4 @@ export function CompetitionModal({ onClose }: CompetitionModalProps) {
       </div>
     </div>
   );
-}
-
-export function useCompetitionModal() {
-  const [showModal, setShowModal] = useState(false);
-  const [hasShown, setHasShown] = useState(false);
-
-  const show = () => {
-    const closed = localStorage.getItem('competition_modal_closed');
-    if (!closed && !hasShown) {
-      setShowModal(true);
-      setHasShown(true);
-    }
-  };
-
-  return { showModal, setShowModal, show };
 }

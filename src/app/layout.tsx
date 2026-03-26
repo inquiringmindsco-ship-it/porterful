@@ -6,6 +6,8 @@ import { GlobalPlayer } from '@/components/GlobalPlayer'
 import { Footer } from '@/components/Footer'
 import { InstallPrompt, IOSInstallInstructions } from '@/components/InstallPrompt'
 import { CompetitionModal } from '@/components/CompetitionModal'
+import { SuperfanModal } from '@/components/SuperfanModal'
+import { BusinessModal } from '@/components/BusinessModal'
 import { KeyboardShortcuts } from '@/lib/keyboard-shortcuts'
 import Script from 'next/script'
 
@@ -164,6 +166,8 @@ export default function RootLayout({
           </main>
           <Footer />
           <CompetitionModal />
+          <SuperfanModal />
+          <BusinessModal />
           <GlobalPlayer />
           <InstallPrompt />
           <IOSInstallInstructions />
