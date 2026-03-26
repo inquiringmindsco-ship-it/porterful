@@ -5,6 +5,8 @@ import { useState, useEffect } from 'react'
 import { useSupabase } from '@/app/providers'
 import { useTheme } from '@/lib/theme-context'
 import { useWallet } from '@/lib/wallet-context'
+import { ArtistSearch } from '@/components/ArtistSearch'
+import { Search } from 'lucide-react'
 import { Trophy } from 'lucide-react'
 
 // Custom Porterful Icons
@@ -192,6 +194,13 @@ export function Navbar() {
               <span className="hidden sm:block font-bold text-xl logo-text">PORTERFUL</span>
             </Link>
 
+            {/* Search - Center */}
+            <div className="hidden lg:flex flex-1 justify-center px-8">
+              <div className="w-full max-w-md">
+                <ArtistSearch />
+              </div>
+            </div>
+
             {/* Desktop Nav */}
             <div className="hidden md:flex items-center gap-1">
               <Link href="/marketplace" aria-label="Shop" className="flex items-center gap-2 px-4 py-2 rounded-lg text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] hover:bg-[var(--pf-surface)] transition-colors">
@@ -224,6 +233,20 @@ export function Navbar() {
 
             {/* Right Side */}
             <div className="flex items-center gap-2 md:gap-3">
+              {/* Mobile Search */}
+              <button 
+                onClick={() => {
+                  const searchEl = document.getElementById('mobile-search');
+                  if (searchEl) searchEl.classList.remove('hidden');
+                  const input = document.querySelector('#mobile-search input') as HTMLInputElement;
+                  if (input) input.focus();
+                }}
+                className="lg:hidden p-2 rounded-lg hover:bg-[var(--pf-surface)] transition-colors"
+                aria-label="Search"
+              >
+                <Search size={20} className="text-[var(--pf-text-secondary)]" />
+              </button>
+
               <Link href="/wallet" className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl bg-[var(--pf-surface)] border border-[var(--pf-border)] hover:border-[var(--pf-orange)] transition-colors">
                 <PorterfulIcon name="wallet" size={18} className="text-[var(--pf-orange)]" />
                 <span className="font-medium text-[var(--pf-text)]">{formatWalletBalance()}</span>
@@ -305,6 +328,11 @@ export function Navbar() {
           </div>
         </div>
       </nav>
+
+      {/* Mobile Search Bar */}
+      <div id="mobile-search" className="hidden fixed top-16 left-0 right-0 z-[90] bg-[var(--pf-bg)] p-4 border-b border-[var(--pf-border)]">
+        <ArtistSearch />
+      </div>
 
       {/* Mobile Menu */}
       <div 
