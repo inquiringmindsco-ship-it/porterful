@@ -54,11 +54,11 @@ const TIERS = [
 
 // Mock data fallback
 const MOCK_LEADERS = [
-  { rank: 1, name: 'O D Porter', earnings: 1847, tier: 'Gold', isFounder: true },
-  { rank: 2, name: 'Rob Soul', earnings: 892, tier: 'Silver', isFounder: true },
-  { rank: 3, name: 'Gune', earnings: 654, tier: 'Silver', isFounder: true },
-  { rank: 4, name: 'ATM Trap', earnings: 423, tier: 'Bronze', isFounder: false },
-  { rank: 5, name: 'TTD Dex', earnings: 298, tier: 'Bronze', isFounder: false },
+  { rank: 1, artistId: 'mock-1', name: 'O D Porter', earnings: 1847, tier: 'Gold', isFounder: true },
+  { rank: 2, artistId: 'mock-2', name: 'Rob Soul', earnings: 892, tier: 'Silver', isFounder: true },
+  { rank: 3, artistId: 'mock-3', name: 'Gune', earnings: 654, tier: 'Silver', isFounder: true },
+  { rank: 4, artistId: 'mock-4', name: 'ATM Trap', earnings: 423, tier: 'Bronze', isFounder: false },
+  { rank: 5, artistId: 'mock-5', name: 'TTD Dex', earnings: 298, tier: 'Bronze', isFounder: false },
 ];
 
 const FAQS = [
