@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
 
     // Get track/product counts for artists
     const artistIds = artists?.map(a => a.id) || [];
-    let artistStats: Record<string, { tracks: number; products: number }> = {};
+    const artistStats: Record<string, { tracks: number; products: number }> = {};
 
     if (artistIds.length > 0) {
       // Get track counts
@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
     // Format artists with stats
     const formattedArtists = artists?.map(a => ({
       id: a.id,
-      name: a.name || a.display_name,
+      name: a.name,
       slug: a.slug,
       avatar: a.avatar_url,
       genre: a.genres?.[0] || null,
