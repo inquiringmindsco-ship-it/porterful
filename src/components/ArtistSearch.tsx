@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Search, Music, ShoppingBag, X, TrendingUp, Users } from 'lucide-react';
+import { Search, Music, ShoppingBag, X, TrendingUp, Users, ArrowRight } from 'lucide-react';
 
 interface Artist {
   id: string;
@@ -19,7 +19,12 @@ interface SearchResult {
   artists: Artist[];
   products: any[];
   stations: any[];
+  resources: { name: string; description: string; url: string; category: string }[];
 }
+
+const EXTERNAL_RESOURCES = [
+  { name: 'Credit Klimb™', description: 'Free credit repair tools & resources', url: 'https://creditklimb.com', category: 'Resources' },
+];
 
 export function ArtistSearch() {
   const [query, setQuery] = useState('');
@@ -225,6 +230,43 @@ export function ArtistSearch() {
                         ${product.price}
                       </div>
                     </Link>
+                  ))}
+                </div>
+              )}
+
+              {/* Resources */}
+              {EXTERNAL_RESOURCES.filter(r => 
+                r.name.toLowerCase().includes(query.toLowerCase()) ||
+                r.description.toLowerCase().includes(query.toLowerCase())
+              ).length > 0 && (
+                <div>
+                  <div className="px-4 py-2 text-xs font-medium text-[var(--pf-text-muted)] border-b border-[var(--pf-border)] border-t border-[var(--pf-border)] flex items-center gap-2">
+                    <TrendingUp size={12} />
+                    PARTNER RESOURCES
+                  </div>
+                  {EXTERNAL_RESOURCES.filter(r => 
+                    r.name.toLowerCase().includes(query.toLowerCase()) ||
+                    r.description.toLowerCase().includes(query.toLowerCase())
+                  ).map((resource, i) => (
+                    <a
+                      key={resource.name}
+                      href={resource.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 px-4 py-3 hover:bg-[var(--pf-bg)] transition-colors border-b border-[var(--pf-border)] last:border-0"
+                    >
+                      <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white font-bold text-sm">
+                        CK
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-[var(--pf-text)] truncate flex items-center gap-2">
+                          {resource.name}
+                          <span className="text-xs px-2 py-0.5 bg-green-500/20 text-green-400 rounded-full">Partner</span>
+                        </div>
+                        <div className="text-xs text-[var(--pf-text-muted)]">{resource.description}</div>
+                      </div>
+                      <ArrowRight size={16} className="text-green-400" />
+                    </a>
                   ))}
                 </div>
               )}
