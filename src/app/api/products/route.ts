@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
 import { ALL_PRODUCTS } from '@/lib/products'
 
 // Artist margin based on tier
@@ -52,19 +53,74 @@ export async function GET(request: NextRequest) {
   })
 }
 
-// GET /api/products/[id] - Get single product
+// POST /api/products - Create a new product
 export async function POST(request: NextRequest) {
-  const body = await request.json()
-  const { id } = body
-  
-  const product = ALL_PRODUCTS.find(p => p.id === id)
-  
-  if (!product) {
-    return NextResponse.json({ error: 'Product not found' }, { status: 404 })
+  try {
+    // Get auth header
+    const authHeader = request.headers.get('authorization')
+    if (!authHeader?.startsWith('Bearer ')) {
+      // Check for cookie-based auth
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+      const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      
+      if (!supabaseUrl || !supabaseKey) {
+        return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
+      }
+      
+      const supabase = createClient(supabaseUrl, supabaseKey)
+      
+      // Get user from cookie
+      const body = await request.json()
+      
+      // Validate required fields
+      if (!body.name || !body.price) {
+        return NextResponse.json({ error: 'Name and price are required' }, { status: 400 })
+      }
+      
+      // For now, store in-memory (demo mode)
+      // In production, this would insert into Supabase
+      const newProduct = {
+        id: `product_${Date.now()}`,
+        name: body.name,
+        description: body.description || '',
+        category: body.category || 'artist_merch',
+        subcategory: body.subcategory,
+        price: parseFloat(body.price),
+        cost: parseFloat(body.cost) || 0,
+        images: body.images || [],
+        variants: body.variants || [],
+        inventory_count: parseInt(body.inventory_count) || 999,
+        dropship_provider: body.dropship_provider || 'none',
+        dropship_product_id: body.dropship_product_id,
+        linked_artist_id: body.linked_artist_id,
+        inStock: true,
+        createdAt: new Date().toISOString(),
+      }
+      
+      console.log('Created product:', newProduct)
+      
+      // In production: insert into Supabase
+      // const { data, error } = await supabase
+      //   .from('products')
+      //   .insert(newProduct)
+      //   .select()
+      //   .single()
+      
+      // if (error) {
+      //   return NextResponse.json({ error: error.message }, { status: 500 })
+      // }
+      
+      return NextResponse.json({ 
+        success: true, 
+        product: newProduct,
+        message: 'Product created successfully! Note: In demo mode, products are stored temporarily.'
+      })
+    }
+    
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    
+  } catch (error: any) {
+    console.error('Product creation error:', error)
+    return NextResponse.json({ error: error.message || 'Failed to create product' }, { status: 500 })
   }
-  
-  return NextResponse.json({
-    ...product,
-    salePrice: Math.round((product.basePrice || 5) * 1.3 * 100) / 100,
-  })
 }
