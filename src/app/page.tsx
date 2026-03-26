@@ -142,6 +142,53 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Superfan Section */}
+      <section className="py-16 md:py-24 bg-[var(--pf-bg)]">
+        <div className="pf-container">
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-gradient-to-br from-[var(--pf-orange)]/10 via-purple-500/5 to-[var(--pf-bg)] rounded-3xl p-8 md:p-12 border border-[var(--pf-border)]">
+              <div className="text-center mb-8">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--pf-orange)]/20 border border-[var(--pf-orange)]/30 rounded-full text-[var(--pf-orange)] text-sm font-medium mb-4">
+                  <span className="text-lg">⭐</span>
+                  New: Superfan Program
+                </div>
+                <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                  Become a <span className="text-[var(--pf-orange)]">Superfan</span>
+                </h2>
+                <p className="text-[var(--pf-text-secondary)] text-lg max-w-2xl mx-auto">
+                  Earn rewards when your favorite artists succeed. Share your link, fans buy, you earn.
+                </p>
+              </div>
+              
+              <div className="grid md:grid-cols-3 gap-6 mb-8">
+                <div className="bg-[var(--pf-bg)]/50 rounded-xl p-6 text-center">
+                  <div className="text-3xl mb-3">🎁</div>
+                  <h3 className="font-bold mb-2">Earn Rewards</h3>
+                  <p className="text-sm text-[var(--pf-text-secondary)]">Get 3% of every sale made through your unique Superfan link</p>
+                </div>
+                <div className="bg-[var(--pf-bg)]/50 rounded-xl p-6 text-center">
+                  <div className="text-3xl mb-3">👑</div>
+                  <h3 className="font-bold mb-2">Exclusive Access</h3>
+                  <p className="text-sm text-[var(--pf-text-secondary)]">Unlock special badges, early drops, and behind-the-scenes content</p>
+                </div>
+                <div className="bg-[var(--pf-bg)]/50 rounded-xl p-6 text-center">
+                  <div className="text-3xl mb-3">💫</div>
+                  <h3 className="font-bold mb-2">Support Artists</h3>
+                  <p className="text-sm text-[var(--pf-text-secondary)]">Your success directly funds the artists you love</p>
+                </div>
+              </div>
+              
+              <div className="text-center">
+                <Link href="/superfan" className="inline-flex items-center gap-2 px-8 py-4 bg-[var(--pf-orange)] text-white rounded-xl font-bold hover:bg-[var(--pf-orange)]/90 transition-colors">
+                  Join the Superfan Program
+                  <span>→</span>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Featured Artist */}
       <section className="py-16 md:py-24 bg-[var(--pf-bg)]">
         <div className="pf-container">
