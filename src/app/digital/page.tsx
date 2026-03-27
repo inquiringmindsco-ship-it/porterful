@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import Image from 'next/image'
 import { useAudio } from '@/lib/audio-context'
 import { TRACKS, ALBUMS } from '@/lib/data'
 import Link from 'next/link'
@@ -375,8 +376,8 @@ export default function MusicPage() {
           {!isLoading && currentTrack && (
             <div className="bg-gradient-to-br from-[var(--pf-orange)]/10 to-purple-600/10 rounded-xl p-4 mb-4 border border-[var(--pf-orange)]/20">
               <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0">
-                  <img src={currentTrack.image} alt={currentTrack.title} className="w-full h-full object-cover" />
+                <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0 relative">
+                  <Image src={currentTrack.image || '/placeholder-album.png'} alt={currentTrack.title} fill className="object-cover" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-[var(--pf-text)] truncate">{currentTrack.title}</p>
@@ -425,8 +426,8 @@ export default function MusicPage() {
                       duration: typeof track.duration === 'string' ? track.duration.split(':').reduce((acc: number, part: string) => (60 * acc) + parseInt(part), 0) : track.duration || 180
                     } as any)}
                   >
-                    <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0">
-                      <img src={track.image} alt={track.title} className="w-full h-full object-cover" />
+                    <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 relative">
+                      <Image src={track.image || '/placeholder-album.png'} alt={track.title} fill className="object-cover" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className={`font-medium truncate ${currentTrack?.id === track.id ? 'text-[var(--pf-orange)]' : 'text-[var(--pf-text)]'}`}>
@@ -525,7 +526,7 @@ export default function MusicPage() {
                           }}
                         >
                           <div className="aspect-square relative">
-                            <img src={album.image} alt={album.name} className="w-full h-full object-cover" />
+                            <Image src={album.image || '/placeholder-album.png'} alt={album.name} fill className="object-cover" />
                             <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
                               <div className="w-12 h-12 rounded-full bg-[var(--pf-orange)] flex items-center justify-center">
                                 <Icon.Play />
@@ -567,8 +568,8 @@ export default function MusicPage() {
                         duration: typeof track.duration === 'string' ? track.duration.split(':').reduce((acc: number, part: string) => (60 * acc) + parseInt(part), 0) : track.duration || 180
                       } as any)}
                     >
-                      <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0">
-                        <img src={track.image} alt={track.title} className="w-full h-full object-cover" />
+                      <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 relative">
+                        <Image src={track.image || '/placeholder-album.png'} alt={track.title} fill className="object-cover" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className={`font-medium truncate ${currentTrack?.id === track.id ? 'text-[var(--pf-orange)]' : 'text-[var(--pf-text)]'}`}>
