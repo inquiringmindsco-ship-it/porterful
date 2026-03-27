@@ -137,8 +137,8 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="icon" type="image/svg+xml" href="/logo.svg" />
-        <link rel="apple-touch-icon" href="/logo.svg" />
+        <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+        <link rel="apple-touch-icon" href="/icon.svg" />
         <link rel="manifest" href="/manifest.json" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
