@@ -15,9 +15,20 @@ interface Artist {
   trackCount?: number;
 }
 
+interface Track {
+  id: string;
+  title: string;
+  artist: string;
+  album?: string;
+  image: string;
+  duration?: string;
+  price: number;
+}
+
 interface SearchResult {
   artists: Artist[];
   products: any[];
+  tracks: Track[];
   stations: any[];
   resources: { name: string; description: string; url: string; category: string }[];
 }
@@ -60,6 +71,9 @@ export function ArtistSearch() {
     return () => clearTimeout(timer);
   }, [query]);
 
+  // Calculate total results for keyboard navigation
+  const totalResults = (results?.artists?.length || 0) + (results?.tracks?.length || 0) + (results?.products?.length || 0);
+
   // Close on click outside
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
@@ -73,7 +87,10 @@ export function ArtistSearch() {
 
   // Keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    const totalResults = (results?.artists?.length || 0) + (results?.products?.length || 0);
+    const artistsLen = results?.artists?.length || 0;
+    const tracksLen = results?.tracks?.length || 0;
+    const productsLen = results?.products?.length || 0;
+    const totalResults = artistsLen + tracksLen + productsLen;
     
     if (e.key === 'ArrowDown') {
       e.preventDefault();
@@ -85,12 +102,15 @@ export function ArtistSearch() {
       e.preventDefault();
       // Handle selection
       const artists = results?.artists || [];
+      const tracks = results?.tracks || [];
       const products = results?.products || [];
       
-      if (selectedIndex < artists.length) {
+      if (selectedIndex < artistsLen) {
         window.location.href = `/artist/${artists[selectedIndex].slug}`;
+      } else if (selectedIndex < artistsLen + tracksLen) {
+        window.location.href = `/artist/od-porter`;
       } else {
-        const productIndex = selectedIndex - artists.length;
+        const productIndex = selectedIndex - artistsLen - tracksLen;
         if (products[productIndex]) {
           window.location.href = `/product/${products[productIndex].id}`;
         }
@@ -153,7 +173,7 @@ export function ArtistSearch() {
               <div className="w-6 h-6 border-2 border-[var(--pf-orange)] border-t-transparent rounded-full animate-spin mx-auto" />
               <p className="text-sm text-[var(--pf-text-muted)] mt-2">Searching...</p>
             </div>
-          ) : results && (results.artists.length > 0 || results.products.length > 0) ? (
+          ) : results && (results.artists.length > 0 || results.tracks?.length > 0 || results.products.length > 0) ? (
             <div className="max-h-[400px] overflow-y-auto">
               {/* Artists */}
               {results.artists.length > 0 && (
@@ -201,12 +221,45 @@ export function ArtistSearch() {
                 </div>
               )}
 
+              {/* Tracks */}
+              {results.tracks && results.tracks.length > 0 && (
+                <div>
+                  <div className="px-4 py-2 text-xs font-medium text-[var(--pf-text-muted)] border-b border-[var(--pf-border)] flex items-center gap-2">
+                    <Music size={12} />
+                    TRACKS
+                  </div>
+                  {results.tracks.slice(0, 5).map((track: Track, i: number) => (
+                    <Link
+                      key={track.id}
+                      href={`/artist/od-porter`}
+                      onClick={() => setIsOpen(false)}
+                      className={`flex items-center gap-3 px-4 py-3 hover:bg-[var(--pf-bg)] transition-colors ${
+                        selectedIndex === results.artists.length + i ? 'bg-[var(--pf-bg)]' : ''
+                      }`}
+                    >
+                      <div className="w-10 h-10 rounded-lg bg-[var(--pf-bg)] overflow-hidden flex-shrink-0">
+                        {track.image && (
+                          <Image src={track.image} alt={track.title} width={40} height={40} className="object-cover" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-[var(--pf-text)] truncate">{track.title}</div>
+                        <div className="text-xs text-[var(--pf-text-muted)]">{track.artist}</div>
+                      </div>
+                      <div className="font-bold text-[var(--pf-orange)]">
+                        ${track.price}
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+
               {/* Products */}
               {results.products.length > 0 && (
                 <div>
                   <div className="px-4 py-2 text-xs font-medium text-[var(--pf-text-muted)] border-b border-[var(--pf-border)] border-t border-[var(--pf-border)] flex items-center gap-2">
                     <ShoppingBag size={12} />
-                    MERCH & MUSIC
+                    MERCH
                   </div>
                   {results.products.slice(0, 5).map((product: any, i: number) => (
                     <Link
@@ -214,7 +267,7 @@ export function ArtistSearch() {
                       href={`/product/${product.id}`}
                       onClick={() => setIsOpen(false)}
                       className={`flex items-center gap-3 px-4 py-3 hover:bg-[var(--pf-bg)] transition-colors ${
-                        selectedIndex === results.artists.length + i ? 'bg-[var(--pf-bg)]' : ''
+                        selectedIndex === results.artists.length + (results.tracks?.length || 0) + i ? 'bg-[var(--pf-bg)]' : ''
                       }`}
                     >
                       <div className="w-10 h-10 rounded-lg bg-[var(--pf-bg)] overflow-hidden flex-shrink-0">
