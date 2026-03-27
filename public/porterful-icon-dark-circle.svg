@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
-  <!-- ICON ONLY - White -->
-  <circle cx="100" cy="100" r="95" fill="#111111"/>
-  <rect x="55" y="45" width="15" height="110" rx="4" fill="#ffffff"/>
-  <rect x="78" y="60" width="55" height="12" rx="3" fill="#ffffff"/>
-  <rect x="78" y="82" width="40" height="12" rx="3" fill="#ffffff"/>
-  <rect x="78" y="104" width="55" height="12" rx="3" fill="#ffffff"/>
-  <rect x="78" y="126" width="28" height="12" rx="3" fill="#ffffff"/>
-</svg>

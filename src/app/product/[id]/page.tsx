@@ -111,7 +111,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                 className="flex items-center gap-3 mb-4 hover:opacity-80 transition-opacity"
               >
                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[var(--pf-orange)] to-purple-600 flex items-center justify-center text-sm font-bold overflow-hidden">
-                  <Image src="https://images.unsplash.com/photo-1493225457124-a3eb1614b109?w=100" alt={product.artist} fill sizes="48px" className="object-cover" />
+                  <Image src="https://images.unsplash.com/photo-1493225457124-a3eb1614b109?w=100" alt={`${product.artist} profile photo`} fill sizes="48px" className="object-cover" />
                 </div>
                 <div>
                   <span className="text-[var(--pf-text-secondary)]">by </span>
