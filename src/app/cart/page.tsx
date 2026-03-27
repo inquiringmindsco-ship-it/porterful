@@ -64,13 +64,16 @@ export default function CartPage() {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => updateQuantity(item.productId, item.quantity - 1)}
-                          className="w-8 h-8 rounded-lg border border-[var(--pf-border)] flex items-center justify-center hover:border-[var(--pf-orange)]"
+                          aria-label={`Decrease quantity of ${item.name}`}
+                          disabled={item.quantity <= 1}
+                          className="w-8 h-8 rounded-lg border border-[var(--pf-border)] flex items-center justify-center hover:border-[var(--pf-orange)] disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           <Minus size={14} />
                         </button>
-                        <span className="w-8 text-center">{item.quantity}</span>
+                        <span className="w-8 text-center" aria-label={`Quantity: ${item.quantity}`}>{item.quantity}</span>
                         <button
                           onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+                          aria-label={`Increase quantity of ${item.name}`}
                           className="w-8 h-8 rounded-lg border border-[var(--pf-border)] flex items-center justify-center hover:border-[var(--pf-orange)]"
                         >
                           <Plus size={14} />
@@ -79,6 +82,7 @@ export default function CartPage() {
                       
                       <button
                         onClick={() => removeItem(item.productId)}
+                        aria-label={`Remove ${item.name} from cart`}
                         className="text-[var(--pf-text-muted)] hover:text-red-400 transition-colors"
                       >
                         <Trash2 size={18} />
