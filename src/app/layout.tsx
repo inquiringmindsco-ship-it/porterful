@@ -38,13 +38,6 @@ export const metadata: Metadata = {
   creator: 'Porterful',
   publisher: 'Porterful',
   metadataBase: new URL('https://porterful.com'),
-  icons: {
-    icon: [
-      { url: '/favicon.ico' },
-      { url: '/icon.svg', type: 'image/svg+xml' }
-    ],
-    apple: { url: '/apple-touch-icon.png' },
-  },
   alternates: {
     canonical: '/',
   },
@@ -85,9 +78,9 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: '/logo.svg', type: 'image/svg+xml' },
+      { url: '/favicon.ico' },
+      { url: '/icon.svg', type: 'image/svg+xml' }
     ],
-    shortcut: '/logo.svg',
     apple: [
       { url: '/logo.svg', type: 'image/svg+xml' },
     ],
