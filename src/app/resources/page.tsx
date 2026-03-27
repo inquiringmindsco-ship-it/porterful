@@ -9,7 +9,7 @@ const RESOURCES = [
         name: 'CreditKlimb',
         tagline: 'Free credit repair tools for artists',
         description: 'Dispute letters, credit calculators, score simulators, and business credit building — all free. Built specifically to help creatives climb their credit.',
-        href: 'http://localhost:3002',
+        href: 'https://creditklimb.com',
         icon: CreditCard,
         color: 'bg-blue-500',
         badge: 'Our Pick',
@@ -120,13 +120,13 @@ export default function ResourcesPage() {
                 </p>
                 <div className="flex flex-wrap gap-4">
                   <Link 
-                    href="http://localhost:3002" 
+                    href="https://creditklimb.com" 
                     className="inline-flex items-center gap-2 px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg transition-colors"
                   >
                     Get Started Free <ArrowRight size={18} />
                   </Link>
                   <Link 
-                    href="http://localhost:3002/business-credit" 
+                    href="https://creditklimb.com/business-credit" 
                     className="inline-flex items-center gap-2 px-6 py-3 bg-zinc-800 hover:bg-zinc-700 text-white font-semibold rounded-lg transition-colors"
                   >
                     Business Credit Building
