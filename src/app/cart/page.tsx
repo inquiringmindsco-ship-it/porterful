@@ -11,6 +11,8 @@ export default function CartPage() {
   const { items, removeItem, updateQuantity, clearCart, subtotal, artistCut } = useCart();
   const [referralCode, setReferralCode] = useState('');
   const [appliedReferral, setAppliedReferral] = useState(false);
+  const total = subtotal + (subtotal >= 50 ? 0 : 5);
+  const itemCount = items.reduce((s, i) => s + i.quantity, 0);
 
   const handleCheckout = () => {
     // Store cart in localStorage for checkout page
@@ -163,6 +165,24 @@ export default function CartPage() {
                   Continue Shopping
                 </Link>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Mobile Sticky Checkout Bar */}
+        {items.length > 0 && (
+          <div className="fixed bottom-0 left-0 right-0 bg-[var(--pf-surface)] border-t border-[var(--pf-border)] p-4 md:hidden z-50 safe-area-bottom">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex-1">
+                <p className="text-sm text-[var(--pf-text-muted)]">{itemCount} {itemCount === 1 ? 'item' : 'items'}</p>
+                <p className="text-xl font-bold">${total.toFixed(2)}</p>
+              </div>
+              <button
+                onClick={handleCheckout}
+                className="pf-btn pf-btn-primary whitespace-nowrap px-6"
+              >
+                Checkout
+              </button>
             </div>
           </div>
         )}
