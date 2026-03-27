@@ -1,8 +1,9 @@
 import { Metadata } from 'next'
 import { PRODUCTS } from '@/lib/data'
 
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
-  const product = PRODUCTS.find(p => p.id === params.id)
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params
+  const product = PRODUCTS.find(p => p.id === id)
   
   if (!product) {
     return {

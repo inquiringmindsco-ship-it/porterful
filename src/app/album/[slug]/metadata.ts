@@ -1,11 +1,12 @@
 import { Metadata } from 'next'
 import { TRACKS } from '@/lib/data'
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params
   // Try to find album by slug (handle both slug formats)
-  const albumName = params.slug.replace(/-/g, ' ')
+  const albumName = slug.replace(/-/g, ' ')
   const albumTracks = TRACKS.filter(t => 
-    t.album?.toLowerCase().replace(/\s+/g, '-') === params.slug ||
+    t.album?.toLowerCase().replace(/\s+/g, '-') === slug ||
     t.album?.toLowerCase() === albumName
   )
   
