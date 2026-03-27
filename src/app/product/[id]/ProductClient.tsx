@@ -59,7 +59,6 @@ export default function ProductClient({ productId }: { productId: string }) {
       artistCut: product.artistCut,
       size: selectedSize || undefined,
       color: selectedColor || undefined,
-      quantity
     });
     
     setAdded(true);
