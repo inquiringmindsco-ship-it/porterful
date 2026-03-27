@@ -177,6 +177,7 @@ export function Navbar() {
   const { balance, formatBalance: formatWalletBalance } = useWallet()
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
 
   useEffect(() => {
@@ -333,6 +334,14 @@ export function Navbar() {
                 </div>
               )}
 
+              {/* Mobile Search Toggle */}
+              <button onClick={() => setMobileSearchOpen(!mobileSearchOpen)} className="p-2 rounded-lg hover:bg-[var(--pf-surface)] transition-colors touch-manipulation md:hidden" aria-label="Search">
+                <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[var(--pf-text)]">
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+              </button>
+
               {/* Mobile Toggle */}
               <button onClick={toggleMobile} className="p-2 rounded-lg hover:bg-[var(--pf-surface)] transition-colors touch-manipulation" aria-label="Toggle menu">
                 {mobileOpen ? (
@@ -354,7 +363,7 @@ export function Navbar() {
       </nav>
 
       {/* Mobile Search Bar */}
-      <div id="mobile-search" className="hidden fixed top-16 left-0 right-0 z-[90] bg-[var(--pf-bg)] p-4 border-b border-[var(--pf-border)]">
+      <div className={`fixed top-16 left-0 right-0 z-[90] bg-[var(--pf-bg)] p-4 border-b border-[var(--pf-border)] transition-all duration-300 md:hidden ${mobileSearchOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}`}>
         <ArtistSearch />
       </div>
 
