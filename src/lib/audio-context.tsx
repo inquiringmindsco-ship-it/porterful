@@ -175,7 +175,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
       audioRef.current.src = currentTrack.audio_url;
       audioRef.current.load(); // <-- was missing!
     }
-  }, [currentTrack?.id]);
+  }, [currentTrack?.id, currentTrack?.audio_url]);
 
   // Update Media Session (lock screen / control center) when track or state changes
   useEffect(() => {

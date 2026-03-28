@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import { useSupabase } from '@/app/providers'
 
@@ -26,7 +26,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const { user } = useSupabase()
   const userId = user?.id || null
 
-  async function getWallet(uid?: string): Promise<number> {
+  const getWallet = useCallback(async (uid?: string): Promise<number> => {
     const targetId = uid || userId
     if (!targetId) return 0
     try {
@@ -55,9 +55,9 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       console.error('Wallet fetch error:', err)
       return 0
     }
-  }
+  }, [userId])
 
-  async function resetWallet(uid?: string) {
+  const resetWallet = useCallback(async (uid?: string) => {
     const targetId = uid || userId
     if (!targetId) return
     try {
@@ -72,7 +72,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     } catch (err) {
       console.error('Reset wallet error:', err)
     }
-  }
+  }, [userId])
 
   useEffect(() => {
     async function loadBalance() {
