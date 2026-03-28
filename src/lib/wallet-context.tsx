@@ -87,7 +87,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       setIsLoading(false)
     }
     loadBalance()
-  }, [userId])
+  }, [userId, getWallet])
 
   async function addFunds(amount: number) {
     if (!userId) return

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useSupabase } from '@/app/providers'
 import { useRouter } from 'next/navigation'
 import { Music, Store, Building2, Star } from 'lucide-react'
+import { FaGoogle, FaFacebook, FaApple } from 'react-icons/fa'
 
 export default function SignupPage() {
   const { supabase } = useSupabase()
@@ -63,6 +64,28 @@ export default function SignupPage() {
     } catch (err: any) {
       setError(err.message || 'An error occurred')
     } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleOAuthSignIn = async (provider: 'google' | 'facebook' | 'apple') => {
+    setLoading(true)
+    setError('')
+    
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`
+        }
+      })
+      
+      if (error) {
+        setError(error.message)
+        setLoading(false)
+      }
+    } catch (err: any) {
+      setError(err.message || 'OAuth failed')
       setLoading(false)
     }
   }
@@ -171,6 +194,36 @@ export default function SignupPage() {
           >
             {loading ? 'Creating account...' : 'Create Account'}
           </button>
+
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-[var(--pf-border)]"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-4 bg-[var(--pf-bg)] text-[var(--pf-text-muted)]">or continue with</span>
+            </div>
+          </div>
+
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={() => handleOAuthSignIn('google')}
+              disabled={loading}
+              className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg border border-[var(--pf-border)] hover:border-[var(--pf-border-hover)] transition-colors bg-[var(--pf-bg)]"
+            >
+              <FaGoogle className="text-lg" />
+              <span className="text-sm font-medium">Google</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleOAuthSignIn('apple')}
+              disabled={loading}
+              className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg border border-[var(--pf-border)] hover:border-[var(--pf-border-hover)] transition-colors bg-[var(--pf-bg)]"
+            >
+              <FaApple className="text-lg" />
+              <span className="text-sm font-medium">Apple</span>
+            </button>
+          </div>
 
           <p className="text-center text-sm text-[var(--pf-text-muted)]">
             Already have an account?{' '}

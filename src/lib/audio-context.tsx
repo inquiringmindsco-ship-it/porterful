@@ -62,7 +62,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     if (typeof window !== 'undefined') {
       const audio = new Audio();
       audioRef.current = audio;
-      audio.volume = volume / 100;
+      audioRef.current.volume = volume / 100;
       audio.preload = 'auto';
 
       let previewTimer: ReturnType<typeof setTimeout> | null = null;
@@ -169,15 +169,25 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     }
   }, [isRadio]);
 
+  // Update volume when it changes
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = volume / 100;
+    }
+  }, [volume]);
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   // Update audio source when track changes
   useEffect(() => {
     if (audioRef.current && currentTrack?.audio_url) {
       audioRef.current.src = currentTrack.audio_url;
       audioRef.current.load(); // <-- was missing!
     }
-  }, [currentTrack?.id, currentTrack?.audio_url]);
+  }, [currentTrack]);
 
   // Update Media Session (lock screen / control center) when track or state changes
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if ('mediaSession' in navigator && currentTrack) {
       navigator.mediaSession.metadata = new MediaMetadata({
