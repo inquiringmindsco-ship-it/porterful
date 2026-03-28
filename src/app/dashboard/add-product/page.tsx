@@ -110,10 +110,8 @@ export default function AddProductPage() {
           cost: parseFloat(formData.cost) || 0,
           images: formData.images,
           variants: formData.variants,
-          inventory_count: parseInt(formData.inventory_count) || 999,
           dropship_provider: formData.dropship_provider,
           dropship_product_id: formData.dropship_product_id,
-          linked_artist_id: formData.linked_artist_id || null,
         }),
       })
 

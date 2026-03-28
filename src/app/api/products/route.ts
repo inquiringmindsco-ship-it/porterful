@@ -87,8 +87,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { 
       name, description, category, price, cost = 0, images = [], 
-      variants = [], inventory_count = 999, dropship_provider = 'none',
-      dropship_product_id = '', linked_artist_id = null 
+      variants = [], dropship_provider = 'none', dropship_product_id = ''
     } = body
     
     // Validate required fields
@@ -98,7 +97,7 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
     
-    // Create product in database
+    // Create product in database - matching schema fields
     const { data, error } = await supabase
       .from('products')
       .insert({
@@ -109,17 +108,11 @@ export async function POST(request: NextRequest) {
         cost,
         images,
         variants,
-        inventory_count,
-        dropship_provider,
-        dropship_product_id,
-        linked_artist_id,
+        printful_product_id: dropship_product_id,
+        stock: 999,
         seller_id: session.user.id,
-        seller_type: 'artist',
         is_active: true,
-        seller_percent: 80,
-        artist_fund_percent: 15,
-        superfan_percent: 5,
-        platform_percent: 0,
+        commission_rate: 0.10,
       })
       .select()
       .single()
