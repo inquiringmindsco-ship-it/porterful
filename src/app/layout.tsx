@@ -76,11 +76,15 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
+      { url: '/favicon-32x32.png', type: 'image/png', sizes: '32x32' },
       { url: '/icon.svg', type: 'image/svg+xml' }
     ],
     apple: [
-      { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: '/apple-touch-icon.png', type: 'image/png', sizes: '180x180' },
     ],
+    other: [
+      { url: '/apple-touch-icon.png', rel: 'apple-touch-icon' }
+    ]
   },
   manifest: '/manifest.json',
   appleWebApp: {
