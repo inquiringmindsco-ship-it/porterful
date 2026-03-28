@@ -71,17 +71,17 @@ export default function CartPage() {
                           onClick={() => updateQuantity(item.productId, item.quantity - 1)}
                           aria-label={`Decrease quantity of ${item.name}`}
                           disabled={item.quantity <= 1}
-                          className="w-10 h-10 rounded-lg border border-[var(--pf-border)] flex items-center justify-center hover:border-[var(--pf-orange)] disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
+                          className="w-12 h-12 rounded-lg border border-[var(--pf-border)] flex items-center justify-center hover:border-[var(--pf-orange)] disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation active:scale-95 transition-transform"
                         >
-                          <Minus size={14} />
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="5" y1="12" x2="19" y2="12"/></svg>
                         </button>
-                        <span className="w-8 text-center" aria-label={`Quantity: ${item.quantity}`}>{item.quantity}</span>
+                        <span className="w-10 text-center font-medium" aria-label={`Quantity: ${item.quantity}`}>{item.quantity}</span>
                         <button
                           onClick={() => updateQuantity(item.productId, item.quantity + 1)}
                           aria-label={`Increase quantity of ${item.name}`}
-                          className="w-10 h-10 rounded-lg border border-[var(--pf-border)] flex items-center justify-center hover:border-[var(--pf-orange)] touch-manipulation"
+                          className="w-12 h-12 rounded-lg border border-[var(--pf-border)] flex items-center justify-center hover:border-[var(--pf-orange)] touch-manipulation active:scale-95 transition-transform"
                         >
-                          <Plus size={14} />
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                         </button>
                       </div>
                       
