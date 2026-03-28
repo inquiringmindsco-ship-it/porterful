@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
+import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { TRACKS, ALBUMS } from '@/lib/data'
 
@@ -77,11 +78,13 @@ export default async function AlbumPage({ params }: PageProps) {
           <div className="flex flex-col md:flex-row gap-8 items-start">
             {/* Album Art */}
             <div className="w-full md:w-64 shrink-0">
-              <div className="aspect-square rounded-2xl overflow-hidden shadow-2xl">
-                <img 
+              <div className="aspect-square rounded-2xl overflow-hidden shadow-2xl relative">
+                <Image 
                   src={album.image} 
                   alt={album.name}
-                  className="w-full h-full object-cover"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 256px"
+                  className="object-cover"
                 />
               </div>
             </div>

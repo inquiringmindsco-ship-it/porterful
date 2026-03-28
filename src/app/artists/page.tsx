@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Music, Users, TrendingUp, Heart, ChevronRight, Search } from 'lucide-react'
 import { ARTISTS } from '@/lib/artists'
 
@@ -92,9 +93,9 @@ export default function ArtistsPage() {
                   </div>
                 </div>
                 <div className="flex justify-center">
-                  <Link href={`/artist/${featuredArtist.slug || featuredArtist.id}`} className="w-48 h-48 rounded-2xl bg-gradient-to-br from-[var(--pf-orange)] to-[var(--pf-orange-dark)] flex items-center justify-center text-8xl shadow-2xl shadow-[var(--pf-orange)]/30 overflow-hidden">
+                  <Link href={`/artist/${featuredArtist.slug || featuredArtist.id}`} className="w-48 h-48 rounded-2xl bg-gradient-to-br from-[var(--pf-orange)] to-[var(--pf-orange-dark)] flex items-center justify-center text-8xl shadow-2xl shadow-[var(--pf-orange)]/30 overflow-hidden relative">
                     {featuredArtist.image ? (
-                      <img src={featuredArtist.image} alt={featuredArtist.name} className="w-full h-full object-cover" />
+                      <Image src={featuredArtist.image} alt={featuredArtist.name} fill sizes="192px" className="object-cover" />
                     ) : (
                       <span className="text-white">{featuredArtist.name.charAt(0)}</span>
                     )}
@@ -116,7 +117,7 @@ export default function ArtistsPage() {
               >
                 <div className="aspect-square bg-gradient-to-br from-[var(--pf-surface)] to-[var(--pf-bg-secondary)] flex items-center justify-center text-7xl relative overflow-hidden">
                   {artist.image ? (
-                    <img src={artist.image} alt={artist.name} className="w-full h-full object-cover" />
+                    <Image src={artist.image} alt={artist.name} fill sizes="(max-width: 640px) 50vw, 33vw" className="object-cover" />
                   ) : (
                     <span className="text-6xl">{artist.name.charAt(0)}</span>
                   )}

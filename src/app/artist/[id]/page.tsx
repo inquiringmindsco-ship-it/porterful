@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { useAudio } from '@/lib/audio-context';
 import { TRACKS, ALBUMS, PRODUCTS } from '@/lib/data';
 import { getArtistById, getArtistTracks, getAllArtistIds } from '@/lib/artists';
@@ -283,11 +284,15 @@ export default function ArtistProfilePage({ params }: { params: { id: string } }
                         onClick={() => toggleAlbum(albumName)}
                         className="w-full flex items-center gap-4 p-4 hover:bg-[var(--pf-bg)] transition-colors text-left"
                       >
-                        <img
-                          src={albumInfo?.image || '/album-art/default.jpg'}
-                          alt={albumName}
-                          className="w-14 h-14 rounded-lg object-cover"
-                        />
+                        <div className="w-14 h-14 rounded-lg object-cover relative shrink-0">
+                          <Image
+                            src={albumInfo?.image || '/album-art/default.jpg'}
+                            alt={albumName}
+                            fill
+                            sizes="56px"
+                            className="object-cover rounded-lg"
+                          />
+                        </div>
                         <div className="flex-1 min-w-0">
                           <h3 className="font-bold">{albumName}</h3>
                           <p className="text-sm text-[var(--pf-text-muted)]">{albumTracks.length} tracks</p>
@@ -357,7 +362,9 @@ export default function ArtistProfilePage({ params }: { params: { id: string } }
                         duration: typeof track.duration === 'string' ? track.duration.split(':').reduce((acc: number, part: string) => (60 * acc) + parseInt(part), 0) : track.duration || 180
                       } as any)}
                     >
-                      <img src={track.image} alt={track.title} className="w-12 h-12 rounded-lg object-cover" />
+                      <div className="w-12 h-12 rounded-lg object-cover relative shrink-0">
+                        <Image src={track.image} alt={track.title} fill sizes="48px" className="object-cover rounded-lg" />
+                      </div>
                       <div className="flex-1 min-w-0">
                         <p className={`font-medium truncate text-sm ${currentTrack?.id === track.id ? 'text-[var(--pf-orange)]' : ''}`}>
                           {track.title}
@@ -402,10 +409,12 @@ export default function ArtistProfilePage({ params }: { params: { id: string } }
                   className="bg-[var(--pf-surface)] rounded-xl overflow-hidden border border-[var(--pf-border)] hover:border-[var(--pf-orange)] transition-colors group"
                 >
                   <div className="aspect-square relative">
-                    <img 
+                    <Image 
                       src={product.image || '/product-placeholder.jpg'} 
                       alt={product.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                      fill
+                      sizes="(max-width: 768px) 50vw, 33vw"
+                      className="object-cover group-hover:scale-105 transition-transform"
                     />
                     <div className="absolute top-2 right-2 bg-[var(--pf-orange)] text-white px-2 py-1 rounded text-sm font-medium">
                       ${((product as any).price || 9.99).toFixed(2)}

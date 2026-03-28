@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
 import { useCart } from '@/lib/cart-context';
@@ -42,11 +43,13 @@ export default function CartPage() {
             <div className="lg:col-span-2 space-y-4">
               {items.map((item) => (
                 <div key={item.productId} className="pf-card p-4 flex gap-4">
-                  <div className="w-24 h-24 bg-[var(--pf-surface)] rounded-lg overflow-hidden shrink-0">
-                    <img 
+                  <div className="w-24 h-24 bg-[var(--pf-surface)] rounded-lg overflow-hidden shrink-0 relative">
+                    <Image 
                       src={item.image}
                       alt={item.name}
-                      className="w-full h-full object-cover"
+                      fill
+                      sizes="96px"
+                      className="object-cover"
                     />
                   </div>
                   

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useSupabase } from '@/app/providers';
 import { TRACKS, ALBUMS, PRODUCTS } from '@/lib/data';
@@ -220,7 +221,7 @@ export default function ArtistDashboardPage() {
                   
                   {/* Album art */}
                   <div className="w-16 h-16 rounded-lg overflow-hidden bg-gradient-to-br from-[var(--pf-orange)]/30 to-purple-600/30 flex items-center justify-center shrink-0">
-                    {album.image ? <img src={album.image} alt={album.name} className="w-full h-full object-cover" /> : <Icon.Music />}
+                    {album.image ? <Image src={album.image} alt={album.name} fill sizes="100%" className="object-cover" /> : <Icon.Music />}
                   </div>
                   
                   {/* Album info */}
@@ -270,7 +271,7 @@ export default function ArtistDashboardPage() {
                   {tracks.slice(0, 5).map(track => (
                     <div key={track.id} className="flex items-center gap-3 p-3 hover:bg-[var(--pf-surface-hover)]">
                       <div className="w-10 h-10 rounded overflow-hidden bg-[var(--pf-surface)]">
-                        <img src={track.image} alt={track.title} className="w-full h-full object-cover" />
+                        <Image src={track.image} alt={track.title} fill sizes="48px" className="object-cover" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-medium truncate">{track.title}</p>
@@ -305,7 +306,7 @@ export default function ArtistDashboardPage() {
             {PRODUCTS.map(product => (
               <div key={product.id} className="pf-card p-4 flex items-center gap-4">
                 <div className="w-16 h-16 rounded-lg overflow-hidden bg-[var(--pf-surface)]">
-                  <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                  <Image src={product.image} alt={product.name} fill sizes="100%" className="object-cover" />
                 </div>
                 <div className="flex-1">
                   <h3 className="font-bold">{product.name}</h3>

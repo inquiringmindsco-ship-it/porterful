@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { useAudio } from '@/lib/audio-context'
@@ -110,9 +111,9 @@ export default function PlaylistDetailPage() {
         </Link>
 
         <div className="flex flex-col md:flex-row gap-6 mb-8">
-          <div className="w-full md:w-64 h-64 bg-gradient-to-br from-[var(--pf-orange)] to-purple-600 rounded-2xl flex items-center justify-center">
+          <div className="w-full md:w-64 h-64 bg-gradient-to-br from-[var(--pf-orange)] to-purple-600 rounded-2xl flex items-center justify-center relative overflow-hidden">
             {playlist.tracks.length > 0 ? (
-              <img src={playlist.tracks[0].image} alt={playlist.name} className="w-full h-full object-cover rounded-2xl" />
+              <Image src={playlist.tracks[0].image} alt={playlist.name} fill sizes="(max-width: 768px) 100vw, 256px" className="object-cover rounded-2xl" />
             ) : (
               <div className="text-6xl">🎵</div>
             )}
@@ -147,8 +148,8 @@ export default function PlaylistDetailPage() {
                 }}
               >
                 <span className="w-8 text-center text-[var(--pf-text-secondary)]">{index + 1}</span>
-                <div className="w-12 h-12 rounded-lg overflow-hidden">
-                  <img src={track.image} alt={track.title} className="w-full h-full object-cover" />
+                <div className="w-12 h-12 rounded-lg overflow-hidden relative">
+                  <Image src={track.image} alt={track.title} fill sizes="48px" className="object-cover" />
                 </div>
                 <div className="flex-1">
                   <p className="font-medium text-[var(--pf-text)]">{track.title}</p>

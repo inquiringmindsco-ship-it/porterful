@@ -88,10 +88,12 @@ export default function ProductClient({ productId }: { productId: string }) {
         <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
           {/* Product Image */}
           <div className="relative aspect-square rounded-2xl overflow-hidden bg-[var(--pf-surface)]">
-            <img 
+            <Image 
               src={product.image}
               alt={product.name}
-              className="w-full h-full object-cover"
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className="object-cover"
             />
             {!product.inStock && (
               <div className="absolute inset-0 bg-black/60 flex items-center justify-center">

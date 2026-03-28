@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useAudio } from '@/lib/audio-context'
 import { TRACKS } from '@/lib/data'
 
@@ -276,8 +277,8 @@ export default function PlaylistPage() {
                     onClick={() => addTrackToPlaylist(track)}
                     className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-[var(--pf-surface)] transition-colors text-left border border-[var(--pf-border)]"
                   >
-                    <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0">
-                      <img src={track.image} alt={track.title} className="w-full h-full object-cover" />
+                    <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 relative">
+                      <Image src={track.image} alt={track.title} fill sizes="48px" className="object-cover" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-[var(--pf-text)] truncate">{track.title}</p>
@@ -344,8 +345,8 @@ export default function PlaylistPage() {
                 {playlist.tracks.length > 0 && (
                   <div className="flex gap-2 overflow-x-auto pb-2">
                     {playlist.tracks.slice(0, 4).map(track => (
-                      <div key={track.id} className="w-12 h-12 rounded-lg overflow-hidden shrink-0">
-                        <img src={track.image} alt={track.title} className="w-full h-full object-cover" />
+                      <div key={track.id} className="w-12 h-12 rounded-lg overflow-hidden shrink-0 relative">
+                        <Image src={track.image} alt={track.title} fill sizes="48px" className="object-cover" />
                       </div>
                     ))}
                     {playlist.tracks.length > 4 && (
