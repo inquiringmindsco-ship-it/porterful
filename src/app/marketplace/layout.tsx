@@ -1,19 +1,16 @@
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Marketplace | Porterful',
-  description: 'Browse merch, music, and exclusive drops from Porterful artists. Every purchase puts 80% directly in artists\' pockets.',
+  title: 'Marketplace - Artist Marketplace',
+  description: 'Browse the Porterful marketplace for music, merch, and exclusive content from independent artists.',
+  keywords: ['marketplace', 'artist marketplace', 'music marketplace', 'merch marketplace'],
   openGraph: {
-    title: 'Marketplace | Porterful',
-    description: 'Browse merch, music, and exclusive drops from Porterful artists.',
-    url: '/marketplace',
+    title: 'Marketplace - Porterful',
+    description: 'Browse music and merch from independent artists.',
+    images: ['/og-image.png'],
   },
 }
 
-export default function MarketplaceLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function MarketplaceLayout({ children }: { children: React.ReactNode }) {
   return <>{children}</>
 }
