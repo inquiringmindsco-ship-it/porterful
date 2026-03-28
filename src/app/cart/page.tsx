@@ -71,7 +71,7 @@ export default function CartPage() {
                           onClick={() => updateQuantity(item.productId, item.quantity - 1)}
                           aria-label={`Decrease quantity of ${item.name}`}
                           disabled={item.quantity <= 1}
-                          className="w-8 h-8 rounded-lg border border-[var(--pf-border)] flex items-center justify-center hover:border-[var(--pf-orange)] disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="w-10 h-10 rounded-lg border border-[var(--pf-border)] flex items-center justify-center hover:border-[var(--pf-orange)] disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
                         >
                           <Minus size={14} />
                         </button>
@@ -79,7 +79,7 @@ export default function CartPage() {
                         <button
                           onClick={() => updateQuantity(item.productId, item.quantity + 1)}
                           aria-label={`Increase quantity of ${item.name}`}
-                          className="w-8 h-8 rounded-lg border border-[var(--pf-border)] flex items-center justify-center hover:border-[var(--pf-orange)]"
+                          className="w-10 h-10 rounded-lg border border-[var(--pf-border)] flex items-center justify-center hover:border-[var(--pf-orange)] touch-manipulation"
                         >
                           <Plus size={14} />
                         </button>

@@ -157,7 +157,7 @@ function BuyButton({ track }: { track: typeof TRACKS[0] }) {
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="w-10 h-10 rounded-lg bg-[var(--pf-surface)] border border-[var(--pf-border)] flex items-center justify-center hover:border-[var(--pf-orange)] transition-colors"
+                  className="w-12 h-12 rounded-lg bg-[var(--pf-surface)] border border-[var(--pf-border)] flex items-center justify-center hover:border-[var(--pf-orange)] transition-colors"
                   disabled={quantity <= 1}
                 >
                   <Icon.Minus />
@@ -171,7 +171,7 @@ function BuyButton({ track }: { track: typeof TRACKS[0] }) {
                 />
                 <button
                   onClick={() => setQuantity(quantity + 1)}
-                  className="w-10 h-10 rounded-lg bg-[var(--pf-surface)] border border-[var(--pf-border)] flex items-center justify-center hover:border-[var(--pf-orange)] transition-colors"
+                  className="w-12 h-12 rounded-lg bg-[var(--pf-surface)] border border-[var(--pf-border)] flex items-center justify-center hover:border-[var(--pf-orange)] transition-colors"
                 >
                   <Icon.Plus />
                 </button>
