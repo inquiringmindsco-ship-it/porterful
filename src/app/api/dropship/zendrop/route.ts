@@ -31,10 +31,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ 
         error: 'Zendrop not configured',
         demo: true,
-        products: [
-          { id: 'z-demo-1', name: 'Demo Product 1', price: 9.99, category: 'electronics' },
-          { id: 'z-demo-2', name: 'Demo Product 2', price: 14.99, category: 'home' },
-        ]
+        message: 'Add ZENDROP_API_KEY to your environment to enable dropshipping.',
+        products: []
       })
     }
 

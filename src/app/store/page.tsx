@@ -4,14 +4,14 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Play, Headphones, ShoppingBag, Heart, Share2 } from 'lucide-react';
 
-// Artist data (will come from database)
+// Artist data
 const ARTIST = {
   id: 'od-porter',
   name: 'O D Porter',
   location: 'St. Louis, MO',
-  genre: 'Hip-Hop / R&B',
-  bio: 'St. Louis artist blending hip-hop, R&B, and soul. Born in Miami, raised in New Orleans & St. Louis. Creating music that speaks to the human experience.',
-  image: '🎤',
+  genre: 'Hip-Hop / R&B / Soul',
+  bio: 'St. Louis artist blending hip-hop, R&B, and soul. Born in Miami, raised in New Orleans & St. Louis.',
+  image: '/album-art/Ambiguous.jpg',
   supporters: 2847,
   earnings: 8947,
   verified: true,
@@ -20,30 +20,39 @@ const ARTIST = {
 // Releases (will come from database)
 const RELEASES = [
   { 
-    id: 'ambiguous-ep', 
-    title: 'Ambiguous EP', 
-    type: 'EP', 
-    year: '2026', 
-    tracks: 5, 
-    price: 5,
-    image: '💿',
-    format: 'Digital'
-  },
-  { 
     id: 'ambiguous-vinyl', 
     title: 'Ambiguous Vinyl', 
     type: 'Vinyl', 
-    price: 50,
-    image: '📀',
+    year: '2024',
+    price: 35,
+    image: '/album-art/Ambiguous.jpg',
     format: 'Physical',
     limited: true
   },
   { 
-    id: 'ambiguous-tee', 
-    title: 'Ambiguous Tour Tee', 
-    type: 'Merch', 
+    id: 'tiigh-book', 
+    title: 'There It Is, Here It Go', 
+    type: 'Book', 
+    year: '2025',
     price: 25,
-    image: '👕',
+    image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=500',
+    format: 'Physical',
+    description: 'The debut book from O D Porter'
+  },
+  { 
+    id: 'odp-hoodie-black', 
+    title: 'O D Porter Classic Hoodie', 
+    type: 'Merch', 
+    price: 55,
+    image: 'https://printful-storage.s3.amazonaws.com/upload/final_product/156/156/mockup_156_black.png',
+    format: 'Merch'
+  },
+  { 
+    id: 'odp-tee-black', 
+    title: 'O D Porter Classic Tee', 
+    type: 'Merch', 
+    price: 28,
+    image: 'https://printful-storage.s3.amazonaws.com/upload/final_product/71/71/mockup_71.png',
     format: 'Merch'
   },
 ];
@@ -77,8 +86,17 @@ export default function ArtistStorePage() {
             {/* Artist Info */}
             <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
               {/* Avatar */}
-              <div className="w-40 h-40 md:w-56 md:h-56 rounded-2xl bg-gradient-to-br from-[var(--pf-orange)] to-purple-600 flex items-center justify-center text-6xl md:text-8xl shadow-2xl shadow-[var(--pf-orange)]/20">
-                {ARTIST.image}
+              <div className="w-40 h-40 md:w-56 md:h-56 rounded-2xl bg-gradient-to-br from-[var(--pf-orange)] to-purple-600 flex items-center justify-center shadow-2xl shadow-[var(--pf-orange)]/20 overflow-hidden">
+                <img 
+                  src={ARTIST.image} 
+                  alt={ARTIST.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                    (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
+                  }}
+                />
+                <span className="hidden text-6xl md:text-8xl">🎤</span>
               </div>
 
               {/* Info */}
