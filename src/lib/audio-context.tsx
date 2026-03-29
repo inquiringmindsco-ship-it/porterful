@@ -93,14 +93,25 @@ export function AudioProvider({ children }: { children: ReactNode }) {
           const pct = (audioRef.current.currentTime / audioRef.current.duration) * 100;
           setProgress(isNaN(pct) ? 0 : pct);
 
-          // Preview lock: if not purchased and past 60 seconds, stop
+          // Preview lock: if not purchased and past 90 seconds, skip to next track
           const current = currentTrackRef.current;
-          if (current && !purchasedTracks.has(current.id) && audioRef.current.currentTime >= 60) {
-            audioRef.current.pause();
-            // Show "unlock" message or redirect to purchase
-            if (typeof window !== 'undefined') {
-              const event = new CustomEvent('track-locked', { detail: { trackId: current.id } });
-              window.dispatchEvent(event);
+          if (current && !purchasedTracksRef.current.has(current.id) && audioRef.current.currentTime >= 90) {
+            // Auto-skip to next track
+            const currentQueue = queueRef.current;
+            const currentIdx = currentIndexRef.current;
+            if (currentQueue.length > 0) {
+              const nextIdx = (currentIdx + 1) % currentQueue.length;
+              const nextTrack = currentQueue[nextIdx];
+              if (nextTrack) {
+                setCurrentIndex(nextIdx);
+                setCurrentTrack(nextTrack);
+                setProgress(0);
+                audioRef.current.src = nextTrack.audio_url || '';
+                audioRef.current.load();
+                audioRef.current.play().catch(() => {});
+              }
+            } else {
+              audioRef.current.pause();
             }
           }
         }
