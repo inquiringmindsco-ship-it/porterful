@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0a0a0f"/>
+      <stop offset="100%" style="stop-color:#1a1a2e"/>
+    </linearGradient>
+    <linearGradient id="orange" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff6b00"/>
+      <stop offset="100%" style="stop-color:#ff8533"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect fill="url(#bgGrad)" width="600" height="400"/>
+  
+  <!-- Phone -->
+  <g transform="translate(320, 60)">
+    <!-- Phone body -->
+    <rect x="0" y="0" width="160" height="280" rx="20" fill="#1a1a1a" stroke="#333" stroke-width="2"/>
+    <!-- Screen -->
+    <rect x="8" y="25" width="144" height="230" rx="5" fill="#0a0a0f"/>
+    <!-- Speaker -->
+    <rect x="55" y="10" width="50" height="4" rx="2" fill="#333"/>
+    <!-- Home button -->
+    <circle cx="80" cy="265" r="8" fill="none" stroke="#333" stroke-width="1"/>
+    
+    <!-- Screen content -->
+    <text x="80" y="80" font-family="Arial Black, sans-serif" font-size="16" fill="#ff6b00" text-anchor="middle">TAP IN</text>
+    <text x="80" y="100" font-family="Arial, sans-serif" font-size="8" fill="#666" text-anchor="middle">porterngful.com/tap</text>
+    
+    <!-- NFC wave animation示意 -->
+    <circle cx="80" cy="150" r="30" fill="none" stroke="#ff6b00" stroke-width="1" opacity="0.3"/>
+    <circle cx="80" cy="150" r="45" fill="none" stroke="#ff6b00" stroke-width="1" opacity="0.2"/>
+    <circle cx="80" cy="150" r="60" fill="none" stroke="#ff6b00" stroke-width="1" opacity="0.1"/>
+    <circle cx="80" cy="150" r="10" fill="#ff6b00" opacity="0.8"/>
+  </g>
+  
+  <!-- Wristband -->
+  <g transform="translate(60, 100)">
+    <!-- Shadow -->
+    <ellipse cx="110" cy="130" rx="90" ry="15" fill="#000" opacity="0.3"/>
+    
+    <!-- Band -->
+    <path d="M20 50 Q60 30 110 50 Q160 70 200 50 L200 110 Q160 90 110 110 Q60 130 20 110 Z" fill="url(#orange)"/>
+    
+    <!-- Clasp -->
+    <rect x="15" y="60" width="15" height="40" rx="3" fill="#cc5500"/>
+    <rect x="190" y="60" width="15" height="40" rx="3" fill="#cc5500"/>
+    
+    <!-- TAP IN text -->
+    <text x="110" y="88" font-family="Arial Black, sans-serif" font-size="22" font-weight="bold" fill="white" text-anchor="middle">TAP IN</text>
+    
+    <!-- NFC symbol -->
+    <g transform="translate(110, 65)" opacity="0.6">
+      <circle cx="0" cy="0" r="12" fill="none" stroke="white" stroke-width="1.5"/>
+      <path d="M-6 -5 L6 -5 M-6 0 L6 0 M-6 5 L6 5" stroke="white" stroke-width="1.5"/>
+    </g>
+  </g>
+  
+  <!-- Tap In logo/badge -->
+  <g transform="translate(50, 30)">
+    <rect x="0" y="0" width="100" height="30" rx="15" fill="#ff6b00"/>
+    <text x="50" y="20" font-family="Arial Black, sans-serif" font-size="12" fill="white" text-anchor="middle">PORTERFUL</text>
+  </g>
+  
+  <!-- Price tag -->
+  <text x="300" y="380" font-family="Arial, sans-serif" font-size="24" fill="#ff6b00" text-anchor="middle" font-weight="bold">$15</text>
+  
+  <!-- Description -->
+  <text x="300" y="395" font-family="Arial, sans-serif" font-size="10" fill="#666" text-anchor="middle">NFC Wristband • Tap to connect</text>
+
+</svg>
