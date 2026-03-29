@@ -7,18 +7,18 @@ import { ShoppingBag, Filter } from 'lucide-react'
 
 // Platform-curated featured products
 const PRODUCTS = [
-  { id: 'odp-tee-classic-black', name: 'Porterful Classic Tee', price: 28, category: 'Apparel', image: 'https://printful-storage.s3.amazonaws.com/upload/final_product/71/71/mockup_71.png', inStock: true },
-  { id: 'odp-hoodie-classic-black', name: 'Porterful Classic Hoodie', price: 55, category: 'Apparel', image: 'https://printful-storage.s3.amazonaws.com/upload/final_product/156/156/mockup_156_black.png', inStock: true },
-  { id: 'odp-snapback-black', name: 'Porterful Snapback', price: 28, category: 'Accessories', image: 'https://printful-storage.s3.amazonaws.com/upload/final_product/15/15/mockup_15.png', inStock: true },
-  { id: 'odp-beanie-black', name: 'Porterful Beanie', price: 24, category: 'Accessories', image: 'https://printful-storage.s3.amazonaws.com/upload/final_product/31/31/mockup_31.png', inStock: true },
-  { id: 'odp-mug-11oz-black', name: 'Porterful Mug', price: 18, category: 'Home', image: 'https://printful-storage.s3.amazonaws.com/upload/final_product/14/14/mockup_14.png', inStock: true },
-  { id: 'odp-sticker-pack', name: 'Porterful Sticker Pack', price: 15, category: 'Accessories', image: 'https://printful-storage.s3.amazonaws.com/upload/final_product/86/86/mockup_86.png', inStock: true },
-  { id: 'odp-poster-18x24', name: 'Porterful Poster', price: 22, category: 'Art', image: 'https://printful-storage.s3.amazonaws.com/upload/final_product/69/69/mockup_69.png', inStock: true },
-  { id: 'odp-canvas-16x20', name: 'Porterful Canvas', price: 55, category: 'Art', image: 'https://printful-storage.s3.amazonaws.com/upload/final_product/101/101/mockup_101.png', inStock: true },
+  { id: 'odp-tee-classic-black', name: 'Porterful Classic Tee', price: 28, category: 'Apparel', image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500', inStock: true },
+  { id: 'odp-hoodie-classic-black', name: 'Porterful Classic Hoodie', price: 55, category: 'Apparel', image: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=500', inStock: true },
+  { id: 'odp-snapback-black', name: 'Porterful Snapback', price: 28, category: 'Accessories', image: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=500', inStock: true },
+  { id: 'odp-beanie-black', name: 'Porterful Beanie', price: 24, category: 'Accessories', image: 'https://images.unsplash.com/photo-1576871337622-98d48d1cf531?w=500', inStock: true },
+  { id: 'odp-mug-11oz-black', name: 'Porterful Mug', price: 18, category: 'Home', image: 'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?w=500', inStock: true },
+  { id: 'odp-sticker-pack', name: 'Porterful Sticker Pack', price: 15, category: 'Accessories', image: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=500', inStock: true },
+  { id: 'odp-poster-18x24', name: 'Porterful Poster', price: 22, category: 'Art', image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=500', inStock: true },
+  { id: 'odp-canvas-16x20', name: 'Porterful Canvas', price: 55, category: 'Art', image: 'https://images.unsplash.com/photo-1549497538-303791108f95?w=500', inStock: true },
   { id: 'odp-book-tiigh', name: 'There It Is, Here It Go', price: 25, category: 'Books', image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=500', inStock: true },
-  { id: 'odp-tote-black', name: 'Porterful Tote Bag', price: 20, category: 'Accessories', image: 'https://printful-storage.s3.amazonaws.com/upload/final_product/18/18/mockup_18.png', inStock: true },
-  { id: 'odp-hoodie-zip-black', name: 'Porterful Zip Hoodie', price: 62, category: 'Apparel', image: 'https://printful-storage.s3.amazonaws.com/upload/final_product/179/179/mockup_179.png', inStock: true },
-  { id: 'odp-tee-vintage-black', name: 'Porterful Vintage Tee', price: 32, category: 'Apparel', image: 'https://printful-storage.s3.amazonaws.com/upload/final_product/171/171/mockup_171.png', inStock: true },
+  { id: 'odp-tote-black', name: 'Porterful Tote Bag', price: 20, category: 'Accessories', image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500', inStock: true },
+  { id: 'odp-hoodie-zip-black', name: 'Porterful Zip Hoodie', price: 62, category: 'Apparel', image: 'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=500', inStock: true },
+  { id: 'odp-tee-vintage-black', name: 'Porterful Vintage Tee', price: 32, category: 'Apparel', image: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=500', inStock: true },
 ]
 
 // Featured artists on the platform

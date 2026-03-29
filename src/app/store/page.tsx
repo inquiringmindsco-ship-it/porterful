@@ -8,11 +8,11 @@ import { ShoppingBag, Heart, Star, ArrowRight } from 'lucide-react'
 // Platform-curated featured products
 const FEATURED_PRODUCTS = [
   { id: 'book-tiigh', name: 'There It Is, Here It Go', price: 25, category: 'Book', artist: 'O D Porter', image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=500', featured: true },
-  { id: 'odp-tee-classic-black', name: 'Porterful Classic Tee', price: 28, category: 'Apparel', artist: 'Various Artists', image: 'https://printful-storage.s3.amazonaws.com/upload/final_product/71/71/mockup_71.png', featured: true },
-  { id: 'odp-hoodie-classic-black', name: 'Porterful Classic Hoodie', price: 55, category: 'Apparel', artist: 'Various Artists', image: 'https://printful-storage.s3.amazonaws.com/upload/final_product/156/156/mockup_156_black.png', featured: false },
-  { id: 'odp-mug-11oz-black', name: 'Porterful Mug', price: 18, category: 'Home', artist: 'Various Artists', image: 'https://printful-storage.s3.amazonaws.com/upload/final_product/14/14/mockup_14.png', featured: false },
-  { id: 'odp-canvas-16x20', name: 'Porterful Canvas', price: 55, category: 'Art', artist: 'Various Artists', image: 'https://printful-storage.s3.amazonaws.com/upload/final_product/101/101/mockup_101.png', featured: false },
-  { id: 'odp-poster-18x24', name: 'Porterful Poster', price: 22, category: 'Art', artist: 'Various Artists', image: 'https://printful-storage.s3.amazonaws.com/upload/final_product/69/69/mockup_69.png', featured: false },
+  { id: 'odp-tee-classic-black', name: 'Porterful Classic Tee', price: 28, category: 'Apparel', artist: 'Various Artists', image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500', featured: true },
+  { id: 'odp-hoodie-classic-black', name: 'Porterful Classic Hoodie', price: 55, category: 'Apparel', artist: 'Various Artists', image: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=500', featured: false },
+  { id: 'odp-mug-11oz-black', name: 'Porterful Mug', price: 18, category: 'Home', artist: 'Various Artists', image: 'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?w=500', featured: false },
+  { id: 'odp-canvas-16x20', name: 'Porterful Canvas', price: 55, category: 'Art', artist: 'Various Artists', image: 'https://images.unsplash.com/photo-1549497538-303791108f95?w=500', featured: false },
+  { id: 'odp-poster-18x24', name: 'Porterful Poster', price: 22, category: 'Art', artist: 'Various Artists', image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=500', featured: false },
 ]
 
 // Featured artists
