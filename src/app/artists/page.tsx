@@ -211,12 +211,13 @@ export default function ArtistsPage() {
             </h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {comingSoonArtists.map((artist) => (
-                <div
+                <Link
                   key={artist.id}
-                  className="bg-[var(--pf-surface)] rounded-2xl p-6 border border-dashed border-[var(--pf-border)] opacity-80"
+                  href="/coming-soon"
+                  className="bg-[var(--pf-surface)] rounded-2xl p-6 border border-dashed border-[var(--pf-orange)]/50 hover:border-[var(--pf-orange)] transition-all group"
                 >
                   <ArtistCard artist={artist} isComingSoon />
-                </div>
+                </Link>
               ))}
             </div>
 

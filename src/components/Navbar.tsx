@@ -43,7 +43,6 @@ export function Navbar() {
     { href: '/artists', label: 'Artists' },
     { href: '/digital', label: 'Music' },
     { href: '/tap-in', label: 'Tap In' },
-    { href: '/coming-soon', label: 'Coming Soon' },
   ]
 
   return (
