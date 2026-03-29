@@ -16,20 +16,20 @@ CREATE POLICY "Artists can update own record" ON artists FOR UPDATE USING (auth.
 DROP POLICY IF EXISTS "Authenticated users can insert artists" ON artists;
 CREATE POLICY "Authenticated users can insert artists" ON artists FOR INSERT WITH CHECK (auth.uid() IS NOT NULL);
 
--- ORDERS (uses buyer_id)
+-- ORDERS (uses user_id — not buyer_id)
 DROP POLICY IF EXISTS "Users can read own orders" ON orders;
-CREATE POLICY "Users can read own orders" ON orders FOR SELECT USING (auth.uid() = buyer_id);
+CREATE POLICY "Users can read own orders" ON orders FOR SELECT USING (auth.uid() = user_id);
 DROP POLICY IF EXISTS "Users can insert own orders" ON orders;
-CREATE POLICY "Users can insert own orders" ON orders FOR INSERT WITH CHECK (auth.uid() = buyer_id);
+CREATE POLICY "Users can insert own orders" ON orders FOR INSERT WITH CHECK (auth.uid() = user_id);
 DROP POLICY IF EXISTS "Users can update own orders" ON orders;
-CREATE POLICY "Users can update own orders" ON orders FOR UPDATE USING (auth.uid() = buyer_id);
+CREATE POLICY "Users can update own orders" ON orders FOR UPDATE USING (auth.uid() = user_id);
 
 -- ORDER ITEMS
 DROP POLICY IF EXISTS "Users can read own order items" ON order_items;
 CREATE POLICY "Users can read own order items" ON order_items FOR SELECT
-USING (EXISTS (SELECT 1 FROM orders WHERE orders.id = order_items.order_id AND orders.buyer_id = auth.uid()));
+USING (EXISTS (SELECT 1 FROM orders WHERE orders.id = order_items.order_id AND orders.user_id = auth.uid()));
 
--- PRODUCTS (uses seller_id)
+-- PRODUCTS
 DROP POLICY IF EXISTS "Anyone can read products" ON products;
 CREATE POLICY "Anyone can read products" ON products FOR SELECT USING (true);
 DROP POLICY IF EXISTS "Authenticated users can insert products" ON products;
@@ -39,7 +39,7 @@ CREATE POLICY "Sellers can update own products" ON products FOR UPDATE USING (au
 DROP POLICY IF EXISTS "Sellers can delete own products" ON products;
 CREATE POLICY "Sellers can delete own products" ON products FOR DELETE USING (auth.uid() = seller_id);
 
--- STATIONS (uses artist_id)
+-- STATIONS
 DROP POLICY IF EXISTS "Anyone can read stations" ON stations;
 CREATE POLICY "Anyone can read stations" ON stations FOR SELECT USING (true);
 DROP POLICY IF EXISTS "Artists can manage own stations" ON stations;
@@ -58,19 +58,15 @@ CREATE POLICY "Users can read own superfan record" ON superfans FOR SELECT USING
 DROP POLICY IF EXISTS "Users can update own superfan record" ON superfans;
 CREATE POLICY "Users can update own superfan record" ON superfans FOR UPDATE USING (auth.uid() = id);
 
--- GOALS (uses artist_id)
+-- GOALS
 DROP POLICY IF EXISTS "Artists can read own goals" ON goals;
 CREATE POLICY "Artists can read own goals" ON goals FOR SELECT USING (auth.uid() = artist_id);
 DROP POLICY IF EXISTS "Artists can manage own goals" ON goals;
 CREATE POLICY "Artists can manage own goals" ON goals FOR ALL USING (auth.uid() = artist_id);
 
--- REFERRALS
+-- REFERRALS (uses user_id and referred_user_id — not referrer_id)
 DROP POLICY IF EXISTS "Users can read own referrals" ON referrals;
-CREATE POLICY "Users can read own referrals" ON referrals FOR SELECT USING (auth.uid() = referrer_id);
-
--- SUPERFAN_EARNINGS
-DROP POLICY IF EXISTS "Users can read own earnings" ON superfan_earnings;
-CREATE POLICY "Users can read own earnings" ON superfan_earnings FOR SELECT USING (auth.uid() = superfan_id);
+CREATE POLICY "Users can read own referrals" ON referrals FOR SELECT USING (auth.uid() = user_id);
 
 -- SUBSCRIPTIONS
 DROP POLICY IF EXISTS "Users can read own subscriptions" ON subscriptions;

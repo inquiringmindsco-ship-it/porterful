@@ -92,13 +92,12 @@ export default function SignupPage() {
       }
 
       if (data.user) {
-        // Create profile with role-specific data
+        // Create profile — use correct column names matching the schema
         const profileData: Record<string, any> = {
           id: data.user.id,
           email: email,
-          full_name: name,
+          name: name,
           role: role,
-          referral_code: 'PF-' + Math.random().toString(36).substr(2, 8).toUpperCase()
         }
 
         if (role === 'artist' && youtube) {
@@ -109,7 +108,24 @@ export default function SignupPage() {
           profileData.industry = industry
         }
         
-        await supabase.from('profiles').insert(profileData)
+        const { error: profileError } = await supabase.from('profiles').insert(profileData)
+        if (profileError) {
+          console.error('Profile creation error:', profileError)
+        }
+
+        // If artist, also create an artist record
+        if (role === 'artist') {
+          const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-' + Math.random().toString(36).substr(2, 4)
+          const { error: artistError } = await supabase.from('artists').insert({
+            id: data.user.id,
+            slug: slug,
+            bio: '',
+            location: '',
+          })
+          if (artistError) {
+            console.error('Artist creation error:', artistError)
+          }
+        }
         
         setSuccess(true)
       }
