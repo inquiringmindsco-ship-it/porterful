@@ -133,32 +133,23 @@ export default function UploadPage() {
 
     for (const file of files) {
       try {
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-        const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+        // Use server-side upload API to bypass RLS
+        const formData = new FormData()
+        formData.append('file', file)
+        formData.append('folder', 'audio')
         
-        if (!supabaseUrl || !supabaseKey) {
-          throw new Error('Supabase not configured')
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData
+        })
+        
+        const data = await res.json()
+        
+        if (!res.ok || data.error) {
+          throw new Error(data.error || data.details || 'Upload failed')
         }
 
-        const fileName = `${user.id}/${Date.now()}-${file.name}`
-        
-        const { createClient } = await import('@supabase/supabase-js')
-        const supabase = createClient(supabaseUrl, supabaseKey)
-        
-        const { data, error } = await supabase.storage
-          .from('audio')
-          .upload(fileName, file, {
-            cacheControl: '3600',
-            upsert: false
-          })
-
-        if (error) throw error
-
-        const { data: urlData } = supabase.storage
-          .from('audio')
-          .getPublicUrl(fileName)
-
-        setUploaded(prev => [...prev, `${file.name} → ${urlData.publicUrl}`])
+        setUploaded(prev => [...prev, `${file.name} → Uploaded successfully`])
         setProgress(prev => ({ ...prev, [file.name]: 100 }))
         
       } catch (err: any) {
