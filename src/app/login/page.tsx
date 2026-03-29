@@ -178,14 +178,14 @@ export default function LoginPage() {
 
         <div className="mt-8 pt-8 border-t border-[var(--pf-border)]">
           <p className="text-center text-sm text-[var(--pf-text-muted)] mb-4">
-            Demo Accounts (no database needed)
+            See what Porterful can do
           </p>
-          <button
-            onClick={() => router.push('/dashboard')}
-            className="w-full pf-btn pf-btn-secondary py-3"
+          <Link
+            href="/demo"
+            className="block w-full py-3 text-center border border-[var(--pf-border)] rounded-lg font-medium hover:border-[var(--pf-orange)] hover:text-[var(--pf-orange)] transition-colors"
           >
-            Continue as Demo User
-          </button>
+            View Demo Tours
+          </Link>
         </div>
       </div>
     </div>
