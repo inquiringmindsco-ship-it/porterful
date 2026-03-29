@@ -20,20 +20,18 @@ CREATE POLICY "Artists can update own record" ON artists FOR UPDATE USING (auth.
 DROP POLICY IF EXISTS "Authenticated users can insert artists" ON artists;
 CREATE POLICY "Authenticated users can insert artists" ON artists FOR INSERT WITH CHECK (auth.uid() IS NOT NULL);
 
--- ORDERS — users can only see their own orders
+-- ORDERS (uses buyer_id in the live Supabase DB)
 DROP POLICY IF EXISTS "Users can read own orders" ON orders;
-CREATE POLICY "Users can read own orders" ON orders FOR SELECT USING (auth.uid() = user_id);
-
+CREATE POLICY "Users can read own orders" ON orders FOR SELECT USING (auth.uid() = buyer_id);
 DROP POLICY IF EXISTS "Users can insert own orders" ON orders;
-CREATE POLICY "Users can insert own orders" ON orders FOR INSERT WITH CHECK (auth.uid() = user_id);
-
+CREATE POLICY "Users can insert own orders" ON orders FOR INSERT WITH CHECK (auth.uid() = buyer_id);
 DROP POLICY IF EXISTS "Users can update own orders" ON orders;
-CREATE POLICY "Users can update own orders" ON orders FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can update own orders" ON orders FOR UPDATE USING (auth.uid() = buyer_id);
 
--- ORDER ITEMS — users can read order items through their orders
+-- ORDER ITEMS (accessed through orders.buyer_id)
 DROP POLICY IF EXISTS "Users can read own order items" ON order_items;
 CREATE POLICY "Users can read own order items" ON order_items FOR SELECT
-USING (EXISTS (SELECT 1 FROM orders WHERE orders.id = order_items.order_id AND orders.user_id = auth.uid()));
+USING (EXISTS (SELECT 1 FROM orders WHERE orders.id = order_items.order_id AND orders.buyer_id = auth.uid()));
 
 -- PRODUCTS — anyone can read, sellers manage their own
 DROP POLICY IF EXISTS "Anyone can read products" ON products;

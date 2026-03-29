@@ -45,7 +45,7 @@ export async function GET(request: Request) {
           products (name, images)
         )
       `)
-      .eq('user_id', user.id)
+      .eq('buyer_id', user.id)
       .order('created_at', { ascending: false })
       .limit(limit)
 
@@ -153,13 +153,9 @@ export async function POST(request: Request) {
     const { data: order, error: orderError } = await supabase
       .from('orders')
       .insert({
-        user_id: user.id,
+        buyer_id: user.id,
         subtotal,
-        total: subtotal, // Add tax/shipping as needed
-        seller_total: sellerTotal,
-        artist_fund_total: artistFundTotal,
-        superfan_total: superfanTotal,
-        platform_total: platformTotal,
+        total: subtotal,
         referrer_id: referrerId,
         shipping_address: shipping_address,
         status: 'pending',

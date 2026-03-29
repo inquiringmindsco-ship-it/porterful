@@ -108,7 +108,7 @@ CREATE TABLE products (
 -- Orders
 CREATE TABLE orders (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID REFERENCES profiles(id),
+  buyer_id UUID REFERENCES profiles(id),
   status TEXT DEFAULT 'pending', -- pending, paid, shipped, delivered
   total DECIMAL NOT NULL,
   subtotal DECIMAL NOT NULL,
