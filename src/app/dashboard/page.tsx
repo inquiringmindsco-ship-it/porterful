@@ -259,10 +259,10 @@ export default function DashboardPage() {
               Manage your products and track your earnings
             </p>
           </div>
-          <button className="pf-btn pf-btn-primary flex items-center gap-2">
+          <Link href="/dashboard/add-product" className="pf-btn pf-btn-primary flex items-center gap-2">
             <Plus size={18} />
             Add Product
-          </button>
+          </Link>
         </div>
 
         {/* Stats Grid */}

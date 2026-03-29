@@ -87,7 +87,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { 
       name, description, category, price, cost = 0, images = [], 
-      variants = [], dropship_provider = 'none', dropship_product_id = ''
+      variants = [], dropship_provider = 'none', 
+      dropship_product_id = '', printful_product_id = ''
     } = body
     
     // Validate required fields
@@ -108,7 +109,7 @@ export async function POST(request: NextRequest) {
         cost,
         images,
         variants,
-        printful_product_id: dropship_product_id,
+        printful_product_id: dropship_product_id || printful_product_id,
         stock: 999,
         seller_id: session.user.id,
         is_active: true,
