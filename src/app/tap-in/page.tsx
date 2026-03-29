@@ -12,7 +12,7 @@ const PRODUCTS = [
     icon: Shirt,
     description: 'Comfortable silicone wristband. Perfect for concerts, festivals, everyday wear.',
     color: 'from-orange-500 to-red-600',
-    useCase: 'Fan wears it, taps phone anytime to Tap In to the artist',
+    useCase: 'Wear it, share anywhere. Tap your phone to open any link.',
   },
   {
     id: 'stickers',
@@ -21,7 +21,7 @@ const PRODUCTS = [
     icon: Tag,
     description: 'Stick anywhere — guitar case, laptop, notebook, bike. Thin and waterproof.',
     color: 'from-blue-500 to-cyan-600',
-    useCase: 'Peel and stick on merch, equipment, anywhere',
+    useCase: 'Peel and stick on anything. Great for bundled with purchases.',
   },
   {
     id: 'card',
@@ -30,16 +30,16 @@ const PRODUCTS = [
     icon: CreditCard,
     description: 'Wallet-sized card. Fits in any wallet or phone case.',
     color: 'from-purple-500 to-pink-600',
-    useCase: 'Hand out at shows, meetings, anytime',
+    useCase: 'Share your link at meetings, shows, or anytime.',
   },
   {
     id: 'keychain',
     name: 'NFC Keychain',
     price: 10,
     icon: Disc3,
-    description: 'Tap In from your keys. Always have the artist with you.',
+    description: 'Tap In from your keys. Always have your link with you.',
     color: 'from-green-500 to-emerald-600',
-    useCase: 'Dangles from keys, tap anytime you want to listen',
+    useCase: 'Dangles from keys. Tap anytime to share or save.',
   },
 ]
 
@@ -59,11 +59,11 @@ export default function TapInPage() {
             Tap In
           </div>
           <h1 className="text-4xl md:text-5xlxl font-bold mb-4">
-            When You Hear Our Music,<br />
+            When You Hear Something,<br />
             <span className="text-[var(--pf-orange)]">Tap In.</span>
           </h1>
           <p className="text-xl text-[var(--pf-text-secondary)] max-w-2xl mx-auto">
-            NFC products that let fans discover your music instantly. At shows, on the street, anywhere. No searching — just tap.
+            NFC products that let anyone connect instantly. Artists, fans, brands, businesses — tap to share or discover anything.
           </p>
         </div>
 
@@ -75,22 +75,22 @@ export default function TapInPage() {
               <div className="w-16 h-16 rounded-full bg-[var(--pf-orange)]/10 flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl font-bold text-[var(--pf-orange)]">1</span>
               </div>
-              <h3 className="font-bold mb-2">Fan Taps</h3>
-              <p className="text-sm text-[var(--pf-text-secondary)]">Phone touches the NFC product. No app needed — works instantly.</p>
+              <h3 className="font-bold mb-2">Create Your Link</h3>
+              <p className="text-sm text-[var(--pf-text-secondary)]">Set it to your artist page, store, social, or any URL.</p>
             </div>
             <div className="text-center">
               <div className="w-16 h-16 rounded-full bg-[var(--pf-orange)]/10 flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl font-bold text-[var(--pf-orange)]">2</span>
               </div>
-              <h3 className="font-bold mb-2">Your Page Opens</h3>
-              <p className="text-sm text-[var(--pf-text-secondary)]">Their browser opens to your artist page with your music playing.</p>
+              <h3 className="font-bold mb-2">Tap</h3>
+              <p className="text-sm text-[var(--pf-text-secondary)]">Phone touches the NFC product. Works instantly, no app needed.</p>
             </div>
             <div className="text-center">
               <div className="w-16 h-16 rounded-full bg-[var(--pf-orange)]/10 flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl font-bold text-[var(--pf-orange)]">3</span>
               </div>
-              <h3 className="font-bold mb-2">They Listen</h3>
-              <p className="text-sm text-[var(--pf-text-secondary)]">90 second preview plays. If they like it, they can buy, follow, share.</p>
+              <h3 className="font-bold mb-2">Connect</h3>
+              <p className="text-sm text-[var(--pf-text-secondary)]">Share music, direct to your store, grow your following.</p>
             </div>
           </div>
         </div>
@@ -162,11 +162,16 @@ export default function TapInPage() {
 
         {/* CTA */}
         <div className="text-center p-8 bg-gradient-to-r from-[var(--pf-orange)]/10 to-purple-500/10 rounded-2xl border border-[var(--pf-orange)]/20">
-          <h3 className="text-2xl font-bold mb-2">Ready to let fans Tap In?</h3>
-          <p className="text-[var(--pf-text-secondary)] mb-6">Add Tap In products to your store and start connecting with fans IRL.</p>
-          <Link href="/dashboard" className="px-8 py-4 bg-[var(--pf-orange)] text-white rounded-lg font-semibold hover:bg-[var(--pf-orange-dark)] transition-colors text-lg">
-            Go to Dashboard →
-          </Link>
+          <h3 className="text-2xl font-bold mb-2">Ready to Tap In?</h3>
+          <p className="text-[var(--pf-text-secondary)] mb-6">Add Tap In products to your store or dashboard and start connecting.</p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Link href="/dashboard" className="px-8 py-4 bg-[var(--pf-orange)] text-white rounded-lg font-semibold hover:bg-[var(--pf-orange-dark)] transition-colors text-lg">
+              Go to Dashboard →
+            </Link>
+            <Link href="/signup" className="px-8 py-4 border border-[var(--pf-border)] rounded-lg font-medium hover:border-[var(--pf-orange)] transition-colors">
+              Create Account
+            </Link>
+          </div>
         </div>
       </div>
     </div>
