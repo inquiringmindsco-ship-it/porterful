@@ -6,48 +6,44 @@ import { Wifi, Smartphone, Music, Shirt, Tag, CreditCard, ArrowRight, Check, Pac
 
 const PRODUCTS = [
   {
-    id: 'wristband',
+    id: 'nfc-wristband',
     name: 'NFC Wristband',
     price: 15,
-    icon: Shirt,
-    description: 'Comfortable silicone wristband. Perfect for concerts, festivals, everyday wear.',
+    icon: Disc3,
+    description: 'Comfortable silicone wristband. Tap to share anywhere.',
     color: 'from-orange-500 to-red-600',
-    useCase: 'Wear it, share anywhere. Tap your phone to open any link.',
+    useCase: 'Concerts, festivals, everyday wear.',
   },
   {
-    id: 'stickers',
-    name: 'NFC Tags (Set of 3)',
+    id: 'nfc-tags',
+    name: 'NFC Tags (3-Pack)',
     price: 12,
     icon: Tag,
-    description: 'Stick anywhere — guitar case, laptop, notebook, bike. Thin and waterproof.',
+    description: 'Stick anywhere. Thin and waterproof.',
     color: 'from-blue-500 to-cyan-600',
-    useCase: 'Peel and stick on anything. Great for bundled with purchases.',
+    useCase: 'Guitar cases, laptops, bikes, anywhere.',
   },
   {
-    id: 'card',
-    name: 'NFC Business Card',
+    id: 'nfc-card',
+    name: 'NFC Card',
     price: 8,
     icon: CreditCard,
-    description: 'Wallet-sized card. Fits in any wallet or phone case.',
+    description: 'Wallet-sized. Fits in any phone case.',
     color: 'from-purple-500 to-pink-600',
-    useCase: 'Share your link at meetings, shows, or anytime.',
+    useCase: 'Networking, shows, meetings.',
   },
   {
-    id: 'keychain',
+    id: 'nfc-keychain',
     name: 'NFC Keychain',
     price: 10,
     icon: Disc3,
-    description: 'Tap In from your keys. Always have your link with you.',
+    description: 'Tap from your keys. Always ready.',
     color: 'from-green-500 to-emerald-600',
-    useCase: 'Dangles from keys. Tap anytime to share or save.',
+    useCase: 'Keys, bags, anytime.',
   },
 ]
 
 export default function TapInPage() {
-  const [selected, setSelected] = useState<string | null>(null)
-  const [customUrl, setCustomUrl] = useState('')
-  const [artistPage, setArtistPage] = useState('')
-
   return (
     <div className="min-h-screen pt-20 pb-24 bg-[var(--pf-bg)]">
       <div className="pf-container max-w-5xl mx-auto">
@@ -101,14 +97,10 @@ export default function TapInPage() {
           {PRODUCTS.map((product) => {
             const Icon = product.icon
             return (
-              <div 
+              <Link 
                 key={product.id}
-                className={`p-6 rounded-2xl border transition-all cursor-pointer ${
-                  selected === product.id 
-                    ? 'border-[var(--pf-orange)] bg-[var(--pf-orange)]/5' 
-                    : 'border-[var(--pf-border)] hover:border-[var(--pf-orange)]'
-                }`}
-                onClick={() => setSelected(product.id)}
+                href={`/tap-in/${product.id}`}
+                className="p-6 bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-2xl text-left hover:border-[var(--pf-orange)] transition-all hover:shadow-lg hover:shadow-[var(--pf-orange)]/10"
               >
                 <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${product.color} flex items-center justify-center mb-4`}>
                   <Icon size={28} className="text-white" />
@@ -117,48 +109,13 @@ export default function TapInPage() {
                 <p className="text-2xl font-bold text-[var(--pf-orange)] mb-3">${product.price}</p>
                 <p className="text-sm text-[var(--pf-text-secondary)] mb-3">{product.description}</p>
                 <p className="text-xs text-[var(--pf-text-muted)]">{product.useCase}</p>
-                {selected === product.id && (
-                  <div className="mt-3 flex items-center gap-1 text-[var(--pf-orange)] text-sm font-medium">
-                    <Check size={14} /> Selected
-                  </div>
-                )}
-              </div>
+                <div className="mt-4 flex items-center gap-1 text-[var(--pf-orange)] text-sm font-medium">
+                  View Product <ArrowRight size={14} />
+                </div>
+              </Link>
             )
           })}
         </div>
-
-        {/* Setup */}
-        {selected && (
-          <div className="bg-[var(--pf-surface)] rounded-2xl p-6 mb-8 border border-[var(--pf-orange)]/30">
-            <h3 className="font-bold mb-4">Set Up Your Tap In Link</h3>
-            <p className="text-sm text-[var(--pf-text-secondary)] mb-4">
-              When someone taps your product, where should it take them?
-            </p>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-2">Your Artist Page URL</label>
-                <input
-                  type="url"
-                  value={artistPage}
-                  onChange={(e) => setArtistPage(e.target.value)}
-                  placeholder="https://porterful.com/artist/yourname"
-                  className="w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 focus:outline-none focus:border-[var(--pf-orange)]"
-                />
-              </div>
-              <div className="flex gap-3">
-                <button className="px-6 py-3 bg-[var(--pf-orange)] text-white rounded-lg font-medium hover:bg-[var(--pf-orange-dark)] transition-colors">
-                  Generate Tap In Link
-                </button>
-                <button 
-                  onClick={() => setSelected(null)}
-                  className="px-6 py-3 border border-[var(--pf-border)] rounded-lg font-medium hover:bg-[var(--pf-bg)] transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* CTA */}
         <div className="text-center p-8 bg-gradient-to-r from-[var(--pf-orange)]/10 to-purple-500/10 rounded-2xl border border-[var(--pf-orange)]/20">
