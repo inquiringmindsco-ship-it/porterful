@@ -95,7 +95,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 
           // Preview lock: if not purchased and past 90 seconds, skip to next track
           const current = currentTrackRef.current;
-          if (current && !purchasedTracksRef.current.has(current.id) && audioRef.current.currentTime >= 90) {
+          if (current && !purchasedTracksRef.current.has(current.id) && audioRef.current.currentTime >= 99) {
             // Auto-skip to next track
             const currentQueue = queueRef.current;
             const currentIdx = currentIndexRef.current;
