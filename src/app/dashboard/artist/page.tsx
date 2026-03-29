@@ -188,6 +188,18 @@ export default function ArtistDashboardPage() {
           </div>
         </div>
 
+        {/* Profile Actions */}
+        <div className="pf-card p-4 mb-6 flex items-center justify-between">
+          <div>
+            <h2 className="font-semibold">Your Public Profile</h2>
+            <p className="text-sm text-[var(--pf-text-muted)]">Update your photo, bio, genre, and social links</p>
+          </div>
+          <Link href="/dashboard/artist/edit" className="pf-btn pf-btn-primary flex items-center gap-2">
+            <Icon.Edit />
+            Edit Artist Profile
+          </Link>
+        </div>
+
         {/* Tabs */}
         <div className="border-b border-[var(--pf-border)] mb-6">
           <div className="flex gap-8">
