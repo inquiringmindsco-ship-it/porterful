@@ -256,7 +256,7 @@ export function GlobalPlayer() {
           </div>
 
           {/* Volume */}
-          <div className="px-8 pb-8">
+          <div className="px-8 pb-4">
             <div className="flex items-center gap-3">
               <button onClick={() => setIsMuted(!isMuted)} className="p-2">
                 {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
@@ -269,6 +269,22 @@ export function GlobalPlayer() {
                 onChange={(e) => setVolumeState(parseInt(e.target.value))}
                 className="flex-1"
               />
+            </div>
+          </div>
+
+          {/* Fan CTA */}
+          <div className="px-8 pb-8">
+            <div className="bg-gradient-to-r from-[var(--pf-orange)]/10 to-purple-500/10 rounded-xl p-4 border border-[var(--pf-orange)]/20">
+              <p className="text-sm font-medium mb-2">Support this artist directly</p>
+              <p className="text-xs text-[var(--pf-text-muted)] mb-3">Artists who care share with fans who care. Unlock full tracks or become a superfan.</p>
+              <div className="flex gap-2">
+                <Link href="/proud-to-pay" className="flex-1 py-2 px-3 bg-[var(--pf-orange)] text-white rounded-lg font-medium text-sm text-center hover:bg-[var(--pf-orange-dark)] transition-colors">
+                  Proud to Pay
+                </Link>
+                <Link href="/signup?role=supporter" className="flex-1 py-2 px-3 border border-[var(--pf-border)] rounded-lg font-medium text-sm text-center hover:border-[var(--pf-orange)] transition-colors">
+                  Become a Superfan
+                </Link>
+              </div>
             </div>
           </div>
         </div>
