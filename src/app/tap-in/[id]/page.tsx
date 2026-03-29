@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import { Bell, ArrowLeft, Wifi, ShoppingBag, Disc3, Tag, Check } from 'lucide-react'
+import { Bell, ArrowLeft, Wifi, ShoppingBag, Disc3, Tag, Check, Sparkles } from 'lucide-react'
 
 const PRODUCTS: Record<string, {
   name: string
@@ -11,6 +11,7 @@ const PRODUCTS: Record<string, {
   price: number
   icon: any
   color: string
+  bg: string
   features: string[]
 }> = {
   'nfc-wristband': {
@@ -19,7 +20,26 @@ const PRODUCTS: Record<string, {
     price: 15,
     icon: Disc3,
     color: 'from-orange-500 to-red-600',
+    bg: 'bg-gradient-to-br from-orange-500/20 to-red-500/20',
     features: ['Tap to share any link', 'Reusable & waterproof', 'Comfortable silicone', 'Works with any phone'],
+  },
+  'nfc-diamond': {
+    name: 'Diamond Wristband',
+    description: 'Crystal-encrusted silicone band. For those who shine bright. Make a statement while staying connected.',
+    price: 25,
+    icon: Sparkles,
+    color: 'from-pink-400 to-purple-500',
+    bg: 'bg-gradient-to-br from-pink-400/20 to-purple-500/20',
+    features: ['Crystal encrusted', 'Premium silicone', 'For those who shine', 'Statement piece'],
+  },
+  'nfc-mini': {
+    name: 'Mini Ring',
+    description: 'Tiny ring that fits on a finger or strap. Cute and discreet. Small but mighty.',
+    price: 12,
+    icon: Disc3,
+    color: 'from-rose-400 to-pink-500',
+    bg: 'bg-gradient-to-br from-rose-400/20 to-pink-500/20',
+    features: ['Fits on finger or strap', 'Cute & discreet', 'Lightweight', 'Perfect for everyday'],
   },
   'nfc-tags': {
     name: 'NFC Tags (3-Pack)',
@@ -27,6 +47,7 @@ const PRODUCTS: Record<string, {
     price: 12,
     icon: Tag,
     color: 'from-blue-500 to-cyan-600',
+    bg: 'bg-gradient-to-br from-blue-500/20 to-cyan-600/20',
     features: ['Set of 3 tags', 'Peel & stick anywhere', 'Thin & waterproof', 'Great for bundled sales'],
   },
   'nfc-card': {
@@ -35,15 +56,35 @@ const PRODUCTS: Record<string, {
     price: 8,
     icon: Tag,
     color: 'from-purple-500 to-pink-600',
+    bg: 'bg-gradient-to-br from-purple-500/20 to-pink-600/20',
     features: ['Wallet-sized', 'Tap to share', 'Premium look', 'Perfect for networking'],
   },
-  'nfc-keychain': {
-    name: 'NFC Keychain',
-    description: 'Tap In from your keys. Always have your link with you. Dangles and ready to share.',
-    price: 10,
+  'nfc-bracelet': {
+    name: 'Beaded Bracelet',
+    description: 'Beaded design with NFC hidden inside. Boho chic for the creative soul.',
+    price: 18,
     icon: Disc3,
+    color: 'from-amber-400 to-orange-500',
+    bg: 'bg-gradient-to-br from-amber-400/20 to-orange-500/20',
+    features: ['Beaded boho design', 'NFC hidden inside', 'Adjustable fit', 'Festival ready'],
+  },
+  'nfc-pendant': {
+    name: 'Crystal Pendant',
+    description: 'Real crystal pendant with NFC inside. Elegant enough for a night out, functional enough to share your link.',
+    price: 35,
+    icon: Sparkles,
+    color: 'from-violet-500 to-purple-600',
+    bg: 'bg-gradient-to-br from-violet-500/20 to-purple-600/20',
+    features: ['Real crystal', 'Elegant design', 'Hidden NFC tech', 'Great for gifts'],
+  },
+  'nfc-lanyard': {
+    name: 'NFC Lanyard',
+    description: 'Breakaway lanyard with NFC tag. Great for events, conferences, and badge-style sharing.',
+    price: 10,
+    icon: Tag,
     color: 'from-green-500 to-emerald-600',
-    features: ['Attaches to keys', 'Tap to share', 'Durable build', 'Always on hand'],
+    bg: 'bg-gradient-to-br from-green-500/20 to-emerald-600/20',
+    features: ['Breakaway clip', 'Adjustable length', 'Badge style', 'Perfect for events'],
   },
 }
 

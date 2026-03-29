@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Wifi, Smartphone, Music, Shirt, Tag, CreditCard, ArrowRight, Check, Package, Zap, Disc3 } from 'lucide-react'
+import { Wifi, Smartphone, Music, Shirt, Tag, CreditCard, ArrowRight, Check, Package, Zap, Disc3, Sparkles } from 'lucide-react'
 
 const PRODUCTS = [
   {
@@ -12,7 +12,31 @@ const PRODUCTS = [
     icon: Disc3,
     description: 'Comfortable silicone wristband. Tap to share anywhere.',
     color: 'from-orange-500 to-red-600',
+    bg: 'bg-gradient-to-br from-orange-500/20 to-red-500/20',
     useCase: 'Concerts, festivals, everyday wear.',
+    style: 'bold',
+  },
+  {
+    id: 'nfc-diamond',
+    name: 'Diamond Wristband',
+    price: 25,
+    icon: Sparkles,
+    description: 'Crystal-encrusted silicone band. For those who shine.',
+    color: 'from-pink-400 to-purple-500',
+    bg: 'bg-gradient-to-br from-pink-400/20 to-purple-500/20',
+    useCase: 'Special occasions, night out, stand out.',
+    style: 'diamond',
+  },
+  {
+    id: 'nfc-mini',
+    name: 'Mini Ring',
+    price: 12,
+    icon: Disc3,
+    description: 'Tiny ring that fits on a finger or strap. Cute and discreet.',
+    color: 'from-rose-400 to-pink-500',
+    bg: 'bg-gradient-to-br from-rose-400/20 to-pink-500/20',
+    useCase: 'Subtle, everyday, fits anywhere.',
+    style: 'minimal',
   },
   {
     id: 'nfc-tags',
@@ -21,7 +45,9 @@ const PRODUCTS = [
     icon: Tag,
     description: 'Stick anywhere. Thin and waterproof.',
     color: 'from-blue-500 to-cyan-600',
+    bg: 'bg-gradient-to-br from-blue-500/20 to-cyan-600/20',
     useCase: 'Guitar cases, laptops, bikes, anywhere.',
+    style: 'practical',
   },
   {
     id: 'nfc-card',
@@ -30,16 +56,42 @@ const PRODUCTS = [
     icon: CreditCard,
     description: 'Wallet-sized. Fits in any phone case.',
     color: 'from-purple-500 to-pink-600',
+    bg: 'bg-gradient-to-br from-purple-500/20 to-pink-600/20',
     useCase: 'Networking, shows, meetings.',
+    style: 'practical',
   },
   {
-    id: 'nfc-keychain',
-    name: 'NFC Keychain',
-    price: 10,
+    id: 'nfc-bracelet',
+    name: 'Beaded Bracelet',
+    price: 18,
     icon: Disc3,
-    description: 'Tap from your keys. Always ready.',
+    description: 'Beaded design with NFC hidden inside. Boho chic.',
+    color: 'from-amber-400 to-orange-500',
+    bg: 'bg-gradient-to-br from-amber-400/20 to-orange-500/20',
+    useCase: 'Boho vibes, festivals, everyday style.',
+    style: 'boho',
+  },
+  {
+    id: 'nfc-pendant',
+    name: 'Crystal Pendant',
+    price: 35,
+    icon: Sparkles,
+    description: 'Real crystal pendant with NFC inside. Elegant.',
+    color: 'from-violet-500 to-purple-600',
+    bg: 'bg-gradient-to-br from-violet-500/20 to-purple-600/20',
+    useCase: 'Necklace, gifts, elegant look.',
+    style: 'luxury',
+  },
+  {
+    id: 'nfc-lanyard',
+    name: 'NFC Lanyard',
+    price: 10,
+    icon: Tag,
+    description: 'Breakaway lanyard with NFC tag. Great for events.',
     color: 'from-green-500 to-emerald-600',
-    useCase: 'Keys, bags, anytime.',
+    bg: 'bg-gradient-to-br from-green-500/20 to-emerald-600/20',
+    useCase: 'Events, conferences, ID-style.',
+    style: 'practical',
   },
 ]
 
@@ -100,9 +152,15 @@ export default function TapInPage() {
               <Link 
                 key={product.id}
                 href={`/tap-in/${product.id}`}
-                className="p-6 bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-2xl text-left hover:border-[var(--pf-orange)] transition-all hover:shadow-lg hover:shadow-[var(--pf-orange)]/10"
+                className={`p-6 bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-2xl text-left hover:border-[var(--pf-orange)] transition-all hover:shadow-lg hover:shadow-[var(--pf-orange)]/10 ${product.bg}`}
               >
-                <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${product.color} flex items-center justify-center mb-4`}>
+                <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${product.color} flex items-center justify-center mb-4 relative`}>
+                  {product.style === 'diamond' && (
+                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-white/80 rounded-full" />
+                  )}
+                  {product.style === 'luxury' && (
+                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-300 rounded-full animate-pulse" />
+                  )}
                   <Icon size={28} className="text-white" />
                 </div>
                 <h3 className="font-bold mb-1">{product.name}</h3>
