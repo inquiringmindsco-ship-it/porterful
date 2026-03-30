@@ -10,6 +10,7 @@ export async function POST(request: NextRequest) {
     }
 
     const supabase = createServerClient();
+    if (!supabase) { return NextResponse.json({ error: "Database not configured" }, { status: 503 }); }
 
     // Check if artist is registered in competition
     const { data: existing } = await supabase

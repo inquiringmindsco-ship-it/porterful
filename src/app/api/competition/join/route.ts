@@ -10,6 +10,9 @@ export async function POST(request: NextRequest) {
     }
 
     const supabase = createServerClient();
+    if (!supabase) {
+      return NextResponse.json({ error: 'Database not configured' }, { status: 503 });
+    }
 
     // Check founding window status
     const { data: window } = await supabase

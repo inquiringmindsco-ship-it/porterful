@@ -7,8 +7,11 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 // Server-side Supabase client — only created at request time, never at module load
 export function createServerClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co'
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key'
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  if (!url || !key) {
+    return null // Graceful fallback for build-time (returns null, callers must handle)
+  }
   return createClient(url, key, {
     auth: { persistSession: false }
   })
