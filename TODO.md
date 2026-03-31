@@ -1,27 +1,25 @@
-# Porterful Site Improvements - Batch 1 (Rob Soule fix + social buttons)
+# Porterful — Pending Work
 
-**Date:** March 31, 2026  
-**Status:** Already implemented (verified current state of codebase)
+## High Priority
 
-## Changes Verified
+- [ ] **Storefront overhaul** — Replace placeholder products with curated merch that fits O D Porter brand
+- [ ] **Real artist photos** — Add to artist pages, home, about
+- [ ] **Book integration** — "There It Is, Here It Go" as a product in the store
+- [ ] **Artist onboarding flow** — Clean signup → dashboard → first sale experience
+- [ ] **Vercel env vars** — `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` need to be set for prod
 
-### 1. Rob Soule Artist Data ✅
-- **File:** `src/lib/artists.ts`
-- **Genre:** Already set to `'Hip-Hop / R&B / Blues'`
-- **Bio:** Already reflects STL hip-hop/R&B artist blending blues into soulful sound
-- No changes needed.
+## Medium Priority
 
-### 2. Social Media Buttons ✅
-- **File:** `src/app/artist/[id]/page.tsx`
-- Social buttons (YouTube, Instagram, Twitter/X, TikTok) already present in artist profile header, positioned below artist name and verified badge
-- Icons with styled links appear when artist has those social fields filled
-- No changes needed.
+- [ ] **Email sending** — Resend/SendGrid/Gmail SMTP setup for order confirmations
+- [ ] **Checkout webhook** — Connect Stripe webhook to Supabase for persistent order records
+- [ ] **CreditKlimb APIs** — `/api/leads` and `/api/contact` write to filesystem; need Supabase
 
-### 3. Featured Singles Before Albums ✅
-- **File:** `src/app/artist/[id]/page.tsx`
-- Featured Singles section already renders BEFORE Albums section in the music tab
-- No changes needed.
+## Lower Priority
 
-## Notes
-- All requested improvements appear to already be in place in the current codebase
-- No code changes or deployments made per instructions
+- [ ] **Discord bot brain** — Integrate OpenClaw agent with inbox/outbox relay so it actually knows things
+- [ ] **Honor Earth** — STL export from OpenSCAD, PETG filament for heat seal unit
+- [ ] **Creature Kingdom** — Roblox game build (kids' pet sim)
+
+---
+
+_Last updated: March 31, 2026_
