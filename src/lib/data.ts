@@ -1,8 +1,10 @@
-// CDN base URL for audio files
-const CDN = 'https://tsdjmiqczgxnkpvirkya.supabase.co/storage/v1/object/public/audio/albums';
+// CDN base URL for audio files (Supabase storage bucket)
+const CDN = 'https://tsdjmiqczgxnkpvirkya.supabase.co/storage/v1/object/audio';
+const ARTISTS_CDN = 'https://tsdjmiqczgxnkpvirkya.supabase.co/storage/v1/object/audio/artists';
 
 // Audio URL helper - handles URL encoding
-const audio = (album: string, file: string) => `${CDN}/${album}/${encodeURIComponent(file)}`;
+const audio = (album: string, file: string) => `${CDN}/albums/${album}/${encodeURIComponent(file)}`;
+const artistAudio = (artist: string, file: string) => `${ARTISTS_CDN}/${artist}/${encodeURIComponent(file)}`;
 
 // Album art paths - matching actual filenames in public/album-art/
 const ALBUM_ART = {
@@ -132,19 +134,19 @@ export const TRACKS = [
   { id: 'lev-08', title: 'Pain', artist: 'O D Porter', album: 'Levi', duration: '3:28', price: 1, plays: 39000, image: ALBUM_ART.Levi, audio_url: audio('Levi', 'Jai_Jai_-_Pain__LEVI_501_Vol.1_.mp3') },
   { id: 'lev-09', title: 'Struggle', artist: 'O D Porter', album: 'Levi', duration: '4:45', price: 1, plays: 55000, image: ALBUM_ART.Levi, audio_url: audio('Levi', 'Jai_Jai_-_Struggle__LEVI_501_Vol.1_.mp3') },
   // GUNE TRACKS
-  { id: 'gune-01', title: 'Call Back', artist: 'Gune', album: 'Singles', duration: '2:30', price: 1, plays: 0, image: '/artists/gune/ISIMG-1050533.JPG', audio_url: '/artists/gune/Gune - Call Back.mp3' },
-  { id: 'gune-02', title: 'Sorry in Advance', artist: 'Gune', album: 'Singles', duration: '3:12', price: 1, plays: 0, image: '/artists/gune/ISIMG-1050533.JPG', audio_url: '/artists/gune/Gune - Sorry in advance.mp3' },
-  { id: 'gune-03', title: 'One More Time', artist: 'Gune', album: 'Singles', duration: '2:58', price: 1, plays: 0, image: '/artists/gune/ISIMG-1050533.JPG', audio_url: '/artists/gune/Gunebugtheplug - One more time .mp3' },
+  { id: 'gune-01', title: 'Call Back', artist: 'Gune', album: 'Singles', duration: '2:30', price: 1, plays: 0, image: '/artists/gune/ISIMG-1050533.JPG', audio_url: artistAudio('gune', 'Gune - Call Back.mp3') },
+  { id: 'gune-02', title: 'Sorry in Advance', artist: 'Gune', album: 'Singles', duration: '3:12', price: 1, plays: 0, image: '/artists/gune/ISIMG-1050533.JPG', audio_url: artistAudio('gune', 'Gune - Sorry in advance.mp3') },
+  { id: 'gune-03', title: 'One More Time', artist: 'Gune', album: 'Singles', duration: '2:58', price: 1, plays: 0, image: '/artists/gune/ISIMG-1050533.JPG', audio_url: artistAudio('gune', 'Gunebugtheplug - One more time .mp3') },
   // O D PORTER SINGLES
-  { id: 'od-tlf', title: 'TLF', artist: 'O D Porter', album: 'Singles', duration: '3:30', price: 1, plays: 0, image: '/artists/od-porter/tlf-cover.png', audio_url: '/artists/od-porter/TLF.mp3' },
+  { id: 'od-tlf', title: 'TLF', artist: 'O D Porter', album: 'Singles', duration: '3:30', price: 1, plays: 0, image: '/artists/od-porter/tlf-cover.png', audio_url: artistAudio('od-porter', 'TLF.mp3') },
   // NIKEE TURBO TRACKS
-  { id: 'nikee-01', title: 'Dominique', artist: 'Nikee Turbo', album: 'Singles', duration: '2:45', price: 1, plays: 0, image: '/artists/nikee-turbo/Cover Art.png', audio_url: '/artists/nikee-turbo/Dominique.mp3' },
-  { id: 'nikee-02', title: 'Harder', artist: 'Nikee Turbo', album: 'Singles', duration: '3:20', price: 1, plays: 0, image: '/artists/nikee-turbo/Cover Art.png', audio_url: '/artists/nikee-turbo/Harder.mp3' },
-  { id: 'nikee-03', title: 'Hide The Pain', artist: 'Nikee Turbo', album: 'Singles', duration: '2:55', price: 1, plays: 0, image: '/artists/nikee-turbo/Cover Art.png', audio_url: '/artists/nikee-turbo/Hide The pain (Unreleased Version).mp3' },
+  { id: 'nikee-01', title: 'Dominique', artist: 'Nikee Turbo', album: 'Singles', duration: '2:45', price: 1, plays: 0, image: '/artists/nikee-turbo/Cover Art.png', audio_url: artistAudio('nikee-turbo', 'Dominique.mp3') },
+  { id: 'nikee-02', title: 'Harder', artist: 'Nikee Turbo', album: 'Singles', duration: '3:20', price: 1, plays: 0, image: '/artists/nikee-turbo/Cover Art.png', audio_url: artistAudio('nikee-turbo', 'Harder.mp3') },
+  { id: 'nikee-03', title: 'Hide The Pain', artist: 'Nikee Turbo', album: 'Singles', duration: '2:55', price: 1, plays: 0, image: '/artists/nikee-turbo/Cover Art.png', audio_url: artistAudio('nikee-turbo', 'Hide The pain (Unreleased Version).mp3') },
   // ROB SOULE TRACKS
-  { id: 'rob-01', title: 'Believe In Me', artist: 'Rob Soule', album: 'Believe In Me', duration: '3:45', price: 1, plays: 0, image: '/artists/rob-soule/hq720.jpg', audio_url: '/artists/rob-soule/Believe In Me.mp3' },
-  { id: 'rob-02', title: 'Ride N Vibe', artist: 'Rob Soule', album: 'Ride N Vibe', duration: '4:10', price: 1, plays: 0, image: '/artists/rob-soule/hq720.jpg', audio_url: '/artists/rob-soule/Ride N Vibe.mp3' },
-  { id: 'rob-03', title: 'Roots', artist: 'Rob Soule', album: 'Roots', duration: '4:25', price: 1, plays: 0, image: '/artists/rob-soule/hq720.jpg', audio_url: '/artists/rob-soule/Roots.mp3' },
+  { id: 'rob-01', title: 'Believe In Me', artist: 'Rob Soule', album: 'Believe In Me', duration: '3:45', price: 1, plays: 0, image: '/artists/rob-soule/hq720.jpg', audio_url: artistAudio('rob-soule', 'Believe In Me.mp3') },
+  { id: 'rob-02', title: 'Ride N Vibe', artist: 'Rob Soule', album: 'Ride N Vibe', duration: '4:10', price: 1, plays: 0, image: '/artists/rob-soule/hq720.jpg', audio_url: artistAudio('rob-soule', 'Ride N Vibe.mp3') },
+  { id: 'rob-03', title: 'Roots', artist: 'Rob Soule', album: 'Roots', duration: '4:25', price: 1, plays: 0, image: '/artists/rob-soule/hq720.jpg', audio_url: artistAudio('rob-soule', 'Roots.mp3') },
 ];
 
 // Album data
