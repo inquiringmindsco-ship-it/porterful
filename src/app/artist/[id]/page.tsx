@@ -333,6 +333,36 @@ export default function ArtistProfilePage({ params }: { params: { id: string } }
                   </span>
                 )}
               </div>
+              {/* Social Links - inline with artist name */}
+              {(artistData.instagram_url || artistData.twitter_url || artistData.youtube_url || artistData.tiktok_url || artistData.social?.instagram || artistData.social?.twitter || artistData.social?.youtube || artistData.social?.tiktok || artistData.social?.website) && (
+                <div className="flex flex-wrap items-center gap-2 mb-3">
+                  {(artistData.youtube_url || artistData.social?.youtube) && (
+                    <a href={artistData.youtube_url || `https://youtube.com/${(artistData.social?.youtube || '').replace('@', '')}`} target="_blank" rel="noopener" className="flex items-center gap-1.5 px-2.5 py-1 bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-lg hover:border-red-500 transition-colors text-xs">
+                      <Youtube size={13} className="text-red-500" /> YouTube
+                    </a>
+                  )}
+                  {(artistData.instagram_url || artistData.social?.instagram) && (
+                    <a href={artistData.instagram_url || `https://instagram.com/${(artistData.social?.instagram || '').replace('@', '')}`} target="_blank" rel="noopener" className="flex items-center gap-1.5 px-2.5 py-1 bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-lg hover:border-pink-500 transition-colors text-xs">
+                      <Instagram size={13} className="text-pink-400" /> Instagram
+                    </a>
+                  )}
+                  {(artistData.twitter_url || artistData.social?.twitter) && (
+                    <a href={artistData.twitter_url || `https://twitter.com/${(artistData.social?.twitter || '').replace('@', '')}`} target="_blank" rel="noopener" className="flex items-center gap-1.5 px-2.5 py-1 bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-lg hover:border-blue-500 transition-colors text-xs">
+                      <Twitter size={13} className="text-blue-400" /> Twitter
+                    </a>
+                  )}
+                  {(artistData.tiktok_url || artistData.social?.tiktok) && (
+                    <a href={artistData.tiktok_url || `https://tiktok.com/@${(artistData.social?.tiktok || '').replace('@', '')}`} target="_blank" rel="noopener" className="flex items-center gap-1.5 px-2.5 py-1 bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-lg hover:border-pink-600 transition-colors text-xs">
+                      <TikTokIcon size={13} className="text-pink-500" /> TikTok
+                    </a>
+                  )}
+                  {artistData.website && (
+                    <a href={artistData.website} target="_blank" rel="noopener" className="flex items-center gap-1.5 px-2.5 py-1 bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-lg hover:border-[var(--pf-orange)] transition-colors text-xs">
+                      <Globe size={13} /> Website
+                    </a>
+                  )}
+                </div>
+              )}
               <div className="flex flex-wrap items-center gap-3 text-sm text-[var(--pf-text-secondary)] mb-3">
                 {artistData.genre && <span className="flex items-center gap-1"><Music size={13} /> {artistData.genre}</span>}
                 {artistData.location && <span className="flex items-center gap-1"><MapPin size={13} /> {artistData.location}</span>}
@@ -371,37 +401,6 @@ export default function ArtistProfilePage({ params }: { params: { id: string } }
                 <span>Experience Porterful to the fullest — <span className="underline">Contribute</span></span>
               </Link>
             </div>
-
-            {/* Social links */}
-            {(artistData.social?.instagram || artistData.social?.twitter || artistData.social?.youtube || artistData.social?.tiktok || artistData.social?.website) && (
-              <div className="flex flex-wrap gap-2 pb-2">
-                {artistData.social?.youtube && (
-                  <a href={`https://youtube.com/${artistData.social.youtube.replace('@', '')}`} target="_blank" rel="noopener" className="p-2 bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-xl hover:border-red-500 transition-colors">
-                    <Youtube size={16} className="text-red-500" />
-                  </a>
-                )}
-                {artistData.social?.instagram && (
-                  <a href={`https://instagram.com/${artistData.social.instagram.replace('@', '')}`} target="_blank" rel="noopener" className="p-2 bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-xl hover:border-pink-500 transition-colors">
-                    <Instagram size={16} className="text-pink-400" />
-                  </a>
-                )}
-                {artistData.social?.twitter && (
-                  <a href={`https://twitter.com/${artistData.social.twitter.replace('@', '')}`} target="_blank" rel="noopener" className="p-2 bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-xl hover:border-blue-500 transition-colors">
-                    <Twitter size={16} className="text-blue-400" />
-                  </a>
-                )}
-                {artistData.social?.tiktok && (
-                  <a href={`https://tiktok.com/@${artistData.social.tiktok.replace('@', '')}`} target="_blank" rel="noopener" className="p-2 bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-xl hover:border-pink-600 transition-colors">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="text-pink-500"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.73a8.26 8.26 0 0 0 4.83 1.54V6.78a4.85 4.85 0 0 1-1-.09z"/></svg>
-                  </a>
-                )}
-                {artistData.social?.website && (
-                  <a href={artistData.social?.website} target="_blank" rel="noopener" className="p-2 bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-xl hover:border-[var(--pf-orange)] transition-colors">
-                    <Globe size={16} />
-                  </a>
-                )}
-              </div>
-            )}
           </div>
         </div>
 
@@ -430,9 +429,44 @@ export default function ArtistProfilePage({ params }: { params: { id: string } }
         {/* MUSIC TAB */}
         {activeTab === 'music' && (
           <div>
-            {/* If artist has albums — show albums. If only singles — show singles only. */}
-            {albumNames.filter(n => n !== 'Singles').length > 0 ? (
-              <div className="space-y-3">
+            {/* Singles — only show actual singles (not album tracks) */}
+            {displayTracks.filter(t => t.album === 'Singles').length > 0 && (
+              <div>
+                <h2 className="text-lg font-bold flex items-center gap-2 mb-3"><Star size={16} className="text-[var(--pf-orange)]" /> Featured Singles</h2>
+                <div className="space-y-2">
+                  {displayTracks.filter(t => t.album === 'Singles').map((track: any) => (
+                    <div
+                      key={track.id}
+                      onClick={() => playTrack({ ...track, duration: typeof track.duration === 'string' ? track.duration.split(':').reduce((a: number, p: string) => (60 * a) + parseInt(p), 0) : track.duration || 180 } as any)}
+                      className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-colors ${
+                        currentTrack?.id === track.id ? 'bg-[var(--pf-orange)]/10 border border-[var(--pf-orange)]' : 'bg-[var(--pf-surface)] border border-[var(--pf-border)] hover:border-[var(--pf-orange)]'
+                      }`}
+                    >
+                      <div className="w-11 h-11 rounded-lg overflow-hidden relative shrink-0">
+                        <Image src={track.image || artistData.image} alt={track.title} fill sizes="44px" className="object-cover" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className={`font-medium text-sm truncate ${currentTrack?.id === track.id ? 'text-[var(--pf-orange)]' : ''}`}>{track.title}</p>
+                        <p className="text-xs text-[var(--pf-text-muted)]">{track.album !== 'Singles' ? track.album : artistData.name}</p>
+                      </div>
+                      <div className="flex items-center gap-3 shrink-0">
+                        <span className="text-xs font-medium text-[var(--pf-orange)]">${track.price}</span>
+                        <button className="w-7 h-7 rounded-full bg-[var(--pf-orange)] flex items-center justify-center">
+                          {currentTrack?.id === track.id && isPlaying ? <Pause size={12} className="text-white" /> : <Play size={12} className="text-white ml-0.5" />}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <button onClick={playSingles} className="mt-4 w-full py-3 bg-[var(--pf-orange)] text-white rounded-xl font-medium hover:bg-[var(--pf-orange-dark)] transition-colors text-sm flex items-center justify-center gap-2">
+                  <Play size={14} /> Play All Tracks
+                </button>
+              </div>
+            )}
+
+            {/* If artist has albums — show albums */}
+            {albumNames.filter(n => n !== 'Singles').length > 0 && (
+              <div className="space-y-3 mt-6">
                 <h2 className="text-lg font-bold flex items-center gap-2"><Music size={18} className="text-[var(--pf-orange)]" /> Albums</h2>
                 {albumNames.filter(n => n !== 'Singles').map(albumName => {
                   const albumTracks = albums[albumName];
@@ -480,41 +514,6 @@ export default function ArtistProfilePage({ params }: { params: { id: string } }
                 })}
               </div>
             ) : null}
-
-            {/* Singles — only show actual singles (not album tracks) */}
-            {displayTracks.filter(t => t.album === 'Singles').length > 0 && (
-              <div className="mt-6">
-                <h2 className="text-lg font-bold flex items-center gap-2 mb-3"><Star size={16} className="text-[var(--pf-orange)]" /> Featured Singles</h2>
-                <div className="space-y-2">
-                  {displayTracks.filter(t => t.album === 'Singles').map((track: any) => (
-                    <div
-                      key={track.id}
-                      onClick={() => playTrack({ ...track, duration: typeof track.duration === 'string' ? track.duration.split(':').reduce((a: number, p: string) => (60 * a) + parseInt(p), 0) : track.duration || 180 } as any)}
-                      className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-colors ${
-                        currentTrack?.id === track.id ? 'bg-[var(--pf-orange)]/10 border border-[var(--pf-orange)]' : 'bg-[var(--pf-surface)] border border-[var(--pf-border)] hover:border-[var(--pf-orange)]'
-                      }`}
-                    >
-                      <div className="w-11 h-11 rounded-lg overflow-hidden relative shrink-0">
-                        <Image src={track.image || artistData.image} alt={track.title} fill sizes="44px" className="object-cover" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className={`font-medium text-sm truncate ${currentTrack?.id === track.id ? 'text-[var(--pf-orange)]' : ''}`}>{track.title}</p>
-                        <p className="text-xs text-[var(--pf-text-muted)]">{track.album !== 'Singles' ? track.album : artistData.name}</p>
-                      </div>
-                      <div className="flex items-center gap-3 shrink-0">
-                        <span className="text-xs font-medium text-[var(--pf-orange)]">${track.price}</span>
-                        <button className="w-7 h-7 rounded-full bg-[var(--pf-orange)] flex items-center justify-center">
-                          {currentTrack?.id === track.id && isPlaying ? <Pause size={12} className="text-white" /> : <Play size={12} className="text-white ml-0.5" />}
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <button onClick={playSingles} className="mt-4 w-full py-3 bg-[var(--pf-orange)] text-white rounded-xl font-medium hover:bg-[var(--pf-orange-dark)] transition-colors text-sm flex items-center justify-center gap-2">
-                  <Play size={14} /> Play All Tracks
-                </button>
-              </div>
-            )}
           </div>
         )}
 
@@ -601,9 +600,9 @@ export default function ArtistProfilePage({ params }: { params: { id: string } }
               <div className="bg-[var(--pf-surface)] rounded-xl p-6 border border-[var(--pf-border)]">
                 <h2 className="text-xl font-bold mb-4">About {artistData.name}</h2>
                 <p className="text-[var(--pf-text-secondary)] leading-relaxed">{artistData.bio}</p>
-                {artistData.social?.website && (
-                  <a href={artistData.social?.website} target="_blank" rel="noopener" className="inline-flex items-center gap-1.5 mt-4 text-[var(--pf-orange)] hover:underline text-sm">
-                    <Globe size={14} /> {artistData.social?.website.replace(/^https?:\/\//, '')}
+                {artistData.website && (
+                  <a href={artistData.website} target="_blank" rel="noopener" className="inline-flex items-center gap-1.5 mt-4 text-[var(--pf-orange)] hover:underline text-sm">
+                    <Globe size={14} /> {artistData.website.replace(/^https?:\/\//, '')}
                   </a>
                 )}
               </div>

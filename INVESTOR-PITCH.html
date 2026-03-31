@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Porterful — Investor Pitch Deck</title>
+  <style>
+    /* ── Reset & Base ─────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --orange:  #f97316;
+      --orange-light: #fff3eb;
+      --purple:  #6b21a8;
+      --purple-light: #f5f0ff;
+      --dark:    #1a0a2e;
+      --mid:     #3b2a5a;
+      --text:    #2d1b69;
+      --muted:   #7c6a9a;
+      --white:   #ffffff;
+      --off:     #faf8ff;
+      --border:  #e8e0f5;
+      --gold:    #fbbf24;
+
+      --font-head: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      --font-body: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    }
+
+    @page {
+      size: Letter;
+      margin: 0.75in 0.9in;
+    }
+
+    html, body {
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.6;
+      color: var(--text);
+      background: var(--white);
+    }
+
+    /* ── Layout ───────────────────────────────────────────────── */
+    .page {
+      width: 100%;
+      max-width: 8.5in;
+      margin: 0 auto;
+      padding: 0.6in 0.8in;
+      page-break-after: always;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .page:last-child { page-break-after: auto; }
+
+    /* ── Cover ─────────────────────────────────────────────────── */
+    .cover {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background: var(--dark);
+      color: var(--white);
+      border-radius: 12px;
+      padding: 0.8in;
+    }
+    .cover .logo-placeholder {
+      width: 90px; height: 90px;
+      background: linear-gradient(135deg, var(--orange), #ea580c);
+      border-radius: 22px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.2rem; font-weight: 900; color: var(--white);
+      letter-spacing: -1px;
+      margin-bottom: 0.45in;
+      box-shadow: 0 8px 32px rgba(249,115,22,0.4);
+    }
+    .cover .wordmark {
+      font-size: 2.8rem;
+      font-weight: 900;
+      letter-spacing: -1px;
+      line-height: 1.1;
+      margin-bottom: 0.2in;
+      background: linear-gradient(135deg, var(--white) 40%, var(--orange));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .cover .tagline {
+      font-size: 1.25rem;
+      color: rgba(255,255,255,0.75);
+      margin-bottom: 0.1in;
+    }
+    .cover .sub {
+      font-size: 0.95rem;
+      color: var(--orange);
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-top: 0.05in;
+    }
+    .cover .contact-line {
+      margin-top: 0.5in;
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.5);
+    }
+    .cover .deck-label {
+      margin-top: 0.3in;
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.3);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+    }
+
+    /* ── Section Header ───────────────────────────────────────── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 0.18in;
+      margin-bottom: 0.35in;
+    }
+    .section-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 0.36in; height: 0.36in;
+      background: var(--orange);
+      color: var(--white);
+      font-size: 0.78rem;
+      font-weight: 800;
+      border-radius: 8px;
+      flex-shrink: 0;
+    }
+    .section-title {
+      font-size: 1.45rem;
+      font-weight: 900;
+      color: var(--dark);
+      letter-spacing: -0.5px;
+      line-height: 1.2;
+    }
+    .section-title .highlight {
+      color: var(--orange);
+    }
+    .section-sub {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* ── Cards / Blocks ───────────────────────────────────────── */
+    .card {
+      background: var(--off);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.25in 0.28in;
+      margin-bottom: 0.18in;
+    }
+    .card.orange { background: var(--orange-light); border-color: rgba(249,115,22,0.2); }
+    .card.purple { background: var(--purple-light); border-color: rgba(107,33,168,0.15); }
+    .card.dark   { background: var(--dark); color: var(--white); border: none; }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.15in;
+    }
+    .stat-block {
+      background: var(--orange-light);
+      border: 1px solid rgba(249,115,22,0.15);
+      border-radius: 10px;
+      padding: 0.2in;
+      text-align: center;
+    }
+    .stat-block .big {
+      display: block;
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--orange);
+      line-height: 1;
+    }
+    .stat-block .label {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 4px;
+      font-weight: 500;
+    }
+
+    /* ── Bullet Lists ─────────────────────────────────────────── */
+    .bullet-list {
+      list-style: none;
+      padding: 0;
+    }
+    .bullet-list li {
+      display: flex;
+      gap: 0.12in;
+      margin-bottom: 0.12in;
+      font-size: 0.95rem;
+    }
+    .bullet-list li::before {
+      content: "▸";
+      color: var(--orange);
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .bullet-list.purple li::before { color: var(--purple); }
+
+    /* ── Two-Column ───────────────────────────────────────────── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.25in;
+    }
+
+    /* ── Table ─────────────────────────────────────────────────── */
+    .tbl {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      margin-bottom: 0.18in;
+    }
+    .tbl th {
+      background: var(--dark);
+      color: var(--white);
+      padding: 0.1in 0.15in;
+      font-weight: 700;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-radius: 8px 8px 0 0;
+    }
+    .tbl th:first-child { border-radius: 8px 0 0 0; }
+    .tbl th:last-child  { border-radius: 0 8px 0 0; }
+    .tbl td {
+      padding: 0.1in 0.15in;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    .tbl tr:last-child td:first-child { border-radius: 0 0 0 8px; }
+    .tbl tr:last-child td:last-child  { border-radius: 0 0 8px 0; }
+    .tbl tr:nth-child(even) td { background: var(--off); }
+    .tbl .highlight-cell {
+      color: var(--orange);
+      font-weight: 700;
+    }
+    .tbl .big-num {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--orange);
+    }
+
+    /* ── Milestones ────────────────────────────────────────────── */
+    .milestones {
+      display: flex;
+      flex-direction: column;
+      gap: 0.12in;
+    }
+    .milestone-row {
+      display: flex;
+      align-items: center;
+      gap: 0.18in;
+    }
+    .milestone-month {
+      width: 0.9in;
+      flex-shrink: 0;
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--white);
+      background: var(--orange);
+      border-radius: 20px;
+      padding: 3px 10px;
+      text-align: center;
+    }
+    .milestone-month.purple { background: var(--purple); }
+    .milestone-month.dark   { background: var(--dark); }
+    .milestone-content {
+      flex: 1;
+      background: var(--off);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.1in 0.15in;
+      font-size: 0.88rem;
+    }
+    .milestone-content strong { color: var(--dark); }
+    .milestone-content span   { color: var(--muted); font-size: 0.8rem; }
+
+    /* ── Use of Funds ──────────────────────────────────────────── */
+    .funds-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.15in;
+    }
+    .fund-item {
+      background: var(--off);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.18in;
+    }
+    .fund-item .amount {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--orange);
+    }
+    .fund-item .purpose {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--dark);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+    .fund-item .details {
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .fund-item .total-row {
+      grid-column: 1 / -1;
+      background: var(--dark);
+      color: var(--white);
+      border-radius: 10px;
+      padding: 0.15in 0.18in;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .fund-item .total-row .amount { color: var(--gold); font-size: 1.6rem; }
+    .fund-item .total-row .purpose { color: var(--white); font-size: 0.85rem; margin-bottom: 0; }
+
+    /* ── Team ───────────────────────────────────────────────────── */
+    .team-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.18in;
+    }
+    .team-card {
+      background: var(--off);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.25in;
+      display: flex;
+      gap: 0.18in;
+      align-items: flex-start;
+    }
+    .team-avatar {
+      width: 60px; height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--orange), var(--purple));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem; font-weight: 900; color: var(--white);
+      flex-shrink: 0;
+    }
+    .team-info .name { font-size: 1.05rem; font-weight: 800; color: var(--dark); }
+    .team-info .role { font-size: 0.8rem; color: var(--orange); font-weight: 600; margin-bottom: 6px; }
+    .team-info .bio { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+
+    /* ── Why This Works ─────────────────────────────────────────── */
+    .reasons-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.15in;
+    }
+    .reason-card {
+      background: var(--orange-light);
+      border: 1px solid rgba(249,115,22,0.15);
+      border-radius: 10px;
+      padding: 0.18in;
+    }
+    .reason-card .num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 0.28in; height: 0.28in;
+      background: var(--orange);
+      color: var(--white);
+      font-size: 0.78rem;
+      font-weight: 800;
+      border-radius: 50%;
+      margin-bottom: 8px;
+    }
+    .reason-card p { font-size: 0.88rem; color: var(--text); line-height: 1.55; }
+
+    /* ── Contact ───────────────────────────────────────────────── */
+    .contact-block {
+      background: var(--dark);
+      border-radius: 12px;
+      padding: 0.35in 0.4in;
+      color: var(--white);
+      text-align: center;
+      margin-top: auto;
+    }
+    .contact-block .big-mark {
+      font-size: 2rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--white) 40%, var(--orange));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.1in;
+    }
+    .contact-block .url {
+      font-size: 1.1rem;
+      color: var(--orange);
+      font-weight: 700;
+    }
+    .contact-block .email {
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.6);
+      margin-top: 6px;
+    }
+    .contact-block .cta {
+      display: inline-block;
+      margin-top: 0.2in;
+      background: var(--orange);
+      color: var(--white);
+      font-weight: 700;
+      padding: 10px 28px;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      letter-spacing: 0.03em;
+    }
+
+    /* ── Divider ───────────────────────────────────────────────── */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 0.2in 0;
+    }
+
+    /* ── Spacer ────────────────────────────────────────────────── */
+    .spacer { flex: 1; }
+    .mt { margin-top: 0.18in; }
+    .mb { margin-bottom: 0.18in; }
+    .text-center { text-align: center; }
+
+    /* ── Big stat callout ─────────────────────────────────────── */
+    .big-callout {
+      background: linear-gradient(135deg, var(--dark), var(--mid));
+      border-radius: 12px;
+      padding: 0.3in;
+      text-align: center;
+      color: var(--white);
+      margin-bottom: 0.2in;
+    }
+    .big-callout .number {
+      font-size: 3rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--orange), var(--gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+    }
+    .big-callout .label {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.7);
+      margin-top: 6px;
+    }
+
+    /* ── Revenue Table styling ─────────────────────────────────── */
+    .rev-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1.5fr;
+      gap: 0;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      font-size: 0.87rem;
+      margin-bottom: 0.18in;
+    }
+    .rev-row {
+      display: contents;
+    }
+    .rev-header > div {
+      background: var(--dark);
+      color: var(--white);
+      padding: 8px 12px;
+      font-weight: 700;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .rev-row > div {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .rev-row:last-child > div { border-bottom: none; }
+    .rev-row:nth-child(even) > div { background: var(--off); }
+    .rev-row > div:first-child { font-weight: 600; color: var(--dark); }
+    .rev-row > div:nth-child(2) { text-align: center; color: var(--orange); font-weight: 700; }
+    .rev-row > div:nth-child(3) { color: var(--muted); font-size: 0.82rem; }
+
+    /* ── Traction items ────────────────────────────────────────── */
+    .traction-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.12in;
+    }
+    .traction-item {
+      display: flex;
+      align-items: center;
+      gap: 0.1in;
+      background: var(--off);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.1in 0.12in;
+      font-size: 0.87rem;
+    }
+    .traction-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--orange);
+      flex-shrink: 0;
+    }
+    .traction-dot.purple { background: var(--purple); }
+    .traction-item .url { color: var(--purple); font-weight: 600; }
+
+    /* ── Footer watermark ──────────────────────────────────────── */
+    .page-footer {
+      margin-top: auto;
+      padding-top: 0.15in;
+      border-top: 1px solid var(--border);
+      font-size: 0.7rem;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    @media print {
+      body { background: white; }
+      .page { min-height: auto; padding: 0.5in 0.7in; }
+      .cover { min-height: 5.5in; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!--  SLIDE 1 — COVER                                          -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="cover">
+    <div class="logo-placeholder">P</div>
+    <div class="wordmark">Porterful</div>
+    <div class="tagline">"Where Money Comes Home"</div>
+    <div class="sub">Building the economy Black Americans deserve</div>
+    <div class="deck-label">Investor Pitch Deck &nbsp;·&nbsp; March 2026</div>
+    <div class="contact-line">porterful.com &nbsp;·&nbsp; support@porterful.com</div>
+  </div>
+  <div class="page-footer">
+    <span>Confidential</span>
+    <span>© 2026 Porterful. All rights reserved.</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!--  SLIDE 2 — THE PROBLEM                                    -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="section-header">
+    <div class="section-num">1</div>
+    <div>
+      <div class="section-title">The Problem</div>
+      <div class="section-sub">A $1.3 Trillion annual hemorrhage — leaving Black communities in 24 hours</div>
+    </div>
+  </div>
+
+  <div class="big-callout">
+    <div class="number">$1.3T</div>
+    <div class="label">Annual Black American Buying Power</div>
+  </div>
+
+  <div class="stat-grid mb">
+    <div class="stat-block">
+      <span class="big">95%</span>
+      <span class="label">Leaves the community within 24 hours</span>
+    </div>
+    <div class="stat-block">
+      <span class="big">50%+</span>
+      <span class="label">Traditional platforms take in middleman fees</span>
+    </div>
+    <div class="stat-block">
+      <span class="big">12–20%</span>
+      <span class="label">What artists actually earn on legacy platforms</span>
+    </div>
+    <div class="stat-block">
+      <span class="big">0%</span>
+      <span class="label">Fans earn for supporting their favorite artists</span>
+    </div>
+  </div>
+
+  <div class="card purple">
+    <div style="font-weight:800; color: var(--purple); margin-bottom: 6px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;">The Core Inefficiency</div>
+    <p style="font-size: 0.92rem; color: var(--text); line-height: 1.6;">Labels pocket the lion's share while streaming platforms extract 30–50% take rates. Artists — the creators of value — are left with the smallest slice of their own earnings. Fans who want to support meaningfully have no economic path to do so.</p>
+  </div>
+
+  <div class="page-footer">
+    <span>Confidential</span>
+    <span>Porterful &nbsp;·&nbsp; porterful.com</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!--  SLIDE 3 — THE SOLUTION                                   -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="section-header">
+    <div class="section-num">2</div>
+    <div>
+      <div class="section-title">The Solution</div>
+      <div class="section-sub">A community-owned ecosystem where money recirculates</div>
+    </div>
+  </div>
+
+  <div class="two-col mb">
+    <div class="card dark">
+      <div style="font-size:1.3rem; font-weight:900; color: var(--orange); margin-bottom: 8px;">80%+</div>
+      <div style="font-size:0.9rem; color: rgba(255,255,255,0.8);">Artist payout on every sale — vs. 12–20% industry standard</div>
+    </div>
+    <div class="card" style="background: var(--purple-light); border-color: rgba(107,33,168,0.15);">
+      <div style="font-size:1.3rem; font-weight:900; color: var(--purple); margin-bottom: 8px;">3%</div>
+      <div style="font-size:0.9rem; color: var(--text);">Lifetime earnings for superfans who refer new fans</div>
+    </div>
+  </div>
+
+  <ul class="bullet-list purple mb">
+    <li><strong>Superfan Referral System</strong> — Fans earn 3% of an artist's lifetime earnings for every friend they bring in. Aligns incentives across the entire community.</li>
+    <li><strong>Community-Owned Ecosystem</strong> — Porterful is built for artists, by someone who has lived the struggle. The platform grows as the community grows.</li>
+    <li><strong>Money Recirculates</strong> — Every dollar spent on Porterful stays in the ecosystem. Artists pay artists, fans support fans, businesses list for neighbors.</li>
+    <li><strong>10–20% Platform Fee</strong> — A sliver to keep the lights on; the vast majority flows directly to creators and the community fund.</li>
+  </ul>
+
+  <div class="card orange">
+    <div style="font-weight:800; color: var(--orange); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">The Porterful Flywheel</div>
+    <div style="display: flex; justify-content: space-around; align-items: center; gap: 8px; flex-wrap: wrap;">
+      <div style="text-align:center;">
+        <div style="background: var(--orange); color: white; border-radius: 50%; width:52px; height:52px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.75rem; margin:0 auto 4px;">Artist</div>
+        <div style="font-size:0.72rem; color: var(--muted);">Creates</div>
+      </div>
+      <div style="color:var(--orange); font-size:1.2rem;">→</div>
+      <div style="text-align:center;">
+        <div style="background: var(--purple); color: white; border-radius: 50%; width:52px; height:52px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.72rem; margin:0 auto 4px;">Superfan</div>
+        <div style="font-size:0.72rem; color: var(--muted);">Shares &amp; Buys</div>
+      </div>
+      <div style="color:var(--orange); font-size:1.2rem;">→</div>
+      <div style="text-align:center;">
+        <div style="background: var(--dark); color: var(--orange); border-radius: 50%; width:52px; height:52px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.72rem; margin:0 auto 4px;">Fund</div>
+        <div style="font-size:0.72rem; color: var(--muted);">Reinvests</div>
+      </div>
+      <div style="color:var(--orange); font-size:1.2rem;">→</div>
+      <div style="text-align:center;">
+        <div style="background: #16a34a; color: white; border-radius: 50%; width:52px; height:52px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.72rem; margin:0 auto 4px;">Artist</div>
+        <div style="font-size:0.72rem; color: var(--muted);">Grows</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <span>Confidential</span>
+    <span>Porterful &nbsp;·&nbsp; porterful.com</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!--  SLIDE 4 — UNIT ECONOMICS                                 -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="section-header">
+    <div class="section-num">3</div>
+    <div>
+      <div class="section-title">Unit Economics</div>
+      <div class="section-sub">The math is simple: we put creators first</div>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <thead>
+      <tr>
+        <th>Metric</th>
+        <th>Traditional Platform</th>
+        <th>Porterful</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Artist Payout</strong></td>
+        <td>12–20%</td>
+        <td class="highlight-cell big-num">80%+</td>
+      </tr>
+      <tr>
+        <td><strong>Superfan Earnings</strong></td>
+        <td>$0</td>
+        <td class="highlight-cell big-num">3% lifetime</td>
+      </tr>
+      <tr>
+        <td><strong>Platform Fee</strong></td>
+        <td>50%+</td>
+        <td class="highlight-cell big-num">10–20%</td>
+      </tr>
+      <tr>
+        <td><strong>Community Fund</strong></td>
+        <td>$0</td>
+        <td class="highlight-cell">10% of every sale</td>
+      </tr>
+      <tr>
+        <td><strong>Referral Incentive</strong></td>
+        <td>None</td>
+        <td class="highlight-cell">Fans earn when artists earn</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="two-col">
+    <div class="card orange">
+      <div style="font-weight:800; color: var(--orange); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">For Artists</div>
+      <p style="font-size: 0.88rem; color: var(--text); line-height: 1.55;">A independent artist selling 500 albums at $10 keeps <strong>$4,000</strong> on Porterful vs. <strong>$600–$1,000</strong> on a traditional platform. That is the difference between a side hustle and a career.</p>
+    </div>
+    <div class="card purple">
+      <div style="font-weight:800; color: var(--purple); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">For Superfans</div>
+      <p style="font-size: 0.88rem; color: var(--text); line-height: 1.55;">A superfan who refers 10 friends who each spend $200/year on their favorite artist's catalog earns <strong>$60/year</strong> — passive income for doing what they'd already do.</p>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <span>Confidential</span>
+    <span>Porterful &nbsp;·&nbsp; porterful.com</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!--  SLIDE 5 — MARKET SIZE                                    -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="section-header">
+    <div class="section-num">4</div>
+    <div>
+      <div class="section-title">Market Size</div>
+      <div class="section-sub">Three converging markets — all growing</div>
+    </div>
+  </div>
+
+  <div class="stat-grid mb">
+    <div class="stat-block" style="grid-column: 1/-1; background: var(--dark); border-color: transparent;">
+      <span class="big" style="color: var(--white);">$1.3T</span>
+      <span class="label" style="color: rgba(255,255,255,0.6);">US Black Buying Power (annual) — the anchor TAM</span>
+    </div>
+    <div class="stat-block">
+      <span class="big">$21B</span>
+      <span class="label">Music Streaming Market by 2025</span>
+    </div>
+    <div class="stat-block">
+      <span class="big">$90B</span>
+      <span class="label">Merch Market by 2025</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="font-weight:800; color: var(--dark); margin-bottom: 10px; font-size: 0.88rem;">Porterful's Addressable Opportunity</div>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.12in; text-align: center;">
+      <div>
+        <div style="font-size:1.6rem; font-weight:900; color: var(--orange);">$1.3T</div>
+        <div style="font-size:0.75rem; color: var(--muted);">Total Addressable Market</div>
+        <div style="font-size:0.7rem; color: var(--muted);">Black American buying power</div>
+      </div>
+      <div>
+        <div style="font-size:1.6rem; font-weight:900; color: var(--purple);">$111B+</div>
+        <div style="font-size:0.75rem; color: var(--muted);">Serviceable Available</div>
+        <div style="font-size:0.7rem; color: var(--muted);">Music + Merch streaming</div>
+      </div>
+      <div>
+        <div style="font-size:1.6rem; font-weight:900; color: #16a34a;">$500M+</div>
+        <div style="font-size:0.75rem; color: var(--muted);">Serviceable Obtainable</div>
+        <div style="font-size:0.7rem; color: var(--muted);">5-year realistic capture</div>
+      </div>
+    </div>
+  </div>
+
+  <ul class="bullet-list mt">
+    <li><strong>Underserved primary audience</strong> — No platform has been built specifically for Black artists and their communities</li>
+    <li><strong>Sticky cultural identity</strong> — "Buying Black" is a values-driven movement with high retention and low price sensitivity</li>
+    <li><strong>Multi-category expansion</strong> — Music is the entry point; merch, digital products, business listings, and events all compound the flywheel</li>
+  </ul>
+
+  <div class="page-footer">
+    <span>Confidential</span>
+    <span>Porterful &nbsp;·&nbsp; porterful.com</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!--  SLIDE 6 — TRACTION                                       -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="section-header">
+    <div class="section-num">5</div>
+    <div>
+      <div class="section-title">Traction</div>
+      <div class="section-sub">Live products. Real users. Proven build velocity.</div>
+    </div>
+  </div>
+
+  <div class="big-callout" style="margin-bottom: 0.22in;">
+    <div class="number">3</div>
+    <div class="label">Live Web Products &nbsp;·&nbsp; As of March 2026</div>
+  </div>
+
+  <div class="traction-grid mb">
+    <div class="traction-item">
+      <div class="traction-dot"></div>
+      <div>
+        <div style="font-weight:700; color: var(--dark);">Porterful.com</div>
+        <div style="font-size:0.78rem; color: var(--muted);">Core platform — artist storefronts &amp; music</div>
+      </div>
+    </div>
+    <div class="traction-item">
+      <div class="traction-dot purple"></div>
+      <div>
+        <div style="font-weight:700; color: var(--dark);">CreditKlimb.com</div>
+        <div style="font-size:0.78rem; color: var(--muted);">Sister product — credit-building tools</div>
+      </div>
+    </div>
+    <div class="traction-item">
+      <div class="traction-dot"></div>
+      <div>
+        <div style="font-weight:700; color: var(--dark);">G-Body Finder</div>
+        <div style="font-size:0.78rem; color: var(--muted);">G-Body vehicle discovery tool</div>
+      </div>
+    </div>
+    <div class="traction-item">
+      <div class="traction-dot purple"></div>
+      <div>
+        <div style="font-weight:700; color: var(--dark);">4 Artists Onboarded</div>
+        <div style="font-size:0.78rem; color: var(--muted);">Live on porterful.com, revenue-generating</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card dark mt">
+    <div style="font-weight:800; color: var(--orange); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px;">What This Demonstrates</div>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.15in; text-align: center;">
+      <div>
+        <div style="font-size:1.4rem; font-weight:900; color: var(--white);">Build-First</div>
+        <div style="font-size:0.78rem; color: rgba(255,255,255,0.6); margin-top: 4px;">3 live products shipped</div>
+      </div>
+      <div>
+        <div style="font-size:1.4rem; font-weight:900; color: var(--white);">Code-Efficient</div>
+        <div style="font-size:0.78rem; color: rgba(255,255,255,0.6); margin-top: 4px;">Near-zero infra cost stack</div>
+      </div>
+      <div>
+        <div style="font-size:1.4rem; font-weight:900; color: var(--white);">Proven Founder</div>
+        <div style="font-size:0.78rem; color: rgba(255,255,255,0.6); margin-top: 4px;">O D Porter = artist + operator</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <span>Confidential</span>
+    <span>Porterful &nbsp;·&nbsp; porterful.com</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!--  SLIDE 7 — REVENUE MODEL                                  -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="section-header">
+    <div class="section-num">6</div>
+    <div>
+      <div class="section-title">Revenue Model</div>
+      <div class="section-sub">Five diversified revenue streams — all community-aligned</div>
+    </div>
+  </div>
+
+  <div class="rev-grid">
+    <div class="rev-header" style="display: grid-template-columns: 2fr 1fr 1.5fr; display: grid; grid-column: 1 / -1;">
+      <div>Revenue Stream</div>
+      <div style="text-align:center;">Platform Fee</div>
+      <div>Notes</div>
+    </div>
+    <div class="rev-row">
+      <div>Music Sales</div>
+      <div>10%</div>
+      <div>80% to artist · 10% to community fund</div>
+    </div>
+    <div class="rev-row">
+      <div>Merch (Print-on-Demand)</div>
+      <div>33%</div>
+      <div>High margin, zero inventory</div>
+    </div>
+    <div class="rev-row">
+      <div>Digital Products</div>
+      <div>20%</div>
+      <div>Beats, samples, PDFs, courses</div>
+    </div>
+    <div class="rev-row">
+      <div>Business Listings</div>
+      <div>$9–99/mo</div>
+      <div>Flat subscription, community directory</div>
+    </div>
+    <div class="rev-row">
+      <div>Superfan Tier</div>
+      <div>$5.99/mo</div>
+      <div>Premium features, exclusive content access</div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="card orange">
+      <div style="font-weight:800; color: var(--orange); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">Revenue Composition (Year 1 Target)</div>
+      <div style="font-size: 0.87rem; color: var(--text); line-height: 1.9;">
+        <div style="display:flex; justify-content:space-between; border-bottom: 1px solid var(--border); padding-bottom: 4px; margin-bottom: 4px;"><span>Music &amp; Digital</span><span style="font-weight:700;">55%</span></div>
+        <div style="display:flex; justify-content:space-between; border-bottom: 1px solid var(--border); padding-bottom: 4px; margin-bottom: 4px;"><span>Merch</span><span style="font-weight:700;">20%</span></div>
+        <div style="display:flex; justify-content:space-between; border-bottom: 1px solid var(--border); padding-bottom: 4px; margin-bottom: 4px;"><span>Superfan Subscriptions</span><span style="font-weight:700;">15%</span></div>
+        <div style="display:flex; justify-content:space-between;"><span>Business Listings</span><span style="font-weight:700;">10%</span></div>
+      </div>
+    </div>
+    <div class="card purple">
+      <div style="font-weight:800; color: var(--purple); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">Gross Margin Profile</div>
+      <div style="font-size: 0.87rem; color: var(--text); line-height: 1.9;">
+        <div style="display:flex; justify-content:space-between; border-bottom: 1px solid var(--border); padding-bottom: 4px; margin-bottom: 4px;"><span>Music</span><span style="font-weight:700; color: #16a34a;">~90%</span></div>
+        <div style="display:flex; justify-content:space-between; border-bottom: 1px solid var(--border); padding-bottom: 4px; margin-bottom: 4px;"><span>Digital Products</span><span style="font-weight:700; color: #16a34a;">~80%</span></div>
+        <div style="display:flex; justify-content:space-between; border-bottom: 1px solid var(--border); padding-bottom: 4px; margin-bottom: 4px;"><span>Merch (POD)</span><span style="font-weight:700; color: var(--orange);">~67%</span></div>
+        <div style="display:flex; justify-content:space-between;"><span>Subscriptions</span><span style="font-weight:700; color: #16a34a;">~85%</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <span>Confidential</span>
+    <span>Porterful &nbsp;·&nbsp; porterful.com</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!--  SLIDE 8 — THE TEAM                                       -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="section-header">
+    <div class="section-num">7</div>
+    <div>
+      <div class="section-title">The Team</div>
+      <div class="section-sub">Artist. Operator. Builder. The right founder for this market.</div>
+    </div>
+  </div>
+
+  <div class="team-grid mb">
+    <div class="team-card" style="grid-column: 1 / -1; max-width: 5.5in; margin: 0 auto;">
+      <div class="team-avatar">OD</div>
+      <div class="team-info">
+        <div class="name">O D Porter</div>
+        <div class="role">Founder &amp; CEO</div>
+        <div class="bio">Artist, operator, and St. Louis native. O D has lived on both sides of the broken music industry — signing deals that enriched labels while he struggled, and watching community wealth evaporate overnight. He built Porterful because no one else would. His build-first, code-efficient approach has already shipped 3 live products with minimal capital. He <em>is</em> the product-market fit: someone who understands artist pain and has the technical skill to fix it.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card purple">
+    <div style="font-weight:800; color: var(--purple); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px;">Why O D Porter Is the Right Founder</div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.12in;">
+      <div style="font-size: 0.87rem; color: var(--text); padding: 8px 0; border-bottom: 1px solid var(--border);"><strong>Artist identity</strong> — understands the creator side deeply</div>
+      <div style="font-size: 0.87rem; color: var(--text); padding: 8px 0; border-bottom: 1px solid var(--border);"><strong>Operator experience</strong> — has built and shipped products</div>
+      <div style="font-size: 0.87rem; color: var(--text); padding: 8px 0;"><strong>Community credibility</strong> — St. Louis roots, Black artist network</div>
+      <div style="font-size: 0.87rem; color: var(--text); padding: 8px 0;"><strong>Technical capability</strong> — code-efficient, Supabase/Vercel stack</div>
+    </div>
+  </div>
+
+  <div class="card mt">
+    <div style="font-weight:800; color: var(--dark); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px;">Advisory &amp; Expansion Plan</div>
+    <ul class="bullet-list">
+      <li>Music industry executives — coming as platform scales (advisor equity structure)</li>
+      <li>Community organizers in St. Louis, NOLA, and Atlanta — cultural ambassadors</li>
+      <li>Near-term hires: community manager, frontend engineer, partnerships lead</li>
+    </ul>
+  </div>
+
+  <div class="page-footer">
+    <span>Confidential</span>
+    <span>Porterful &nbsp;·&nbsp; porterful.com</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!--  SLIDE 9 — USE OF FUNDS                                   -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="section-header">
+    <div class="section-num">8</div>
+    <div>
+      <div class="section-title">Use of Funds</div>
+      <div class="section-sub">$250,000 SEED &nbsp;·&nbsp; 18-month allocation</div>
+    </div>
+  </div>
+
+  <div class="funds-grid">
+    <div class="fund-item">
+      <div class="purpose">Product Development</div>
+      <div class="amount">$100K</div>
+      <div class="details">Artist dashboard &amp; analytics &bull; Payment processing &amp; integrations &bull; Mobile app MVP (iOS + Android)</div>
+    </div>
+    <div class="fund-item">
+      <div class="purpose">Marketing &amp; Acquisition</div>
+      <div class="amount">$75K</div>
+      <div class="details">Artist onboarding campaign (St. Louis first) &bull; Superfan referral incentive program &bull; Launch events &amp; expansion to NOLA &amp; ATL</div>
+    </div>
+    <div class="fund-item">
+      <div class="purpose">Operations</div>
+      <div class="amount">$50K</div>
+      <div class="details">Customer support systems &amp; staffing &bull; Legal, accounting &amp; compliance &bull; Infrastructure scaling (Supabase, Vercel, CDN)</div>
+    </div>
+    <div class="fund-item">
+      <div class="purpose">Operating Buffer</div>
+      <div class="amount">$25K</div>
+      <div class="details">12-month runway cushion for unexpected opportunities or headwinds</div>
+    </div>
+    <div class="fund-item total-row">
+      <div class="purpose">TOTAL RAISE</div>
+      <div class="amount">$250K</div>
+    </div>
+  </div>
+
+  <div class="two-col mt">
+    <div class="card">
+      <div style="font-weight:800; color: var(--dark); font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">Key Assumptions</div>
+      <ul class="bullet-list" style="font-size: 0.82rem;">
+        <li style="margin-bottom: 6px;">Artist dashboard MVP ready in 60 days post-funding</li>
+        <li style="margin-bottom: 6px;">Mobile app targets Q3 2026 (React Native)</li>
+        <li style="margin-bottom: 6px;">St. Louis soft launch → 25 artists in 90 days</li>
+        <li>Stripe + Subtext for payments from month 1</li>
+      </ul>
+    </div>
+    <div class="card orange">
+      <div style="font-weight:800; color: var(--orange); font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">Investors Get</div>
+      <ul class="bullet-list" style="font-size: 0.82rem;">
+        <li style="margin-bottom: 6px;">Favorable valuation vs. later rounds</li>
+        <li style="margin-bottom: 6px;">Founding community position in a mission-driven brand</li>
+        <li style="margin-bottom: 6px;">Clear milestone-based deployment (6 / 12 / 18 month gates)</li>
+        <li>Path to Series A at $1M ARR</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <span>Confidential</span>
+    <span>Porterful &nbsp;·&nbsp; porterful.com</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!--  SLIDE 10 — 18-MONTH MILESTONES                           -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="section-header">
+    <div class="section-num">9</div>
+    <div>
+      <div class="section-title">18-Month Milestones</div>
+      <div class="section-sub">Milestone-gated growth — every dollar deployed toward a clear metric</div>
+    </div>
+  </div>
+
+  <div class="milestones mb">
+    <div class="milestone-row">
+      <div class="milestone-month">Month 6</div>
+      <div class="milestone-content">
+        <strong>100 Artists &nbsp;·&nbsp; 1,000 Superfans &nbsp;·&nbsp; $50K GMV</strong>
+        <br><span>St. Louis launch complete, dashboard v1 live, first 100 artists earning</span>
+      </div>
+    </div>
+    <div class="milestone-row">
+      <div class="milestone-month purple">Month 12</div>
+      <div class="milestone-content">
+        <strong>500 Artists &nbsp;·&nbsp; 5,000 Superfans &nbsp;·&nbsp; $300K GMV</strong>
+        <br><span>NOLA + ATL expansion, mobile app launched, Superfan tier monetizing</span>
+      </div>
+    </div>
+    <div class="milestone-row">
+      <div class="milestone-month dark">Month 18</div>
+      <div class="milestone-content">
+        <strong>1,000 Artists &nbsp;·&nbsp; 10,000 Superfans &nbsp;·&nbsp; $1M GMV</strong>
+        <br><span>Series A ready · National brand · Merch + digital products at scale</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <div style="font-weight:800; color: var(--dark); font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">Path to Series A ($1M GMV)</div>
+      <div style="font-size: 0.88rem; color: var(--text); line-height: 1.6;">
+        <p style="margin-bottom: 8px;">At $1M GMV with our fee structure, Porterful generates <strong style="color: var(--orange);">~$120–160K ARR</strong> in platform revenue.</p>
+        <p>That's a clean Series A story: community-validated, low-burn, founder-led, with a clear path to $5–10M ARR through merch expansion and national artist acquisition.</p>
+      </div>
+    </div>
+    <div class="card orange">
+      <div style="font-weight:800; color: var(--orange); font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">Why These Milestones Matter</div>
+      <ul class="bullet-list" style="font-size: 0.82rem;">
+        <li style="margin-bottom: 5px;">100 artists = proof of creator acquisition</li>
+        <li style="margin-bottom: 5px;">1,000 superfans = referral loop validated</li>
+        <li style="margin-bottom: 5px;">$50K GMV = first revenue signal</li>
+        <li>Each milestone de-risks the next raise</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <span>Confidential</span>
+    <span>Porterful &nbsp;·&nbsp; porterful.com</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!--  SLIDE 11 — WHY THIS WORKS                                 -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="section-header">
+    <div class="section-num">10</div>
+    <div>
+      <div class="section-title">Why This Works</div>
+      <div class="section-sub">Four reasons this moment is different — and why Porterful can win</div>
+    </div>
+  </div>
+
+  <div class="reasons-grid mb">
+    <div class="reason-card">
+      <div class="num">1</div>
+      <p><strong>Artists are desperate for alternatives.</strong> The mid-tier independent artist — too big for local shows, too small for a major label deal — is trapped. They're streaming on platforms that pay $0.003/stream and signing 360 deals that take everything. Porterful is the exit ramp.</p>
+    </div>
+    <div class="reason-card">
+      <div class="num">2</div>
+      <p><strong>Community has never been more organized.</strong> From HBCU alumni networks to Black-owned business directories to culturally-aligned streaming playlists, the infrastructure for a "buy Black" economy now exists. Porterful plugs into it.</p>
+    </div>
+    <div class="reason-card">
+      <div class="num">3</div>
+      <p><strong>Technology costs are near zero.</strong> Supabase handles auth and databases. Vercel deploys globally. Stripe handles payments. An indie founder can build, launch, and iterate for under $500/month in infrastructure. No label required.</p>
+    </div>
+    <div class="reason-card">
+      <div class="num">4</div>
+      <p><strong>O D Porter IS the product-market fit.</strong> He's an artist who understands the pain firsthand, and an operator who can ship. That's a rare combination. The founder isn't studying the market — he <em>is</em> the market.</p>
+    </div>
+  </div>
+
+  <div class="card dark" style="text-align: center; padding: 0.3in;">
+    <div style="font-size: 1.05rem; color: rgba(255,255,255,0.9); font-style: italic; line-height: 1.7; max-width: 5.5in; margin: 0 auto;">
+      "The Black dollar leaves the community in 24 hours because there's never been a platform worth staying for. Porterful is that platform."
+    </div>
+    <div style="margin-top: 0.12in; font-size: 0.82rem; color: var(--orange); font-weight: 600;">— O D Porter, Founder &amp; CEO</div>
+  </div>
+
+  <div class="page-footer">
+    <span>Confidential</span>
+    <span>Porterful &nbsp;·&nbsp; porterful.com</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!--  SLIDE 12 — CONTACT / CLOSE                               -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="section-header">
+    <div class="section-num">11</div>
+    <div>
+      <div class="section-title">Let's Build It</div>
+      <div class="section-sub">Porterful is open for partnership and investment conversations</div>
+    </div>
+  </div>
+
+  <div class="contact-block" style="margin-bottom: 0.3in;">
+    <div class="big-mark">Porterful</div>
+    <div class="url">porterful.com</div>
+    <div class="email">support@porterful.com</div>
+    <div class="cta">Invest in Porterful</div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <div style="font-weight:800; color: var(--dark); font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">What We're Building</div>
+      <ul class="bullet-list" style="font-size: 0.85rem;">
+        <li style="margin-bottom: 6px;">A payments platform that keeps money in the community</li>
+        <li style="margin-bottom: 6px;">An artist-first alternative to extractive label deals</li>
+        <li style="margin-bottom: 6px;">A superfan economy where fans earn, not just stream</li>
+        <li>A long-term institution for Black economic power</li>
+      </ul>
+    </div>
+    <div class="card purple">
+      <div style="font-weight:800; color: var(--purple); font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">Who Should Reach Out</div>
+      <ul class="bullet-list purple" style="font-size: 0.85rem;">
+        <li style="margin-bottom: 6px;">Angel investors &amp; seed funds in music, fintech, or culture</li>
+        <li style="margin-bottom: 6px;">Artists and managers looking for an alternative</li>
+        <li style="margin-bottom: 6px;">Community organizers &amp; cultural institutions</li>
+        <li>Strategic partners in payments and commerce</li>
+      </ul>
+    </div>
+  </div>
+
+  <div style="background: var(--orange-light); border: 1px solid rgba(249,115,22,0.2); border-radius: 10px; padding: 0.2in; text-align: center; margin-top: 0.2in;">
+    <div style="font-size: 1.6rem; font-weight: 900; color: var(--orange); line-height: 1.1;">"Where Money Comes Home"</div>
+    <div style="font-size: 0.85rem; color: var(--muted); margin-top: 6px;">porterful.com &nbsp;·&nbsp; support@porterful.com</div>
+  </div>
+
+  <div class="page-footer">
+    <span>Confidential</span>
+    <span>Porterful &nbsp;·&nbsp; porterful.com</span>
+  </div>
+</div>
+
+</body>
+</html>

@@ -118,10 +118,10 @@ export const ARTISTS: ArtistData[] = [
     id: 'rob-soule',
     name: 'Rob Soule',
     slug: 'rob-soule',
-    genre: 'Hip-Hop, R&B, Blues',
+    genre: 'Hip-Hop / R&B / Blues',
     location: 'St. Louis, MO',
-    bio: `St. Louis hip-hop and R&B artist blending blues into a soulful sound.`,
-    shortBio: 'St. Louis rock artist. Melodic, powerful, guitar-driven.',
+    bio: 'St. Louis hip-hop and R&B artist blending blues into a soulful sound. Known for melodic, powerful, guitar-driven performances.',
+    shortBio: 'St. Louis hip-hop and R&B artist blending blues into a soulful sound. Known for melodic, powerful, guitar-driven performances.',
     verified: true,
     image: '/artists/rob-soule/hq720.jpg',
     coverGradient: 'from-purple-600 to-blue-600',
@@ -132,6 +132,7 @@ export const ARTISTS: ArtistData[] = [
     trackCount: 3,
     social: {
       youtube: '@RobSouleMusic',
+      instagram: 'RobSouleMusic',
     },
     coverSlides: [
       { src: '/artists/rob-soule/hq720.jpg', alt: 'Rob Soule' },
