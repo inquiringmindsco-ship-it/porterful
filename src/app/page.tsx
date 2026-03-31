@@ -123,7 +123,7 @@ export default function Home() {
         {/* AI art overlay */}
         <div className="absolute inset-0 z-[2]">
           {HERO_BG_IMAGES.map((src, i) => (
-            <div key={src} className="absolute inset-0 transition-opacity duration-1000" style={{ opacity: (heroBgIndex === i ? 1 : 0) * 0.07 }}>
+            <div key={src} className="absolute inset-0 transition-opacity duration-1000" style={{ opacity: (heroBgIndex === i ? 1 : 0) * 0.04 }}>
               <Image src={src} alt="" fill sizes="100vw" className="object-cover contrast-125 brightness-[0.4]" />
             </div>
           ))}
@@ -181,7 +181,7 @@ export default function Home() {
                     <div className="text-xs text-white/40 uppercase tracking-wider mb-3">Featured Track</div>
 
                     {currentTrack && (
-                      <div className="flex items-center gap-3 mb-3">
+                      <Link href={`/artist/${currentTrack.artist.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`} className="flex items-center gap-3 mb-3 hover:opacity-80 transition-opacity">
                         <div className="w-12 h-12 rounded-lg overflow-hidden bg-[var(--pf-bg-secondary)] shrink-0">
                           <Image src={currentTrack.image} alt={currentTrack.title} width={48} height={48} className="object-cover w-full h-full" />
                         </div>
@@ -189,10 +189,10 @@ export default function Home() {
                           <div className="font-bold text-sm truncate text-white">{currentTrack.title}</div>
                           <div className="text-xs text-white/50 truncate">{currentTrack.artist}</div>
                         </div>
-                        <button onClick={() => setHeroTrackIndex(i => (i + 1) % HERO_TRACKS.length)} className="w-8 h-8 bg-[var(--pf-orange)] hover:bg-[var(--pf-orange-dark)] text-white rounded-full flex items-center justify-center shrink-0 transition-colors">
+                        <button onClick={(e) => { e.preventDefault(); setHeroTrackIndex(i => (i + 1) % HERO_TRACKS.length); }} className="w-8 h-8 bg-[var(--pf-orange)] hover:bg-[var(--pf-orange-dark)] text-white rounded-full flex items-center justify-center shrink-0 transition-colors">
                           <SkipForward size={13} />
                         </button>
-                      </div>
+                      </Link>
                     )}
 
                     {/* Progress dots */}

@@ -325,13 +325,15 @@ export function ArtistSearch() {
               )}
 
               {/* View All */}
-              <Link
-                href={`/search?q=${encodeURIComponent(query)}`}
-                onClick={() => setIsOpen(false)}
-                className="block px-4 py-3 text-center text-sm text-[var(--pf-orange)] hover:bg-[var(--pf-bg)] border-t border-[var(--pf-border)]"
-              >
-                View all results for "{query}" →
-              </Link>
+              {false && (
+                <Link
+                  href={`/search?q=${encodeURIComponent(query)}`}
+                  onClick={() => setIsOpen(false)}
+                  className="block px-4 py-3 text-center text-sm text-[var(--pf-orange)] hover:bg-[var(--pf-bg)] border-t border-[var(--pf-border)]"
+                >
+                  View all results for "{query}" →
+                </Link>
+              )}
             </div>
           ) : (
             <div className="p-8 text-center">
