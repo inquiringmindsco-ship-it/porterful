@@ -42,3 +42,5 @@ public/audio/
 *.m4a
 *.wav
 *.flac
+*.mp3
+public/artists/
