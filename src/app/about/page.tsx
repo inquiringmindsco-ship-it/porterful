@@ -237,8 +237,8 @@ export default function AboutPage() {
         <div className="max-w-4xl mx-auto">
           <div className="bg-[var(--pf-surface)] rounded-2xl p-8 border border-[var(--pf-border)]">
             <div className="flex flex-col md:flex-row gap-6 items-center">
-              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[var(--pf-orange)] to-purple-600 flex items-center justify-center text-4xl shrink-0">
-                🎤
+              <div className="w-24 h-24 rounded-full overflow-hidden bg-gradient-to-br from-[var(--pf-orange)] to-purple-600 shrink-0 border-2 border-[var(--pf-border)]">
+                <Image src="/artist-art/od-porter.jpg" alt="O D Porter" width={96} height={96} className="object-cover w-full h-full" />
               </div>
               <div className="flex-1 text-center md:text-left">
                 <h3 className="text-xl font-bold mb-2">O D Porter</h3>
