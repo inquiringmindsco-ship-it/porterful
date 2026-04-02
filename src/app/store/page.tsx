@@ -18,24 +18,70 @@ export default function StorePage() {
 
   return (
     <div className="min-h-screen pt-20 pb-24 bg-[var(--pf-bg)]">
-      {/* Hero Banner */}
-      <section className="relative py-16 bg-gradient-to-br from-[var(--pf-orange)]/10 via-purple-500/5 to-[var(--pf-bg)]">
+
+      {/* Book Hero — #1 Product */}
+      <section className="relative bg-gradient-to-r from-[var(--pf-orange)] to-purple-600 text-white py-12 px-6">
         <div className="pf-container">
-          <div className="max-w-3xl">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              Porterful <span className="text-[var(--pf-orange)]">Store</span>
-            </h1>
-            <p className="text-lg text-[var(--pf-text-secondary)] mb-2">
-              Merch, music, and more from independent artists on the platform.
-            </p>
-            <p className="text-[var(--pf-text-muted)]">
-              Every purchase supports artists directly — they keep 80%.
-            </p>
+          <div className="flex flex-col md:flex-row items-center gap-8">
+            <div className="flex-shrink-0">
+              <div className="w-32 h-44 rounded-lg bg-white/20 flex items-center justify-center text-center p-3 shadow-2xl">
+                <div>
+                  <div className="text-xs font-bold uppercase tracking-wider opacity-80 mb-1">O D Porter</div>
+                  <div className="text-sm font-black leading-tight">There It Is,<br/>Here It Go.</div>
+                </div>
+              </div>
+            </div>
+            <div className="flex-1 text-center md:text-left">
+              <div className="inline-block px-3 py-1 bg-white/20 rounded-full text-xs font-bold uppercase tracking-wider mb-3">
+                New Release
+              </div>
+              <h1 className="text-3xl md:text-4xl font-black mb-3">
+                "There It Is, Here It Go."
+              </h1>
+              <p className="text-white/90 text-sm md:text-base mb-4 max-w-xl">
+                The memoir. Raw, honest, deeply personal. The story of an artist from St. Louis who refused to quit — and what he learned when everything fell apart.
+              </p>
+              <div className="flex flex-wrap items-center gap-3 justify-center md:justify-start">
+                <Link href="/product/book-tiigh" className="px-6 py-3 bg-white text-[var(--pf-orange)] font-black rounded-lg hover:bg-white/90 transition flex items-center gap-2">
+                  Get the Book — $25 <ArrowRight size={16} />
+                </Link>
+                <span className="text-white/80 text-sm">Free shipping • Direct from O D</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
+      {/* Limited Drop Banner */}
+      <div className="bg-[var(--pf-surface)] border-y border-[var(--pf-border)] py-3 px-4">
+        <div className="pf-container text-center">
+          <p className="text-xs md:text-sm text-[var(--pf-text-muted)]">
+            <span className="text-[var(--pf-orange)] font-bold">Limited First Edition</span> — Books ship within 5 business days. Merch made fresh to order.
+          </p>
+        </div>
+      </div>
+
       <div className="pf-container py-8">
+
+        {/* Bundle Offer */}
+        <section className="mb-12 bg-gradient-to-r from-[var(--pf-orange)]/10 to-purple-500/10 rounded-2xl p-6 border border-[var(--pf-border)]">
+          <div className="flex flex-col md:flex-row items-center gap-6">
+            <div className="text-5xl shrink-0">📦</div>
+            <div className="flex-1 text-center md:text-left">
+              <h2 className="text-xl font-bold mb-1">Starter Bundle</h2>
+              <p className="text-[var(--pf-text-muted)] text-sm mb-3">
+                Book + Tee = $45 <span className="line-through text-[var(--pf-text-muted)]">$53</span> — Save $8
+              </p>
+              <p className="text-[var(--pf-text-secondary)] text-sm">
+                Get the memoir plus the Ambiguous tour tee. The full O D Porter experience.
+              </p>
+            </div>
+            <Link href="/product/bundle-starter" className="px-6 py-3 bg-[var(--pf-orange)] text-white font-bold rounded-lg hover:bg-[var(--pf-orange)]/90 transition text-sm flex items-center gap-2">
+              Get Bundle <ArrowRight size={16} />
+            </Link>
+          </div>
+        </section>
+
         {/* Featured Products */}
         <section className="mb-12">
           <div className="flex items-center justify-between mb-6">
@@ -78,6 +124,11 @@ export default function StorePage() {
                   {product.featured && (
                     <div className="absolute top-3 left-3 bg-[var(--pf-orange)] text-white text-xs font-bold px-2 py-1 rounded flex items-center gap-1">
                       <Star size={10} /> Featured
+                    </div>
+                  )}
+                  {product.sales && product.sales > 50 && (
+                    <div className="absolute top-3 right-3 bg-green-600 text-white text-xs font-bold px-2 py-1 rounded">
+                      {product.sales} sold
                     </div>
                   )}
                 </div>
@@ -139,10 +190,10 @@ export default function StorePage() {
                 We handle printing, shipping, and customer service.
               </p>
               <div className="flex flex-wrap gap-3 justify-center md:justify-start">
-                <Link href="/signup?role=artist" className="pf-btn pf-btn-primary">
+                <Link href="/signup?role=artist" className="px-6 py-3 bg-[var(--pf-orange)] text-white font-bold rounded-lg hover:bg-[var(--pf-orange)]/90 transition">
                   Start Selling Today
                 </Link>
-                <Link href="/artist/od-porter" className="pf-btn pf-btn-secondary">
+                <Link href="/artist/od-porter" className="px-6 py-3 border border-[var(--pf-border)] text-[var(--pf-text-secondary)] rounded-lg hover:border-[var(--pf-orange)] hover:text-white transition">
                   See Example Store
                 </Link>
               </div>

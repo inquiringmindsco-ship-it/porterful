@@ -79,6 +79,14 @@ export async function POST(request: NextRequest) {
         track_name: items[0]?.name || '',
         track_artist: items[0]?.artist || '',
         track_image: items[0]?.image || '',
+        items: JSON.stringify(items.map((item: any) => ({
+          id: item.id || null,
+          name: item.name || item.title,
+          artist: item.artist,
+          price: item.price,
+          quantity: item.quantity || 1,
+          artistCut: item.artistCut || 0,
+        }))),
       },
     }
 
