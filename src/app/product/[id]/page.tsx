@@ -6,10 +6,12 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Star, Heart, Shield, Truck, ArrowLeft, Check } from 'lucide-react'
 import { getProductById } from '@/lib/products'
+import { useCart } from '@/lib/cart-context'
 
 export default function ProductPage() {
   const params = useParams()
   const product = getProductById(params.id as string)
+  const { addItem } = useCart()
 
   const [selectedColor, setSelectedColor] = useState('')
   const [selectedSize, setSelectedSize] = useState('')
@@ -33,24 +35,16 @@ export default function ProductPage() {
   const images = product.images || [product.image]
 
   const handleAddToCart = () => {
-    const cart = JSON.parse(localStorage.getItem('porterful-checkout-items') || '[]')
-    const existing = cart.findIndex((item: any) => item.id === product.id)
-    if (existing >= 0) {
-      cart[existing].quantity = (cart[existing].quantity || 1) + 1
-    } else {
-      cart.push({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        image: product.image,
-        artist: product.artist,
-        type: 'product',
-        quantity: 1,
-        color: selectedColor || undefined,
-        size: selectedSize || undefined,
-      })
-    }
-    localStorage.setItem('porterful-checkout-items', JSON.stringify(cart))
+    addItem({
+      productId: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      artist: product.artist,
+      artistCut: product.artistCut || product.price * 0.8,
+      color: selectedColor || undefined,
+      size: selectedSize || undefined,
+    })
     setAdded(true)
     setTimeout(() => setAdded(false), 2000)
   }
