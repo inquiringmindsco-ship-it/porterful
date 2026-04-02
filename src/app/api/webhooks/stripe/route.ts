@@ -33,7 +33,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
     }
 
-    // Always respond quickly to Stripe
     const sendResponse = (body: object) => new NextResponse(JSON.stringify(body), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
@@ -42,18 +41,6 @@ export async function POST(request: NextRequest) {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session
-        const sessionWithShipping = session as Stripe.Checkout.Session & {
-          shipping_details: {
-            name?: string
-            address?: {
-              line1?: string
-              city?: string
-              state?: string
-              postal_code?: string
-              country?: string
-            }
-          } | null
-        }
         
         console.log('✅ Payment successful:', session.id)
         console.log('   Customer:', session.customer_details?.email || session.customer_email)
@@ -69,44 +56,59 @@ export async function POST(request: NextRequest) {
           ? JSON.parse(session.metadata.items)
           : []
 
-        // Save order to Supabase
+        const amountCents = session.amount_total || 0
+        const subtotalCents = session.amount_subtotal || 0
+        const artistFundCents = parseFloat(session.metadata?.artist_fund || '0') * 100
+        const superfanCents = parseFloat(session.metadata?.superfan_share || '0') * 100
+        const platformCents = Math.round(subtotalCents * 0.10) // platform 10%
+        const sellerCents = subtotalCents - artistFundCents - superfanCents - platformCents
+
+        // Real schema: id, buyer_id, product_id, amount, status, user_id, referrer_id,
+        // seller_total, artist_fund_total, superfan_total, platform_total,
+        // stripe_payment_intent_id, stripe_checkout_session_id, buyer_email, shipping_address
         const { data: order, error: orderError } = await supabase
           .from('orders')
           .insert({
             id: session.id,
             buyer_id: null,
+            product_id: items[0]?.id || null,
+            amount: amountCents,
             status: 'paid',
-            total: (session.amount_total || 0) / 100,
-            subtotal: (session.amount_subtotal || 0) / 100,
-            commission_total: parseFloat(session.metadata?.artist_fund || '0') / 100,
-            referral_commission: parseFloat(session.metadata?.superfan_share || '0') / 100,
-            stripe_payment_id: session.payment_intent as string,
-            shipping_address: sessionWithShipping.shipping_details ? {
-              name: sessionWithShipping.shipping_details.name || '',
-              address: sessionWithShipping.shipping_details.address?.line1 || '',
-              city: sessionWithShipping.shipping_details.address?.city || '',
-              state: sessionWithShipping.shipping_details.address?.state || '',
-              zip: sessionWithShipping.shipping_details.address?.postal_code || '',
-              country: sessionWithShipping.shipping_details.address?.country || 'US',
-            } : null,
+            user_id: null,
+            referrer_id: null,
+            seller_total: sellerCents,
+            artist_fund_total: artistFundCents,
+            superfan_total: superfanCents,
+            platform_total: platformCents,
+            stripe_payment_intent_id: session.payment_intent as string,
+            stripe_checkout_session_id: session.id,
+            buyer_email: session.customer_details?.email || session.customer_email || null,
+            shipping_address: (session as any).shipping_details ? JSON.stringify({
+              name: (session as any).shipping_details?.name || '',
+              line1: (session as any).shipping_details?.address?.line1 || '',
+              city: (session as any).shipping_details?.address?.city || '',
+              state: (session as any).shipping_details?.address?.state || '',
+              postal_code: (session as any).shipping_details?.address?.postal_code || '',
+              country: (session as any).shipping_details?.address?.country || 'US',
+            }) : null,
           })
           .select()
           .single()
 
         if (orderError) {
           console.error('❌ Failed to save order:', orderError.message)
-          // Don't return error to Stripe — order is paid, we can reconcile manually
         } else {
           console.log('✅ Order saved:', order.id)
 
-          // Save order items
+          // Save order items — real schema: order_id, product_id, product_name, price, quantity, commission
           if (items.length > 0) {
             const orderItems = items.map((item: any) => ({
               order_id: session.id,
               product_id: item.id || null,
+              product_name: item.name || item.title || 'Unknown Product',
+              price: item.price * 100, // convert to cents integer
               quantity: item.quantity || 1,
-              price: item.price,
-              commission: item.artistCut ? (item.price * item.artistCut) / 100 : 0,
+              commission: Math.round((item.artistCut || 0) * 100),
             }))
 
             const { error: itemsError } = await supabase
@@ -120,21 +122,19 @@ export async function POST(request: NextRequest) {
             }
           }
 
-          // Update product sales count
-          if (items.length > 0) {
-            for (const item of items) {
-              if (item.id) {
-                try {
-                  await supabase.rpc('increment_sales_count', { product_id: item.id })
-                } catch {
-                  // RPC might not exist — safe to ignore
-                }
+          // Update product sales count (best-effort)
+          for (const item of items) {
+            if (item.id) {
+              try {
+                await supabase.rpc('increment_sales_count', { product_id: item.id })
+              } catch {
+                // RPC might not exist
               }
             }
           }
 
           // TODO: Send confirmation email
-          // TODO: Trigger fulfillment
+          // TODO: Trigger Printful fulfillment
         }
         break
       }
@@ -150,14 +150,13 @@ export async function POST(request: NextRequest) {
         const charge = event.data.object as Stripe.Charge
         console.log('💸 Refund processed:', charge.id)
         
-        // Update order status to refunded
         const supabase = createServerClient()
         if (supabase && charge.payment_intent) {
           try {
             await supabase
               .from('orders')
               .update({ status: 'refunded' })
-              .eq('stripe_payment_id', charge.payment_intent as string)
+              .eq('stripe_payment_intent_id', charge.payment_intent as string)
           } catch (e) {
             console.error('Refund status update failed:', e)
           }
