@@ -4,6 +4,8 @@ import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { TRACKS, ALBUMS } from '@/lib/data'
 
+export const dynamic = 'force-dynamic'
+
 interface PageProps {
   params: Promise<{ slug: string }>
 }
