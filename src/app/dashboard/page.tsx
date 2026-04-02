@@ -265,6 +265,70 @@ export default function DashboardPage() {
           </Link>
         </div>
 
+        {/* Share Your Page Prompt */}
+        {profile?.artist_slug && (
+          <div className="mb-8 p-6 bg-gradient-to-r from-[var(--pf-orange)]/10 to-purple-500/10 rounded-2xl border border-[var(--pf-orange)]/30">
+            <div className="flex flex-col md:flex-row md:items-center gap-4">
+              <div className="flex-1">
+                <h3 className="text-lg font-bold mb-1">🎤 Share Your Artist Page</h3>
+                <p className="text-[var(--pf-text-secondary)] text-sm mb-3">
+                  Your profile is live! Share it with fans so they can support you directly.
+                </p>
+                <div className="flex items-center gap-2">
+                  <code className="flex-1 px-3 py-2 bg-[var(--pf-bg)] rounded-lg border border-[var(--pf-border)] text-sm font-mono">
+                    porterful.com/artist/{profile.artist_slug}
+                  </code>
+                  <button 
+                    onClick={() => navigator.clipboard.writeText(`https://porterful.com/artist/${profile.artist_slug}`)}
+                    className="pf-btn pf-btn-secondary text-sm"
+                  >
+                    Copy
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Profile Completion Checklist */}
+        {!profile?.artist_slug && (
+          <div className="mb-8 p-6 bg-[var(--pf-surface)] rounded-2xl border border-[var(--pf-border)]">
+            <h3 className="text-lg font-bold mb-4">🚀 Get Started</h3>
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-[var(--pf-orange)]/20 flex items-center justify-center">
+                  <span className="text-[var(--pf-orange)] font-bold">1</span>
+                </div>
+                <div className="flex-1">
+                  <p className="font-medium">Complete your profile</p>
+                  <p className="text-sm text-[var(--pf-text-muted)]">Add your bio, photo, and social links</p>
+                </div>
+                <Link href="/settings" className="pf-btn pf-btn-secondary text-sm">Setup</Link>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
+                  <span className="text-purple-400 font-bold">2</span>
+                </div>
+                <div className="flex-1">
+                  <p className="font-medium">Upload tracks</p>
+                  <p className="text-sm text-[var(--pf-text-muted)]">Add your music with "Proud to Pay" pricing</p>
+                </div>
+                <Link href="/dashboard/upload" className="pf-btn pf-btn-secondary text-sm">Upload</Link>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
+                  <span className="text-green-400 font-bold">3</span>
+                </div>
+                <div className="flex-1">
+                  <p className="font-medium">Share with fans</p>
+                  <p className="text-sm text-[var(--pf-text-muted)]">Spread the word and start earning</p>
+                </div>
+                <span className="text-sm text-[var(--pf-text-muted)]">→</span>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Stats Grid */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <div className="pf-card p-6">

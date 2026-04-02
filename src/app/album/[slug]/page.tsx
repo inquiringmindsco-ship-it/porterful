@@ -166,6 +166,39 @@ export default async function AlbumPage({ params }: PageProps) {
             </div>
           ))}
         </div>
+
+        {/* Proud to Pay Section */}
+        <div className="mt-10 p-6 bg-gradient-to-r from-[var(--pf-orange)]/10 to-purple-500/10 rounded-2xl border border-[var(--pf-orange)]/30">
+          <div className="flex flex-col md:flex-row md:items-center gap-6">
+            <div className="flex-1">
+              <h3 className="text-xl font-bold mb-2">💜 Love this album?</h3>
+              <p className="text-[var(--pf-text-secondary)]">
+                Support O D Porter directly — pay $1, $5, $10, or whatever you think it's worth. 
+                100% of your support goes straight to the artist. This is the retirement plan.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              {[1, 5, 10].map((amount) => (
+                <button
+                  key={amount}
+                  className="pf-btn pf-btn-primary px-5 py-2 text-lg font-semibold"
+                  onClick={() => alert(`Proud to Pay $${amount} for ${album.name}!`)}
+                >
+                  ${amount}
+                </button>
+              ))}
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--pf-text-muted)]">$</span>
+                <input 
+                  type="number" 
+                  min="1" 
+                  placeholder="Other"
+                  className="pl-7 pr-4 py-2 bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg text-[var(--pf-text)] placeholder:text-[var(--pf-text-muted)] focus:outline-none focus:border-[var(--pf-orange)]"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
         
         {/* Back to Music */}
         <div className="mt-8 pt-8 border-t border-[var(--pf-border)]">

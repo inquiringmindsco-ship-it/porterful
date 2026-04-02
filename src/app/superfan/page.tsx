@@ -127,7 +127,7 @@ export default function SuperfanPage() {
                 <li>✓ Verified badge</li>
               </ul>
             </div>
-            <div className="bg-gradient-to-b from-[#ff6b00]/20 to-[var(--pf-surface)] rounded-xl p-6 border border-[#ff6b00]">
+            <div className="bg-gradient-to-b from-[var(--pf-orange)]/20 to-[var(--pf-surface)] rounded-xl p-6 border border-[var(--pf-orange)]">
               <div className="text-3xl mb-2">🔥</div>
               <h3 className="text-xl font-bold mb-1">Ambassador</h3>
               <p className="text-[var(--pf-orange)] mb-4">51+ referrals</p>

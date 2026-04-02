@@ -115,7 +115,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* The Solution */}
+      {/* The Story */}
       <section className="py-16 px-6">
         <div className="max-w-5xl mx-auto">
           <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -145,30 +145,24 @@ export default function AboutPage() {
               </div>
             </div>
             <div className="order-1 md:order-2">
-              <h2 className="text-3xl font-bold mb-6">
+              <span className="inline-block px-4 py-1 bg-purple-500/10 border border-purple-500/30 rounded-full text-purple-400 text-sm font-medium mb-4">
                 Built for Artists, By Artists
+              </span>
+              <h2 className="text-3xl font-bold mb-6">
+                The Story Behind Porterful
               </h2>
               <p className="text-[var(--pf-text-secondary)] mb-4">
-                Porterful was founded by an independent artist who saw firsthand how the industry exploits creators. The platform is designed to be what artists actually need:
+                O D Porter was born in Miami, raised between New Orleans and St. Louis — and he claims the Lou like a birthright. He watched the music industry eat artists alive: streaming platforms paying pennies, labels taking everything, money leaking out of communities that needed it most.
               </p>
-              <ul className="space-y-3 text-[var(--pf-text-secondary)]">
-                <li className="flex items-start gap-3">
-                  <span className="text-[var(--pf-orange)] font-bold">→</span>
-                  <span><strong className="text-[var(--pf-text)]">Direct sales</strong> — No label, no distributor, no middleman</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-[var(--pf-orange)] font-bold">→</span>
-                  <span><strong className="text-[var(--pf-text)]">Transparent pricing</strong> — Fans know exactly where their money goes</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-[var(--pf-orange)] font-bold">→</span>
-                  <span><strong className="text-[var(--pf-text)]">Print-on-demand</strong> — No inventory needed, artists upload and sell</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-[var(--pf-orange)] font-bold">→</span>
-                  <span><strong className="text-[var(--pf-text)]">Revenue sharing</strong> — Superfans earn by spreading the word</span>
-                </li>
-              </ul>
+              <p className="text-[var(--pf-text-secondary)] mb-4">
+                He wrote his story down in <em>"There It Is, Here It Go"</em> — Tauruss stubborn, once his mind's set, it gets done. Loss in the family derailed his momentum, cost him about a thousand fans who'd been with him through it all. But he didn't quit.
+              </p>
+              <p className="text-[var(--pf-text-secondary)] mb-4">
+                Porterful is his answer. Infrastructure that keeps money in the community. A retirement plan for artists who never had one. On this platform, artists keep 80% of every sale. Direct to fan. No middleman.
+              </p>
+              <p className="text-[var(--pf-orange)] font-semibold text-lg">
+                This isn't just a platform — it's the plan.
+              </p>
             </div>
           </div>
         </div>
