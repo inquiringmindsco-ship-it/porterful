@@ -104,7 +104,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <Footer />
           <ArtistModal />
           <TrackLockedToast />
-          <GlobalPlayer />
           <InstallPrompt />
           <IOSInstallInstructions />
         </Providers>

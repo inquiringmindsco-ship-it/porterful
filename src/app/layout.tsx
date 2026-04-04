@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
+import { Providers } from '@/app/providers'
+import { GlobalPlayer } from '@/components/GlobalPlayer'
 
 export const metadata: Metadata = {
   title: 'Porterful',
@@ -22,7 +24,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="icon" type="image/svg+xml" href="/icon.svg?v=2" />
       </head>
       <body style={{ margin: 0, padding: 0, background: 'var(--pf-bg)', overflow: 'visible' }}>
-        {children}
+        <Providers>
+          {children}
+        </Providers>
+        <GlobalPlayer />
       </body>
     </html>
   )

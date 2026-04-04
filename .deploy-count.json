@@ -1,7 +1,8 @@
 {
   "date": "2026-04-04",
-  "count": 11,
+  "count": 12,
   "history": [
+    { "time": "16:36 CDT", "msg": "Fix homepage scroll snap + external link nav" },
     { "time": "16:34 CDT", "msg": "Remove plays and followers counts from artist pages" },
     { "time": "16:32 CDT", "msg": "Fix artist images - od-porter copy, verify atm-trap paths" },
     { "time": "16:26 CDT", "msg": "Trigger deploy via git push after env fix" },
