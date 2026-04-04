@@ -148,18 +148,20 @@ export default function MusicPage() {
         <div className="relative max-w-6xl mx-auto px-6 pt-16 pb-12">
           {/* Artist badge */}
           <div className="flex items-center gap-3 mb-8">
-            {odArtist?.image && (
-              <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-[var(--pf-orange)]">
-                <Image src={odArtist.image} alt={odArtist.name} fill className="object-cover" />
-              </div>
-            )}
+            <Link href="/artist/od-porter">
+              {odArtist?.image && (
+                <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-[var(--pf-orange)] hover:border-[var(--pf-orange)]/60 transition-colors">
+                  <Image src={odArtist.image} alt={odArtist.name} fill className="object-cover" />
+                </div>
+              )}
+            </Link>
             <div>
-              <div className="flex items-center gap-2">
+              <Link href="/artist/od-porter" className="flex items-center gap-2 hover:text-[var(--pf-orange)] transition-colors">
                 <h1 className="text-2xl font-bold">O D Porter</h1>
                 {odArtist?.verified && (
                   <Verified size={18} className="text-[var(--pf-orange)]" />
                 )}
-              </div>
+              </Link>
               <p className="text-[var(--pf-text-secondary)]">St. Louis, MO · {OD_TRACKS.length} tracks</p>
             </div>
           </div>
@@ -291,6 +293,10 @@ export default function MusicPage() {
               </div>
 
               <div className="flex flex-wrap gap-3 mt-6">
+                <Link href="/artist/od-porter" className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--pf-orange)] text-white text-sm font-medium hover:bg-[var(--pf-orange-dark)] transition-colors">
+                  View Full Profile
+                  <ChevronRight size={14} />
+                </Link>
                 <a href="https://instagram.com/od.porter" target="_blank" rel="noopener noreferrer"
                   className="px-4 py-2 rounded-full bg-[var(--pf-surface)] hover:bg-[var(--pf-orange)]/20 text-sm transition-colors">
                   @od.porter
