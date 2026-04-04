@@ -1,12 +1,12 @@
 'use client'
 
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { useAudio, Track } from '@/lib/audio-context'
-import { Play, Pause } from 'lucide-react'
+import { Play, Pause, Loader2 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 interface ArtistTrackListProps {
   tracks: Track[]
-  sectionTitle?: string
 }
 
 function formatPlays(n: number): string {
@@ -17,6 +17,8 @@ function formatPlays(n: number): string {
 
 export function ArtistTrackList({ tracks }: ArtistTrackListProps) {
   const { currentTrack, isPlaying, playTrack, togglePlay } = useAudio()
+  const router = useRouter()
+  const [purchasing, setPurchasing] = useState<string | null>(null)
 
   const handlePlay = useCallback((track: Track) => {
     if (currentTrack?.id === track.id) {
@@ -25,6 +27,41 @@ export function ArtistTrackList({ tracks }: ArtistTrackListProps) {
       playTrack(track)
     }
   }, [currentTrack, playTrack, togglePlay])
+
+  const handleBuy = useCallback(async (e: React.MouseEvent, track: Track) => {
+    e.stopPropagation()
+    setPurchasing(track.id)
+    try {
+      // Create checkout for single track
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: [{
+            id: track.id,
+            name: track.title,
+            artist: track.artist,
+            price: track.price || 1,
+            quantity: 1,
+            type: 'track',
+          }],
+          successUrl: `${window.location.origin}/checkout/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+          cancelUrl: `${window.location.origin}${window.location.pathname}`,
+        })
+      })
+      const data = await res.json()
+      if (data.url) {
+        window.location.href = data.url
+      } else {
+        alert('Checkout not configured. Add Stripe keys to enable purchases.')
+      }
+    } catch (err) {
+      console.error('Buy failed:', err)
+      alert('Something went wrong. Please try again.')
+    } finally {
+      setPurchasing(null)
+    }
+  }, [])
 
   return (
     <div className="bg-[var(--pf-surface)] rounded-2xl border border-[var(--pf-border)] overflow-hidden">
@@ -64,16 +101,29 @@ export function ArtistTrackList({ tracks }: ArtistTrackListProps) {
               </div>
 
               {/* Right side */}
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
                 <span className="hidden sm:block text-sm text-[var(--pf-text-muted)] font-mono">
                   {formatPlays(track.plays || 0)}
                 </span>
                 <span className="text-sm text-[var(--pf-text-muted)] font-mono w-12 text-right">
                   {track.duration}
                 </span>
-                <span className="text-sm font-semibold text-[var(--pf-text-muted)]">
-                  ${track.price || 1}
-                </span>
+
+                {/* Buy button */}
+                <button
+                  onClick={(e) => handleBuy(e, track)}
+                  disabled={purchasing === track.id}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--pf-orange)] hover:bg-[var(--pf-orange-dark)] disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-lg transition-colors"
+                >
+                  {purchasing === track.id ? (
+                    <>
+                      <Loader2 size={12} className="animate-spin" />
+                      <span>Buying...</span>
+                    </>
+                  ) : (
+                    <span>${track.price || 1}</span>
+                  )}
+                </button>
 
                 {/* Play button */}
                 <button
