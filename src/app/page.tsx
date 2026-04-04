@@ -17,21 +17,6 @@ const SYSTEMS = [
     ),
   },
   {
-    id: 'land',
-    label: 'LAND',
-    subtitle: 'Acquire. Control. Build.',
-    route: 'https://national-land-data-system.vercel.app',
-    glowColor: '#22c55e',
-    icon: (
-      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="3" y="3" width="7" height="7" rx="1"/>
-        <rect x="14" y="3" width="7" height="7" rx="1"/>
-        <rect x="3" y="14" width="7" height="7" rx="1"/>
-        <rect x="14" y="14" width="7" height="7" rx="1"/>
-      </svg>
-    ),
-  },
-  {
     id: 'learn',
     label: 'LEARN',
     subtitle: 'Build the next generation.',
@@ -68,6 +53,22 @@ const SYSTEMS = [
     icon: (
       <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+    ),
+  },
+  {
+    id: 'land',
+    label: 'LAND',
+    subtitle: 'Acquire. Control. Build.',
+    route: 'https://national-land-data-system.vercel.app',
+    glowColor: '#22c55e',
+    isExternal: true,
+    icon: (
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="3" width="7" height="7" rx="1"/>
+        <rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/>
+        <rect x="14" y="14" width="7" height="7" rx="1"/>
       </svg>
     ),
   },
@@ -416,7 +417,9 @@ export default function HomePage() {
                 zIndex: isVisible ? 20 : 1,
               }}
               onClick={() => {
-                if (system.route.startsWith('http')) {
+                if (system.isExternal) {
+                  window.open(system.route, '_blank', 'noopener,noreferrer')
+                } else if (system.route.startsWith('http')) {
                   window.location.href = system.route
                 } else {
                   router.push(system.route)

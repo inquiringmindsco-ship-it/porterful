@@ -1,7 +1,8 @@
 {
   "date": "2026-04-04",
-  "count": 12,
+  "count": 13,
   "history": [
+    { "time": "16:52 CDT", "msg": "Move GlobalPlayer to root layout - player persists across all pages" },
     { "time": "16:36 CDT", "msg": "Fix homepage scroll snap + external link nav" },
     { "time": "16:34 CDT", "msg": "Remove plays and followers counts from artist pages" },
     { "time": "16:32 CDT", "msg": "Fix artist images - od-porter copy, verify atm-trap paths" },
