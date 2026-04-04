@@ -135,6 +135,12 @@ export const TRACKS = [
   { id: 'nikee-01', title: 'Dominique', artist: 'Nikee Turbo', album: 'Singles', duration: '2:45', price: 1, plays: 0, image: '/artists/nikee-turbo/Cover Art.png', audio_url: artistAudio('nikee-turbo', 'Dominique.mp3') },
   { id: 'nikee-02', title: 'Harder', artist: 'Nikee Turbo', album: 'Singles', duration: '3:20', price: 1, plays: 0, image: '/artists/nikee-turbo/Cover Art.png', audio_url: artistAudio('nikee-turbo', 'Harder.mp3') },
   { id: 'nikee-03', title: 'Hide The Pain', artist: 'Nikee Turbo', album: 'Singles', duration: '2:55', price: 1, plays: 0, image: '/artists/nikee-turbo/Cover Art.png', audio_url: artistAudio('nikee-turbo', 'Hide The pain (Unreleased Version).mp3') },
+  // ATM TRAP TRACKS
+  { id: 'atm-01', title: 'Coming Home', artist: 'ATM Trap', album: 'Singles', duration: '3:30', price: 1, plays: 0, image: '/artists/atm-trap/images/cover-2.jpg', audio_url: '/artists/atm-trap/audio/Coming-Home.mp3' },
+  { id: 'atm-02', title: 'Heart of a Lion', artist: 'ATM Trap', album: 'Singles', duration: '3:15', price: 1, plays: 0, image: '/artists/atm-trap/images/cover-1.jpg', audio_url: '/artists/atm-trap/audio/Heart-of-a-Lion.mp3' },
+  { id: 'atm-03', title: 'Wacked Out Master', artist: 'ATM Trap', album: 'Singles', duration: '2:58', price: 1, plays: 0, image: '/artists/atm-trap/images/avatar.jpg', audio_url: '/artists/atm-trap/audio/Wacked-Out-Master.mp3' },
+  { id: 'atm-04', title: 'Thought We Was Bruddaz', artist: 'ATM Trap', album: 'Singles', duration: '3:42', price: 1, plays: 0, image: '/artists/atm-trap/images/cover-thought-we-was-bruddaz.jpeg', audio_url: '/artists/atm-trap/audio/Thought-We-Was-Bruddaz.m4a' },
+
   // ROB SOULE TRACKS
   { id: 'rob-01', title: 'Believe In Me', artist: 'Rob Soule', album: 'Believe In Me', duration: '3:45', price: 1, plays: 0, image: '/artists/rob-soule/hq720.jpg', audio_url: artistAudio('rob-soule', 'Believe In Me.mp3') },
   { id: 'rob-02', title: 'Ride N Vibe', artist: 'Rob Soule', album: 'Ride N Vibe', duration: '4:10', price: 1, plays: 0, image: '/artists/rob-soule/hq720.jpg', audio_url: artistAudio('rob-soule', 'Ride N Vibe.mp3') },

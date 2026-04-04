@@ -33,23 +33,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
     }
 
-    const sendResponse = (body: object) => new NextResponse(JSON.stringify(body), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
-    })
-
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session
         
-        console.log('✅ Payment successful:', session.id)
+        console.log('✅ Porterful Payment successful:', session.id)
         console.log('   Customer:', session.customer_details?.email || session.customer_email)
         console.log('   Amount:', session.amount_total ? `$${(session.amount_total / 100).toFixed(2)}` : 'N/A')
 
         const supabase = createServerClient()
         if (!supabase) {
           console.log('⚠️ Supabase not configured — cannot save order')
-          return sendResponse({ received: true, warning: 'Supabase not configured' })
+          return NextResponse.json({ received: true, warning: 'Supabase not configured' })
         }
 
         const items = session.metadata?.items
@@ -60,13 +55,9 @@ export async function POST(request: NextRequest) {
         const subtotalCents = session.amount_subtotal || 0
         const artistFundCents = parseFloat(session.metadata?.artist_fund || '0') * 100
         const superfanCents = parseFloat(session.metadata?.superfan_share || '0') * 100
-        const platformCents = Math.round(subtotalCents * 0.10) // platform 10%
+        const platformCents = Math.round(subtotalCents * 0.10)
         const sellerCents = subtotalCents - artistFundCents - superfanCents - platformCents
 
-        // Schema: id, user_id, order_number, status, subtotal, shipping, tax, total,
-        // seller_total, artist_fund_total, superfan_total, platform_total,
-        // referrer_id, stripe_payment_intent_id, stripe_checkout_session_id,
-        // shipping_address, created_at, updated_at
         const { data: order, error: orderError } = await supabase
           .from('orders')
           .insert({
@@ -101,13 +92,12 @@ export async function POST(request: NextRequest) {
         } else {
           console.log('✅ Order saved:', order.id)
 
-          // Schema: id, order_id, product_id, product_name, price, quantity, seller_id, artist_id, superfan_id, created_at
           if (items.length > 0) {
             const orderItems = items.map((item: any) => ({
               order_id: session.id,
               product_id: item.id || null,
               product_name: item.name || item.title || 'Unknown Product',
-              price: item.price * 100, // convert to cents integer
+              price: item.price * 100,
               quantity: item.quantity || 1,
               seller_id: null,
               artist_id: null,
@@ -125,7 +115,6 @@ export async function POST(request: NextRequest) {
             }
           }
 
-          // Update product sales count (best-effort)
           for (const item of items) {
             if (item.id) {
               try {
@@ -136,8 +125,13 @@ export async function POST(request: NextRequest) {
             }
           }
 
-          // TODO: Send confirmation email
-          // TODO: Trigger Printful fulfillment
+          // ── Send Confirmation Email ───────────────────────────────────────
+          const email = session.customer_email || session.customer_details?.email
+          if (email) {
+            sendOrderConfirmation(email, session, items).catch(err =>
+              console.error('[porterful-webhook] Confirmation email failed:', err)
+            )
+          }
         }
         break
       }
@@ -176,4 +170,112 @@ export async function POST(request: NextRequest) {
     console.error('Webhook error:', error.message)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
+}
+
+async function sendOrderConfirmation(
+  email: string,
+  session: Stripe.Checkout.Session,
+  items: any[]
+) {
+  const resendApiKey = process.env.RESEND_API_KEY
+  if (!resendApiKey) {
+    console.warn('[porterful-email] RESEND_API_KEY not set — skipping confirmation')
+    return
+  }
+
+  const fromAddress = process.env.EMAIL_FROM || 'Porterful <noreply@porterful.com>'
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://porterful.com'
+
+  const total = (session.amount_total || 0) / 100
+  const itemList = items.map((item: any) => `${item.quantity || 1}x ${item.name || item.title}`).join(', ')
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #000; color: #fff; margin: 0; padding: 0; }
+    .container { max-width: 560px; margin: 0 auto; padding: 40px 20px; }
+    .header { text-align: center; margin-bottom: 32px; }
+    .logo { font-size: 20px; font-weight: 900; color: #f97316; }
+    h1 { font-size: 28px; font-weight: 900; margin: 0 0 12px; color: #fff; }
+    p { color: #9ca3af; line-height: 1.7; font-size: 15px; margin: 0 0 16px; }
+    .card { background: #0f0f0f; border: 1px solid #1f2937; border-radius: 12px; padding: 24px; margin: 24px 0; }
+    .card-title { font-size: 12px; font-weight: 700; color: #f97316; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+    .detail { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #1f2937; }
+    .detail:last-child { border-bottom: none; }
+    .detail-label { color: #6b7280; font-size: 13px; }
+    .detail-value { color: #fff; font-size: 13px; font-weight: 600; }
+    .item-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #1f2937; }
+    .item-row:last-child { border-bottom: none; }
+    .footer { text-align: center; color: #4b5563; font-size: 12px; margin-top: 40px; border-top: 1px solid #1f2937; padding-top: 24px; }
+    .cta { display: inline-block; background: #f97316; color: #000; font-weight: 700; font-size: 15px; padding: 14px 28px; border-radius: 8px; text-decoration: none; margin: 8px 0; }
+    .cta-block { text-align: center; margin: 32px 0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">PORTERFUL</div>
+    </div>
+
+    <h1>Order Confirmed ✅</h1>
+    <p>Your payment of <strong style="color:#fff">$${total.toFixed(2)}</strong> has been received. Your order is on its way.</p>
+
+    <div class="card">
+      <div class="card-title">Order Summary</div>
+      ${items.map((item: any) => `
+        <div class="item-row">
+          <span class="detail-label">${item.name || item.title}</span>
+          <span class="detail-value">×${item.quantity || 1}</span>
+        </div>
+      `).join('')}
+      <div class="item-row" style="margin-top:12px;padding-top:12px;border-top:1px solid #1f2937">
+        <span class="detail-label" style="font-weight:700;color:#fff">Total</span>
+        <span class="detail-value" style="color:#f97316">$${total.toFixed(2)}</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Next Steps</div>
+      <p style="margin:0;color:#9ca3af;font-size:13px;">
+        You'll receive a shipping confirmation email shortly. Track your order in your dashboard.
+      </p>
+    </div>
+
+    <div class="cta-block">
+      <a href="${baseUrl}/dashboard" class="cta">View My Orders →</a>
+    </div>
+
+    <div class="footer">
+      Porterful — Where artists own their future.<br>
+      <a href="${baseUrl}" style="color:#6b7280">porterful.com</a>
+    </div>
+  </div>
+</body>
+</html>
+`
+
+  const response = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${resendApiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: fromAddress,
+      to: email,
+      subject: `✅ Order confirmed — $${total.toFixed(2)}`,
+      html,
+    }),
+  })
+
+  if (!response.ok) {
+    const err = await response.text()
+    throw new Error(`Resend error: ${response.status} ${err}`)
+  }
+
+  const data = await response.json() as { id: string }
+  console.log(`[porterful-email] Confirmation sent: ${data.id}`)
 }

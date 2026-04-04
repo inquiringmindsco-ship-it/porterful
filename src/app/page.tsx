@@ -93,8 +93,8 @@ function createParticle(width: number, height: number): Particle {
   return {
     x: Math.random() * width,
     y: Math.random() * height,
-    vx: (Math.random() - 0.5) * 0.15,
-    vy: (Math.random() - 0.5) * 0.15,
+    vx: (Math.random() - 0.5) * 0.02,
+    vy: (Math.random() - 0.5) * 0.02,
     size: Math.random() * 1.5 + 0.3,
     opacity: Math.random() * 0.3 + 0.05,
     hue: hues[Math.floor(Math.random() * hues.length)],
@@ -286,8 +286,8 @@ export default function HomePage() {
         const alpha = p.opacity * glowPulse
 
         // Subtle parallax from gyroscope
-        const px = p.x + offsetX * (p.y / canvas.height) * 0.5
-        const py = p.y + offsetY * (p.x / canvas.width) * 0.5
+        const px = p.x + offsetX * (p.y / canvas.height) * 0.2
+        const py = p.y + offsetY * (p.x / canvas.width) * 0.2
 
         const gradient = ctx.createRadialGradient(px, py, 0, px, py, p.size * 5)
         gradient.addColorStop(0, `hsla(${p.hue}, 60%, 60%, ${alpha * 0.3})`)
@@ -311,7 +311,7 @@ export default function HomePage() {
           const dx = px - (p2.x + offsetX * (p2.y / canvas.height) * 0.5)
           const dy = py - (p2.y + offsetY * (p2.x / canvas.width) * 0.5)
           const dist = Math.sqrt(dx * dx + dy * dy)
-          if (dist < 60) {
+          if (dist < 30) {
             const lineAlpha = (1 - dist / 60) * 0.04 * glowPulse
             ctx.strokeStyle = `hsla(${p.hue}, 50%, 60%, ${lineAlpha})`
             ctx.lineWidth = 0.3
@@ -511,6 +511,9 @@ export default function HomePage() {
             </div>
           )
         })}
+
+        {/* Bottom buffer — prevents last section from getting stuck */}
+        <div style={{ height: '100vh' }} aria-hidden="true" />
       </main>
 
       {/* SECTION DOTS */}

@@ -23,6 +23,10 @@
   ],
   "rewrites": [
     {
+      "source": "/signup",
+      "destination": "/signup/signup"
+    },
+    {
       "source": "/api/(.*)",
       "destination": "/api/$1"
     }

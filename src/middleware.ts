@@ -26,5 +26,12 @@ export const config = {
 */
 
 export function middleware(request: NextRequest) {
+  const pathname = request.nextUrl.pathname
+
+  // Redirect /marketplace to /store
+  if (pathname === '/marketplace') {
+    return NextResponse.redirect(new URL('/store', request.url))
+  }
+
   return NextResponse.next()
 }

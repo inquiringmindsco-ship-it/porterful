@@ -71,7 +71,7 @@ const PLATFORM_ARTISTS: ArtistProfile[] = [
     username: 'atm-trap',
     full_name: 'ATM Trap',
     email: null,
-    avatar_url: '/artists/atm-trap/avatar.jpg',
+    avatar_url: '/artists/atm-trap/images/avatar.jpg',
     bio: 'St. Louis hip-hop artist bringing authentic street sound to Porterful.',
     genre: 'Hip-Hop',
     location: 'St. Louis, MO',
