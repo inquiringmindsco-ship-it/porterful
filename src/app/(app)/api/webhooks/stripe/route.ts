@@ -63,26 +63,27 @@ export async function POST(request: NextRequest) {
         const platformCents = Math.round(subtotalCents * 0.10) // platform 10%
         const sellerCents = subtotalCents - artistFundCents - superfanCents - platformCents
 
-        // Real schema: id, buyer_id, product_id, amount, status, user_id, referrer_id,
+        // Schema: id, user_id, order_number, status, subtotal, shipping, tax, total,
         // seller_total, artist_fund_total, superfan_total, platform_total,
-        // stripe_payment_intent_id, stripe_checkout_session_id, buyer_email, shipping_address
+        // referrer_id, stripe_payment_intent_id, stripe_checkout_session_id,
+        // shipping_address, created_at, updated_at
         const { data: order, error: orderError } = await supabase
           .from('orders')
           .insert({
             id: session.id,
-            buyer_id: null,
-            product_id: items[0]?.id || null,
-            amount: amountCents,
-            status: 'paid',
             user_id: null,
+            status: 'paid',
+            subtotal: subtotalCents / 100,
+            total: amountCents / 100,
+            shipping: 0,
+            tax: 0,
+            seller_total: sellerCents / 100,
+            artist_fund_total: artistFundCents / 100,
+            superfan_total: superfanCents / 100,
+            platform_total: platformCents / 100,
             referrer_id: null,
-            seller_total: sellerCents,
-            artist_fund_total: artistFundCents,
-            superfan_total: superfanCents,
-            platform_total: platformCents,
             stripe_payment_intent_id: session.payment_intent as string,
             stripe_checkout_session_id: session.id,
-            buyer_email: session.customer_details?.email || session.customer_email || null,
             shipping_address: (session as any).shipping_details ? JSON.stringify({
               name: (session as any).shipping_details?.name || '',
               line1: (session as any).shipping_details?.address?.line1 || '',
@@ -100,7 +101,7 @@ export async function POST(request: NextRequest) {
         } else {
           console.log('✅ Order saved:', order.id)
 
-          // Save order items — real schema: order_id, product_id, product_name, price, quantity, commission
+          // Schema: id, order_id, product_id, product_name, price, quantity, seller_id, artist_id, superfan_id, created_at
           if (items.length > 0) {
             const orderItems = items.map((item: any) => ({
               order_id: session.id,
@@ -108,7 +109,9 @@ export async function POST(request: NextRequest) {
               product_name: item.name || item.title || 'Unknown Product',
               price: item.price * 100, // convert to cents integer
               quantity: item.quantity || 1,
-              commission: Math.round((item.artistCut || 0) * 100),
+              seller_id: null,
+              artist_id: null,
+              superfan_id: null,
             }))
 
             const { error: itemsError } = await supabase

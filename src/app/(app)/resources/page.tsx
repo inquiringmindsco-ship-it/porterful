@@ -86,23 +86,23 @@ export default function ResourcesPage() {
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Hero */}
-      <section className="py-16 px-6 border-b border-zinc-800">
+      <section className="py-16 px-6 border-b border-[var(--pf-border)]">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
             Resources for <span className="text-purple-400">Artists</span>
           </h1>
-          <p className="text-lg text-zinc-400 max-w-2xl mx-auto">
+          <p className="text-lg text-[var(--pf-text-muted)] max-w-2xl mx-auto">
             Tools, platforms, and guides to help you manage money, build credit, and run your creative business.
           </p>
         </div>
       </section>
 
       {/* Featured */}
-      <section className="py-12 px-6 border-b border-zinc-800">
+      <section className="py-12 px-6 border-b border-[var(--pf-border)]">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-lg font-medium text-zinc-400 mb-6">Featured Resource</h2>
+          <h2 className="text-lg font-medium text-[var(--pf-text-muted)] mb-6">Featured Resource</h2>
           
-          <div className="bg-gradient-to-br from-zinc-900 to-zinc-950 border border-zinc-800 rounded-2xl p-8 md:p-12">
+          <div className="bg-gradient-to-br from-zinc-900 to-zinc-950 border border-[var(--pf-border)] rounded-2xl p-8 md:p-12">
             <div className="flex flex-col lg:flex-row gap-8 items-start">
               <div className="w-16 h-16 rounded-2xl bg-blue-500 flex items-center justify-center flex-shrink-0">
                 <CreditCard size={32} className="text-white" />
@@ -113,8 +113,8 @@ export default function ResourcesPage() {
                   <span className="px-3 py-1 bg-blue-500/20 text-blue-400 text-xs font-medium rounded-full">Our Pick</span>
                   <span className="px-3 py-1 bg-purple-500/20 text-purple-400 text-xs font-medium rounded-full">100% Free</span>
                 </div>
-                <p className="text-zinc-400 mb-4">Free credit repair tools for artists</p>
-                <p className="text-zinc-300 mb-6 max-w-2xl">
+                <p className="text-[var(--pf-text-muted)] mb-4">Free credit repair tools for artists</p>
+                <p className="text-[var(--pf-text-secondary)] mb-6 max-w-2xl">
                   Built by the same team as Porterful. Dispute letters, credit calculators, score simulators, 
                   Net30 vendor finder, and business credit building — all completely free.
                 </p>
@@ -127,7 +127,7 @@ export default function ResourcesPage() {
                   </Link>
                   <Link 
                     href="https://creditklimb.com/business-credit" 
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-zinc-800 hover:bg-zinc-700 text-white font-semibold rounded-lg transition-colors"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--pf-surface)] hover:bg-[var(--pf-surface-hover)] text-white font-semibold rounded-lg transition-colors"
                   >
                     Business Credit Building
                   </Link>
@@ -151,9 +151,9 @@ export default function ResourcesPage() {
 
       {/* All Resources */}
       {RESOURCES.map((section) => (
-        <section key={section.category} className="py-12 px-6 border-b border-zinc-800">
+        <section key={section.category} className="py-12 px-6 border-b border-[var(--pf-border)]">
           <div className="max-w-6xl mx-auto">
-            <h2 className="text-lg font-medium text-zinc-400 mb-6">{section.category}</h2>
+            <h2 className="text-lg font-medium text-[var(--pf-text-muted)] mb-6">{section.category}</h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               {section.items.map((resource) => (
                 <a
@@ -161,7 +161,7 @@ export default function ResourcesPage() {
                   href={resource.href}
                   target={resource.external ? '_blank' : undefined}
                   rel={resource.external ? 'noopener noreferrer' : undefined}
-                  className="group bg-zinc-900 border border-zinc-800 rounded-xl p-6 hover:border-zinc-700 transition-colors"
+                  className="group bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-xl p-6 hover:border-[var(--pf-border)] transition-colors"
                 >
                   <div className="flex items-start gap-4">
                     <div className={`w-10 h-10 rounded-lg ${resource.color} flex items-center justify-center flex-shrink-0`}>
@@ -173,7 +173,7 @@ export default function ResourcesPage() {
                         {resource.external && <ExternalLink size={14} className="text-zinc-500 flex-shrink-0" />}
                       </div>
                       <p className="text-sm text-zinc-500 mb-2">{resource.tagline}</p>
-                      <p className="text-sm text-zinc-400 line-clamp-2">{resource.description}</p>
+                      <p className="text-sm text-[var(--pf-text-muted)] line-clamp-2">{resource.description}</p>
                     </div>
                   </div>
                 </a>
@@ -184,7 +184,7 @@ export default function ResourcesPage() {
       ))}
 
       {/* Footer */}
-      <footer className="py-8 px-6 border-t border-zinc-800">
+      <footer className="py-8 px-6 border-t border-[var(--pf-border)]">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-zinc-500">
           <div>Porterful — Music & Commerce for Artists</div>
           <div className="flex gap-6">

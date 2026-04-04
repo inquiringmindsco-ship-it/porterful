@@ -6,6 +6,7 @@ import { Play, Pause } from 'lucide-react'
 
 interface ArtistTrackListProps {
   tracks: Track[]
+  sectionTitle?: string
 }
 
 function formatPlays(n: number): string {

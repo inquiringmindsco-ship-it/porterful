@@ -38,9 +38,10 @@ export function Navbar() {
 
   const navLinks = [
     { href: '/music', label: 'Music' },
-    { href: '/shop', label: 'Shop' },
+    { href: '/marketplace', label: 'Marketplace' },
     { href: '/systems', label: 'Systems' },
     { href: '/learn', label: 'Learn' },
+    { href: '/competition', label: 'Competition' },
   ]
 
   return (

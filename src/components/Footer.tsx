@@ -73,11 +73,22 @@ export function Footer() {
           <div>
             <h3 className="font-semibold mb-4 text-[var(--pf-text)]">Platform</h3>
             <ul className="space-y-2">
-              <li><Link href="/marketplace" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">Shop</Link></li>
-              <li><Link href="/digital" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">Music</Link></li>
+              <li><Link href="/marketplace" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">Marketplace</Link></li>
+              <li><Link href="/music" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">Music</Link></li>
               <li><Link href="/radio" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">Radio</Link></li>
               <li><Link href="/playlists" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">Playlists</Link></li>
+              <li><Link href="/artists" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">Artists</Link></li>
               <li><Link href="/competition" className="text-[var(--pf-orange)] hover:text-[var(--pf-orange)]/80 transition-colors text-sm font-medium">$10K Competition</Link></li>
+            </ul>
+          </div>
+
+          {/* Community */}
+          <div>
+            <h3 className="font-semibold mb-4 text-[var(--pf-text)]">Community</h3>
+            <ul className="space-y-2">
+              <li><Link href="/blog" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">Blog</Link></li>
+              <li><Link href="/superfan" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">Superfan</Link></li>
+              <li><Link href="/systems" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">Systems</Link></li>
               <li><Link href="/support" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">Support Artists</Link></li>
             </ul>
           </div>
@@ -105,15 +116,27 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Partner Resources */}
+          {/* Resources */}
           <div>
-            <h3 className="font-semibold mb-4 text-[var(--pf-text)]">Partners</h3>
+            <h3 className="font-semibold mb-4 text-[var(--pf-text)]">Resources</h3>
             <ul className="space-y-2">
+              <li><Link href="/apply" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">Apply as Artist</Link></li>
+              <li><Link href="/about" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">About</Link></li>
+              <li><Link href="/faq" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">FAQ</Link></li>
+              <li><Link href="/contact" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">Contact</Link></li>
               <li><a href="https://creditklimb.com" target="_blank" rel="noopener noreferrer" className="text-[var(--pf-text-secondary)] hover:text-green-400 transition-colors text-sm flex items-center gap-2">
                 Credit Klimb <span className="text-xs px-1.5 py-0.5 bg-green-500/20 text-green-400 rounded">Free</span>
               </a></li>
-              <li><a href="https://stripe.com" target="_blank" rel="noopener noreferrer" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">Stripe ↗</a></li>
-              <li><a href="https://www.waveapps.com" target="_blank" rel="noopener noreferrer" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">Wave ↗</a></li>
+            </ul>
+          </div>
+
+          {/* Legal */}
+          <div>
+            <h3 className="font-semibold mb-4 text-[var(--pf-text)]">Legal</h3>
+            <ul className="space-y-2">
+              <li><Link href="/terms" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">Terms</Link></li>
+              <li><Link href="/privacy" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">Privacy</Link></li>
+              <li><Link href="/moral-policy" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">Moral Policy</Link></li>
             </ul>
           </div>
         </div>

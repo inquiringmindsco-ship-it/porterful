@@ -123,22 +123,22 @@ export default function SettingsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] text-white flex items-center justify-center">
-        <p className="text-gray-400">Loading...</p>
+      <div className="min-h-screen bg-[var(--pf-bg)] text-white flex items-center justify-center">
+        <p className="text-[var(--pf-text-muted)]">Loading...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white py-8 px-6">
+    <div className="min-h-screen bg-[var(--pf-bg)] text-white py-8 px-6">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold">Settings</h1>
-            <p className="text-gray-400">Manage your account and preferences</p>
+            <p className="text-[var(--pf-text-muted)]">Manage your account and preferences</p>
           </div>
-          <Link href="/dashboard" className="text-[#ff6b00] hover:underline">
+          <Link href="/dashboard" className="text-[var(--pf-orange)] hover:underline">
             ← Back to Dashboard
           </Link>
         </div>
@@ -166,8 +166,8 @@ export default function SettingsPage() {
                     onClick={() => setActiveTab(tab.id as typeof activeTab)}
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                       activeTab === tab.id
-                        ? 'bg-[#ff6b00]/20 text-[#ff6b00]'
-                        : 'text-gray-400 hover:bg-[#1a1a1a]'
+                        ? 'bg-[var(--pf-orange)]/20 text-[var(--pf-orange)]'
+                        : 'text-[var(--pf-text-muted)] hover:bg-[var(--pf-surface)]'
                     }`}
                   >
                     <Icon size={18} />
@@ -181,12 +181,12 @@ export default function SettingsPage() {
           {/* Content */}
           <div className="lg:col-span-3">
             {activeTab === 'profile' && (
-              <div className="bg-[#1a1a1a] rounded-xl p-6 border border-gray-800">
+              <div className="bg-[var(--pf-surface)] rounded-xl p-6 border border-[var(--pf-border)]">
                 <h2 className="text-xl font-bold mb-6">Profile Information</h2>
 
                 {/* Avatar */}
                 <div className="flex items-center gap-6 mb-8">
-                  <div className="w-24 h-24 rounded-full bg-[#ff6b00]/20 flex items-center justify-center text-4xl overflow-hidden">
+                  <div className="w-24 h-24 rounded-full bg-[var(--pf-orange)]/20 flex items-center justify-center text-4xl overflow-hidden">
                     {profile.avatar_url ? (
                       <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
                     ) : (
@@ -194,7 +194,7 @@ export default function SettingsPage() {
                     )}
                   </div>
                   <div>
-                    <button className="bg-[#ff6b00] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[#ff8533] transition-colors">
+                    <button className="bg-[var(--pf-orange)] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[var(--pf-orange-light)] transition-colors">
                       Upload Photo
                     </button>
                     <p className="text-gray-500 text-sm mt-2">JPG, PNG. Max 5MB.</p>
@@ -209,7 +209,7 @@ export default function SettingsPage() {
                       type="text"
                       value={profile.name}
                       onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-                      className="w-full bg-[#0a0a0a] border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-[#ff6b00] transition-colors"
+                      className="w-full bg-[var(--pf-bg)] border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-[#ff6b00] transition-colors"
                     />
                   </div>
                   <div>
@@ -218,7 +218,7 @@ export default function SettingsPage() {
                       type="email"
                       value={profile.email}
                       disabled
-                      className="w-full bg-[#0a0a0a] border border-gray-700 rounded-lg px-4 py-3 text-gray-500 cursor-not-allowed"
+                      className="w-full bg-[var(--pf-bg)] border border-gray-700 rounded-lg px-4 py-3 text-gray-500 cursor-not-allowed"
                     />
                   </div>
                   <div>
@@ -227,7 +227,7 @@ export default function SettingsPage() {
                       type="text"
                       value={profile.location}
                       onChange={(e) => setProfile({ ...profile, location: e.target.value })}
-                      className="w-full bg-[#0a0a0a] border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-[#ff6b00] transition-colors"
+                      className="w-full bg-[var(--pf-bg)] border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-[#ff6b00] transition-colors"
                       placeholder="City, State"
                     />
                   </div>
@@ -237,7 +237,7 @@ export default function SettingsPage() {
                       type="url"
                       value={profile.website}
                       onChange={(e) => setProfile({ ...profile, website: e.target.value })}
-                      className="w-full bg-[#0a0a0a] border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-[#ff6b00] transition-colors"
+                      className="w-full bg-[var(--pf-bg)] border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-[#ff6b00] transition-colors"
                       placeholder="https://yoursite.com"
                     />
                   </div>
@@ -247,7 +247,7 @@ export default function SettingsPage() {
                       value={profile.bio}
                       onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
                       rows={3}
-                      className="w-full bg-[#0a0a0a] border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-[#ff6b00] transition-colors resize-none"
+                      className="w-full bg-[var(--pf-bg)] border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-[#ff6b00] transition-colors resize-none"
                       placeholder="Tell your fans about yourself..."
                     />
                   </div>
@@ -256,7 +256,7 @@ export default function SettingsPage() {
                 <button
                   onClick={saveProfile}
                   disabled={saving}
-                  className="mt-6 bg-[#ff6b00] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#ff8533] transition-colors disabled:opacity-50"
+                  className="mt-6 bg-[var(--pf-orange)] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[var(--pf-orange-light)] transition-colors disabled:opacity-50"
                 >
                   {saving ? 'Saving...' : 'Save Changes'}
                 </button>
@@ -266,22 +266,22 @@ export default function SettingsPage() {
             {activeTab === 'referrals' && (
               <div className="space-y-6">
                 {/* Referral Code */}
-                <div className="bg-[#1a1a1a] rounded-xl p-6 border border-gray-800">
+                <div className="bg-[var(--pf-surface)] rounded-xl p-6 border border-[var(--pf-border)]">
                   <h2 className="text-xl font-bold mb-4">Your Referral Code</h2>
                   {referralCode ? (
                     <>
                       <div className="flex items-center gap-4">
-                        <div className="flex-1 bg-[#0a0a0a] border border-[#ff6b00] rounded-lg px-6 py-4 text-2xl font-mono font-bold text-[#ff6b00]">
+                        <div className="flex-1 bg-[var(--pf-bg)] border border-[#ff6b00] rounded-lg px-6 py-4 text-2xl font-mono font-bold text-[var(--pf-orange)]">
                           {referralCode}
                         </div>
                         <button
                           onClick={() => navigator.clipboard.writeText(referralCode)}
-                          className="bg-[#ff6b00] text-white px-6 py-4 rounded-lg font-semibold hover:bg-[#ff8533] transition-colors"
+                          className="bg-[var(--pf-orange)] text-white px-6 py-4 rounded-lg font-semibold hover:bg-[var(--pf-orange-light)] transition-colors"
                         >
                           Copy
                         </button>
                       </div>
-                      <p className="text-gray-400 mt-4">
+                      <p className="text-[var(--pf-text-muted)] mt-4">
                         Share this code. When people shop using it, you earn 3% on all purchases.
                       </p>
                     </>
@@ -292,11 +292,11 @@ export default function SettingsPage() {
 
                 {/* Stats */}
                 <div className="grid md:grid-cols-2 gap-4">
-                  <div className="bg-[#1a1a1a] rounded-xl p-6 border border-gray-800 text-center">
-                    <div className="text-3xl font-bold text-[#ff6b00]">{referralStats.totalReferrals}</div>
+                  <div className="bg-[var(--pf-surface)] rounded-xl p-6 border border-[var(--pf-border)] text-center">
+                    <div className="text-3xl font-bold text-[var(--pf-orange)]">{referralStats.totalReferrals}</div>
                     <div className="text-gray-500">Total Referrals</div>
                   </div>
-                  <div className="bg-[#1a1a1a] rounded-xl p-6 border border-gray-800 text-center">
+                  <div className="bg-[var(--pf-surface)] rounded-xl p-6 border border-[var(--pf-border)] text-center">
                     <div className="text-3xl font-bold text-green-400">${referralStats.totalEarnings.toFixed(2)}</div>
                     <div className="text-gray-500">Total Earned</div>
                   </div>
@@ -304,18 +304,18 @@ export default function SettingsPage() {
 
                 {/* Share Link */}
                 {referralCode && (
-                  <div className="bg-[#1a1a1a] rounded-xl p-6 border border-gray-800">
+                  <div className="bg-[var(--pf-surface)] rounded-xl p-6 border border-[var(--pf-border)]">
                     <h2 className="text-xl font-bold mb-4">Share Your Link</h2>
                     <div className="flex items-center gap-4">
                       <input
                         type="text"
                         readOnly
                         value={`https://porterful.com?ref=${referralCode}`}
-                        className="flex-1 bg-[#0a0a0a] border border-gray-700 rounded-lg px-4 py-3"
+                        className="flex-1 bg-[var(--pf-bg)] border border-gray-700 rounded-lg px-4 py-3"
                       />
                       <button
                         onClick={() => navigator.clipboard.writeText(`https://porterful.com?ref=${referralCode}`)}
-                        className="bg-gray-700 text-white px-4 py-3 rounded-lg hover:bg-gray-600 transition-colors"
+                        className="bg-[var(--pf-surface)] text-white px-4 py-3 rounded-lg hover:bg-[var(--pf-surface-hover)] transition-colors"
                       >
                         Copy Link
                       </button>
@@ -326,10 +326,10 @@ export default function SettingsPage() {
             )}
 
             {activeTab === 'payouts' && (
-              <div className="bg-[#1a1a1a] rounded-xl p-6 border border-gray-800">
+              <div className="bg-[var(--pf-surface)] rounded-xl p-6 border border-[var(--pf-border)]">
                 <h2 className="text-xl font-bold mb-6">Payout Settings</h2>
 
-                <div className="bg-[#0a0a0a] rounded-lg p-6 mb-6">
+                <div className="bg-[var(--pf-bg)] rounded-lg p-6 mb-6">
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-[#635bff] rounded flex items-center justify-center text-white font-bold">
                       S
@@ -338,13 +338,13 @@ export default function SettingsPage() {
                       <p className="font-semibold">Stripe Account</p>
                       <p className="text-gray-500 text-sm">Connect to receive payouts</p>
                     </div>
-                    <button className="bg-[#ff6b00] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[#ff8533] transition-colors">
+                    <button className="bg-[var(--pf-orange)] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[var(--pf-orange-light)] transition-colors">
                       Connect Stripe
                     </button>
                   </div>
                 </div>
 
-                <div className="border-t border-gray-800 pt-6">
+                <div className="border-t border-[var(--pf-border)] pt-6">
                   <h3 className="font-semibold mb-4">Payout History</h3>
                   <p className="text-gray-500 text-sm">No payouts yet. Connect Stripe to start receiving earnings.</p>
                 </div>
@@ -352,7 +352,7 @@ export default function SettingsPage() {
             )}
 
             {activeTab === 'notifications' && (
-              <div className="bg-[#1a1a1a] rounded-xl p-6 border border-gray-800">
+              <div className="bg-[var(--pf-surface)] rounded-xl p-6 border border-[var(--pf-border)]">
                 <h2 className="text-xl font-bold mb-6">Notification Preferences</h2>
 
                 <div className="space-y-6">
@@ -369,7 +369,7 @@ export default function SettingsPage() {
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" defaultChecked className="sr-only peer" />
-                        <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#ff6b00]"></div>
+                        <div className="w-11 h-6 bg-[var(--pf-surface)] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--pf-orange)]"></div>
                       </label>
                     </div>
                   ))}

@@ -13,8 +13,8 @@ const SUPERFAN_TIERS = [
     requirement: 'Sign up & share',
     reward: '3% on all referrals',
     color: 'from-gray-400 to-gray-500',
-    border: 'border-gray-500/30',
-    textColor: 'text-gray-300',
+    border: 'border-[var(--pf-border)]',
+    textColor: 'text-[var(--pf-text-secondary)]',
     perks: [
       'Unique referral link',
       '3% commission on referrals',

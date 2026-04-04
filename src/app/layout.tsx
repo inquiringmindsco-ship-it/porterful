@@ -16,12 +16,12 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" style={{ background: '#000' }}>
+    <html lang="en" className="dark" style={{ background: '#0a0a0a' }}>
       <head>
-        <meta name="theme-color" content="#000000" />
+        <meta name="theme-color" content="#0a0a0a" />
         <link rel="icon" type="image/svg+xml" href="/icon.svg?v=2" />
       </head>
-      <body style={{ margin: 0, padding: 0, background: '#000', overflow: 'hidden' }}>
+      <body style={{ margin: 0, padding: 0, background: 'var(--pf-bg)', overflow: 'visible' }}>
         {children}
       </body>
     </html>

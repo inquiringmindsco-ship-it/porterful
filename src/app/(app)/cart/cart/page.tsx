@@ -18,7 +18,7 @@ export default function CartPage() {
   const handleCheckout = () => {
     // Store cart in localStorage for checkout page
     localStorage.setItem('porterful-checkout-items', JSON.stringify(items));
-    router.push('/checkout');
+    router.push('/checkout/checkout');
   };
 
   return (
@@ -54,7 +54,7 @@ export default function CartPage() {
                   </div>
                   
                   <div className="flex-1">
-                    <Link href={`/product/${item.productId}`} className="font-semibold hover:text-[var(--pf-orange)]">
+                    <Link href={`/product/product/${item.productId}`} className="font-semibold hover:text-[var(--pf-orange)]">
                       {item.name}
                     </Link>
                     <p className="text-sm text-[var(--pf-text-muted)]">{item.artist}</p>

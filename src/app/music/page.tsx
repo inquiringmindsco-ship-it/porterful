@@ -271,11 +271,11 @@ export default function MusicPage() {
               <div className="flex items-center justify-center lg:justify-start gap-8 mt-8">
                 <div className="flex items-center gap-2 text-[var(--pf-text-secondary)]">
                   <Headphones size={16} />
-                  <span className="text-sm">{formatPlays(152000)}+ plays</span>
+                  <span className="text-sm">{formatPlays(OD_TRACKS.reduce((sum, t) => sum + (t.plays || 0), 0))}+ total plays</span>
                 </div>
                 <div className="flex items-center gap-2 text-[var(--pf-text-secondary)]">
                   <Heart size={16} />
-                  <span className="text-sm">2,847 supporters</span>
+                  <span className="text-sm">{ARTISTS.length}+ artists supported</span>
                 </div>
                 <div className="flex items-center gap-2 text-[var(--pf-text-secondary)]">
                   <Disc size={16} />
@@ -588,6 +588,9 @@ export default function MusicPage() {
                 </p>
                 <p>
                   He wrote his story down — the real one, unfiltered — in his book <span className="text-[var(--pf-text)] italic">"There It Is, Here It Go."</span>
+                </p>
+                <p>
+                  Now he&apos;s building the ecosystem that should have existed all along — where artists own the platform, keep the revenue, and connect directly with the people who believe in them.
                 </p>
               </div>
 

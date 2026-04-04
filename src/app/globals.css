@@ -3,14 +3,39 @@
 @tailwind utilities;
 
 :root {
-  /* Light theme */
+  /* Porterful is dark-first — dark is the default theme */
+  /* Light theme is applied via .light class override */
+  
+  /* Dark theme (default) */
+  --pf-bg: #0a0a0a;
+  --pf-bg-secondary: #111111;
+  --pf-surface: #141414;
+  --pf-surface-hover: #1c1c1c;
+  --pf-border: #2a2a2a;
+  --pf-border-subtle: #222222;
+  --pf-text: #ffffff;
+  --pf-text-secondary: #c8c8c8;
+  --pf-text-muted: #8a8a8a;
+  --pf-orange: #f97316;
+  --pf-orange-dark: #ea580c;
+  --pf-orange-light: #fb923c;
+  --pf-purple: #8b5cf6;
+  
+  --background: #0a0a0a;
+  --foreground: #ffffff;
+}
+
+/* Light theme override — rare, but supported */
+.light {
   --pf-bg: #ffffff;
-  --pf-bg-secondary: #f8f8f8;
+  --pf-bg-secondary: #f5f5f5;
   --pf-surface: #ffffff;
-  --pf-border: #e5e5e5;
+  --pf-surface-hover: #f0f0f0;
+  --pf-border: #e0e0e0;
+  --pf-border-subtle: #ebebeb;
   --pf-text: #0a0a0a;
-  --pf-text-secondary: #404040;
-  --pf-text-muted: #6b6b6b;
+  --pf-text-secondary: #525252;
+  --pf-text-muted: #737373;
   --pf-orange: #f97316;
   --pf-orange-dark: #ea580c;
   --pf-orange-light: #fb923c;
@@ -20,18 +45,21 @@
   --foreground: #0a0a0a;
 }
 
+/* Ensure dark class also works (legacy) */
 .dark {
   --pf-bg: #0a0a0a;
   --pf-bg-secondary: #111111;
-  --pf-surface: #1a1a1a;
+  --pf-surface: #141414;
+  --pf-surface-hover: #1c1c1c;
   --pf-border: #2a2a2a;
+  --pf-border-subtle: #222222;
   --pf-text: #ffffff;
-  --pf-text-secondary: #d4d4d4;
-  --pf-text-muted: #a3a3a3;
+  --pf-text-secondary: #c8c8c8;
+  --pf-text-muted: #8a8a8a;
   --pf-orange: #f97316;
   --pf-orange-dark: #ea580c;
   --pf-orange-light: #fb923c;
-  --pf-purple: #7c3aed;
+  --pf-purple: #8b5cf6;
   
   --background: #0a0a0a;
   --foreground: #ffffff;

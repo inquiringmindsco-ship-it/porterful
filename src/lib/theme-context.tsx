@@ -24,21 +24,22 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     setMounted(true);
-    // Check localStorage first, then system preference
+    // Default to dark — Porterful is a dark-first platform
     const saved = localStorage.getItem('theme') as Theme | null;
-    if (saved) {
-      setThemeState(saved);
-    } else if (window.matchMedia('(prefers-color-scheme: light)').matches) {
+    if (saved && saved === 'light') {
       setThemeState('light');
+    } else {
+      setThemeState('dark');
     }
   }, []);
 
   useEffect(() => {
     if (!mounted) return;
     
-    // Apply theme to document
+    // Apply theme class to document
     document.documentElement.classList.remove('dark', 'light');
     document.documentElement.classList.add(theme);
+    document.documentElement.style.colorScheme = theme;
     localStorage.setItem('theme', theme);
     
     // Update meta theme-color
@@ -56,9 +57,13 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     setThemeState(newTheme);
   };
 
-  // Prevent hydration mismatch
+  // Prevent hydration mismatch — render children immediately but hidden until mounted
   if (!mounted) {
-    return null;
+    return (
+      <ThemeCtx.Provider value={{ theme: 'dark', toggleTheme: () => {}, setTheme: () => {} }}>
+        <div style={{ visibility: 'hidden' }}>{children}</div>
+      </ThemeCtx.Provider>
+    );
   }
 
   return (

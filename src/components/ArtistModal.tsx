@@ -127,7 +127,7 @@ export function ArtistModal({ onClose }: { onClose?: () => void }) {
               </div>
               <div className="flex justify-between">
                 <span className="text-[var(--pf-text-muted)]">Silver ($500-$5K)</span>
-                <span className="font-bold text-gray-400">Up to $1,000</span>
+                <span className="font-bold text-[var(--pf-text-muted)]">Up to $1,000</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[var(--pf-text-muted)]">Gold ($5K-$25K</span>

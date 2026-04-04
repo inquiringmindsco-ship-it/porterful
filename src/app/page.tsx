@@ -32,6 +32,19 @@ const SYSTEMS = [
     ),
   },
   {
+    id: 'learn',
+    label: 'LEARN',
+    subtitle: 'Build the next generation.',
+    route: '/teachyoung-inquiry',
+    glowColor: '#ec4899',
+    icon: (
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+      </svg>
+    ),
+  },
+  {
     id: 'systems',
     label: 'SYSTEMS',
     subtitle: 'Explore the wider ecosystem.',
@@ -55,19 +68,6 @@ const SYSTEMS = [
     icon: (
       <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-      </svg>
-    ),
-  },
-  {
-    id: 'worlds',
-    label: 'WORLDS',
-    subtitle: 'Go deeper.',
-    route: '/worlds',
-    glowColor: '#8b5cf6',
-    icon: (
-      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="10"/>
-        <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
       </svg>
     ),
   },
@@ -374,7 +374,7 @@ export default function HomePage() {
           <span
             className="text-2xl font-bold tracking-widest"
             style={{
-              color: '#3d3d3d',
+              color: 'var(--pf-text-muted)',
               letterSpacing: '0.35em',
               textShadow: '0 0 80px hsla(250, 10%, 5%, 0.9)',
             }}
@@ -488,7 +488,7 @@ export default function HomePage() {
                 {i === 0 && isActive && (
                   <div
                     className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
-                    style={{ color: '#3a3a3a', transition: 'opacity 600ms ease-out' }}
+                    style={{ color: 'var(--pf-text-muted)', transition: 'opacity 600ms ease-out' }}
                   >
                     <span className="text-xs uppercase tracking-widest">Scroll</span>
                     <div className="w-px h-8 bg-current opacity-25" />
@@ -550,7 +550,7 @@ export default function HomePage() {
       {/* FOOTER */}
       <footer
         className="fixed bottom-0 left-0 right-0 px-8 py-4 text-center z-50"
-        style={{ color: '#3a3a3a' }}
+        style={{ color: 'var(--pf-text-muted)' }}
       >
         <span className="text-xs tracking-widest uppercase">Porterful Ecosystem</span>
       </footer>

@@ -68,7 +68,7 @@ function IdentityBuilder() {
           <div className={`text-4xl lg:text-6xl font-bold tracking-wider mb-8 transition-colors duration-300 ${
             metal.id === 'gold' ? 'text-yellow-400' :
             metal.id === 'rosegold' ? 'text-pink-400' :
-            'text-gray-300'
+            'text-[var(--pf-text-secondary)]'
           }`}>
             {displayName.toUpperCase()}
           </div>
@@ -82,7 +82,7 @@ function IdentityBuilder() {
           <span className={`px-3 py-1 rounded-full text-sm font-medium ${
             metal.id === 'gold' ? 'bg-yellow-400/20 text-yellow-400' :
             metal.id === 'rosegold' ? 'bg-pink-400/20 text-pink-400' :
-            'bg-gray-400/20 text-gray-300'
+            'bg-gray-400/20 text-[var(--pf-text-secondary)]'
           }`}>
             {metal.label}
           </span>
@@ -295,7 +295,7 @@ export default function ShopPage() {
               <div className="relative">
                 <p className="text-xs uppercase tracking-widest text-yellow-400/60 mb-2">Category</p>
                 <h2 className="text-2xl font-bold mb-1">Music</h2>
-                <p className="text-sm text-gray-400 mb-4">Music that matters. Own it.</p>
+                <p className="text-sm text-[var(--pf-text-muted)] mb-4">Music that matters. Own it.</p>
                 <div className="flex items-center gap-1.5 text-sm font-medium text-yellow-400/80 group-hover:text-yellow-400 transition-colors">
                   Browse <ArrowRight size={14} />
                 </div>
@@ -310,7 +310,7 @@ export default function ShopPage() {
               <div className="relative">
                 <p className="text-xs uppercase tracking-widest text-yellow-400/60 mb-2">Category</p>
                 <h2 className="text-2xl font-bold mb-1">Identity</h2>
-                <p className="text-sm text-gray-400 mb-4">Your name. In metal.</p>
+                <p className="text-sm text-[var(--pf-text-muted)] mb-4">Your name. In metal.</p>
                 <div className="flex items-center gap-1.5 text-sm font-medium text-yellow-400/80 group-hover:text-yellow-400 transition-colors">
                   Build yours <ArrowRight size={14} />
                 </div>
@@ -325,7 +325,7 @@ export default function ShopPage() {
               <div className="relative">
                 <p className="text-xs uppercase tracking-widest text-yellow-400/60 mb-2">Category</p>
                 <h2 className="text-2xl font-bold mb-1">Essentials</h2>
-                <p className="text-sm text-gray-400 mb-4">Books, merch, culture.</p>
+                <p className="text-sm text-[var(--pf-text-muted)] mb-4">Books, merch, culture.</p>
                 <div className="flex items-center gap-1.5 text-sm font-medium text-yellow-400/80 group-hover:text-yellow-400 transition-colors">
                   Shop now <ArrowRight size={14} />
                 </div>
@@ -343,7 +343,7 @@ export default function ShopPage() {
               <div className="relative">
                 <p className="text-xs uppercase tracking-widest text-yellow-400/60 mb-2">Featured</p>
                 <h2 className="text-2xl font-bold mb-1">The Book</h2>
-                <p className="text-sm text-gray-400 mb-4">There It Is, Here It Go</p>
+                <p className="text-sm text-[var(--pf-text-muted)] mb-4">There It Is, Here It Go</p>
                 <div className="flex items-center gap-1.5 text-sm font-medium text-yellow-400/80 group-hover:text-yellow-400 transition-colors">
                   Get it <ArrowRight size={14} />
                 </div>

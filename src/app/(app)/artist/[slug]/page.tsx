@@ -46,6 +46,12 @@ export default async function ArtistPage({ params }: PageProps) {
   const tracks = getArtistTracks(slug)
   const featuredTrack = tracks[0]
   const totalPlays = tracks.reduce((sum, t) => sum + (t.plays || 0), 0)
+
+  // Separate singles from albums
+  const ALBUM_LIST = ['Ambiguous', 'From Feast to Famine', 'God Is Good', 'One Day', 'Streets Thought I Left', 'Roxannity', 'Artgasm', 'Levi']
+  const albums = tracks.filter(t => ALBUM_LIST.includes(t.album))
+  const singles = tracks.filter(t => !ALBUM_LIST.includes(t.album))
+
   const products = FEATURED_PRODUCTS.slice(0, 4)
 
   return (
@@ -113,14 +119,27 @@ export default async function ArtistPage({ params }: PageProps) {
               </div>
             </section>
 
-            {/* Track List */}
-            <section>
-              <div className="flex items-center justify-between mb-4">
-                <p className="text-sm uppercase tracking-widest text-[var(--pf-orange)]">Music</p>
-                <span className="text-sm text-[var(--pf-text-muted)]">{tracks.length} tracks</span>
-              </div>
-              <ArtistTrackList tracks={tracks} />
-            </section>
+            {/* Featured Singles (first) */}
+            {singles.length > 0 && (
+              <section>
+                <div className="flex items-center justify-between mb-4">
+                  <p className="text-sm uppercase tracking-widest text-[var(--pf-orange)]">Featured Singles</p>
+                  <span className="text-sm text-[var(--pf-text-muted)]">{singles.length} singles</span>
+                </div>
+                <ArtistTrackList tracks={singles} />
+              </section>
+            )}
+
+            {/* Albums */}
+            {albums.length > 0 && (
+              <section>
+                <div className="flex items-center justify-between mb-4">
+                  <p className="text-sm uppercase tracking-widest text-[var(--pf-orange)]">Albums</p>
+                  <span className="text-sm text-[var(--pf-text-muted)]">{albums.length} albums</span>
+                </div>
+                <ArtistTrackList tracks={albums} />
+              </section>
+            )}
           </div>
 
           {/* Sidebar Column */}

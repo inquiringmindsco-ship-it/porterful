@@ -33,7 +33,7 @@ export default function OrderSuccessPage() {
           <>
             <Loader2 className="w-16 h-16 text-amber-500 animate-spin mx-auto mb-6" />
             <h1 className="text-3xl font-black text-white mb-3">Processing your order...</h1>
-            <p className="text-stone-400">Confirming payment with Stripe. One moment.</p>
+            <p className="text-[var(--pf-text-muted)]">Confirming payment with Stripe. One moment.</p>
           </>
         )}
 
@@ -43,19 +43,19 @@ export default function OrderSuccessPage() {
               <CheckCircle className="w-10 h-10 text-emerald-400" />
             </div>
             <h1 className="text-4xl font-black text-white mb-3">Order Confirmed! 🎉</h1>
-            <p className="text-stone-400 mb-2">
+            <p className="text-[var(--pf-text-muted)] mb-2">
               Your custom name chain is being queued for production.
             </p>
-            <div className="bg-stone-800/60 border border-stone-700 rounded-xl px-4 py-3 mb-6 text-left">
-              <div className="text-stone-400 text-xs mb-1">Order ID</div>
+            <div className="bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-xl px-4 py-3 mb-6 text-left">
+              <div className="text-[var(--pf-text-muted)] text-xs mb-1">Order ID</div>
               <div className="text-amber-400 font-mono font-bold text-lg">{orderId}</div>
             </div>
-            <div className="bg-stone-900/60 border border-stone-800 rounded-xl p-4 mb-8 text-left">
+            <div className="bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-xl p-4 mb-8 text-left">
               <div className="flex items-center gap-2 mb-2">
                 <Package className="w-4 h-4 text-amber-400" />
                 <span className="text-white font-semibold text-sm">What happens next</span>
               </div>
-              <ol className="space-y-2 text-stone-400 text-xs">
+              <ol className="space-y-2 text-[var(--pf-text-muted)] text-xs">
                 <li>1. Our team receives your order</li>
                 <li>2. Your name is 3D printed with precision settings</li>
                 <li>3. Hand-finished with gold spray paint</li>
@@ -75,7 +75,7 @@ export default function OrderSuccessPage() {
         {status === 'error' && (
           <>
             <h1 className="text-3xl font-black text-white mb-3">Something went wrong</h1>
-            <p className="text-stone-400 mb-6">We couldn&apos;t confirm your order. Please contact support.</p>
+            <p className="text-[var(--pf-text-muted)] mb-6">We couldn&apos;t confirm your order. Please contact support.</p>
             <Link href="/kids-chains" className="text-amber-400 hover:text-amber-300 underline">
               Return to order page
             </Link>

@@ -68,7 +68,7 @@ export default function EcosystemPage() {
       <div className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-xl border-b border-white/10">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="text-xl font-black tracking-tight">PORTERFUL</Link>
-          <Link href="/systems" className="text-sm text-gray-400 hover:text-white transition-colors">
+          <Link href="/systems" className="text-sm text-[var(--pf-text-muted)] hover:text-white transition-colors">
             ← Back to Ecosystem
           </Link>
         </div>
@@ -77,7 +77,7 @@ export default function EcosystemPage() {
       {/* Hero */}
       <section className="pt-32 pb-20 px-6 text-center">
         <h1 className="text-5xl md:text-6xl font-black mb-4">The Porterful Ecosystem</h1>
-        <p className="text-xl text-gray-400 max-w-2xl mx-auto">Five systems. One mission. Infrastructure for wealth creation in communities that need it most.</p>
+        <p className="text-xl text-[var(--pf-text-muted)] max-w-2xl mx-auto">Five systems. One mission. Infrastructure for wealth creation in communities that need it most.</p>
       </section>
 
       {/* System Cards */}
@@ -127,7 +127,7 @@ export default function EcosystemPage() {
                 </div>
 
                 <h2 className="text-2xl font-black mb-2">{system.subtitle}</h2>
-                <p className="text-sm text-gray-400 mb-6 leading-relaxed">{system.description}</p>
+                <p className="text-sm text-[var(--pf-text-muted)] mb-6 leading-relaxed">{system.description}</p>
 
                 <div className="flex items-center justify-between">
                   <div>
