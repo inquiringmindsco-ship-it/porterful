@@ -32,7 +32,7 @@ export function TrackLockedToast() {
           <div className="flex-1 min-w-0">
             <h4 className="font-semibold mb-1">Listen to More?</h4>
             <p className="text-sm text-[var(--pf-text-secondary)] mb-3">
-              You can preview any track for 99 seconds free. Unlock to listen without limits.
+              You can preview any track for 90 seconds free. Unlock to listen without limits.
             </p>
             <div className="flex gap-2">
               <Link 

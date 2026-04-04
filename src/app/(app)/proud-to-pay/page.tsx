@@ -34,20 +34,17 @@ const PLANS = [
     period: 'per track',
     description: 'Buy individual tracks you love',
     featured: false,
-  },
-  {
-    name: 'Monthly Pass',
-    price: '$9.99',
-    period: '/month',
-    description: 'Unlimited listening + exclusive content',
-    featured: true,
+    cta: 'Browse Music',
+    ctaHref: '/music',
   },
   {
     name: 'Artist Fund',
-    price: 'Donate',
-    period: 'any amount',
+    price: 'Any amount',
+    period: 'one-time',
     description: 'Support the platform and artists directly',
     featured: false,
+    cta: 'Donate',
+    ctaHref: '/store',
   },
 ]
 
@@ -101,34 +98,22 @@ export default function ProudToPayPage() {
                   : 'bg-[var(--pf-surface)] border-[var(--pf-border)]'
               }`}
             >
-              {plan.featured && (
-                <span className="inline-block px-3 py-1 bg-[var(--pf-orange)] text-white text-xs font-bold rounded-full mb-3">
-                  Most Popular
-                </span>
-              )}
               <h3 className="text-lg font-bold mb-1">{plan.name}</h3>
               <div className="mb-3">
                 <span className="text-3xl font-bold text-[var(--pf-orange)]">{plan.price}</span>
                 <span className="text-[var(--pf-text-muted)] text-sm ml-1">{plan.period}</span>
               </div>
               <p className="text-sm text-[var(--pf-text-secondary)] mb-4">{plan.description}</p>
-              {plan.name === 'Monthly Pass' ? (
-                <Link 
-                  href="/signup"
-                  className="block w-full py-3 text-center bg-[var(--pf-orange)] text-white rounded-lg font-medium hover:bg-[var(--pf-orange-dark)] transition-colors"
-                >
-                  Get Started
-                </Link>
-              ) : (
-                <Link 
-                  href="/store"
+              {plan.cta && (
+                <Link
+                  href={plan.ctaHref || '/store'}
                   className={`block w-full py-3 text-center rounded-lg font-medium transition-colors ${
                     plan.featured
                       ? 'bg-[var(--pf-orange)] text-white hover:bg-[var(--pf-orange-dark)]'
                       : 'border border-[var(--pf-border)] hover:border-[var(--pf-orange)]'
                   }`}
                 >
-                  Browse Music
+                  {plan.cta}
                 </Link>
               )}
             </div>
@@ -166,7 +151,7 @@ export default function ProudToPayPage() {
         {/* CTA */}
         <div className="text-center">
           <p className="text-[var(--pf-text-muted)] mb-4">
-            Or keep previewing for free — 99 seconds at a time.
+            Or keep previewing for free — 90 seconds at a time.
           </p>
           <Link href="/artists" className="px-8 py-4 border border-[var(--pf-border)] rounded-lg font-medium hover:border-[var(--pf-orange)] transition-colors inline-flex items-center gap-2">
             Keep Browsing <ArrowRight size={16} />
