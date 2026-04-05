@@ -302,13 +302,20 @@ export default function HomePage() {
       />
 
       {/* HEADER */}
-      <header className="fixed top-0 left-0 right-0 z-50 px-8 py-4 flex items-center justify-center">
-        <img
-          src="/logo.svg"
-          alt="Porterful"
-          className="h-8"
-          style={{ filter: 'brightness(0) invert(0.5)' }}
-        />
+      <header className="fixed top-0 left-0 right-0 z-50 px-8 py-4">
+        <div className="text-center">
+          <button
+            onClick={() => router.push('/')}
+            className="text-2xl font-bold tracking-widest bg-transparent border-none cursor-pointer"
+            style={{
+              color: 'var(--pf-text-muted)',
+              letterSpacing: '0.35em',
+              textShadow: '0 0 80px hsla(250, 10%, 5%, 0.9)',
+            }}
+          >
+            PORTERFUL
+          </button>
+        </div>
       </header>
 
       {/* SCROLL CONTAINER */}
