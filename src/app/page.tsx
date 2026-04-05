@@ -74,78 +74,6 @@ const SYSTEMS = [
   },
 ]
 
-// Lightweight particle system - only runs if performant
-function useParticles(canvasRef: React.RefObject<HTMLCanvasElement | null>) {
-  const animationRef = useRef<number | null>(null)
-  const particlesRef = useRef<Array<{
-    x: number; y: number; vx: number; vy: number; size: number; opacity: number
-  }>>([])
-  const timeRef = useRef(0)
-
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-
-    let frameCount = 0
-    const maxFrames = 300 // Auto-disable after 5 min at 60fps equivalent
-
-    const resize = () => {
-      canvas.width = window.innerWidth
-      canvas.height = window.innerHeight
-    }
-    resize()
-    window.addEventListener('resize', resize)
-
-    // Init particles
-    const count = Math.floor((canvas.width * canvas.height) / 25000)
-    particlesRef.current = Array.from({ length: count }, () => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      vx: (Math.random() - 0.5) * 0.3,
-      vy: (Math.random() - 0.5) * 0.3,
-      size: Math.random() * 1.5 + 0.5,
-      opacity: Math.random() * 0.3 + 0.05,
-    }))
-
-    const draw = (timestamp: number) => {
-      if (frameCount > maxFrames) {
-        // Stop particles after maxFrames to prevent long-term memory buildup
-        ctx.clearRect(0, 0, canvas.width, canvas.height)
-        return
-      }
-      frameCount++
-      timeRef.current = timestamp
-
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
-
-      particlesRef.current.forEach(p => {
-        p.x += p.vx
-        p.y += p.vy
-        if (p.x < 0) p.x = canvas.width
-        if (p.x > canvas.width) p.x = 0
-        if (p.y < 0) p.y = canvas.height
-        if (p.y > canvas.height) p.y = 0
-
-        ctx.beginPath()
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2)
-        ctx.fillStyle = `rgba(200, 200, 220, ${p.opacity})`
-        ctx.fill()
-      })
-
-      animationRef.current = requestAnimationFrame(draw)
-    }
-
-    animationRef.current = requestAnimationFrame(draw)
-
-    return () => {
-      window.removeEventListener('resize', resize)
-      if (animationRef.current) cancelAnimationFrame(animationRef.current)
-    }
-  }, [canvasRef])
-}
-
 export default function HomePage() {
   const router = useRouter()
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -153,32 +81,15 @@ export default function HomePage() {
   const activeIndexRef = useRef(0)
   const [activeIndex, setActiveIndex] = useState(0)
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
-  const [time, setTime] = useState(0)
-  const canvasRef = useRef<HTMLCanvasElement>(null)
 
-  // Lightweight particles - only if performant
-  useParticles(canvasRef)
-
-  // Time for subtle glow animations
-  useEffect(() => {
-    let raf: number
-    const updateTime = (ts: number) => {
-      setTime(ts)
-      raf = requestAnimationFrame(updateTime)
-    }
-    raf = requestAnimationFrame(updateTime)
-    return () => cancelAnimationFrame(raf)
-  }, [])
-
-  // Track which section is at the TOP of the viewport (snap point)
+  // Simple scroll tracking - only update on scroll snap
   useEffect(() => {
     const container = scrollRef.current
     if (!container) return
 
     const findActiveSection = () => {
       const scrollTop = container.scrollTop
-      const viewHeight = container.clientHeight
-      const viewportCenter = scrollTop + viewHeight / 2
+      const viewportCenter = scrollTop + container.clientHeight / 2
       let closest = 0
       let closestDist = Infinity
 
@@ -195,7 +106,6 @@ export default function HomePage() {
         }
       })
 
-      // Only update if changed (guards against rapid-fire from forEach)
       if (closest !== activeIndexRef.current) {
         activeIndexRef.current = closest
         setActiveIndex(closest)
@@ -209,39 +119,15 @@ export default function HomePage() {
   const handlePortalClick = useCallback((system: typeof SYSTEMS[0]) => {
     if (system.isExternal) {
       window.open(system.route, '_blank', 'noopener,noreferrer')
-    } else if (system.route.startsWith('http')) {
-      window.location.href = system.route
     } else {
       router.push(system.route)
     }
   }, [router])
 
   return (
-    <div style={{ background: '#000', minHeight: '100vh', overflow: 'hidden', position: 'relative' }}>
-      {/* Particles canvas */}
-      <canvas
-        ref={canvasRef}
-        style={{
-          position: 'fixed',
-          inset: 0,
-          zIndex: 0,
-          pointerEvents: 'none',
-        }}
-      />
-
+    <div style={{ background: '#000', minHeight: '100dvh', overflow: 'hidden', position: 'relative' }}>
       {/* HEADER */}
-      <header
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 50,
-          padding: '1.5rem 2rem',
-          display: 'flex',
-          justifyContent: 'center',
-        }}
-      >
+      <header style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, padding: '1.5rem 2rem', display: 'flex', justifyContent: 'center' }}>
         <button
           onClick={() => router.push('/')}
           style={{
@@ -269,22 +155,15 @@ export default function HomePage() {
           height: '100dvh',
           overflowY: 'scroll',
           scrollSnapType: 'y mandatory',
-          scrollBehavior: 'auto',
+          scrollBehavior: 'smooth',
           position: 'relative',
           zIndex: 10,
-          opacity: 1,
-          transition: 'opacity 600ms ease-out',
         }}
       >
         {SYSTEMS.map((system, i) => {
           const isActive = activeIndex === i
           const isHovered = hoveredIndex === i
           const isVisible = isActive || isHovered
-
-          // Subtle glow intensity
-          const baseGlow = isActive ? 0.6 : isHovered ? 0.35 : 0.15
-          const pulse = Math.sin(time * 0.001 + i * 1.2) * 0.1 + 0.9
-          const glowIntensity = baseGlow * pulse
 
           return (
             <div
@@ -302,93 +181,76 @@ export default function HomePage() {
                 scrollSnapAlign: 'start',
                 scrollSnapStop: 'always',
                 position: 'relative',
-                opacity: isVisible ? 1 : 0.12,
-                transition: 'opacity 500ms cubic-bezier(0.4, 0, 0.2, 1)',
+                opacity: isVisible ? 1 : 0.15,
+                transition: 'opacity 400ms ease',
                 zIndex: isVisible ? 20 : 1,
               }}
             >
               <div style={{ textAlign: 'center', position: 'relative', zIndex: 2, padding: '2rem' }}>
 
-                {/* GLOW BLOOM — soft and diffuse */}
-                {glowIntensity > 0.2 && (
-                  <div
-                    style={{
-                      position: 'absolute',
-                      top: '50%',
-                      left: '50%',
-                      transform: 'translate(-50%, -50%)',
-                      width: '400px',
-                      height: '400px',
-                      background: `radial-gradient(circle, ${system.glowColor}${Math.round(glowIntensity * 50).toString(16).padStart(2, '0')} 0%, transparent 70%)`,
-                      filter: 'blur(80px)',
-                      pointerEvents: 'none',
-                      zIndex: -1,
-                    }}
-                  />
+                {/* GLOW BLOOM */}
+                {isVisible && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    width: '500px',
+                    height: '500px',
+                    background: `radial-gradient(circle, ${system.glowColor}20 0%, transparent 65%)`,
+                    filter: 'blur(60px)',
+                    pointerEvents: 'none',
+                    zIndex: -1,
+                  }} />
                 )}
 
                 {/* ICON */}
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    marginBottom: '1.5rem',
-                    color: isVisible ? system.glowColor : 'rgba(100,100,100,0.5)',
-                    filter: isVisible
-                      ? `drop-shadow(0 0 20px ${system.glowColor}60) drop-shadow(0 0 40px ${system.glowColor}30)`
-                      : 'none',
-                    transform: isVisible ? `scale(${1 + Math.sin(time * 0.0015 + i) * 0.02})` : 'scale(0.95)',
-                    transition: 'all 500ms cubic-bezier(0.4, 0, 0.2, 1)',
-                  }}
-                >
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  marginBottom: '1.5rem',
+                  color: isVisible ? system.glowColor : 'rgba(100,100,100,0.5)',
+                  filter: isVisible ? `drop-shadow(0 0 16px ${system.glowColor}50)` : 'none',
+                  transition: 'all 400ms ease',
+                }}>
                   {system.icon}
                 </div>
 
                 {/* TITLE */}
-                <h2
-                  style={{
-                    fontSize: 'clamp(2.5rem, 10vw, 5rem)',
-                    fontWeight: 800,
-                    letterSpacing: '0.25em',
-                    color: isVisible ? '#f0f0f0' : 'rgba(80,80,80,0.5)',
-                    textShadow: isVisible
-                      ? `0 0 40px ${system.glowColor}40, 0 0 80px ${system.glowColor}20`
-                      : 'none',
-                    marginBottom: '0.75rem',
-                    transition: 'all 500ms cubic-bezier(0.4, 0, 0.2, 1)',
-                  }}
-                >
+                <h2 style={{
+                  fontSize: 'clamp(2.5rem, 10vw, 5rem)',
+                  fontWeight: 800,
+                  letterSpacing: '0.25em',
+                  color: isVisible ? '#f0f0f0' : 'rgba(80,80,80,0.5)',
+                  textShadow: isVisible ? `0 0 30px ${system.glowColor}30` : 'none',
+                  marginBottom: '0.75rem',
+                  transition: 'all 400ms ease',
+                }}>
                   {system.label}
                 </h2>
 
                 {/* SUBTITLE */}
-                <p
-                  style={{
-                    fontSize: 'clamp(0.75rem, 2vw, 0.875rem)',
-                    fontWeight: 500,
-                    letterSpacing: '0.3em',
-                    textTransform: 'uppercase',
-                    color: isVisible ? system.glowColor : 'rgba(60,60,60,0.5)',
-                    opacity: isVisible ? 0.8 : 0,
-                    transform: isVisible ? 'translateY(0)' : 'translateY(8px)',
-                    transition: 'all 500ms cubic-bezier(0.4, 0, 0.2, 1)',
-                  }}
-                >
+                <p style={{
+                  fontSize: 'clamp(0.75rem, 2vw, 0.875rem)',
+                  fontWeight: 500,
+                  letterSpacing: '0.3em',
+                  textTransform: 'uppercase',
+                  color: isVisible ? system.glowColor : 'rgba(60,60,60,0.5)',
+                  opacity: isVisible ? 0.8 : 0,
+                  transition: 'all 400ms ease',
+                }}>
                   {system.subtitle}
                 </p>
 
                 {/* LINE ACCENT */}
                 {isVisible && (
-                  <div
-                    style={{
-                      width: '1px',
-                      height: '60px',
-                      background: `linear-gradient(to bottom, transparent, ${system.glowColor}, transparent)`,
-                      margin: '2rem auto 0',
-                      opacity: 0.6,
-                      boxShadow: `0 0 12px ${system.glowColor}60`,
-                    }}
-                  />
+                  <div style={{
+                    width: '1px',
+                    height: '60px',
+                    background: `linear-gradient(to bottom, transparent, ${system.glowColor}, transparent)`,
+                    margin: '2rem auto 0',
+                    opacity: 0.5,
+                  }} />
                 )}
               </div>
             </div>
@@ -397,21 +259,16 @@ export default function HomePage() {
       </main>
 
       {/* NAV DOTS */}
-      <nav
-        aria-label="Section navigation"
-        style={{
-          position: 'fixed',
-          right: '1.5rem',
-          top: '50%',
-          transform: 'translateY(-50%)',
-          zIndex: 50,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '0.75rem',
-          opacity: 1,
-          transition: 'opacity 600ms ease-out',
-        }}
-      >
+      <nav style={{
+        position: 'fixed',
+        right: '1.5rem',
+        top: '50%',
+        transform: 'translateY(-50%)',
+        zIndex: 50,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '0.75rem',
+      }}>
         {SYSTEMS.map((system, i) => {
           const isActive = activeIndex === i
           return (
@@ -419,7 +276,7 @@ export default function HomePage() {
               key={system.id}
               onClick={() => {
                 const el = itemRefs.current[i]
-                if (el) el.scrollIntoView({ block: 'start' })
+                if (el) el.scrollIntoView({ block: 'start', behavior: 'smooth' })
               }}
               aria-label={`Go to ${system.label}`}
               style={{
@@ -429,32 +286,30 @@ export default function HomePage() {
                 border: 'none',
                 cursor: 'pointer',
                 background: isActive ? system.glowColor : 'rgba(100,100,100,0.4)',
-                boxShadow: isActive ? `0 0 8px ${system.glowColor}80, 0 0 16px ${system.glowColor}40` : 'none',
+                boxShadow: isActive ? `0 0 8px ${system.glowColor}80` : 'none',
                 transform: isActive ? 'scale(1.4)' : 'scale(1)',
-                transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
+                transition: 'all 300ms ease',
               }}
             />
           )
         })}
       </nav>
 
-      {/* SCROLL HINT — first section only */}
+      {/* SCROLL HINT */}
       {activeIndex === 0 && (
-        <div
-          style={{
-            position: 'fixed',
-            bottom: '2rem',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            zIndex: 50,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '0.5rem',
-            opacity: 0.5,
-            animation: 'fadeInUp 1s ease-out 3s forwards',
-          }}
-        >
+        <div style={{
+          position: 'fixed',
+          bottom: '2rem',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 50,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '0.5rem',
+          opacity: 0.4,
+          animation: 'fadeInUp 1s ease-out 2s forwards',
+        }}>
           <span style={{ fontSize: '0.625rem', letterSpacing: '0.3em', color: 'rgba(150,150,150,0.6)', textTransform: 'uppercase' }}>
             Scroll
           </span>
@@ -463,36 +318,32 @@ export default function HomePage() {
       )}
 
       {/* Footer */}
-      <footer
-        style={{
-          position: 'fixed',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          padding: '1rem',
-          textAlign: 'center',
-          fontSize: '0.625rem',
-          letterSpacing: '0.3em',
-          color: 'rgba(80,80,80,0.4)',
-          textTransform: 'uppercase',
-          zIndex: 50,
-          opacity: 1,
-          transition: 'opacity 600ms ease-out',
-        }}
-      >
+      <footer style={{
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        padding: '1rem',
+        textAlign: 'center',
+        fontSize: '0.625rem',
+        letterSpacing: '0.3em',
+        color: 'rgba(80,80,80,0.4)',
+        textTransform: 'uppercase',
+        zIndex: 50,
+      }}>
         Porterful Ecosystem
       </footer>
 
       <style jsx global>{`
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        html { scroll-behavior: auto; }
+        html { scroll-behavior: smooth; }
         body { background: #000; overflow: hidden; }
         ::-webkit-scrollbar { width: 0px; background: transparent; }
         ::selection { background: rgba(255,107,0,0.3); }
 
         @keyframes fadeInUp {
           from { opacity: 0; transform: translateX(-50%) translateY(10px); }
-          to { opacity: 0.5; transform: translateX(-50%) translateY(0); }
+          to { opacity: 0.4; transform: translateX(-50%) translateY(0); }
         }
       `}</style>
     </div>
