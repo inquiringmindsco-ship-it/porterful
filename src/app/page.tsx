@@ -32,15 +32,13 @@ const SYSTEMS = [
   {
     id: 'land',
     label: 'LAND',
-    subtitle: 'Acquire. Control. Build.',
-    route: '/systems',
+    subtitle: 'Own your acre.',
+    route: '/land',
     glowColor: '#22c55e',
     icon: (
       <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="3" y="3" width="7" height="7" rx="1"/>
-        <rect x="14" y="3" width="7" height="7" rx="1"/>
-        <rect x="3" y="14" width="7" height="7" rx="1"/>
-        <rect x="14" y="14" width="7" height="7" rx="1"/>
+        <path d="M3 6l9 4 9-4M3 6v12l9 4 9-4M3 6l9-4 9 4"/>
+        <path d="M12 10v12M12 10l9 4M12 10l9-4"/>
       </svg>
     ),
   },
