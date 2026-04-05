@@ -182,15 +182,20 @@ export function AudioProvider({ children }: { children: ReactNode }) {
       audio.addEventListener('pause', handlePause);
 
       // Handle canplay — auto-play when ready
+      // Guard: only play if the audio src matches the current track (prevents old track overlap)
       audio.addEventListener('canplay', () => {
+        if (!audioRef.current) return;
+        const current = currentTrackRef.current;
+        if (!current || !current.audio_url) return;
+        // Only play if src matches current track (guards against stale canplay events)
+        if (audioRef.current.src !== window.location.origin + current.audio_url &&
+            audioRef.current.src !== current.audio_url &&
+            !audioRef.current.src.endsWith(current.audio_url)) {
+          return;
+        }
         clearPreviewTimer();
-        if (audioRef.current) {
-          audioRef.current.play().catch(() => {});
-        }
-        // Start radio preview timer after play begins
-        if (audioRef.current) {
-          startPreviewTimer(audioRef.current.duration);
-        }
+        audioRef.current.play().catch(() => {});
+        startPreviewTimer(audioRef.current.duration);
       });
 
       return () => {
@@ -248,8 +253,9 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     if (idx >= 0) setCurrentIndex(idx);
     setProgress(0);
 
-    if (audioRef.current && track.audio_url) {
-      audioRef.current.src = track.audio_url;
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.src = track.audio_url || '';
       audioRef.current.load();
       audioRef.current.play().catch(() => {});
     }
