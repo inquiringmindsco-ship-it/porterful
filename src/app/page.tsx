@@ -311,7 +311,7 @@ export default function HomePage() {
         ref={scrollContainerRef}
         className="relative z-10"
         style={{
-          height: '100vh',
+          height: '100dvh',
           overflowY: 'scroll',
           scrollSnapType: 'y mandatory',
           WebkitOverflowScrolling: 'touch',
@@ -442,7 +442,7 @@ export default function HomePage() {
         })}
 
         {/* Bottom buffer — prevents last section from getting stuck */}
-        <div style={{ height: '100vh' }} aria-hidden="true" />
+        <div style={{ height: '100dvh' }} aria-hidden="true" />
       </main>
 
       {/* SECTION DOTS */}
