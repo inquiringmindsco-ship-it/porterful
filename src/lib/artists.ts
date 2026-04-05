@@ -55,7 +55,7 @@ That stubbornness is the through-line. When O D Porter sets his mind to somethin
 The plan: make Porterful the artist's retirement. Build it once, let it work forever.`,
     shortBio: 'St. Louis artist. Born in Miami, raised in NOLA + the Lou. Founder of Porterful. Stubborn when he sets his mind to something.',
     verified: true,
-    image: '/artists/od-porter/od-porter.jpg',
+    image: '/artist-images/od-porter/od-porter.jpg',
     coverGradient: 'from-[var(--pf-orange)] to-purple-600',
     followers: 2847,
     supporters: null,
@@ -69,7 +69,7 @@ The plan: make Porterful the artist's retirement. Build it once, let it work for
       tiktok: 'odporter',
     },
     coverSlides: [
-      { src: '/artists/od-porter/tlf-cover.png', alt: 'O D Porter - TLF' },
+      { src: '/artist-images/od-porter/tlf-cover.png', alt: 'O D Porter - TLF' },
       { src: '/artist-art/od-porter.jpg', alt: 'O D Porter' },
     ],
   },
@@ -86,7 +86,7 @@ Raw, unapologetic hip-hop from the Lou — the kind that comes from living it, n
 On Porterful, he's not competing with the algorithm. He's building something real with fans who actually show up. 80% of every sale goes straight to the artist. Gune's keeping every cent of that.`,
     shortBio: 'Raw St. Louis hip-hop. Gune doesn\'t make music for everyone — just for the ones who get it.',
     verified: true,
-    image: '/artists/gune/ISIMG-1050533.JPG',
+    image: '/artist-images/gune/ISIMG-1050533.JPG',
     coverGradient: 'from-red-600 to-orange-600',
     followers: 0,
     supporters: null,
@@ -97,8 +97,8 @@ On Porterful, he's not competing with the algorithm. He's building something rea
       instagram: 'gunebugtheplug',
     },
     coverSlides: [
-      { src: '/artists/gune/ISIMG-1050533.JPG', alt: 'Gune' },
-      { src: '/artists/gune/EL8A6131.JPG', alt: 'Gune' },
+      { src: '/artist-images/gune/ISIMG-1050533.JPG', alt: 'Gune' },
+      { src: '/artist-images/gune/EL8A6131.JPG', alt: 'Gune' },
     ],
   },
   {
@@ -114,7 +114,7 @@ He's proof that in the Lou, we don't wait for permission. We build our own thing
 On Porterful, Nikee Turbo's fans are superfans — earning rewards every time they bring someone new to the platform. Because in St. Louis, we look out for our own.`,
     shortBio: 'St. Louis rapper. Rhythm first. Flow second. The dance craze was just the beginning.',
     verified: true,
-    image: '/artists/nikee-turbo/ab6761610000e5ebfddbec3845c421474dc2d779.jpeg',
+    image: '/artist-images/nikee-turbo/ab6761610000e5ebfddbec3845c421474dc2d779.jpeg',
     coverGradient: 'from-yellow-500 to-orange-500',
     followers: 0,
     supporters: null,
@@ -126,8 +126,8 @@ On Porterful, Nikee Turbo's fans are superfans — earning rewards every time th
       youtube: '@nikeeturbostl',
     },
     coverSlides: [
-      { src: '/artists/nikee-turbo/Cover Art.png', alt: 'Nikee Turbo' },
-      { src: '/artists/nikee-turbo/For Banner.jpg', alt: 'Nikee Turbo - METTLE' },
+      { src: '/artist-images/nikee-turbo/Cover Art.png', alt: 'Nikee Turbo' },
+      { src: '/artist-images/nikee-turbo/For Banner.jpg', alt: 'Nikee Turbo - METTLE' },
     ],
   },
   {
@@ -139,7 +139,7 @@ On Porterful, Nikee Turbo's fans are superfans — earning rewards every time th
     bio: `ATM Trap is a St. Louis hip-hop artist bringing authentic street sound to the Porterful platform. Building with the STL crew and focused on real rap for real people. No frills, just music.`,
     shortBio: 'St. Louis hip-hop artist. Real rap, real STL.',
     verified: true,
-    image: '/artists/atm-trap/images/avatar.jpg',
+    image: '/artist-images/atm-trap/images/avatar.jpg',
     coverGradient: 'from-gray-800 to-gray-900',
     followers: 0,
     supporters: null,
@@ -150,7 +150,7 @@ On Porterful, Nikee Turbo's fans are superfans — earning rewards every time th
       instagram: 'atm_trap',
     },
     coverSlides: [
-      { src: '/artists/atm-trap/avatar.jpg', alt: 'ATM Trap' },
+      { src: '/artist-images/atm-trap/avatar.jpg', alt: 'ATM Trap' },
     ],
   },
   {
@@ -166,7 +166,7 @@ His music sits at the intersection where hip-hop meets the blues. Where the 808 
 Rob's been building his sound track by track, learning what works and what doesn't, and Porterful is where he's planting his flag. This is STL music for STL people and everyone else who can feel it.`,
     shortBio: 'St. Louis hip-hop and R&B artist blending blues into a soulful sound.',
     verified: true,
-    image: '/artists/rob-soule/hq720.jpg',
+    image: '/artist-images/rob-soule/hq720.jpg',
     coverGradient: 'from-purple-600 to-blue-600',
     followers: 412,
     supporters: null,
@@ -178,7 +178,7 @@ Rob's been building his sound track by track, learning what works and what doesn
       instagram: 'RobSouleMusic',
     },
     coverSlides: [
-      { src: '/artists/rob-soule/hq720.jpg', alt: 'Rob Soule' },
+      { src: '/artist-images/rob-soule/hq720.jpg', alt: 'Rob Soule' },
     ],
     videos: [
       { youtubeId: 'LC4l6_-IR8w', title: 'Believe In Me', album: 'Believe In Me' },

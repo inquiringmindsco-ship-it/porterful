@@ -175,9 +175,9 @@ export default function DigitalPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {[
               { name: 'O D Porter', genre: 'Hip-Hop, R&B, Soul', id: 'od-porter', img: '/artist-art/od-porter.jpg' },
-              { name: 'Gune', genre: 'Hip-Hop, R&B', id: 'gune', img: '/media/artist-images/gune/ISIMG-1050533.JPG' },
-              { name: 'Nikee Turbo', genre: 'Hip-Hop, R&B', id: 'nikee-turbo', img: '/media/artist-images/nikee-turbo/ab6761610000e5ebfddbec3845c421474dc2d779.jpeg' },
-              { name: 'Rob Soule', genre: 'Hip-Hop, R&B, Blues', id: 'rob-soule', img: '/media/artist-images/rob-soule/hq720.jpg' },
+              { name: 'Gune', genre: 'Hip-Hop, R&B', id: 'gune', img: '/artist-images/gune/ISIMG-1050533.JPG' },
+              { name: 'Nikee Turbo', genre: 'Hip-Hop, R&B', id: 'nikee-turbo', img: '/artist-images/nikee-turbo/ab6761610000e5ebfddbec3845c421474dc2d779.jpeg' },
+              { name: 'Rob Soule', genre: 'Hip-Hop, R&B, Blues', id: 'rob-soule', img: '/artist-images/rob-soule/hq720.jpg' },
             ].map(artist => (
               <Link key={artist.id} href={`/artist/${artist.id}`} className="bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-xl p-3 hover:border-[var(--pf-orange)]/50 transition-colors group">
                 <div className="w-full aspect-square rounded-lg overflow-hidden bg-[var(--pf-bg-secondary)] mb-2">

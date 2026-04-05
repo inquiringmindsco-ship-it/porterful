@@ -181,7 +181,7 @@ export default function HomePage() {
           }
           scrollTimeoutRef.current = setTimeout(() => {
             isScrollingRef.current = false
-          }, 600)
+          }, 1000)
         }
       }
     }
@@ -227,7 +227,7 @@ export default function HomePage() {
             scrollTimeoutRef.current = setTimeout(() => {
               isScrollingRef.current = false
               accumulatedDelta = 0
-            }, 600)
+            }, 1000)
           } else {
             accumulatedDelta = 0
           }

@@ -84,7 +84,7 @@ export function ArtistHero({ artist, featuredTrack, totalPlays }: ArtistHeroProp
           {/* Avatar */}
           <div className="relative w-48 h-48 flex-shrink-0 rounded-2xl overflow-hidden border-2 border-[var(--pf-orange)]/30 shadow-2xl shadow-[var(--pf-orange)]/10">
             <Image
-              src={artist.image || '/artist-art/od-porter.jpg'}
+              src={artist.image || '/artist-images/od-porter/od-porter.jpg'}
               alt={artist.name}
               fill
               sizes="192px"
