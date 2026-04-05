@@ -178,7 +178,7 @@ export default function HomePage() {
           isScrollingRef.current = true
           const targetEl = itemRefs.current[nextIndex]
           if (targetEl) {
-            targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' })
+            targetEl.scrollIntoView({ block: "start" })
           }
           scrollTimeoutRef.current = setTimeout(() => {
             isScrollingRef.current = false
@@ -223,7 +223,7 @@ export default function HomePage() {
             isScrollingRef.current = true
             const targetEl = itemRefs.current[nextIndex]
             if (targetEl) {
-              targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' })
+              targetEl.scrollIntoView({ block: "start" })
             }
             scrollTimeoutRef.current = setTimeout(() => {
               isScrollingRef.current = false
@@ -371,7 +371,6 @@ export default function HomePage() {
           height: '100vh',
           overflowY: 'scroll',
           scrollSnapType: 'y mandatory',
-          scrollBehavior: 'smooth',
           WebkitOverflowScrolling: 'touch',
         }}
       >
@@ -520,7 +519,7 @@ export default function HomePage() {
                 setActiveIndex(i)
                 const targetEl = itemRefs.current[i]
                 if (targetEl) {
-                  targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                  targetEl.scrollIntoView({ block: "start" })
                 }
                 setTimeout(() => { isScrollingRef.current = false }, 600)
               }}
@@ -547,7 +546,6 @@ export default function HomePage() {
 
       <style jsx global>{`
         ::-webkit-scrollbar { width: 0px; background: transparent; }
-        html { scroll-behavior: smooth; }
         * { -webkit-tap-highlight-color: transparent; }
       `}</style>
     </div>
