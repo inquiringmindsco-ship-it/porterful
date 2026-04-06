@@ -138,7 +138,7 @@ export default function SettingsPage() {
             <h1 className="text-3xl font-bold">Settings</h1>
             <p className="text-[var(--pf-text-muted)]">Manage your account and preferences</p>
           </div>
-          <Link href="/dashboard" className="text-[var(--pf-orange)] hover:underline">
+          <Link href="/dashboard/dashboard" className="text-[var(--pf-orange)] hover:underline">
             ← Back to Dashboard
           </Link>
         </div>

@@ -34,12 +34,43 @@ export async function POST(request: Request) {
 
     const userId = authData.user.id
 
+    // --- Referral Logic ---
+    let referredBy: string | null = null
+    try {
+      const cookieStore = await cookies()
+      const refCode = cookieStore.get('porterful_referral')?.value
+      if (refCode) {
+        // Look up referrer's profile ID by referral_code
+        const { data: referrerProfile } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('referral_code', refCode)
+          .single()
+        if (referrerProfile) {
+          referredBy = referrerProfile.id
+        }
+      }
+    } catch (refErr) {
+      // Non-fatal: proceed without referral
+      console.warn('Referral lookup error:', refErr)
+    }
+
+    // Clear referral cookie after processing
+    try {
+      const cookieStore = await cookies()
+      cookieStore.delete('porterful_referral')
+    } catch {
+      // Ignore if cookie already cleared or inaccessible
+    }
+    // --- End Referral Logic ---
+
     // Create profile
     const { error: profileError } = await supabase.from('profiles').insert({
       id: userId,
       email: email,
       name: name,
       role: role,
+      ...(referredBy ? { referred_by: referredBy } : {}),
     })
 
     if (profileError) {

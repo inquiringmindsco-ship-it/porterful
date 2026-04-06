@@ -180,7 +180,7 @@ export default function TapInPage() {
           <h3 className="text-2xl font-bold mb-2">Ready to Tap In?</h3>
           <p className="text-[var(--pf-text-secondary)] mb-6">Add Tap In products to your store or dashboard and start connecting.</p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link href="/dashboard" className="px-8 py-4 bg-[var(--pf-orange)] text-white rounded-lg font-semibold hover:bg-[var(--pf-orange-dark)] transition-colors text-lg">
+            <Link href="/dashboard/dashboard" className="px-8 py-4 bg-[var(--pf-orange)] text-white rounded-lg font-semibold hover:bg-[var(--pf-orange-dark)] transition-colors text-lg">
               Go to Dashboard →
             </Link>
             <Link href="/signup" className="px-8 py-4 border border-[var(--pf-border)] rounded-lg font-medium hover:border-[var(--pf-orange)] transition-colors">

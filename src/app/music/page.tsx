@@ -46,10 +46,10 @@ function TrackRow({ track, index, isActive, isPlaying, onPlay, onTogglePlay }: {
   return (
     <div
       onClick={onPlay}
-      className={`group flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 ${
+      className={`group flex items-center gap-4 px-4 py-3.5 rounded-xl cursor-pointer transition-all duration-200 ${
         isActive
           ? 'bg-[var(--pf-orange)]/10 border border-[var(--pf-orange)]/30'
-          : 'hover:bg-[var(--pf-surface)] border border-transparent'
+          : 'hover:bg-[var(--pf-surface)] border border-transparent hover:border-[var(--pf-border-subtle)]'
       }`}
     >
       <div className="w-8 flex items-center justify-center">
@@ -543,15 +543,17 @@ export default function MusicPage() {
           </div>
         ) : (
           /* Empty state */
-          <div className="py-16 text-center">
-            <Music2 size={48} className="mx-auto mb-4 text-[var(--pf-text-muted)] opacity-50" />
-            <p className="text-lg font-medium mb-2">No tracks found</p>
-            <p className="text-sm text-[var(--pf-text-secondary)] mb-4">
+          <div className="pf-empty">
+            <div className="pf-empty-icon">
+              <Music2 size={22} />
+            </div>
+            <p className="pf-empty-title">No tracks found</p>
+            <p className="pf-empty-desc">
               Try adjusting your search or filters
             </p>
             <button
               onClick={() => { setSearchQuery(''); setAlbumFilter('all'); setSelectedAlbum(null); }}
-              className="text-sm text-[var(--pf-orange)] hover:text-[var(--pf-orange)]/80 transition-colors"
+              className="mt-4 text-sm font-medium px-4 py-2 rounded-lg bg-[var(--pf-surface)] border border-[var(--pf-border)] hover:border-[var(--pf-orange)]/50 transition-colors"
             >
               Clear all filters
             </button>

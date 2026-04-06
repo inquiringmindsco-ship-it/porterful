@@ -33,8 +33,8 @@ export default function CartPage() {
             <p className="text-[var(--pf-text-secondary)] mb-6">
               Looks like you haven't added anything yet.
             </p>
-            <Link href="/marketplace" className="pf-btn pf-btn-primary">
-              Browse Marketplace
+            <Link href="/shop" className="pf-btn pf-btn-primary">
+              Browse Shop
             </Link>
           </div>
         ) : (
@@ -164,7 +164,7 @@ export default function CartPage() {
                   Proceed to Checkout
                 </button>
 
-                <Link href="/marketplace" className="block text-center text-[var(--pf-text-secondary)] hover:text-white text-sm mt-4">
+                <Link href="/shop" className="block text-center text-[var(--pf-text-secondary)] hover:text-white text-sm mt-4">
                   Continue Shopping
                 </Link>
               </div>

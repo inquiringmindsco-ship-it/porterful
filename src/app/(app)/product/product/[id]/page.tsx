@@ -24,7 +24,7 @@ export default function ProductPage() {
         <div className="pf-container text-center py-20">
           <h1 className="text-3xl font-bold mb-4">Product Not Found</h1>
           <p className="text-[var(--pf-text-secondary)] mb-6">This product doesn't exist or has been removed.</p>
-          <Link href="/store" className="pf-btn pf-btn-primary">Browse Store</Link>
+          <Link href="/shop" className="pf-btn pf-btn-primary">Browse Store</Link>
         </div>
       </div>
     )
@@ -53,7 +53,7 @@ export default function ProductPage() {
     <div className="min-h-screen pt-20 pb-24 bg-[var(--pf-bg)]">
       <div className="pf-container">
         {/* Back */}
-        <Link href="/store" className="inline-flex items-center gap-2 text-sm text-[var(--pf-text-muted)] hover:text-white mb-6 transition-colors">
+        <Link href="/shop" className="inline-flex items-center gap-2 text-sm text-[var(--pf-text-muted)] hover:text-white mb-6 transition-colors">
           <ArrowLeft size={16} /> Back to Store
         </Link>
 

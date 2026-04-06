@@ -127,6 +127,10 @@ export default async function ArtistPage({ params }: PageProps) {
                   <span className="text-sm text-[var(--pf-text-muted)]">{singles.length} singles</span>
                 </div>
                 <ArtistTrackList tracks={singles} />
+                <p className="text-xs text-[var(--pf-text-muted)] mt-3 text-center">
+                  {singles.length === 1 ? 'This track' : `${singles.length} tracks`}
+                  {` — listen, then explore merch & support options in the sidebar`}
+                </p>
               </section>
             )}
 
@@ -159,6 +163,9 @@ export default async function ArtistPage({ params }: PageProps) {
               <h3 className="font-bold text-base mb-1">Become a Superfan</h3>
               <p className="text-sm text-[var(--pf-text-secondary)] flex-1">
                 Earn 3% on everything your referrals buy. Help {artist.name.split(' ')[0]} grow without spending a dime.
+              </p>
+              <p className="text-xs text-[var(--pf-text-muted)] mt-2">
+                No purchase required to join
               </p>
               <Link
                 href="/superfan"

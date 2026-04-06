@@ -1,3 +1,57 @@
+/* ════════════════════════════════════════════════════════════════
+   BACKEND STUB — Printful & Referral Wiring Guide
+   ════════════════════════════════════════════════════════════════
+   
+   ┌─────────────────────────────────────────────────────────────┐
+   │  PRINTFUL — Print-on-Demand Fulfillment                    │
+   ├─────────────────────────────────────────────────────────────┤
+   │  Required env vars:                                        │
+   │    PRINTFUL_ACCESS_TOKEN, PRINTFUL_WEBHOOK_SECRET           │
+   │                                                             │
+   │  Connect flow:                                             │
+   │    Artist dashboard → /dashboard/settings/printful          │
+   │    → Enter Printful API token → store in profiles           │
+   │                                                             │
+   │  Sync flow:                                                │
+   │    1. POST /api/printful/products (create sync product)   │
+   │    2. GET /api/printful/products/:id/variants (get sizes)  │
+   │    3. Map Printful variant IDs to product size options     │
+   │                                                             │
+   │  Order flow:                                               │
+   │    1. Order placed → POST /api/printful/orders            │
+   │    2. Printful fulfills & ships to customer               │
+   │    3. Webhook 'order_updated' → update orders.status      │
+   │                                                             │
+   │  Tables: products.printful_product_id,                    │
+   │         products.printful_variant_ids (JSONB),            │
+   │         orders.printful_order_id, orders.tracking_number   │
+   │  Docs: https://www.printful.com/docs/api                   │
+   └─────────────────────────────────────────────────────────────┘
+   
+   ┌─────────────────────────────────────────────────────────────┐
+   │  REFERRAL TRACKING — Superfan Commission System             │
+   ├─────────────────────────────────────────────────────────────┤
+   │  Required env vars: (none — uses existing Supabase)         │
+   │                                                             │
+   │  How it works:                                             │
+   │    1. Each supporter gets a unique referral code            │
+   │    2. Share link: porterful.com/?ref=CODE                  │
+   │    3. New user signs up → referred_by = code owner         │
+   │    4. When referred user buys → commission credited         │
+   │                                                             │
+   │  Commission tracking:                                      │
+   │    1. On order completion, check referred_by in buyer prof │
+   │    2. Calculate commission (e.g. 5% of order total)        │
+   │    3. Credit to referrer's wallet balance                  │
+   │    4. Store in referrals table for history                 │
+   │                                                             │
+   │  Tables: profiles.referral_code, profiles.referred_by,     │
+   │         referrals.referrer_id, referrals.referee_id,       │
+   │         referrals.commission_amount, referrals.paid_out     │
+   │  Commission rate: configurable (default 5%)                 │
+   └─────────────────────────────────────────────────────────────┘
+   ════════════════════════════════════════════════════════════════ */
+
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -163,6 +217,27 @@ export default function ArtistDashboardPage() {
             <p className="text-[var(--pf-text-secondary)]">Manage your music, albums, and products</p>
           </div>
           <div className="flex gap-3">
+            {/* BACKEND STUB: Referrals link */}
+            {/* ─────────────────────────────────────────────────────────
+               TODO: When wired, show referral stats here:
+                 const { data: referralStats } = await supabase
+                   .from('referrals')
+                   .select('count, total_commission')
+                   .eq('referrer_id', user.id)
+                 
+               const referralCount = referralStats?.length ?? 0
+               const totalCommission = referralStats?.reduce((s, r) => s + r.commission, 0) ?? 0
+               
+               Example data:
+                 const referralData = {
+                   activeReferrals: 12,
+                   totalEarned: 145.50,
+                   pendingPayout: 23.40
+                 }
+               ───────────────────────────────────────────────────────── */}
+            <Link href="/dashboard/referrals" className="pf-btn pf-btn-secondary flex items-center gap-2 opacity-60 border-dashed">
+              <Icon.Users /> Referrals <span className="text-xs text-yellow-400">Soon</span>
+            </Link>
             <Link href="/dashboard/collaborations" className="pf-btn pf-btn-secondary flex items-center gap-2">
               <Icon.Users /> Collaborations
             </Link>
@@ -325,6 +400,72 @@ export default function ArtistDashboardPage() {
         {/* Products Tab */}
         {activeTab === 'products' && (
           <div className="space-y-4">
+            {/* BACKEND STUB: Printful Integration Status */}
+            {/* ─────────────────────────────────────────────────────────
+               TODO: When wired, fetch Printful status from Supabase:
+                 const { data: profile } = await supabase
+                   .from('profiles')
+                   .select('printful_connected, printful_products_synced')
+                   .eq('id', user.id)
+                   .single()
+                 
+               Example data:
+                 const printfulStatus = {
+                   connected: profile?.printful_connected ?? false,
+                   syncedProducts: profile?.printful_products_synced ?? 0,
+                   lastSync: profile?.printful_last_sync_at ?? null
+                 }
+               ───────────────────────────────────────────────────────── */}
+            <div className="bg-[var(--pf-surface)] border-2 border-dashed border-blue-500/30 rounded-xl p-5 opacity-75">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center flex-shrink-0">
+                  <Icon.Package />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-semibold">Printful Integration</h3>
+                    <span className="px-2 py-0.5 rounded-full text-xs bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
+                      Not Connected
+                    </span>
+                  </div>
+                  <p className="text-sm text-[var(--pf-text-secondary)] mb-3">
+                    Connect Printful to enable print-on-demand products. Your merch will be 
+                    automatically fulfilled and shipped to customers with zero inventory.
+                  </p>
+                  <div className="flex flex-wrap gap-3">
+                    <Link 
+                      href="/dashboard/settings/printful"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition text-sm"
+                    >
+                      Connect Printful →
+                    </Link>
+                    <a 
+                      href="https://www.printful.com/docs/api" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--pf-bg)] hover:bg-[var(--pf-border)] text-[var(--pf-text-secondary)] font-medium rounded-lg transition text-sm"
+                    >
+                      View API Docs
+                    </a>
+                  </div>
+                  <div className="mt-3 pt-3 border-t border-[var(--pf-border)] grid grid-cols-3 gap-4 text-xs">
+                    <div>
+                      <span className="text-[var(--pf-text-muted)]">Products Synced</span>
+                      <p className="font-medium mt-0.5 text-[var(--pf-text-secondary)]">—</p>
+                    </div>
+                    <div>
+                      <span className="text-[var(--pf-text-muted)]">Last Sync</span>
+                      <p className="font-medium mt-0.5 text-[var(--pf-text-secondary)]">—</p>
+                    </div>
+                    <div>
+                      <span className="text-[var(--pf-text-muted)]">API Status</span>
+                      <p className="font-medium mt-0.5 text-yellow-400">Disconnected</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold">Merch & Products</h2>
               <Link href="/dashboard/add-product" className="pf-btn pf-btn-primary flex items-center gap-2">

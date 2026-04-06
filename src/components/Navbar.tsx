@@ -110,7 +110,7 @@ export function Navbar() {
                         <p className="text-sm font-medium truncate">{user.email}</p>
                       </div>
                       <div className="py-2">
-                        <Link href="/dashboard" className="flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-[var(--pf-bg)] transition-colors" onClick={() => setProfileOpen(false)}>
+                        <Link href="/dashboard/dashboard" className="flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-[var(--pf-bg)] transition-colors" onClick={() => setProfileOpen(false)}>
                           <User size={16} />
                           <span>Dashboard</span>
                         </Link>
@@ -195,7 +195,7 @@ export function Navbar() {
           {/* User Section */}
           {user ? (
             <div className="space-y-1">
-              <Link href="/dashboard" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 py-3 text-[var(--pf-text-secondary)]">
+              <Link href="/dashboard/dashboard" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 py-3 text-[var(--pf-text-secondary)]">
                 <User size={20} />
                 <span>Dashboard</span>
               </Link>

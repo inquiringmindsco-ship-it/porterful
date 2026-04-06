@@ -17,28 +17,35 @@ export function ArtistSupportCard({ artist }: ArtistSupportCardProps) {
 
   return (
     <div className="bg-[var(--pf-surface)] rounded-2xl p-5 border border-[var(--pf-border)] min-h-[200px] flex flex-col">
-      <p className="text-sm uppercase tracking-widest text-[var(--pf-orange)] mb-4">Support {firstName}</p>
+      <p className="text-base font-semibold text-[var(--pf-text)] mb-1">Support this artist</p>
+      <p className="text-xs text-[var(--pf-text-muted)] mb-4">Here&apos;s how you can help right now</p>
 
       <div className="space-y-2.5 flex-1">
-        {/* Proud to Pay */}
+        {/* Proud to Pay - PROMINENT */}
         <Link
           href="/proud-to-pay"
-          className="flex items-center gap-3 p-3.5 rounded-xl bg-gradient-to-r from-[var(--pf-orange)]/10 to-purple-600/10 border border-[var(--pf-orange)]/20 hover:border-[var(--pf-orange)]/40 transition-colors group"
+          title="Support directly — own a piece of the artist"
+          className="flex items-center gap-3 p-5 rounded-xl bg-gradient-to-r from-[var(--pf-orange)] to-orange-400 text-white border border-[var(--pf-orange)] hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all group"
         >
-          <Heart size={18} className="text-[var(--pf-orange)] shrink-0" />
-          <div className="flex-1 min-w-0">
-            <p className="font-medium text-sm">Proud to Pay</p>
-            <p className="text-xs text-[var(--pf-text-muted)]">Support directly, own a piece</p>
+          <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+            <Heart size={20} className="text-white" />
           </div>
-          <Share2 size={14} className="text-[var(--pf-text-muted)] group-hover:text-[var(--pf-orange)] transition-colors shrink-0" />
+          <div className="flex-1 min-w-0">
+            <p className="font-semibold text-base">Proud to Pay</p>
+            <p className="text-sm text-white/80">Support directly, own a piece</p>
+          </div>
+          <Heart size={16} className="text-white/60 group-hover:text-white transition-colors shrink-0" />
         </Link>
 
         {/* Buy Music */}
         <Link
           href="/music"
-          className="flex items-center gap-3 p-3.5 rounded-xl bg-[var(--pf-bg)] border border-[var(--pf-border)] hover:border-[var(--pf-orange)]/40 transition-colors group"
+          title="Browse and buy tracks from all artists"
+          className="flex items-center gap-3 p-4 rounded-xl bg-[var(--pf-bg)] border border-[var(--pf-border)] hover:border-[var(--pf-orange)]/50 hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all group cursor-pointer"
         >
-          <ShoppingBag size={18} className="text-[var(--pf-text-muted)] shrink-0" />
+          <div className="w-9 h-9 rounded-lg bg-[var(--pf-orange)]/10 flex items-center justify-center shrink-0">
+            <ShoppingBag size={18} className="text-[var(--pf-orange)]" />
+          </div>
           <div className="flex-1 min-w-0">
             <p className="font-medium text-sm">Buy Music</p>
             <p className="text-xs text-[var(--pf-text-muted)]">80% goes straight to {firstName}</p>
@@ -55,20 +62,23 @@ export function ArtistSupportCard({ artist }: ArtistSupportCardProps) {
               navigator.clipboard.writeText(window.location.href)
             }
           }}
-          className="w-full flex items-center gap-3 p-3.5 rounded-xl bg-[var(--pf-bg)] border border-[var(--pf-border)] hover:border-[var(--pf-orange)]/40 transition-colors"
+          title="Copy link or share to social media"
+          className="w-full flex items-center gap-3 p-4 rounded-xl bg-[var(--pf-bg)] border border-[var(--pf-border)] hover:border-[var(--pf-orange)]/50 hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all text-left cursor-pointer"
         >
-          <Share2 size={18} className="text-[var(--pf-text-muted)] shrink-0" />
-          <div className="flex-1 text-left">
+          <div className="w-9 h-9 rounded-lg bg-purple-500/10 flex items-center justify-center shrink-0">
+            <Share2 size={18} className="text-purple-500" />
+          </div>
+          <div className="flex-1">
             <p className="font-medium text-sm">Share Artist</p>
             <p className="text-xs text-[var(--pf-text-muted)]">Spread the word</p>
           </div>
         </button>
       </div>
 
-      {/* Revenue split reminder */}
+      {/* Direct support message */}
       <div className="mt-4 pt-4 border-t border-[var(--pf-border)]">
         <p className="text-xs text-[var(--pf-text-muted)] text-center">
-          <span className="text-[var(--pf-orange)] font-semibold">80%</span> of every purchase goes to {firstName}. Always.
+          Every action here directly supports this artist
         </p>
       </div>
     </div>

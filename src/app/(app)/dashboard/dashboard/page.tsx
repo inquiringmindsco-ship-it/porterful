@@ -181,9 +181,32 @@ export default function DashboardPage() {
                 <span className="text-[var(--pf-text-muted)]">Referral Code</span>
                 <Gift size={20} className="text-purple-400" />
               </div>
-              <p className="text-xl font-mono font-bold">{profile?.referral_code || 'N/A'}</p>
-              <p className="text-sm text-[var(--pf-text-muted)] mt-1">Share to earn</p>
+              <div className="flex items-center gap-2">
+                <p className="text-xl font-mono font-bold flex-1">{profile?.referral_code || 'N/A'}</p>
+                <button
+                  onClick={() => {
+                    const link = `${typeof window !== 'undefined' ? window.location.origin : ''}/?ref=${profile?.referral_code || ''}`
+                    navigator.clipboard.writeText(link)
+                    alert('Referral link copied!')
+                  }}
+                  className="px-2 py-1 text-xs bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 rounded transition-colors"
+                  title="Copy referral link"
+                >
+                  Copy Link
+                </button>
+              </div>
+              <p className="text-sm text-[var(--pf-text-muted)] mt-1">Build your network — earn 3% on every purchase</p>
             </div>
+          </div>
+
+          {/* NEXT ACTION NUDGE */}
+          <div className="mb-6 p-4 bg-[var(--pf-orange)]/10 rounded-xl border border-[var(--pf-orange)]/20">
+            <p className="text-sm text-[var(--pf-text-secondary)]">
+              <span className="text-[var(--pf-orange)] font-semibold">Your link is ready to share.</span>
+              {profile?.total_referrals === 0 
+                ? " Share it with friends — when they join and buy, you earn 3%." 
+                : ` Your ${profile.total_referrals} referral${profile.total_referrals === 1 ? '' : 's'} are already earning for you.`}
+            </p>
           </div>
 
           {/* Quick Links */}
@@ -225,6 +248,68 @@ export default function DashboardPage() {
             </Link>
           </div>
 
+          {/* YOUR NETWORK SECTION */}
+          <div className="mt-8">
+            <h2 className="text-lg font-bold mb-1">Your Network</h2>
+            <p className="text-sm text-[var(--pf-text-muted)] mb-4">
+              {profile?.total_referrals === 0 
+                ? "You're early — build your position now" 
+                : `${profile?.total_referrals} ${profile?.total_referrals === 1 ? 'person has' : 'people have'} joined through your link`}
+            </p>
+            <div className="grid md:grid-cols-3 gap-4 mb-4">
+              <div className="pf-card p-5">
+                <p className="text-sm text-[var(--pf-text-muted)] mb-1">People joined</p>
+                <p className="text-2xl font-bold">{
+                  // Replace with actual count from Supabase
+                  profile?.total_referrals || 0
+                }</p>
+              </div>
+              <div className="pf-card p-5">
+                <p className="text-sm text-[var(--pf-text-muted)] mb-1">Network earnings</p>
+                <p className="text-2xl font-bold text-green-400">${
+                  // Replace with actual earnings from referral_earnings
+                  '0.00'
+                }</p>
+              </div>
+              <div className="pf-card p-5">
+                <p className="text-sm text-[var(--pf-text-muted)] mb-1">Your referral link</p>
+                <p className="text-sm font-mono text-[var(--pf-orange)] break-all">
+                  {typeof window !== 'undefined' ? window.location.origin : ''}/?ref={profile?.referral_code || ''}
+                </p>
+              </div>
+            </div>
+            
+            {/* Share block */}
+            <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-2xl border border-purple-500/20 p-5">
+              <div className="flex items-center gap-3 mb-3">
+                <span className="text-2xl">⭐</span>
+                <div>
+                  <p className="font-bold text-sm">Build your network — grow your earnings</p>
+                  <p className="text-xs text-[var(--pf-text-muted)]">3% of every purchase made by your people</p>
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    const link = `${typeof window !== 'undefined' ? window.location.origin : ''}/?ref=${profile?.referral_code || ''}`
+                    if (navigator.share) {
+                      navigator.share({ title: 'Join me on Porterful', url: link })
+                    } else {
+                      navigator.clipboard.writeText(link)
+                      alert('Link copied!')
+                    }
+                  }}
+                  className="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white text-sm font-semibold rounded-lg transition-colors"
+                >
+                  📤 Build Your Network
+                </button>
+                <Link href="/superfan" className="px-4 py-2 bg-[var(--pf-surface)] border border-[var(--pf-border)] text-white text-sm font-medium rounded-lg hover:border-purple-500 transition-colors">
+                  Learn More
+                </Link>
+              </div>
+            </div>
+          </div>
+
           {/* Become a Superfan */}
           <div className="mt-8 pf-card p-6 border border-purple-500/30">
             <div className="flex items-start gap-4">
@@ -248,22 +333,56 @@ export default function DashboardPage() {
   }
 
   // Artist/Creator Dashboard
+  // Calculate profile completion
+  const profileFields = [
+    profile?.full_name,
+    profile?.bio,
+    profile?.avatar_url,
+    profile?.genre,
+    profile?.city,
+    profile?.instagram_url || profile?.youtube_url || profile?.twitter_url || profile?.tiktok_url,
+  ].filter(Boolean)
+  const completionPct = Math.round((profileFields.length / 7) * 100)
+
+  // Determine next action
+  const nextAction = !profile?.bio ? 'Add your bio — it helps fans find you' :
+                     !profile?.avatar_url ? 'Add a profile photo — builds trust' :
+                     !profile?.instagram_url && !profile?.youtube_url ? 'Connect your social links' :
+                     stats.total_products === 0 ? 'Add your first product' :
+                     'Share your page to start earning'
+
   return (
     <div className="min-h-screen pt-24 pb-12">
       <div className="pf-container">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">Creator Dashboard</h1>
-            <p className="text-[var(--pf-text-secondary)]">
-              Manage your products and track your earnings
-            </p>
+        {/* PROGRESS HEADER */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <h1 className="text-3xl font-bold mb-1">Your Dashboard</h1>
+              <p className="text-[var(--pf-text-secondary)]">
+                {completionPct < 100 ? `${completionPct}% complete — ${nextAction}` : 'Your store is live and ready to earn'}
+              </p>
+            </div>
+            {completionPct < 100 && (
+              <Link href="/dashboard/artist" className="px-4 py-2 bg-[var(--pf-orange)] text-white text-sm font-semibold rounded-lg hover:bg-[var(--pf-orange-dark)] transition-colors">
+                Complete Profile →
+              </Link>
+            )}
           </div>
-          <Link href="/dashboard/add-product" className="pf-btn pf-btn-primary flex items-center gap-2">
-            <Plus size={18} />
-            Add Product
-          </Link>
+          {/* Completion bar */}
+          <div className="w-full h-2 bg-[var(--pf-surface)] rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-[var(--pf-orange)] to-amber-400 rounded-full transition-all duration-500"
+              style={{ width: `${completionPct}%` }}
+            />
+          </div>
+          <div className="flex items-center gap-2 mt-2">
+            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+            <p className="text-xs text-[var(--pf-text-muted)]">Your store is active — people can support you right now</p>
+          </div>
         </div>
+
+        {/* Keep the rest of the existing dashboard content below */}
 
         {/* Share Your Page Prompt */}
         {profile?.artist_slug && (
@@ -310,8 +429,8 @@ export default function DashboardPage() {
                   <span className="text-purple-400 font-bold">2</span>
                 </div>
                 <div className="flex-1">
-                  <p className="font-medium">Upload tracks</p>
-                  <p className="text-sm text-[var(--pf-text-muted)]">Add your music with "Proud to Pay" pricing</p>
+                  <p className="font-medium">Add your music</p>
+                  <p className="text-sm text-[var(--pf-text-muted)]">Your catalog is your foundation</p>
                 </div>
                 <Link href="/dashboard/upload" className="pf-btn pf-btn-secondary text-sm">Upload</Link>
               </div>
@@ -320,10 +439,45 @@ export default function DashboardPage() {
                   <span className="text-green-400 font-bold">3</span>
                 </div>
                 <div className="flex-1">
-                  <p className="font-medium">Share with fans</p>
-                  <p className="text-sm text-[var(--pf-text-muted)]">Spread the word and start earning</p>
+                  <p className="font-medium">Add merch or digital products</p>
+                  <p className="text-sm text-[var(--pf-text-muted)]">Sell while you sleep</p>
                 </div>
                 <span className="text-sm text-[var(--pf-text-muted)]">→</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
+                  <span className="text-blue-400 font-bold">4</span>
+                </div>
+                <div className="flex-1">
+                  <p className="font-medium">Track your progress</p>
+                  <p className="text-sm text-[var(--pf-text-muted)]">Earnings grow with your network</p>
+                </div>
+                <span className="text-sm text-[var(--pf-text-muted)]">→</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* FIRST EARNING OPPORTUNITY BANNER */}
+        {stats.total_orders === 0 && stats.total_products === 0 && (
+          <div className="mb-6 bg-gradient-to-r from-[var(--pf-orange)]/15 to-amber-500/10 rounded-2xl border border-[var(--pf-orange)]/25 p-5">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-xl bg-[var(--pf-orange)]/20 flex items-center justify-center shrink-0">
+                <span className="text-2xl">🚀</span>
+              </div>
+              <div className="flex-1">
+                <h3 className="font-bold text-base mb-1">Your network starts here</h3>
+                <p className="text-sm text-[var(--pf-text-secondary)] mb-3">
+                  Share your link — every person who joins and buys earns you 3%. You're early, so build your position now.
+                </p>
+                <div className="flex gap-3 flex-wrap">
+                  <Link href="/dashboard/artist" className="px-4 py-2 bg-[var(--pf-orange)] text-white text-sm font-semibold rounded-lg hover:bg-[var(--pf-orange-dark)] transition-colors">
+                    Build Your Network
+                  </Link>
+                  <Link href="/dashboard/products/add" className="px-4 py-2 bg-[var(--pf-surface)] border border-[var(--pf-border)] text-white text-sm font-medium rounded-lg hover:border-[var(--pf-orange)] transition-colors">
+                    Add Your First Product
+                  </Link>
+                </div>
               </div>
             </div>
           </div>

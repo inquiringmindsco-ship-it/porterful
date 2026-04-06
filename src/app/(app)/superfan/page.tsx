@@ -265,8 +265,9 @@ export default function SuperfanPage() {
             Share music. Track referrals. Earn commissions — automatically.
           </p>
           <Link href="/apply" className="pf-btn pf-btn-primary inline-flex items-center gap-2">
-            Join Free <ArrowRight size={18} />
+            Sign Up Free <ArrowRight size={18} />
           </Link>
+          <p className="text-xs text-[var(--pf-text-muted)] mt-3">No purchase required to join</p>
         </section>
 
         {/* Short Explainer */}

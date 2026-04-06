@@ -119,7 +119,7 @@ export default function SubmitPage() {
             We've received your music. We'll review it and get back to you within 48 hours.
             If approved, your tracks will be live on Porterful!
           </p>
-          <a href="/store" className="inline-block bg-[var(--pf-orange)] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[var(--pf-orange)]/90 transition">
+          <a href="/shop" className="inline-block bg-[var(--pf-orange)] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[var(--pf-orange)]/90 transition">
             Browse the Store
           </a>
         </div>

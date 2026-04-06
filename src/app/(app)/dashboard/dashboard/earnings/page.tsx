@@ -1,10 +1,61 @@
 'use client'
 
+/* ════════════════════════════════════════════════════════════════
+   STRIPE CONNECT — Artist Payouts Wiring Guide
+   ════════════════════════════════════════════════════════════════
+   
+   Required env vars:
+     STRIPE_SECRET_KEY       — Stripe API secret key
+     STRIPE_PUBLISHABLE_KEY — Stripe publishable key (NEXT_PUBLIC_STRIPE_KEY)
+     STRIPE_WEBHOOK_SECRET  — Webhook signing secret from Stripe dashboard
+   
+   Connect flow:
+     1. Artist clicks "Connect Stripe" on dashboard
+     2. Redirect to /api/stripe/connect (creates Express account link)
+     3. Stripe redirects back to /dashboard/earnings?stripe_connected=true
+     4. Store stripe_account_id in profiles.stripe_account_id
+     5. Set profiles.stripe_onboarded = true after dashboard completed
+   
+   Onboarding checklist:
+     - Collect bank account or debit card for payouts
+     - Verify identity (DOB, address, SSN last 4 for US)
+     - Accept Stripe Connected account terms
+   
+   Payout flow:
+     1. Artist requests payout via POST /api/payouts
+     2. Server calls stripe.transfers.create({
+          amount: cents,
+          currency: 'usd',
+          destination: artist.stripe_account_id,
+          transfer_group: `payout_${artist.id}`
+        })
+     3. Webhook stripe.event.type === 'transfer.created' logs payout
+     4. Update profiles.total_paid_out, profiles.current_balance
+   
+   Key tables:
+     profiles.stripe_account_id     — Stripe account identifier
+     profiles.stripe_onboarded      — whether Stripe setup is complete
+     profiles.current_balance       — available balance (in cents)
+     profiles.total_paid_out        — lifetime payout total
+     payout_requests.id            — payout request records
+     payout_requests.stripe_transfer_id — Stripe transfer ID
+   
+   Webhook events to handle:
+     - account.updated          (payouts_enabled, charges_enabled changes)
+     - transfer.created         (payout processed)
+     - transfer.failed          (payout failed)
+     - payout.paid              (payout completed)
+     - payout.failed            (payout failed)
+   
+   Docs: https://stripe.com/docs/connect
+   Dashboard: https://dashboard.stripe.com/settings/connect
+   ════════════════════════════════════════════════════════════════ */
+
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { usePayout, getTierInfo, formatCurrency, PAYOUT_TIERS } from '@/lib/payout-context'
 import { useSupabase } from '@/app/providers'
-import { DollarSign, TrendingUp, Clock, Award, ArrowUp, ArrowDown, Wallet, ArrowRight } from 'lucide-react'
+import { DollarSign, TrendingUp, Clock, Award, ArrowUp, ArrowDown, Wallet, ArrowRight, CreditCard, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 
 export default function ArtistDashboardPage() {
@@ -163,6 +214,71 @@ export default function ArtistDashboardPage() {
               </p>
             </div>
           )}
+        </div>
+
+        {/* BACKEND STUB: Stripe Connect Status Panel */}
+        {/* ─────────────────────────────────────────────────────────────
+           This panel shows Stripe Connect account status.
+           TODO: When wired, fetch from Supabase:
+             const { data: profile } = await supabase
+               .from('profiles')
+               .select('stripe_account_id, stripe_onboarded')
+               .eq('id', user.id)
+               .single()
+             
+           Example data:
+             const stripeAccount = {
+               connected: profile?.stripe_account_id != null,
+               onboarded: profile?.stripe_onboarded ?? false,
+               accountId: profile?.stripe_account_id ? 
+                 profile.stripe_account_id.slice(-4) : null
+             }
+           ───────────────────────────────────────────────────────────── */}
+        <div className="bg-[var(--pf-surface)] border-2 border-dashed border-purple-500/30 rounded-xl p-5 mb-8 opacity-75">
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center flex-shrink-0">
+              <CreditCard size={24} className="text-purple-400" />
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <h3 className="font-semibold">Stripe Connect</h3>
+                <span className="px-2 py-0.5 rounded-full text-xs bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
+                  Not Connected
+                </span>
+              </div>
+              <p className="text-sm text-[var(--pf-text-secondary)] mb-3">
+                Connect your Stripe account to receive payouts directly to your bank account. 
+                Requires identity verification and bank account or debit card.
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <Link 
+                  href="/dashboard/settings/stripe"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white font-medium rounded-lg transition text-sm"
+                >
+                  <ExternalLink size={14} />
+                  Connect Stripe Account
+                </Link>
+                <a 
+                  href="https://stripe.com/docs/connect" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--pf-bg)] hover:bg-[var(--pf-border)] text-[var(--pf-text-secondary)] font-medium rounded-lg transition text-sm"
+                >
+                  View Docs →
+                </a>
+              </div>
+              <div className="mt-3 pt-3 border-t border-[var(--pf-border)] grid grid-cols-2 gap-4 text-xs text-[var(--pf-text-muted)]">
+                <div>
+                  <span className="text-[var(--pf-text-muted)]">Account ID</span>
+                  <p className="font-mono mt-0.5 text-[var(--pf-text-secondary)]">—</p>
+                </div>
+                <div>
+                  <span className="text-[var(--pf-text-muted)]">Payouts Enabled</span>
+                  <p className="mt-0.5 text-yellow-400">Pending</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Stats Grid */}

@@ -92,6 +92,62 @@ export async function POST(request: NextRequest) {
         } else {
           console.log('✅ Order saved:', order.id)
 
+          // ── Dropship Order Forwarding ────────────────────────────────────
+          const dropshipItems = items.filter((item: any) => item.dropship === true)
+          if (dropshipItems.length > 0) {
+            const shipping = (session as any).shipping_details?.address || {}
+            const nameParts = ((session as any).shipping_details?.name || 'Customer').split(' ')
+            const firstName = nameParts[0] || ''
+            const lastName = nameParts.slice(1).join(' ') || ''
+
+            for (const item of dropshipItems) {
+              const supplierPrice = item.supplierPrice || 0
+              const storePrice = item.price || 0
+              const margin = (storePrice - supplierPrice) * (item.quantity || 1)
+
+              const dropshipPayload = {
+                orderId: session.id,
+                customer: {
+                  email: session.customer_email || session.customer_details?.email || '',
+                  name: (session as any).shipping_details?.name || 'Customer',
+                  phone: (session as any).shipping_details?.phone || '',
+                },
+                shippingAddress: {
+                  firstName,
+                  lastName,
+                  address: shipping.line1 || '',
+                  city: shipping.city || '',
+                  state: shipping.state || '',
+                  zip: shipping.postal_code || '',
+                  country: shipping.country || 'US',
+                  phone: (session as any).shipping_details?.phone || '',
+                },
+                items: [{
+                  name: item.name || item.title,
+                  quantity: item.quantity || 1,
+                  price: storePrice,
+                  sku: item.id,
+                }],
+                total: (session.amount_total || 0) / 100,
+                shippingCost: 0,
+                PorterfulMargin: margin,
+              }
+
+              try {
+                const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://porterful.com'
+                const dropshipRes = await fetch(`${baseUrl}/api/dropship/carcamfpv`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ action: 'forward_order', payload: dropshipPayload }),
+                })
+                const dropshipResult = await dropshipRes.json()
+                console.log(`[dropship] RC FPV Mini Car forwarded:`, dropshipResult.success ? '✅' : '❌', dropshipResult.message || '')
+              } catch (err) {
+                console.error('[dropship] Forward failed:', err)
+              }
+            }
+          }
+
           if (items.length > 0) {
             const orderItems = items.map((item: any) => ({
               order_id: session.id,

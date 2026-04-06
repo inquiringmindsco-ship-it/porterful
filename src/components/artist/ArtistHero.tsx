@@ -82,15 +82,23 @@ export function ArtistHero({ artist, featuredTrack, totalPlays }: ArtistHeroProp
         <div className="flex flex-col lg:flex-row gap-8 items-center lg:items-start">
 
           {/* Avatar */}
-          <div className="relative w-48 h-48 flex-shrink-0 rounded-2xl overflow-hidden border-2 border-[var(--pf-orange)]/30 shadow-2xl shadow-[var(--pf-orange)]/10">
-            <Image
-              src={artist.image || '/artist-images/od-porter/od-porter.jpg'}
-              alt={artist.name}
-              fill
-              sizes="192px"
-              className="object-cover"
-              priority
-            />
+          <div className="relative w-48 h-48 flex-shrink-0 rounded-2xl overflow-hidden border-2 border-[var(--pf-orange)]/30 shadow-2xl shadow-[var(--pf-orange)]/10 bg-[var(--pf-surface)]">
+            {artist.image ? (
+              <Image
+                src={artist.image}
+                alt={artist.name}
+                fill
+                sizes="192px"
+                className="object-cover"
+                priority
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[var(--pf-orange)]/20 to-purple-600/20">
+                <span className="text-5xl font-bold text-[var(--pf-orange)]">
+                  {artist.name.charAt(0).toUpperCase()}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Info + Controls */}
@@ -114,17 +122,19 @@ export function ArtistHero({ artist, featuredTrack, totalPlays }: ArtistHeroProp
             {featuredTrack && (
               <button
                 onClick={() => isActive ? togglePlay() : playTrack(featuredTrack)}
-                className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-[var(--pf-orange)] hover:bg-[var(--pf-orange-dark)] text-white font-semibold transition-all shadow-lg shadow-[var(--pf-orange)]/20 mb-8"
+                aria-label={isActive && isPlaying ? `Pause "${featuredTrack.title}" by ${artist.name}` : `Play "${featuredTrack.title}" by ${artist.name}`}
+                title={isActive && isPlaying ? `Pause "${featuredTrack.title}"` : `Play "${featuredTrack.title}" — listen, then explore merch in the sidebar`}
+                className="inline-flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-3 rounded-full bg-[var(--pf-orange)] hover:bg-[var(--pf-orange-dark)] text-white font-semibold transition-all shadow-lg shadow-[var(--pf-orange)]/20 mb-6 sm:mb-8 whitespace-nowrap"
               >
                 {isActive && isPlaying ? (
                   <>
-                    <Pause size={20} />
-                    Pause
+                    <Pause size={18} className="sm:w-5 sm:h-5" />
+                    <span className="text-sm sm:text-base">Pause</span>
                   </>
                 ) : (
                   <>
-                    <Play size={20} className="ml-0.5" />
-                    Play Featured Track
+                    <Play size={18} className="sm:w-5 sm:h-5 ml-0.5" />
+                    <span className="text-sm sm:text-base">Play Track</span>
                   </>
                 )}
               </button>

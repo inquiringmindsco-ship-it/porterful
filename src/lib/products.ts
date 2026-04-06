@@ -19,6 +19,10 @@ export interface Product {
   sales?: number
   rating?: number
   reviews?: number
+  // Dropship fields
+  dropship?: boolean
+  supplier?: string
+  supplierPrice?: number
 }
 
 export const PRODUCTS: Product[] = [
@@ -247,6 +251,24 @@ export const PRODUCTS: Product[] = [
     sales: 0,
     rating: 0,
     reviews: 0,
+  },
+  {
+    id: 'rc-fpv-mini-car',
+    name: 'RC FPV Mini Car',
+    price: 59.95,
+    category: 'Tech',
+    artist: 'Porterful',
+    image: 'https://images.unsplash.com/photo-1589587158918-3d7b4fcdd3c9?w=800',
+    featured: true,
+    description: 'Real-time HD FPV streaming directly to your phone. Dual control via app or remote. Built-in rechargeable battery — no data plan or Wi-Fi router needed. Integrated signal transmitter for instant private connection.',
+    dropship: true,
+    supplier: 'carcamfpv',
+    supplierPrice: 44.95,
+    inStock: true,
+    artistCut: 48,
+    sales: 0,
+    rating: 4.8,
+    reviews: 136,
   },
 ]
 

@@ -13,6 +13,7 @@
   --pf-surface-hover: #1c1c1c;
   --pf-border: #2a2a2a;
   --pf-border-subtle: #222222;
+  --pf-border-hover: #3a3a3a;
   --pf-text: #ffffff;
   --pf-text-secondary: #c8c8c8;
   --pf-text-muted: #8a8a8a;
@@ -33,6 +34,7 @@
   --pf-surface-hover: #f0f0f0;
   --pf-border: #e0e0e0;
   --pf-border-subtle: #ebebeb;
+  --pf-border-hover: #cccccc;
   --pf-text: #0a0a0a;
   --pf-text-secondary: #525252;
   --pf-text-muted: #737373;
@@ -53,6 +55,7 @@
   --pf-surface-hover: #1c1c1c;
   --pf-border: #2a2a2a;
   --pf-border-subtle: #222222;
+  --pf-border-hover: #3a3a3a;
   --pf-text: #ffffff;
   --pf-text-secondary: #c8c8c8;
   --pf-text-muted: #8a8a8a;
@@ -125,11 +128,11 @@ body {
   }
 }
 
-/* Container */
+/* Container — tighter mobile padding for premium feel */
 .pf-container {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 0 1rem;
+  padding: 0 1.25rem;
 }
 
 @media (min-width: 767px) {
@@ -152,7 +155,7 @@ body {
 }
 
 .pf-card {
-  @apply bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-xl;
+  @apply bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-xl shadow-sm;
 }
 
 /* Fix text visibility */
@@ -175,6 +178,39 @@ body {
 
 .pf-label-muted {
   @apply text-sm text-[var(--pf-text-muted)];
+}
+
+/* Section eyebrow — uppercase label, small but readable */
+.pf-eyebrow {
+  @apply text-xs font-semibold uppercase tracking-widest;
+  color: var(--pf-orange);
+  opacity: 0.9;
+}
+
+/* Subtle divider */
+.pf-divider {
+  border-top: 1px solid var(--pf-border);
+}
+
+/* Improved empty state */
+.pf-empty {
+  @apply flex flex-col items-center justify-center text-center py-16 px-6;
+}
+
+.pf-empty-icon {
+  @apply w-12 h-12 rounded-full bg-[var(--pf-surface)] flex items-center justify-center mb-4;
+  color: var(--pf-text-muted);
+  opacity: 0.6;
+}
+
+.pf-empty-title {
+  @apply font-semibold text-base mb-1;
+  color: var(--pf-text);
+}
+
+.pf-empty-desc {
+  @apply text-sm;
+  color: var(--pf-text-secondary);
 }
 
 /* Form inputs - high contrast */
@@ -319,9 +355,11 @@ textarea::placeholder {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Focus states */
-.focus-visible:focus-visible {
-  @apply outline-none ring-2 ring-[var(--pf-orange)] ring-offset-2 ring-offset-[var(--pf-bg)];
+/* Focus ring — consistent, accessible, orange */
+*:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--pf-bg), 0 0 0 4px var(--pf-orange);
+  border-radius: 4px;
 }
 
 /* Disabled states */
