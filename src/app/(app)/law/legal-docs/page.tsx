@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, FileText, Download, Copy, Check, ChevronDown, ChevronUp } from 'lucide-react'
-import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } from 'docx'
 import { useSearchParams } from 'next/navigation'
 
 type DocType = 'nda' | 'non-compete' | 'partnership' | 'invention-assignment' | 'founder-agreement'
