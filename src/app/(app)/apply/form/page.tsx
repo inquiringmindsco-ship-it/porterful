@@ -34,6 +34,7 @@ export default function ApplyFormPage() {
     avatar_url: '',
     agree_terms: false,
     agree_exclusive: false,
+    add_likeness: false,
   })
 
   const handleSubmit = async () => {
@@ -82,6 +83,44 @@ export default function ApplyFormPage() {
               <p className="text-sm text-[var(--pf-text-muted)] mb-8">
                 Welcome to Porterful. The platform is yours.
               </p>
+
+              {/* Show if likeness was added during application */}
+              {form.add_likeness && (
+                <div className="mb-6 p-4 rounded-xl bg-[#c6a85a]/10 border border-[#c6a85a]/30 text-left">
+                  <p className="text-sm text-[#c6a85a] font-medium mb-1">Likeness™ protection added</p>
+                  <p className="text-xs text-[var(--pf-text-muted)]">
+                    Check your email for next steps to complete your registration at LikenessVerified.com
+                  </p>
+                </div>
+              )}
+
+              {/* Prompt if likeness was NOT added */}
+              {!form.add_likeness && (
+                <div className="mb-6 p-5 rounded-2xl bg-gradient-to-br from-[#111111] to-[#1a1a1a] border border-[#333333] text-left">
+                  <div className="flex items-start gap-3 mb-3">
+                    <div className="w-10 h-10 rounded-lg bg-[#c6a85a]/20 flex items-center justify-center shrink-0">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#c6a85a" strokeWidth="2"/>
+                        <path d="M9 12l2 2 4-4" stroke="#c6a85a" strokeWidth="2" strokeLinecap="round"/>
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-white font-bold mb-1">Get your verified badge</p>
+                      <p className="text-xs text-[#aaaaaa]">Protect your voice + likeness. Stand out on your profile. It takes 60 seconds.</p>
+                    </div>
+                  </div>
+                  <a
+                    href="https://likenessverified.com/register"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block w-full py-3 rounded-xl bg-[#c6a85a] text-[#111] font-bold text-sm hover:bg-[#d4b76a] transition-colors"
+                  >
+                    Register at LikenessVerified.com →
+                  </a>
+                  <p className="text-xs text-[#666] mt-2">Porterful rate: $9/year · Regular $12</p>
+                </div>
+              )}
+
               <Link href="/dashboard/dashboard" className="pf-btn pf-btn-primary">
                 Go to Dashboard
               </Link>
@@ -496,6 +535,50 @@ export default function ApplyFormPage() {
                   My music on Porterful will be exclusive to this platform.
                 </span>
               </label>
+
+              {/* LIKENESS UPSELL */}
+              <div className="mt-6 rounded-2xl bg-gradient-to-br from-[#111111] to-[#1a1a1a] border border-[#333333] p-5">
+                <div className="flex items-start gap-4 mb-4">
+                  <div className="w-12 h-12 rounded-xl bg-[#c6a85a]/20 flex items-center justify-center shrink-0">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="#c6a85a" opacity="0.3"/>
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#c6a85a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M9 12l2 2 4-4" stroke="#c6a85a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-white font-bold text-lg">Protect Your Likeness</span>
+                      <span className="px-2 py-0.5 rounded-full bg-[#c6a85a]/20 text-[#c6a85a] text-xs font-medium">$9/yr</span>
+                    </div>
+                    <p className="text-sm text-[#aaaaaa] leading-relaxed">
+                      AI is using artist voices and faces without permission. Before you go live with your brand, register your likeness — get your verification badge and prove it's yours.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-3 mb-4">
+                  {['Voice + face registration', 'Legal certificate (PDF)', 'C&D letter templates', 'Evidence vault', 'Verified badge'].map(f => (
+                    <div key={f} className="flex items-center gap-1.5 text-xs text-[#cccccc]">
+                      <span className="text-[#c6a85a]">✓</span> {f}
+                    </div>
+                  ))}
+                </div>
+                <p className="text-xs text-[#888888] mb-4">
+                  Porterful rate $9/yr — regular price $12. Secure your likeness before your profile goes live.
+                </p>
+                <label className="flex items-center gap-3 cursor-pointer p-3 rounded-xl border border-[#333333] hover:border-[#c6a85a]/50 transition-colors">
+                  <input
+                    type="checkbox"
+                    className="w-5 h-5 rounded border-[#444] bg-[#222] accent-[#c6a85a]"
+                    checked={form.add_likeness}
+                    onChange={e => setForm({ ...form, add_likeness: e.target.checked })}
+                  />
+                  <div>
+                    <span className="text-sm text-white font-medium">Add Likeness™ protection</span>
+                    <span className="text-xs text-[#888] ml-2">$9/year · Optional</span>
+                  </div>
+                </label>
+              </div>
             </div>
           </div>
         )}
