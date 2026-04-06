@@ -4,20 +4,16 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js'
 let _supabase: SupabaseClient | null = null
 
 function getClient(): SupabaseClient {
-  if (_supabase) return _supabase
-  
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   
   if (!url || !key) {
     // Return a dummy client for build-time to avoid crashes
-    // All real calls will fail gracefully
-    console.warn('Supabase env vars missing — using fallback')
-    return createClient('https://placeholder.supabase.co', 'placeholder')
+    // All real calls will fail gracefully — this is intentional
+    return createClient('https://placeholder.supabase.co', 'placeholder-key')
   }
   
-  _supabase = createClient(url, key)
-  return _supabase
+  return createClient(url, key)
 }
 
 // Proxy that lazy-loads the real client on first property access

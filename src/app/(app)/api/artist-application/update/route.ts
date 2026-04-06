@@ -1,4 +1,3 @@
-import { createServerClient } from '@/lib/supabase'
 import { NextResponse } from 'next/server'
 
 export async function POST(req: Request) {
@@ -10,6 +9,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // Dynamic import to avoid build-time instantiation
+    const { createServerClient } = await import('@/lib/supabase')
     const supabase = createServerClient()
     if (!supabase) return NextResponse.json({ error: 'Server not configured' }, { status: 500 })
 
