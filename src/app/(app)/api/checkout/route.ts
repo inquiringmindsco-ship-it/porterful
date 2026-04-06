@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
       payment_method_types: ['card'],
       line_items: lineItems,
       mode: 'payment',
-      success_url: 'https://porterful.com/checkout/success?session_id={CHECKOUT_SESSION_ID}',
+      success_url: 'https://porterful.com/checkout/checkout/success?session_id={CHECKOUT_SESSION_ID}',
       cancel_url: 'https://porterful.com/',
       metadata: {
         artist_fund: artistFund.toString(),

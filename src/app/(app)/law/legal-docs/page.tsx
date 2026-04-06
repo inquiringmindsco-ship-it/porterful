@@ -1,9 +1,12 @@
 'use client'
 
+import { Suspense } from 'react'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, FileText, Download, Copy, Check, ChevronDown, ChevronUp } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
+
+export const dynamic = 'force-dynamic'
 
 type DocType = 'nda' | 'non-compete' | 'partnership' | 'invention-assignment' | 'founder-agreement'
 
@@ -472,6 +475,14 @@ Witness
 }
 
 export default function LegalDocsPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[var(--pf-bg)]" />}>
+      <LegalDocsContent />
+    </Suspense>
+  )
+}
+
+function LegalDocsContent() {
   const searchParams = useSearchParams()
   const initialDoc = searchParams.get('doc') as DocType | null
 
