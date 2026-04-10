@@ -195,7 +195,7 @@ export default function DashboardPage() {
                   Copy Link
                 </button>
               </div>
-              <p className="text-sm text-[var(--pf-text-muted)] mt-1">Build your network — earn 3% on every purchase</p>
+              <p className="text-sm text-[var(--pf-text-muted)] mt-1">Share your link — earnings tracked automatically</p>
             </div>
           </div>
 
@@ -266,10 +266,8 @@ export default function DashboardPage() {
               </div>
               <div className="pf-card p-5">
                 <p className="text-sm text-[var(--pf-text-muted)] mb-1">Network earnings</p>
-                <p className="text-2xl font-bold text-green-400">${
-                  // Replace with actual earnings from referral_earnings
-                  '0.00'
-                }</p>
+                <p className="text-2xl font-bold text-green-400">Tracking soon</p>
+                <p className="text-xs text-[var(--pf-text-muted)] mt-1">Referral earnings are not connected yet</p>
               </div>
               <div className="pf-card p-5">
                 <p className="text-sm text-[var(--pf-text-muted)] mb-1">Your referral link</p>
@@ -284,8 +282,8 @@ export default function DashboardPage() {
               <div className="flex items-center gap-3 mb-3">
                 <span className="text-2xl">⭐</span>
                 <div>
-                  <p className="font-bold text-sm">Build your network — grow your earnings</p>
-                  <p className="text-xs text-[var(--pf-text-muted)]">3% of every purchase made by your people</p>
+                  <p className="font-bold text-sm">Share your link — earnings tracked automatically</p>
+                  <p className="text-xs text-[var(--pf-text-muted)]">3% commission on every purchase your people make</p>
                 </div>
               </div>
               <div className="flex gap-3">
@@ -378,7 +376,9 @@ export default function DashboardPage() {
           </div>
           <div className="flex items-center gap-2 mt-2">
             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-            <p className="text-xs text-[var(--pf-text-muted)]">Your store is active — people can support you right now</p>
+            <p className="text-xs text-[var(--pf-text-muted)]">
+              {profile?.artist_slug ? 'Your public artist page is live.' : 'Complete your artist page before you promote it.'}
+            </p>
           </div>
         </div>
 
@@ -608,7 +608,7 @@ export default function DashboardPage() {
                 <div className="h-2 bg-[var(--pf-border)] rounded-full overflow-hidden">
                   <div className="h-full bg-gradient-to-r from-[var(--pf-orange)] to-[var(--pf-orange-light)] rounded-full" style={{ width: '0%' }} />
                 </div>
-                <p className="text-xs text-[var(--pf-text-muted)] mt-2">Start selling to generate</p>
+                <p className="text-xs text-[var(--pf-text-muted)] mt-2">This card updates as real orders are recorded.</p>
               </div>
             </div>
           </div>
@@ -668,8 +668,8 @@ export default function DashboardPage() {
             </div>
             <div className="p-8 text-center text-[var(--pf-text-muted)]">
               <BarChart3 size={32} className="mx-auto mb-2 opacity-50" />
-              <p>Analytics coming soon</p>
-              <p className="text-sm mt-1">Track your sales, views, and conversions</p>
+              <p>Analytics not connected yet</p>
+              <p className="text-sm mt-1">Sales totals are live above, but detailed analytics are still being wired.</p>
             </div>
           </div>
         )}

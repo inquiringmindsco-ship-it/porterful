@@ -36,9 +36,10 @@ export async function POST(request: Request) {
 
     // --- Referral Logic ---
     let referredBy: string | null = null
+    let refCode: string | null | undefined = null
     try {
       const cookieStore = await cookies()
-      const refCode = cookieStore.get('porterful_referral')?.value
+      refCode = cookieStore.get('porterful_referral')?.value
       if (refCode) {
         // Look up referrer's profile ID by referral_code
         const { data: referrerProfile } = await supabase
@@ -76,6 +77,19 @@ export async function POST(request: Request) {
     if (profileError) {
       console.error('Profile creation error:', profileError)
       // Continue anyway - profile might already exist
+    }
+
+    // Create referral record if this was a referred signup
+    if (referredBy && refCode) {
+      try {
+        await supabase.from('referrals').insert({
+          referrer_id: referredBy,
+          referred_id: userId,
+          referral_code: refCode,
+        })
+      } catch (refErr) {
+        console.warn('Referral record creation failed (non-fatal):', refErr)
+      }
     }
 
     // If artist, create artist record

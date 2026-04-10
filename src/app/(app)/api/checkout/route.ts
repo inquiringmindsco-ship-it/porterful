@@ -14,6 +14,10 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { items, referralCode } = body
 
+    // Read referral cookie server-side — fallback to client-passed value
+    const cookieReferralCode = request.cookies.get('porterful_referral')?.value || null
+    const effectiveReferralCode = referralCode || cookieReferralCode
+
     // Check if this is digital (tracks) or physical (merch)
     const isDigital = items.some((item: any) => item.type === 'track' || item.type === 'digital')
     
@@ -27,8 +31,9 @@ export async function POST(request: NextRequest) {
     const total = subtotal + shippingCost
 
     // Artist earnings breakdown
+    // Note: 3% flat for now. Tier-based (3/5/8/10%) requires referrer tier lookup at checkout.
     const artistFund = Math.round(subtotal * 0.20)
-    const superfanShare = Math.round(subtotal * 0.03)
+    const superfanShare = effectiveReferralCode ? Math.round(subtotal * 0.03) : 0
     const platformFee = Math.round(subtotal * 0.10)
     const sellerEarnings = subtotal - artistFund - superfanShare - platformFee
 
@@ -73,7 +78,7 @@ export async function POST(request: NextRequest) {
       metadata: {
         artist_fund: artistFund.toString(),
         superfan_share: superfanShare.toString(),
-        referral_code: referralCode || '',
+        referral_code: effectiveReferralCode || '',
         type: items[0]?.type || 'product',
         audio_url: items[0]?.audioUrl || '',
         track_name: items[0]?.name || '',

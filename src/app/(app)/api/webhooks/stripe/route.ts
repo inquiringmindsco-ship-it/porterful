@@ -92,7 +92,53 @@ export async function POST(request: NextRequest) {
         } else {
           console.log('✅ Order saved:', order.id)
 
-          // ── Dropship Order Forwarding ────────────────────────────────────
+          // ── Credit Referral Earnings ─────────────────────────────────────────
+        const referralCode = session.metadata?.referral_code
+        if (referralCode && superfanCents > 0) {
+          try {
+            // Look up referrer by referral code
+            const { data: referrer } = await supabase
+              .from('profiles')
+              .select('id')
+              .eq('referral_code', referralCode)
+              .single()
+
+            if (referrer) {
+              // Credit the referral earnings
+              await supabase.from('referral_earnings').insert({
+                superfan_id: referrer.id,
+                order_id: session.id,
+                amount: superfanCents / 100,
+                status: 'pending',
+              })
+
+              // Increment referrer's total_referrals count
+              const { data: referrerProfile } = await supabase
+                .from('profiles')
+                .select('total_referrals')
+                .eq('id', referrer.id)
+                .single()
+              if (referrerProfile) {
+                await supabase
+                  .from('profiles')
+                  .update({ total_referrals: (referrerProfile.total_referrals || 0) + 1 })
+                  .eq('id', referrer.id)
+              }
+
+              // Update the order with referrer_id
+              await supabase
+                .from('orders')
+                .update({ referrer_id: referrer.id })
+                .eq('id', session.id)
+
+              console.log(`✅ Referral earnings credited: ${(superfanCents / 100).toFixed(2)} → user ${referrer.id}`)
+            }
+          } catch (refErr) {
+            console.error('❌ Failed to credit referral earnings:', refErr)
+          }
+        }
+
+        // ── Dropship Order Forwarding ────────────────────────────────────
           const dropshipItems = items.filter((item: any) => item.dropship === true)
           if (dropshipItems.length > 0) {
             const shipping = (session as any).shipping_details?.address || {}
