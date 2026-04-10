@@ -36,10 +36,10 @@ export function TrackLockedToast() {
             </p>
             <div className="flex gap-2">
               <Link 
-                href="/proud-to-pay" 
+                href="/music" 
                 className="flex-1 py-2 px-3 bg-[var(--pf-orange)] text-white rounded-lg font-medium text-center text-sm hover:bg-[var(--pf-orange-dark)] transition-colors flex items-center justify-center gap-1"
               >
-                Proud to Pay
+                Buy Tracks
                 <ArrowRight size={14} />
               </Link>
               <button 

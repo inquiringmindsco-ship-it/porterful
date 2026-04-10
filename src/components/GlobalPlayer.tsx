@@ -291,8 +291,8 @@ export function GlobalPlayer() {
               <p className="text-sm font-medium mb-2">Support this artist directly</p>
               <p className="text-xs text-[var(--pf-text-muted)] mb-3">Artists who care share with fans who care. Unlock full tracks or become a superfan.</p>
               <div className="flex gap-2">
-                <Link href="/proud-to-pay" className="flex-1 py-2 px-3 bg-[var(--pf-orange)] text-white rounded-lg font-medium text-sm text-center hover:bg-[var(--pf-orange-dark)] transition-colors">
-                  Proud to Pay
+                <Link href="/music" className="flex-1 py-2 px-3 bg-[var(--pf-orange)] text-white rounded-lg font-medium text-sm text-center hover:bg-[var(--pf-orange-dark)] transition-colors">
+                  Buy Tracks
                 </Link>
                 <Link href="/signup?role=supporter" className="flex-1 py-2 px-3 border border-[var(--pf-border)] rounded-lg font-medium text-sm text-center hover:border-[var(--pf-orange)] transition-colors">
                   Become a Superfan

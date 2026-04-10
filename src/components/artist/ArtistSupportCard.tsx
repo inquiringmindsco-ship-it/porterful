@@ -21,18 +21,18 @@ export function ArtistSupportCard({ artist }: ArtistSupportCardProps) {
       <p className="text-xs text-[var(--pf-text-muted)] mb-4">Here&apos;s how you can help right now</p>
 
       <div className="space-y-2.5 flex-1">
-        {/* Proud to Pay - PROMINENT */}
+        {/* Support Artist */}
         <Link
-          href="/proud-to-pay"
-          title="Support directly — own a piece of the artist"
+          href="/music"
+          title="Support directly — buy tracks"
           className="flex items-center gap-3 p-5 rounded-xl bg-gradient-to-r from-[var(--pf-orange)] to-orange-400 text-white border border-[var(--pf-orange)] hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all group"
         >
           <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center shrink-0">
             <Heart size={20} className="text-white" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-base">Proud to Pay</p>
-            <p className="text-sm text-white/80">Support directly, own a piece</p>
+            <p className="font-semibold text-base">Support This Artist</p>
+            <p className="text-sm text-white/80">Buy tracks, directly</p>
           </div>
           <Heart size={16} className="text-white/60 group-hover:text-white transition-colors shrink-0" />
         </Link>

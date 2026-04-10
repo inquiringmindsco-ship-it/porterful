@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
-import { Trophy, Star, Users, Check, Rocket, Crown } from 'lucide-react';
+import { Trophy, Check, Crown } from 'lucide-react';
 
 const FOUNDING_LIMIT = 50;
 
@@ -16,6 +16,9 @@ export function ArtistModal({ onClose }: { onClose?: () => void }) {
   const [isOpen, setIsOpen] = useState(false);
   const [hasClosed, setHasClosed] = useState(false);
   const [data, setData] = useState<CompetitionData>({ artistsJoined: 0, competitionLive: false });
+
+  // Use ref to track timer — survives strict mode remounts cleanly
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const fetchData = useCallback(async () => {
     try {
@@ -34,20 +37,30 @@ export function ArtistModal({ onClose }: { onClose?: () => void }) {
   }, []);
 
   useEffect(() => {
-    // Check if user already closed
+    // Check if user already closed — useEffect ALWAYS registers cleanup
     const closed = localStorage.getItem('artist_modal_closed');
-    if (closed) {
-      return;
-    }
-    
+    if (closed) return;
+
     fetchData();
-    
-    // Show after 2 seconds
-    const timer = setTimeout(() => setIsOpen(true), 2000);
-    return () => clearTimeout(timer);
+
+    // Use ref to hold timer so we can clean it up regardless of how we exit
+    timerRef.current = setTimeout(() => setIsOpen(true), 2000);
+
+    // ALWAYS return cleanup — runs on unmount or deps change
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+    };
   }, [fetchData]);
 
   const handleClose = () => {
+    // Clear timer immediately on user close
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
     setIsOpen(false);
     setHasClosed(true);
     localStorage.setItem('artist_modal_closed', 'true');
@@ -62,11 +75,11 @@ export function ArtistModal({ onClose }: { onClose?: () => void }) {
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
       {/* Backdrop */}
-      <div 
+      <div
         className="absolute inset-0 bg-black/70 backdrop-blur-sm"
         onClick={handleClose}
       />
-      
+
       {/* Modal */}
       <div className="relative w-full max-w-lg bg-[var(--pf-bg)] rounded-2xl shadow-2xl border border-[var(--pf-border)] overflow-hidden">
         {/* Close Button */}
@@ -104,7 +117,7 @@ export function ArtistModal({ onClose }: { onClose?: () => void }) {
               </span>
             </div>
             <div className="h-3 bg-[var(--pf-surface)] rounded-full overflow-hidden">
-              <div 
+              <div
                 className="h-full bg-gradient-to-r from-[var(--pf-orange)] to-purple-500 rounded-full transition-all duration-500"
                 style={{ width: `${percentFilled}%` }}
               />
@@ -118,19 +131,19 @@ export function ArtistModal({ onClose }: { onClose?: () => void }) {
           <div className="bg-[var(--pf-surface)] rounded-xl p-4 mb-6">
             <div className="flex items-center gap-2 mb-3">
               <Trophy size={16} className="text-[var(--pf-orange)]" />
-              <span className="font-semibold text-sm">4 Tiers - Win Bonus Cash</span>
+              <span className="font-semibold text-sm">4 Tiers — Win Bonus Cash</span>
             </div>
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div className="flex justify-between">
-                <span className="text-[var(--pf-text-muted)]">Bronze (0-$500)</span>
+                <span className="text-[var(--pf-text-muted)]">Bronze (0–$500)</span>
                 <span className="font-bold text-amber-500">Up to $250</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[var(--pf-text-muted)]">Silver ($500-$5K)</span>
-                <span className="font-bold text-[var(--pf-text-muted)]">Up to $1,000</span>
+                <span className="text-[var(--pf-text-muted)]">Silver ($500–$5K)</span>
+                <span className="font-bold text-gray-400">Up to $1,000</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[var(--pf-text-muted)]">Gold ($5K-$25K</span>
+                <span className="text-[var(--pf-text-muted)]">Gold ($5K–$25K)</span>
                 <span className="font-bold text-yellow-500">Up to $5,000</span>
               </div>
               <div className="flex justify-between">
@@ -142,24 +155,18 @@ export function ArtistModal({ onClose }: { onClose?: () => void }) {
 
           {/* Benefits */}
           <div className="space-y-3 mb-6">
-            <div className="flex items-center gap-3 text-sm">
-              <div className="w-6 h-6 rounded-full bg-[var(--pf-orange)]/20 flex items-center justify-center text-[var(--pf-orange)]">
-                <Check size={14} />
+            {[
+              '2X bonus prizes for your first 30 days',
+              '"Founding Artist" badge forever',
+              '80% of every sale — keep more money',
+            ].map((benefit, i) => (
+              <div key={i} className="flex items-center gap-3 text-sm">
+                <div className="w-6 h-6 rounded-full bg-[var(--pf-orange)]/20 flex items-center justify-center text-[var(--pf-orange)]">
+                  <Check size={14} />
+                </div>
+                <span><strong>{benefit.split(' — ')[0]}</strong>{benefit.includes(' — ') ? ` — ${benefit.split(' — ')[1]}` : ''}</span>
               </div>
-              <span><strong>2X bonus prizes</strong> for your first 30 days</span>
-            </div>
-            <div className="flex items-center gap-3 text-sm">
-              <div className="w-6 h-6 rounded-full bg-[var(--pf-orange)]/20 flex items-center justify-center text-[var(--pf-orange)]">
-                <Check size={14} />
-              </div>
-              <span><strong>"Founding Artist" badge</strong> forever</span>
-            </div>
-            <div className="flex items-center gap-3 text-sm">
-              <div className="w-6 h-6 rounded-full bg-[var(--pf-orange)]/20 flex items-center justify-center text-[var(--pf-orange)]">
-                <Check size={14} />
-              </div>
-              <span><strong>80% of every sale</strong> - keep more money</span>
-            </div>
+            ))}
           </div>
 
           {/* Rules disclaimer */}
@@ -167,19 +174,19 @@ export function ArtistModal({ onClose }: { onClose?: () => void }) {
             <Link href="/competition" onClick={handleClose} className="hover:text-[var(--pf-orange)] underline">
               Competition rules
             </Link>{' '}
-            apply. Payouts may be made over time. We reserve the right to modify or cancel the competition.
+            apply. Payouts may be made over time. We reserve the right to modify or cancel.
           </p>
 
           {/* CTA */}
           <div className="flex flex-col gap-3">
-            <Link 
-              href="/signup?role=artist" 
+            <Link
+              href="/signup?role=artist"
               onClick={handleClose}
               className="w-full py-3 px-4 bg-[var(--pf-orange)] text-white rounded-xl font-bold text-center hover:bg-[var(--pf-orange)]/90 transition-colors"
             >
               Start Selling as an Artist
             </Link>
-            <button 
+            <button
               onClick={handleClose}
               className="w-full py-2 text-[var(--pf-text-muted)] text-sm hover:text-[var(--pf-text)] transition-colors"
             >
@@ -187,7 +194,6 @@ export function ArtistModal({ onClose }: { onClose?: () => void }) {
             </button>
           </div>
 
-          {/* Link to full competition */}
           <p className="text-xs text-center text-[var(--pf-text-muted)] mt-4">
             <Link href="/competition" onClick={handleClose} className="hover:text-[var(--pf-orange)]">
               View full competition details →

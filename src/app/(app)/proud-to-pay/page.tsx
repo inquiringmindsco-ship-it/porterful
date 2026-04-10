@@ -43,8 +43,8 @@ const PLANS = [
     period: 'one-time',
     description: 'Support the platform and artists directly',
     featured: false,
-    cta: 'Donate',
-    ctaHref: '/store',
+    cta: 'Support This Artist',
+    ctaHref: '/music',
   },
 ]
 
@@ -153,7 +153,7 @@ export default function ProudToPayPage() {
           <p className="text-[var(--pf-text-muted)] mb-4">
             Or keep previewing for free — 90 seconds at a time.
           </p>
-          <Link href="/artists" className="px-8 py-4 border border-[var(--pf-border)] rounded-lg font-medium hover:border-[var(--pf-orange)] transition-colors inline-flex items-center gap-2">
+          <Link href="/music" className="px-8 py-4 border border-[var(--pf-border)] rounded-lg font-medium hover:border-[var(--pf-orange)] transition-colors inline-flex items-center gap-2">
             Keep Browsing <ArrowRight size={16} />
           </Link>
         </div>

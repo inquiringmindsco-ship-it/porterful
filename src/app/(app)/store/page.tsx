@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
+import { useAudio } from '@/lib/audio-context'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Star, ArrowRight, Truck, Shield, RefreshCw, ShoppingBag, Music2, Users } from 'lucide-react'
@@ -240,6 +241,7 @@ function ProductCard({ product }: { product: Product }) {
 // ─── Main Store Page ─────────────────────────────────────────────────────────
 
 export default function StorePage() {
+  const { currentTrack, isPlaying, togglePlay } = useAudio()
   const [activeCategory, setActiveCategory] = useState('All')
   const categories = ['All', 'Apparel', 'Art', 'Books', 'Home', 'Tech', 'Merch']
   const filteredProducts = activeCategory === 'All'
@@ -249,6 +251,26 @@ export default function StorePage() {
 
   return (
     <div className="min-h-screen pt-20 pb-24 bg-[var(--pf-bg)]">
+
+      {/* Now Playing Banner */}
+      {currentTrack && (
+        <div className="bg-gradient-to-r from-[var(--pf-orange)]/10 to-purple-500/10 border-b border-[var(--pf-orange)]/20 py-2 px-4">
+          <div className="pf-container">
+            <div className="flex items-center justify-center gap-3 text-sm">
+              <div className={`w-2 h-2 rounded-full ${isPlaying ? 'bg-green-400 animate-pulse' : 'bg-[var(--pf-text-muted)]'}`} />
+              <span className="text-[var(--pf-text-secondary)]">Now playing:</span>
+              <span className="font-medium text-[var(--pf-orange)]">{currentTrack.title}</span>
+              <span className="text-[var(--pf-text-muted)]">by {currentTrack.artist}</span>
+              <button
+                onClick={togglePlay}
+                className="ml-2 px-3 py-1 rounded-full bg-[var(--pf-orange)] text-white text-xs font-semibold hover:bg-[var(--pf-orange-dark)] transition-colors"
+              >
+                {isPlaying ? 'Pause' : 'Resume'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Book Hero */}
       <section className="relative bg-gradient-to-r from-[var(--pf-orange)] to-purple-600 text-white py-12 px-6">
