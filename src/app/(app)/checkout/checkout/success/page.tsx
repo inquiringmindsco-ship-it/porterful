@@ -11,6 +11,9 @@ function SuccessContent() {
   const [loading, setLoading] = useState(true);
   const [orderId, setOrderId] = useState<string | null>(null);
   const [purchasedItems, setPurchasedItems] = useState<any[]>([]);
+  const [customerEmail, setCustomerEmail] = useState<string | null>(null);
+  const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     const sessionId = searchParams.get('session_id');
@@ -35,25 +38,25 @@ function SuccessContent() {
       fetch(`/api/session/${sessionId}`)
         .then(r => r.json())
         .then(data => {
-          if (data.item?.name) {
+          if (data.customerEmail) {
+            setCustomerEmail(data.customerEmail);
+          }
+          if (data.paymentStatus) {
+            setPaymentStatus(data.paymentStatus);
+          }
+          if (Array.isArray(data.items) && data.items.length > 0) {
+            setPurchasedItems(data.items);
+          } else if (data.item?.name) {
             setPurchasedItems([data.item]);
           } else {
-            setPurchasedItems([{
-              name: 'Your Track',
-              artist: 'Artist',
-              audioUrl: null,
-              type: 'track'
-            }]);
+            setLoadError('We confirmed your payment, but order details are still being collected.');
+            setPurchasedItems([]);
           }
           setLoading(false);
         })
         .catch(() => {
-          setPurchasedItems([{
-            name: 'Your Track',
-            artist: 'Artist',
-            audioUrl: null,
-            type: 'track'
-          }]);
+          setLoadError('We confirmed your payment, but we could not load the full order details yet.');
+          setPurchasedItems([]);
           setLoading(false);
         });
     } else {
@@ -95,6 +98,11 @@ function SuccessContent() {
               Order ID: <span className="font-mono">{orderId}</span>
             </p>
           )}
+          {paymentStatus && (
+            <p className="text-sm text-[var(--pf-text-secondary)] mb-8">
+              Payment status: <span className="font-medium capitalize">{paymentStatus}</span>
+            </p>
+          )}
 
           {/* Artist Impact */}
           <div className="bg-gradient-to-r from-[var(--pf-orange)]/10 to-purple-500/10 border border-[var(--pf-orange)]/30 rounded-xl p-6 mb-8">
@@ -124,7 +132,9 @@ function SuccessContent() {
                       </div>
                       <div>
                         <p className="font-medium">{item.name}</p>
-                        <p className="text-sm text-[var(--pf-text-muted)]">{item.artist}</p>
+                        <p className="text-sm text-[var(--pf-text-muted)]">
+                          {[item.artist, item.quantity ? `Qty ${item.quantity}` : null].filter(Boolean).join(' • ')}
+                        </p>
                       </div>
                     </div>
                     {(() => {
@@ -148,13 +158,18 @@ function SuccessContent() {
                 ))}
               </div>
             ) : (
-              <p className="text-[var(--pf-text-secondary)] text-center py-4">
-                Your downloads will appear here once payment is confirmed.
-              </p>
+              <div className="py-4 text-center">
+                <p className="text-[var(--pf-text-secondary)]">
+                  {loadError || 'We are still loading your order details.'}
+                </p>
+                <p className="mt-2 text-sm text-[var(--pf-text-muted)]">
+                  Your payment went through. Refresh in a moment if the purchased items do not appear yet.
+                </p>
+              </div>
             )}
             
             <p className="text-xs text-[var(--pf-text-muted)] mt-4">
-              A download link has also been sent to your email.
+              {customerEmail ? `Receipt and order details will be sent to ${customerEmail}.` : 'Receipt and order details will be sent to your email.'}
             </p>
           </div>
 
@@ -167,16 +182,18 @@ function SuccessContent() {
                 <div>
                   <p className="font-medium">Check your email</p>
                   <p className="text-sm text-[var(--pf-text-secondary)]">
-                    We've sent a receipt and download links to your email address.
+                    {customerEmail
+                      ? `We&apos;ve sent your receipt and order details to ${customerEmail}.`
+                      : 'We&apos;ve sent your receipt and order details to your email address.'}
                   </p>
                 </div>
               </div>
               <div className="flex items-start gap-3 p-3 rounded-lg bg-[var(--pf-bg)]">
                 <Music className="text-[var(--pf-orange)] shrink-0" size={20} />
                 <div>
-                  <p className="font-medium">Stream anytime</p>
+                  <p className="font-medium">Keep supporting artists</p>
                   <p className="text-sm text-[var(--pf-text-secondary)]">
-                    Your purchased tracks are also available to stream in your library.
+                    Browse more music, merch, and artist pages while your order is being processed.
                   </p>
                 </div>
               </div>
@@ -185,12 +202,12 @@ function SuccessContent() {
 
           {/* Actions */}
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link href="/digital" className="pf-btn pf-btn-primary inline-flex items-center justify-center gap-2">
+            <Link href="/music" className="pf-btn pf-btn-primary inline-flex items-center justify-center gap-2">
               <Music size={18} />
               Browse More Music
             </Link>
-            <Link href="/" className="pf-btn pf-btn-secondary inline-flex items-center justify-center gap-2">
-              Go Home
+            <Link href="/store" className="pf-btn pf-btn-secondary inline-flex items-center justify-center gap-2">
+              Shop Artists
               <ArrowRight size={18} />
             </Link>
           </div>

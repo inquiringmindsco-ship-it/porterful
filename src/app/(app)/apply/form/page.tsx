@@ -13,6 +13,9 @@ export default function ApplyFormPage() {
   const [submitted, setSubmitted] = useState(false)
   const [applicationStatus, setApplicationStatus] = useState<'approved' | 'pending_review' | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
+  const [submitError, setSubmitError] = useState('')
+  const [submitMessage, setSubmitMessage] = useState('')
+  const [applicationId, setApplicationId] = useState<string | null>(null)
 
   const [form, setForm] = useState({
     stage_name: '',
@@ -44,6 +47,7 @@ export default function ApplyFormPage() {
     }
 
     setSubmitting(true)
+    setSubmitError('')
     try {
       const res = await fetch('/api/artist-application', {
         method: 'POST',
@@ -55,11 +59,13 @@ export default function ApplyFormPage() {
       if (res.ok) {
         setSubmitted(true)
         setApplicationStatus(data.status === 'approved' ? 'approved' : 'pending_review')
+        setSubmitMessage(data.message || '')
+        setApplicationId(data.application?.id || null)
       } else {
-        alert(data.error || 'Something went wrong. Please try again.')
+        setSubmitError(data.error || 'Something went wrong. Please try again.')
       }
     } catch {
-      alert('Connection error. Please check your internet connection and try again.')
+      setSubmitError('Connection error. Please check your internet connection and try again.')
     } finally {
       setSubmitting(false)
     }
@@ -78,10 +84,10 @@ export default function ApplyFormPage() {
               </div>
               <h1 className="text-3xl font-bold mb-3">You&apos;re Approved!</h1>
               <p className="text-[var(--pf-text-secondary)] mb-4">
-                Your artist page has been created. Head to your dashboard to set up tracks, pricing, and your profile.
+                {submitMessage || 'Your artist page has been created. Head to your dashboard to set up tracks, pricing, and your profile.'}
               </p>
               <p className="text-sm text-[var(--pf-text-muted)] mb-8">
-                Welcome to Porterful. The platform is yours.
+                {applicationId ? `Application ID: ${applicationId}` : 'Welcome to Porterful. The platform is yours.'}
               </p>
 
               {/* Show if likeness was added during application */}
@@ -134,10 +140,10 @@ export default function ApplyFormPage() {
               </div>
               <h1 className="text-3xl font-bold mb-3">Application Submitted</h1>
               <p className="text-[var(--pf-text-secondary)] mb-6">
-                We received your application. Our team will review it and get back to you within 24–48 hours.
+                {submitMessage || 'We received your application. Our team will review it and get back to you within 24–48 hours.'}
               </p>
               <p className="text-sm text-[var(--pf-text-muted)] mb-8">
-                You will be notified when your artist page goes live.
+                {applicationId ? `Application ID: ${applicationId} — we will notify you when your artist page is ready.` : 'You will be notified when your artist page goes live.'}
               </p>
               <Link href="/" className="pf-btn pf-btn-primary">
                 Back to Home
@@ -449,6 +455,12 @@ export default function ApplyFormPage() {
           <div>
             <h1 className="text-2xl font-bold mb-2">Review your application</h1>
             <p className="text-[var(--pf-text-secondary)] mb-8">Step 5 of 5 — Submit when ready</p>
+
+            {submitError && (
+              <div className="mb-6 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-300">
+                {submitError}
+              </div>
+            )}
 
             <div className="bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-xl divide-y divide-[var(--pf-border)] mb-6">
               {[
