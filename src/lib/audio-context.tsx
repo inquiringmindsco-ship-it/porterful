@@ -337,23 +337,27 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 
   // ─── MEDIA SESSION ─────────────────────────────────────────────────────────
   useEffect(() => {
-    if ('mediaSession' in navigator && currentTrack) {
-      try {
-        navigator.mediaSession.metadata = new MediaMetadata({
-          title: currentTrack.title || 'Unknown Track',
-          artist: currentTrack.artist || 'Unknown Artist',
-          album: currentTrack.album || 'Porterful',
-          artwork: [
-            {
-              src: currentTrack.image || currentTrack.cover_url || '/album-art/default.jpg',
-              sizes: '512x512',
-              type: 'image/jpeg',
-            },
-          ],
-        });
-      } catch (err) {
-        logError('mediaSession.metadata', err, { trackId: currentTrack.id, image: currentTrack.image });
-      }
+    if (!('mediaSession' in navigator) || !currentTrack) return;
+
+    // KILL SWITCH: skip mediaSession metadata for ATM Trap tracks
+    // (ATM Trap avatar MPO format crashes Safari media session API)
+    if (currentTrack.artist === 'ATM Trap') return;
+
+    try {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: currentTrack.title || 'Unknown Track',
+        artist: currentTrack.artist || 'Unknown Artist',
+        album: currentTrack.album || 'Porterful',
+        artwork: [
+          {
+            src: currentTrack.image || currentTrack.cover_url || '/album-art/default.jpg',
+            sizes: '512x512',
+            type: 'image/jpeg',
+          },
+        ],
+      });
+    } catch (err) {
+      logError('mediaSession.metadata', err, { trackId: currentTrack.id, image: currentTrack.image });
     }
   }, [currentTrack?.id, currentTrack?.title, currentTrack?.artist, currentTrack?.album, currentTrack?.image]);
 
