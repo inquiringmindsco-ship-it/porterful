@@ -5,6 +5,8 @@ import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
 import { InstallPrompt, IOSInstallInstructions } from '@/components/InstallPrompt'
 import { ArtistModal } from '@/components/ArtistModal'
+import { AudioErrorBoundary } from '@/components/AudioErrorBoundary'
+import { GlobalPlayer } from '@/components/GlobalPlayer'
 import { TrackLockedToast } from '@/components/TrackLockedToast'
 import { KeyboardShortcuts } from '@/lib/keyboard-shortcuts'
 
@@ -101,6 +103,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <Footer />
         <ArtistModal />
         <TrackLockedToast />
+        <AudioErrorBoundary>
+          <GlobalPlayer />
+        </AudioErrorBoundary>
         <InstallPrompt />
         <IOSInstallInstructions />
       </body>

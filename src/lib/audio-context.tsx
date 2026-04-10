@@ -2,6 +2,31 @@
 
 import { createContext, useContext, useState, useRef, useEffect, ReactNode, useCallback } from 'react';
 
+// ─── DEBUG LOGGING ────────────────────────────────────────────────────────────
+const DEBUG = false;
+function log(event: string, data?: any) {
+  if (DEBUG || typeof window !== 'undefined') {
+    const tag = '%c[AUDIO]';
+    const style = 'background:#FF6B2B;color:white;padding:2px 6px;border-radius:3px';
+    if (data !== undefined) {
+      console.log(tag, event, data, style);
+    } else {
+      console.log(tag, event, style);
+    }
+  }
+}
+
+function logError(context: string, error: any, extra?: any) {
+  const msg = error?.message || String(error);
+  console.error(`[AUDIO ERROR] ${context}:`, msg, extra || '');
+  if (typeof window !== 'undefined') {
+    // Surface to window for external monitoring
+    (window as any).__audioErrors = (window as any).__audioErrors || [];
+    (window as any).__audioErrors.push({ context, error: msg, time: Date.now(), extra });
+  }
+}
+
+// ─── TRACK TYPE ───────────────────────────────────────────────────────────────
 export interface Track {
   id: string;
   title: string;
@@ -15,6 +40,7 @@ export interface Track {
   price?: number;
 }
 
+// ─── CONTEXT TYPE ─────────────────────────────────────────────────────────────
 interface AudioContext {
   currentTrack: Track | null;
   isPlaying: boolean;
@@ -41,6 +67,7 @@ interface AudioContext {
 
 const AudioCtx = createContext<AudioContext | null>(null);
 
+// ─── AUDIO PROVIDER ───────────────────────────────────────────────────────────
 export function AudioProvider({ children }: { children: ReactNode }) {
   const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -74,70 +101,95 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 
   // Create audio element on mount
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const audio = new Audio();
-      audioRef.current = audio;
-      audioRef.current.volume = volume / 100;
-      audio.preload = 'auto';
+    if (typeof window === 'undefined') return;
 
-      let previewTimer: ReturnType<typeof setTimeout> | null = null;
+    log('Creating Audio element');
+    const audio = new Audio();
+    audioRef.current = audio;
+    audio.volume = volume / 100;
+    audio.preload = 'auto';
 
-      const clearPreviewTimer = () => {
-        if (previewTimer) {
-          clearTimeout(previewTimer);
-          previewTimer = null;
-        }
-      };
+    let previewTimer: ReturnType<typeof setTimeout> | null = null;
 
-      const handleTimeUpdate = () => {
-        if (audioRef.current && audioRef.current.duration) {
-          const pct = (audioRef.current.currentTime / audioRef.current.duration) * 100;
-          setProgress(isNaN(pct) ? 0 : pct);
+    const clearPreviewTimer = () => {
+      if (previewTimer) {
+        clearTimeout(previewTimer);
+        previewTimer = null;
+      }
+    };
 
-          // Preview lock: if not purchased and past 90 seconds, skip to next track
-          const current = currentTrackRef.current;
-          if (current && !purchasedTracksRef.current.has(current.id) && audioRef.current.currentTime >= 99) {
-            // Auto-skip to next track
-            const currentQueue = queueRef.current;
-            const currentIdx = currentIndexRef.current;
-            if (currentQueue.length > 0) {
-              const nextIdx = (currentIdx + 1) % currentQueue.length;
-              const nextTrack = currentQueue[nextIdx];
-              if (nextTrack) {
-                setCurrentIndex(nextIdx);
-                setCurrentTrack(nextTrack);
-                setProgress(0);
-                audioRef.current.src = nextTrack.audio_url || '';
-                audioRef.current.load();
-                audioRef.current.play().catch(() => {});
-              }
-            } else {
-              audioRef.current.pause();
+    // ─── EVENT: timeupdate ───────────────────────────────────────────────────
+    const handleTimeUpdate = () => {
+      try {
+        if (!audioRef.current || !audio.duration) return;
+        const pct = (audioRef.current.currentTime / audio.duration) * 100;
+        setProgress(isNaN(pct) ? 0 : pct);
+
+        const current = currentTrackRef.current;
+        if (current && !purchasedTracksRef.current.has(current.id) && audioRef.current.currentTime >= 99) {
+          const currentQueue = queueRef.current;
+          const currentIdx = currentIndexRef.current;
+          if (currentQueue.length > 0) {
+            const nextIdx = (currentIdx + 1) % currentQueue.length;
+            const nextTrack = currentQueue[nextIdx];
+            if (nextTrack) {
+              log('Auto-skipping unplayed track', nextTrack.id);
+              setCurrentIndex(nextIdx);
+              setCurrentTrack(nextTrack);
+              setProgress(0);
+              audioRef.current.src = nextTrack.audio_url || '';
+              audioRef.current.load();
+              audioRef.current.play().catch(() => {});
             }
+          } else {
+            audioRef.current.pause();
           }
         }
-      };
+      } catch (err) {
+        logError('timeupdate', err);
+      }
+    };
 
-      const handleLoadedMetadata = () => {
+    // ─── EVENT: loadedmetadata ────────────────────────────────────────────────
+    const handleLoadedMetadata = () => {
+      try {
+        log('loadedmetadata', audio.duration);
         if (audioRef.current) {
           setDuration(audioRef.current.duration);
         }
-      };
+      } catch (err) {
+        logError('loadedmetadata', err);
+      }
+    };
 
-      const handleEnded = () => {
+    // ─── EVENT: error ───────────────────────────────────────────────────────
+    const handleAudioError = () => {
+      try {
+        const err = audioRef.current?.error;
+        logError('audio.error', err, {
+          currentTrack: currentTrackRef.current?.id,
+          src: audioRef.current?.src,
+        });
+      } catch (err) {
+        logError('handleAudioError', err);
+      }
+    };
+
+    // ─── EVENT: ended ───────────────────────────────────────────────────────
+    const handleEnded = () => {
+      try {
+        log('track.ended');
         clearPreviewTimer();
         const currentQueue = queueRef.current;
         const currentIdx = currentIndexRef.current;
-
         if (currentQueue.length > 0) {
           const nextIdx = (currentIdx + 1) % currentQueue.length;
           const nextTrackItem = currentQueue[nextIdx];
-
           if (nextTrackItem) {
+            log('Playing next track', nextTrackItem.id);
             setCurrentIndex(nextIdx);
             setCurrentTrack(nextTrackItem);
             setProgress(0);
-
             if (audioRef.current && nextTrackItem.audio_url) {
               audioRef.current.src = nextTrackItem.audio_url;
               audioRef.current.load();
@@ -145,224 +197,297 @@ export function AudioProvider({ children }: { children: ReactNode }) {
             }
           }
         }
-      };
+      } catch (err) {
+        logError('ended', err);
+      }
+    };
 
-      const handlePlay = () => setIsPlaying(true);
-      const handlePause = () => setIsPlaying(false);
+    // ─── EVENT: play ────────────────────────────────────────────────────────
+    const handlePlay = () => {
+      try {
+        setIsPlaying(true);
+      } catch (err) {
+        logError('play', err);
+      }
+    };
 
-      const startPreviewTimer = (trackDuration: number) => {
-        clearPreviewTimer();
-        // Radio mode: stop after 60 seconds and skip to next
-        if (mode === 'radio') {
-          previewTimer = setTimeout(() => {
-            const currentQueue = queueRef.current;
-            const currentIdx = currentIndexRef.current;
-            if (currentQueue.length > 0) {
-              const nextIdx = (currentIdx + 1) % currentQueue.length;
-              const nextTrackItem = currentQueue[nextIdx];
-              if (nextTrackItem) {
-                setCurrentIndex(nextIdx);
-                setCurrentTrack(nextTrackItem);
-                setProgress(0);
-                if (audioRef.current && nextTrackItem.audio_url) {
-                  audioRef.current.src = nextTrackItem.audio_url;
-                  audioRef.current.load();
-                  audioRef.current.play().catch(() => {});
-                }
-              }
-            }
-          }, 60000); // 60 seconds
-        }
-      };
+    // ─── EVENT: pause ───────────────────────────────────────────────────────
+    const handlePause = () => {
+      try {
+        setIsPlaying(false);
+      } catch (err) {
+        logError('pause', err);
+      }
+    };
 
-      audio.addEventListener('timeupdate', handleTimeUpdate);
-      audio.addEventListener('loadedmetadata', handleLoadedMetadata);
-      audio.addEventListener('ended', handleEnded);
-      audio.addEventListener('play', handlePlay);
-      audio.addEventListener('pause', handlePause);
-
-      // Handle canplay — auto-play when ready
-      // Guard: only play if the audio src matches the current track (prevents old track overlap)
-      audio.addEventListener('canplay', () => {
+    // ─── EVENT: canplay ─────────────────────────────────────────────────────
+    const handleCanPlay = () => {
+      try {
         if (!audioRef.current) return;
         const current = currentTrackRef.current;
         if (!current || !current.audio_url) return;
 
-        // Resolve current audio_url to an absolute URL for comparison
+        log('canplay', current.id);
+
+        // Normalize URLs for comparison
         const expectedAudioUrl = current.audio_url.startsWith('http')
           ? current.audio_url
           : `${window.location.origin}${current.audio_url}`;
 
-        // Normalize: when browser sets src from a relative URL, it becomes absolute
-        // We need to compare after normalizing both sides
         const currentSrc = audioRef.current.src;
         const currentSrcNormalized = currentSrc.startsWith('http')
           ? currentSrc
           : `${window.location.origin}${currentSrc}`;
 
-        // Only play if src matches current track (guards against stale canplay events)
-        const srcMatches = currentSrcNormalized === expectedAudioUrl
+        const srcMatches =
+          currentSrcNormalized === expectedAudioUrl
           || currentSrcNormalized.endsWith(current.audio_url)
-          || current.audio_url.endsWith(currentSrcNormalized.split('/').pop() || '');
+          || (current.audio_url.split('/').pop() &&
+              currentSrcNormalized.endsWith(current.audio_url.split('/').pop()!));
 
-        if (!srcMatches) return;
+        if (!srcMatches) {
+          log('canplay blocked — src mismatch', {
+            currentSrc: audioRef.current.src,
+            expected: expectedAudioUrl,
+            trackId: current.id,
+          });
+          return;
+        }
 
         clearPreviewTimer();
-        audioRef.current.play().catch(() => {});
+        audioRef.current.play().catch((err: any) => {
+          logError('play().catch', err, { trackId: current.id });
+        });
         startPreviewTimer(audioRef.current.duration);
-      });
+      } catch (err) {
+        logError('canplay', err);
+      }
+    };
 
-      return () => {
-        clearPreviewTimer();
-        audio.pause();
-        audio.removeEventListener('timeupdate', handleTimeUpdate);
-        audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
-        audio.removeEventListener('ended', handleEnded);
-        audio.removeEventListener('play', handlePlay);
-        audio.removeEventListener('pause', handlePause);
-        audioRef.current = null;
-      };
-    }
+    // ─── PREVIEW TIMER ──────────────────────────────────────────────────────
+    const startPreviewTimer = (trackDuration: number) => {
+      clearPreviewTimer();
+      if (mode !== 'radio') return;
+      previewTimer = setTimeout(() => {
+        try {
+          log('Radio preview timer expired');
+          const currentQueue = queueRef.current;
+          const currentIdx = currentIndexRef.current;
+          if (currentQueue.length > 0) {
+            const nextIdx = (currentIdx + 1) % currentQueue.length;
+            const nextTrackItem = currentQueue[nextIdx];
+            if (nextTrackItem) {
+              setCurrentIndex(nextIdx);
+              setCurrentTrack(nextTrackItem);
+              setProgress(0);
+              if (audioRef.current && nextTrackItem.audio_url) {
+                audioRef.current.src = nextTrackItem.audio_url;
+                audioRef.current.load();
+                audioRef.current.play().catch(() => {});
+              }
+            }
+          }
+        } catch (err) {
+          logError('previewTimer', err);
+        }
+      }, 60000);
+    };
+
+    // ─── ATTACH LISTENERS ───────────────────────────────────────────────────
+    audio.addEventListener('timeupdate', handleTimeUpdate);
+    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+    audio.addEventListener('error', handleAudioError);
+    audio.addEventListener('ended', handleEnded);
+    audio.addEventListener('play', handlePlay);
+    audio.addEventListener('pause', handlePause);
+    audio.addEventListener('canplay', handleCanPlay);
+
+    log('Audio listeners attached');
+
+    // ─── CLEANUP ────────────────────────────────────────────────────────────
+    return () => {
+      log('Audio cleanup');
+      clearPreviewTimer();
+      try { audio.pause(); } catch {}
+      audio.removeEventListener('timeupdate', handleTimeUpdate);
+      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      audio.removeEventListener('error', handleAudioError);
+      audio.removeEventListener('ended', handleEnded);
+      audio.removeEventListener('play', handlePlay);
+      audio.removeEventListener('pause', handlePause);
+      audio.removeEventListener('canplay', handleCanPlay);
+      audioRef.current = null;
+    };
   }, [mode]);
 
   // Update volume when it changes
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = volume / 100;
     }
   }, [volume]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  // Update audio source when track changes
+  // Update audio source when track changes (fallback for manual play)
   useEffect(() => {
     if (audioRef.current && currentTrack?.audio_url) {
       audioRef.current.src = currentTrack.audio_url;
-      audioRef.current.load(); // <-- was missing!
+      audioRef.current.load();
     }
   }, [currentTrack]);
 
-  // Update Media Session (lock screen / control center) when track or state changes
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // ─── MEDIA SESSION ─────────────────────────────────────────────────────────
   useEffect(() => {
     if ('mediaSession' in navigator && currentTrack) {
-      navigator.mediaSession.metadata = new MediaMetadata({
-        title: currentTrack.title || 'Unknown Track',
-        artist: currentTrack.artist || 'Unknown Artist',
-        album: currentTrack.album || 'Porterful',
-        artwork: [
-          {
-            src: currentTrack.image || currentTrack.cover_url || '/album-art/default.jpg',
-            sizes: '512x512',
-            type: 'image/jpeg',
-          },
-        ],
-      });
+      try {
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: currentTrack.title || 'Unknown Track',
+          artist: currentTrack.artist || 'Unknown Artist',
+          album: currentTrack.album || 'Porterful',
+          artwork: [
+            {
+              src: currentTrack.image || currentTrack.cover_url || '/album-art/default.jpg',
+              sizes: '512x512',
+              type: 'image/jpeg',
+            },
+          ],
+        });
+      } catch (err) {
+        logError('mediaSession.metadata', err, { trackId: currentTrack.id, image: currentTrack.image });
+      }
     }
   }, [currentTrack?.id, currentTrack?.title, currentTrack?.artist, currentTrack?.album, currentTrack?.image]);
 
+  // ─── PLAYBACK CONTROLS ─────────────────────────────────────────────────────
   const playTrack = useCallback((track: Track) => {
-    setCurrentTrack(track);
-    const idx = queue.findIndex(t => t.id === track.id);
-    if (idx >= 0) setCurrentIndex(idx);
-    setProgress(0);
+    log('playTrack called', track.id);
+    try {
+      setCurrentTrack(track);
+      const idx = queue.findIndex(t => t.id === track.id);
+      if (idx >= 0) setCurrentIndex(idx);
+      setProgress(0);
 
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.src = track.audio_url || '';
-      audioRef.current.load();
-      audioRef.current.play().catch(() => {});
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = track.audio_url || '';
+        audioRef.current.load();
+        audioRef.current.play().catch((err: any) => {
+          logError('playTrack.play().catch', err, { trackId: track.id });
+        });
+      }
+    } catch (err) {
+      logError('playTrack', err, { trackId: track.id });
     }
   }, [queue]);
 
   const loadTrack = useCallback((track: Track) => {
-    setCurrentTrack(track);
-    const idx = queue.findIndex(t => t.id === track.id);
-    if (idx >= 0) setCurrentIndex(idx);
-    setProgress(0);
+    log('loadTrack called', track.id);
+    try {
+      setCurrentTrack(track);
+      const idx = queue.findIndex(t => t.id === track.id);
+      if (idx >= 0) setCurrentIndex(idx);
+      setProgress(0);
 
-    if (audioRef.current && track.audio_url) {
-      audioRef.current.src = track.audio_url;
-      audioRef.current.load();
-      audioRef.current.play().catch(() => {});
+      if (audioRef.current && track.audio_url) {
+        audioRef.current.src = track.audio_url;
+        audioRef.current.load();
+        audioRef.current.play().catch(() => {});
+      }
+    } catch (err) {
+      logError('loadTrack', err, { trackId: track.id });
     }
   }, [queue]);
 
   const togglePlay = useCallback(() => {
-    if (!audioRef.current) return;
-
-    if (isPlaying) {
-      audioRef.current.pause();
-    } else {
-      audioRef.current.play().catch(() => {});
+    try {
+      if (!audioRef.current) return;
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play().catch((err: any) => {
+          logError('togglePlay.play().catch', err);
+        });
+      }
+    } catch (err) {
+      logError('togglePlay', err);
     }
   }, [isPlaying]);
 
   const pause = useCallback(() => {
-    if (audioRef.current) {
-      audioRef.current.pause();
+    try {
+      audioRef.current?.pause();
+    } catch (err) {
+      logError('pause', err);
     }
   }, []);
 
   const playNext = useCallback(() => {
-    const currentQueue = queueRef.current;
-    if (currentQueue.length === 0) return;
-
-    const currentIdx = currentIndexRef.current;
-    const nextIdx = (currentIdx + 1) % currentQueue.length;
-    const track = currentQueue[nextIdx];
-
-    if (track) {
-      setCurrentIndex(nextIdx);
-      setCurrentTrack(track);
-      setProgress(0);
-
-      if (audioRef.current && track.audio_url) {
-        audioRef.current.src = track.audio_url;
-        audioRef.current.load();
-        audioRef.current.play().catch(() => {});
+    try {
+      const currentQueue = queueRef.current;
+      if (currentQueue.length === 0) return;
+      const currentIdx = currentIndexRef.current;
+      const nextIdx = (currentIdx + 1) % currentQueue.length;
+      const track = currentQueue[nextIdx];
+      if (track) {
+        log('playNext', track.id);
+        setCurrentIndex(nextIdx);
+        setCurrentTrack(track);
+        setProgress(0);
+        if (audioRef.current && track.audio_url) {
+          audioRef.current.src = track.audio_url;
+          audioRef.current.load();
+          audioRef.current.play().catch(() => {});
+        }
       }
+    } catch (err) {
+      logError('playNext', err);
     }
   }, []);
 
   const playPrev = useCallback(() => {
-    if (audioRef.current && audioRef.current.currentTime > 3) {
-      audioRef.current.currentTime = 0;
-      setProgress(0);
-      return;
-    }
-
-    const currentQueue = queueRef.current;
-    if (currentQueue.length === 0) return;
-
-    const currentIdx = currentIndexRef.current;
-    const prevIdx = (currentIdx - 1 + currentQueue.length) % currentQueue.length;
-    const track = currentQueue[prevIdx];
-
-    if (track) {
-      setCurrentIndex(prevIdx);
-      setCurrentTrack(track);
-      setProgress(0);
-
-      if (audioRef.current && track.audio_url) {
-        audioRef.current.src = track.audio_url;
-        audioRef.current.load();
-        audioRef.current.play().catch(() => {});
+    try {
+      if (audioRef.current && audioRef.current.currentTime > 3) {
+        audioRef.current.currentTime = 0;
+        setProgress(0);
+        return;
       }
+      const currentQueue = queueRef.current;
+      if (currentQueue.length === 0) return;
+      const currentIdx = currentIndexRef.current;
+      const prevIdx = (currentIdx - 1 + currentQueue.length) % currentQueue.length;
+      const track = currentQueue[prevIdx];
+      if (track) {
+        log('playPrev', track.id);
+        setCurrentIndex(prevIdx);
+        setCurrentTrack(track);
+        setProgress(0);
+        if (audioRef.current && track.audio_url) {
+          audioRef.current.src = track.audio_url;
+          audioRef.current.load();
+          audioRef.current.play().catch(() => {});
+        }
+      }
+    } catch (err) {
+      logError('playPrev', err);
     }
   }, []);
 
   const setVolume = useCallback((v: number) => {
-    setVolumeState(v);
-    if (audioRef.current) {
-      audioRef.current.volume = v / 100;
+    try {
+      setVolumeState(v);
+      if (audioRef.current) audioRef.current.volume = v / 100;
+    } catch (err) {
+      logError('setVolume', err);
     }
   }, []);
 
   const seek = useCallback((p: number) => {
-    if (!audioRef.current || !duration) return;
-    audioRef.current.currentTime = (p / 100) * duration;
-    setProgress(p);
+    try {
+      if (!audioRef.current || !duration) return;
+      audioRef.current.currentTime = (p / 100) * duration;
+      setProgress(p);
+    } catch (err) {
+      logError('seek', err);
+    }
   }, [duration]);
 
   const addPurchased = useCallback((trackId: string) => {
@@ -374,14 +499,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const hasPurchased = useCallback((trackId: string) => {
-    return purchasedTracks.has(trackId);
-  }, [purchasedTracks]);
-
-  // Helper to check if track is locked (not purchased)
-  const isTrackLocked = useCallback((trackId: string) => {
-    return !purchasedTracks.has(trackId);
-  }, [purchasedTracks]);
+  const hasPurchased = useCallback((trackId: string) => purchasedTracks.has(trackId), [purchasedTracks]);
 
   // Initialize queue
   useEffect(() => {
@@ -393,74 +511,26 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 
   return (
     <AudioCtx.Provider value={{
-      currentTrack,
-      isPlaying,
-      volume,
-      progress,
-      duration,
-      playTrack,
-      loadTrack,
-      togglePlay,
-      pause,
-      playNext,
-      playPrev,
-      setVolume,
-      seek,
-      queue,
-      setQueue,
-      currentIndex,
-      mode,
-      setMode,
-      purchasedTracks,
-      addPurchased,
-      hasPurchased,
+      currentTrack, isPlaying, volume, progress, duration, mode, setMode,
+      playTrack, loadTrack, togglePlay, pause, playNext, playPrev,
+      setVolume, seek, queue, setQueue, currentIndex, purchasedTracks,
+      addPurchased, hasPurchased,
     }}>
-      <MediaSessionHandlers togglePlay={togglePlay} playPrev={playPrev} playNext={playNext} />
       {children}
     </AudioCtx.Provider>
   );
 }
 
-// Media Session action handlers — lock screen / control center
-function MediaSessionHandlers({ togglePlay, playPrev, playNext }: { togglePlay: () => void; playPrev: () => void; playNext: () => void }) {
-  useEffect(() => {
-    if ('mediaSession' in navigator) {
-      navigator.mediaSession.setActionHandler('play', () => togglePlay());
-      navigator.mediaSession.setActionHandler('pause', () => togglePlay());
-      navigator.mediaSession.setActionHandler('previoustrack', () => playPrev());
-      navigator.mediaSession.setActionHandler('nexttrack', () => playNext());
-    }
-  }, [togglePlay, playPrev, playNext]);
-  return null;
-}
-
+// ─── HOOK ─────────────────────────────────────────────────────────────────────
 export function useAudio() {
   const ctx = useContext(AudioCtx);
-  if (!ctx) {
-    // Return noop defaults for SSR/non-provider contexts
-    return {
-      currentTrack: null,
-      isPlaying: false,
-      volume: 1,
-      progress: 0,
-      duration: 0,
-      mode: 'track' as const,
-      setMode: () => {},
-      playTrack: () => {},
-      loadTrack: () => {},
-      togglePlay: () => {},
-      pause: () => {},
-      playNext: () => {},
-      playPrev: () => {},
-      setVolume: () => {},
-      seek: () => {},
-      queue: [],
-      setQueue: () => {},
-      currentIndex: 0,
-      purchasedTracks: new Set(),
-      addPurchased: () => {},
-      hasPurchased: () => false,
-    };
-  }
+  if (!ctx) return {
+    currentTrack: null, isPlaying: false, volume: 80, progress: 0, duration: 0,
+    mode: 'track' as const, setMode: () => {},
+    playTrack: () => {}, loadTrack: () => {}, togglePlay: () => {}, pause: () => {},
+    playNext: () => {}, playPrev: () => {}, setVolume: () => {}, seek: () => {},
+    queue: [], setQueue: () => {}, currentIndex: -1, purchasedTracks: new Set<string>(),
+    addPurchased: () => {}, hasPurchased: () => false,
+  };
   return ctx;
 }
