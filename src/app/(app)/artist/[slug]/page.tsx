@@ -73,50 +73,6 @@ export default async function ArtistPage({ params }: PageProps) {
                 <p className="text-[var(--pf-text-secondary)] leading-relaxed whitespace-pre-line break-words max-w-full">
                   {artist.bio}
                 </p>
-                {artist.social && (
-                  <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-[var(--pf-border)]">
-                    {artist.social.instagram && (
-                      <a
-                        href={`https://instagram.com/${artist.social.instagram}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-3 py-1.5 rounded-full bg-[var(--pf-bg)] text-xs font-medium text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors"
-                      >
-                        @{artist.social.instagram}
-                      </a>
-                    )}
-                    {artist.social.youtube && (
-                      <a
-                        href={artist.social.youtube.startsWith('http') ? artist.social.youtube : `https://youtube.com/${artist.social.youtube}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-3 py-1.5 rounded-full bg-[var(--pf-bg)] text-xs font-medium text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors"
-                      >
-                        YouTube
-                      </a>
-                    )}
-                    {artist.social.twitter && (
-                      <a
-                        href={`https://twitter.com/${artist.social.twitter}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-3 py-1.5 rounded-full bg-[var(--pf-bg)] text-xs font-medium text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors"
-                      >
-                        @{artist.social.twitter}
-                      </a>
-                    )}
-                    {artist.social.tiktok && (
-                      <a
-                        href={`https://tiktok.com/@${artist.social.tiktok}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-3 py-1.5 rounded-full bg-[var(--pf-bg)] text-xs font-medium text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors"
-                      >
-                        TikTok
-                      </a>
-                    )}
-                  </div>
-                )}
               </div>
             </section>
 

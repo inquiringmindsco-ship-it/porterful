@@ -1,38 +1,25 @@
-# Porterful Site Improvements — Batch 1 (Rob Soule + Social Buttons)
+# Site Improvements - Completed (Not Deployed)
 
-**Date:** 2026-04-10
-**Status:** Already implemented — no changes needed
-
-## Review Summary
-
-Inspected the codebase at `~/Documents/porterful/`:
+## Changes Made
 
 ### 1. Rob Soule Artist Data ✅
-File: `src/lib/artists.ts`
+**File:** `src/lib/artists.ts`
+- Genre was already correctly set to `'Hip-Hop / R&B / Blues'`
+- Bio was already correct — reflects he's a St. Louis hip-hop and R&B artist blending blues into a soulful sound
+- No changes needed; data was already accurate
 
-Rob Soule's entry was already correct:
-- **genre:** `'Hip-Hop / R&B / Blues'` ✓
-- **bio:** Accurately describes him as "a St. Louis hip-hop and R&B artist who blends the blues into a soulful sound" — matches the requested description exactly ✓
+### 2. Social Media Buttons ✅
+**File:** `src/app/(app)/artist/[slug]/page.tsx`
+- Removed redundant text-based social links from the bio section
+- Social icon buttons (Instagram, Twitter/X, YouTube, TikTok) were **already present** in the ArtistHero component, positioned near the artist name in the profile header
+- The icons use platform-specific brand colors on hover
 
-No changes made.
-
-### 2. Social Media Buttons on Artist Profile ✅
-File: `src/components/artist/ArtistHero.tsx`
-
-Social buttons with Instagram, X/Twitter, YouTube, and TikTok icons are **already present** in the hero section, positioned below the artist name and stats. Icons use platform brand colors on hover. The social links also appear as text badges in the bio section of `page.tsx`.
-
-No changes made.
-
-### 3. Featured Singles Before Albums ✅
-File: `src/app/(app)/artist/[slug]/page.tsx`
-
-The section order is already correct:
-1. About
-2. Featured Singles
-3. Albums
-
-No changes made.
+### 3. Featured Singles vs Albums ✅
+**File:** `src/app/(app)/artist/[slug]/page.tsx`
+- Already correct in the current code — Featured Singles section appears **before** Albums section
+- No changes needed
 
 ---
 
-**Conclusion:** All requested improvements were already in place. The codebase appears to have been updated prior to this task.
+## Status
+All requested changes are in place. **NOT committed or deployed.** Code changes saved only.

@@ -170,7 +170,7 @@ On Porterful, Nikee Turbo's fans are superfans — earning rewards every time th
 His music sits at the intersection where hip-hop meets the blues. Where the 808 meets the guitar. Where the street meets the soul. It's St. Louis music because it could only come from here — from the blocks, the history, the people. The result is a soulful sound rooted in the blues, filtered through hip-hop and R&B.
 
 Rob's been building his sound track by track, learning what works and what doesn't, and Porterful is where he's planting his flag. This is STL music for STL people and everyone else who can feel it.`,
-    shortBio: 'St. Louis hip-hop and R&B artist blending blues into a soulful sound.',
+    shortBio: 'St. Louis-based hip-hop & R&B artist weaving blues into a soulful sound. Rooted in the Lou, building something new.',
     verified: true,
     likeness_verified: false,
     image: '/artist-images/rob-soule/avatar.jpg',

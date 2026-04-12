@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server'
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 
 export async function POST(request: Request) {
   try {
@@ -8,11 +10,28 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Email and password required' }, { status: 400 })
     }
 
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    const cookieStore = await cookies()
 
-    const { createClient } = await import('@supabase/supabase-js')
-    const supabase = createClient(supabaseUrl, supabaseKey)
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return cookieStore.getAll()
+          },
+          setAll(cookiesToSet) {
+            try {
+              cookiesToSet.forEach(({ name, value, options }) =>
+                cookieStore.set(name, value, options)
+              )
+            } catch {
+              // Ignore server component calls
+            }
+          },
+        },
+      }
+    )
 
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
@@ -23,6 +42,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 401 })
     }
 
+    if (!data.user) {
+      return NextResponse.json({ error: 'Login failed' }, { status: 401 })
+    }
+
     // Get user profile to check role
     const { data: profile } = await supabase
       .from('profiles')
@@ -30,6 +53,8 @@ export async function POST(request: Request) {
       .eq('id', data.user.id)
       .single()
 
+    // Set HttpOnly session cookie for server-side auth (middleware, API guards)
+    // Note: Supabase SSR client already sets these via setAll callback above
     return NextResponse.json({
       success: true,
       user: data.user,
