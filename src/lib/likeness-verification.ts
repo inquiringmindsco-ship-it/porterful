@@ -28,5 +28,5 @@ export function getLikenessVerificationState(profile: any): LikenessVerification
 }
 
 export function getMonetizationGateMessage() {
-  return 'You must verify ownership of your likeness before monetizing.'
+  return 'Verify your identity to start earning'
 }
