@@ -37,8 +37,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'No user found with that email' }, { status: 404 })
     }
 
-    // Update password
-    const { error: updateError } = await supabase.auth.admin.updateUser(
+    // Update password — use updateUserById for Supabase v2
+    const { error: updateError } = await supabase.auth.admin.updateUserById(
       user.id,
       { password: newPassword }
     )
