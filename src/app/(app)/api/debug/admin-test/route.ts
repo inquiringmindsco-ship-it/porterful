@@ -5,32 +5,31 @@ export async function GET() {
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
 
   try {
-    // Test listing users via REST API
-    const response = await fetch(`${supabaseUrl}/auth/v1/admin/users`, {
+    const url = new URL(`${supabaseUrl}/auth/v1/admin/users`)
+    
+    const response = await fetch(url.toString(), {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${serviceKey}`,
         'apikey': serviceKey,
+        'Content-Type': 'application/json',
       },
     })
 
+    const status = response.status
     const text = await response.text()
-    let result: any = { status: response.status }
-
-    try {
-      const json = JSON.parse(text)
-      if (json.users) {
-        result.users = json.users.length
-        result.sampleEmail = json.users[0]?.email
-      } else {
-        result.data = text.substring(0, 200)
-      }
-    } catch {
-      result.raw = text.substring(0, 200)
-    }
-
-    return NextResponse.json(result)
+    
+    return NextResponse.json({
+      fetchStatus: status,
+      responseLength: text.length,
+      canParse: !!JSON.parse(text).users,
+      userCount: JSON.parse(text).users?.length || 0,
+      error: null,
+    })
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    return NextResponse.json({
+      error: err.message,
+      stack: err.stack?.substring(0, 300),
+    }, { status: 500 })
   }
 }
