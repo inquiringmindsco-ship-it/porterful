@@ -68,7 +68,33 @@ export default async function ArtistPage({ params }: PageProps) {
           <div className="lg:col-span-2 space-y-8">
             {/* Bio Section */}
             <section>
-              <p className="text-sm uppercase tracking-widest text-[var(--pf-orange)] mb-3">About</p>
+              <div className="flex items-start justify-between mb-3">
+                <p className="text-sm uppercase tracking-widest text-[var(--pf-orange)]">About</p>
+                {artist.social && (
+                  <div className="flex items-center gap-3">
+                    {artist.social.instagram && (
+                      <a href={`https://instagram.com/${artist.social.instagram}`} target="_blank" rel="noopener noreferrer" className="text-[var(--pf-text-muted)] hover:text-[var(--pf-orange)] transition-colors">
+                        <Instagram size={18} />
+                      </a>
+                    )}
+                    {artist.social.twitter && (
+                      <a href={`https://x.com/${artist.social.twitter}`} target="_blank" rel="noopener noreferrer" className="text-[var(--pf-text-muted)] hover:text-[var(--pf-orange)] transition-colors">
+                        <Twitter size={18} />
+                      </a>
+                    )}
+                    {artist.social.youtube && (
+                      <a href={`https://youtube.com/${artist.social.youtube}`} target="_blank" rel="noopener noreferrer" className="text-[var(--pf-text-muted)] hover:text-[var(--pf-orange)] transition-colors">
+                        <Youtube size={18} />
+                      </a>
+                    )}
+                    {artist.social.tiktok && (
+                      <a href={`https://tiktok.com/@${artist.social.tiktok}`} target="_blank" rel="noopener noreferrer" className="text-[var(--pf-text-muted)] hover:text-[var(--pf-orange)] transition-colors">
+                        <Music2 size={18} />
+                      </a>
+                    )}
+                  </div>
+                )}
+              </div>
               <div className="bg-[var(--pf-surface)] rounded-2xl p-6 border border-[var(--pf-border)]">
                 <p className="text-[var(--pf-text-secondary)] leading-relaxed whitespace-pre-line break-words max-w-full">
                   {artist.bio}

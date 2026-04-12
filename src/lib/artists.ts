@@ -79,7 +79,7 @@ The plan: make Porterful the artist's retirement. Build it once, let it work for
     id: 'gune',
     name: 'Gune',
     slug: 'gune',
-    genre: 'Hip-Hop, R&B',
+    genre: 'Hip-Hop / R&B / Blues',
     location: 'St. Louis, MO',
     bio: `Gune is what happens when you give a St. Louis kid a drum machine and tell him he can't make it. He made it anyway.
 
@@ -165,7 +165,7 @@ On Porterful, Nikee Turbo's fans are superfans — earning rewards every time th
     slug: 'rob-soule',
     genre: 'Hip-Hop / R&B / Blues',
     location: 'St. Louis, MO',
-    bio: `Rob Soule is a St. Louis hip-hop and R&B artist who blends the blues into a soulful sound you won't find anywhere else. Growing up immersed in the city's musical legacy — the soul, the struggle, the stories — he didn't just absorb it, he translated it into something new.
+    bio: `Rob Soule is a St. Louis hip-hop and R&B artist who blends the blues into a soulful sound you won't find anywhere else. Rooted in the city's rich musical legacy — the soul, the struggle, the stories — he didn't just absorb it, he translated it into something new.
 
 His music sits at the intersection where hip-hop meets the blues. Where the 808 meets the guitar. Where the street meets the soul. It's St. Louis music because it could only come from here — from the blocks, the history, the people. The result is a soulful sound rooted in the blues, filtered through hip-hop and R&B.
 

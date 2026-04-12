@@ -1,25 +1,25 @@
-# Site Improvements - Completed (Not Deployed)
+# Porterful Site Improvements - April 12, 2026
 
-## Changes Made
+## Task: Site improvements batch 1 - Rob Soule fix + social buttons
 
-### 1. Rob Soule Artist Data ✅
-**File:** `src/lib/artists.ts`
-- Genre was already correctly set to `'Hip-Hop / R&B / Blues'`
-- Bio was already correct — reflects he's a St. Louis hip-hop and R&B artist blending blues into a soulful sound
-- No changes needed; data was already accurate
+### Status: Already Implemented ✓
 
-### 2. Social Media Buttons ✅
-**File:** `src/app/(app)/artist/[slug]/page.tsx`
-- Removed redundant text-based social links from the bio section
-- Social icon buttons (Instagram, Twitter/X, YouTube, TikTok) were **already present** in the ArtistHero component, positioned near the artist name in the profile header
-- The icons use platform-specific brand colors on hover
+No code changes were needed — all three items were already in place:
 
-### 3. Featured Singles vs Albums ✅
-**File:** `src/app/(app)/artist/[slug]/page.tsx`
-- Already correct in the current code — Featured Singles section appears **before** Albums section
-- No changes needed
+1. **Rob Soule artist data (src/lib/artists.ts)**
+   - Genre: `'Hip-Hop / R&B / Blues'` ✓
+   - Bio: Already describes him as "a St. Louis hip-hop and R&B artist who blends the blues into a soulful sound" ✓
+
+2. **Social media buttons (src/app/(app)/artist/[slug]/page.tsx + ArtistHero.tsx)**
+   - Social icons (Instagram, Twitter/X, YouTube, TikTok) already render in the artist profile header via ArtistHero.tsx ✓
+   - Also duplicated in the About section of page.tsx ✓
+   - Icons use custom inline SVGs with brand-colored hover effects (Instagram pink, X black, YouTube red, TikTok black) ✓
+
+3. **Featured Singles before Albums**
+   - Singles section already appears before Albums section in the track listings ✓
+
+**No changes made — nothing to commit or deploy.**
 
 ---
 
-## Status
-All requested changes are in place. **NOT committed or deployed.** Code changes saved only.
+*Previous tasks may be listed below this line*
