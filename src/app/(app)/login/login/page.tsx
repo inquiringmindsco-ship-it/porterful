@@ -11,6 +11,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState(false)
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -139,6 +140,51 @@ export default function LoginPage() {
             <FaGoogle className="text-xl" />
             <span className="font-medium">Continue with Google</span>
           </button>
+
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-[var(--pf-border)]"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-4 bg-[var(--pf-bg)] text-[var(--pf-text-muted)]">or sign in without a password</span>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={async () => {
+              if (!email) {
+                setError('Enter your email first, then click Magic Link')
+                return
+              }
+              setLoading(true)
+              setError('')
+              const { createClient } = await import('@supabase/supabase-js')
+              const supabase = createClient(
+                process.env.NEXT_PUBLIC_SUPABASE_URL!,
+                process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+              )
+              const { error } = await supabase.auth.signInWithOtp({
+                email,
+                options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+              })
+              if (error) {
+                setError(error.message)
+              } else {
+                setSuccess(true)
+              }
+              setLoading(false)
+            }}
+            className="w-full py-4 rounded-lg border border-[var(--pf-orange)]/50 hover:border-[var(--pf-orange)] transition-colors text-[var(--pf-orange)] font-medium"
+          >
+            {loading ? 'Sending...' : 'Send Magic Link'}
+          </button>
+
+          {success && (
+            <div className="p-4 rounded-lg bg-green-500/10 border border-green-500/30 text-green-400 text-sm">
+              Magic link sent! Check your email inbox.
+            </div>
+          )}
         </form>
 
         <div className="text-center text-sm text-[var(--pf-text-muted)] mt-6">
