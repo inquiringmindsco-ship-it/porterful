@@ -14,6 +14,17 @@ export async function GET(request: Request) {
   const email = requestUrl.searchParams.get('email')
   const next = requestUrl.searchParams.get('next') ?? '/dashboard/dashboard'
 
+  // Log all incoming params for debugging
+  console.log('[Auth Callback] Request URL:', requestUrl.toString())
+  console.log('[Auth Callback] Params:', { code: !!code, token: !!token, type, email, next })
+
+  if (!code && !token) {
+    console.error('[Auth Callback] No code or token — redirecting to login')
+    const loginUrl = new URL('/login', requestUrl.origin)
+    loginUrl.searchParams.set('error', 'invalid_link')
+    return NextResponse.redirect(loginUrl)
+  }
+
   const cookieStore = await cookies()
   
   const supabase = createServerClient(
@@ -35,7 +46,16 @@ export async function GET(request: Request) {
 
   // Handle magic link code exchange
   if (code) {
-    const { data: { user }, error } = await supabase.auth.exchangeCodeForSession(code)
+    console.log('[Auth Callback] Received code, exchanging for session...')
+    const { data: { user, session }, error } = await supabase.auth.exchangeCodeForSession(code)
+    
+    console.log('[Auth Callback] Exchange result:', { 
+      hasUser: !!user, 
+      hasSession: !!session, 
+      error: error?.message,
+      userEmail: user?.email 
+    })
+    console.log('[Auth Callback] Session cookies set:', session ? 'yes' : 'no')
     
     if (error) {
       console.error('Magic link exchange error:', error.message)
@@ -48,7 +68,9 @@ export async function GET(request: Request) {
       console.log('Magic link session created for:', user.email)
     }
     
-    return NextResponse.redirect(new URL(next, requestUrl.origin))
+    const redirectTo = new URL(next, requestUrl.origin)
+    console.log('[Auth Callback] Redirecting to:', redirectTo.toString())
+    return NextResponse.redirect(redirectTo)
   }
 
   // Handle password recovery token
