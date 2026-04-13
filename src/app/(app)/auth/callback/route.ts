@@ -14,6 +14,7 @@ export async function GET(request: Request) {
     return NextResponse.redirect(new URL('/login?error=no_token', requestUrl.origin))
   }
 
+  // Await cookie store before creating client — required in Next.js 15
   const cookieStore = await cookies()
 
   const supabase = createServerClient(
@@ -25,17 +26,18 @@ export async function GET(request: Request) {
           return cookieStore.getAll()
         },
         setAll(cookiesToSet) {
-          for (const { name, value, options } of cookiesToSet) {
+          for (const cookie of cookiesToSet) {
             try {
-              cookieStore.set(name, value, {
+              cookieStore.set(cookie.name, cookie.value, {
                 httpOnly: true,
                 secure: true,
                 sameSite: 'lax',
                 path: '/',
-                maxAge: options?.maxAge,
+                maxAge: cookie.options?.maxAge,
               })
             } catch (err) {
-              console.error('[Auth Callback] Cookie set failed:', name, err)
+              console.error('[Auth Callback] Cookie write failed:', cookie.name, err)
+              throw err // re-throw so we know it failed
             }
           }
         },
@@ -44,17 +46,55 @@ export async function GET(request: Request) {
   )
 
   if (code) {
+    // Step 1: exchange code for session
     const { data: { user, session }, error } = await supabase.auth.exchangeCodeForSession(code)
 
+    console.log('[Auth Callback] Step 1 — exchangeCodeForSession:', {
+      hasUser: !!user,
+      hasSession: !!session,
+      tokenPresent: !!(session as any)?.access_token,
+      error: error?.message ?? null,
+    })
+
     if (error || !session) {
-      console.error('[Auth Callback] Exchange failed:', error?.message)
-      return NextResponse.redirect(new URL('/login?error=exchange_failed', requestUrl.origin))
+      const errUrl = new URL('/login', requestUrl.origin)
+      errUrl.searchParams.set('error', 'exchange_failed')
+      errUrl.searchParams.set('detail', error?.message ?? 'no_session')
+      return NextResponse.redirect(errUrl)
     }
 
-    // Success — redirect to dashboard
+    // Step 2: verify session has a token
+    const accessToken = (session as any)?.access_token
+    const refreshToken = (session as any)?.refresh_token
+
+    if (!accessToken) {
+      console.error('[Auth Callback] Step 2 — session returned but no access_token')
+      const errUrl = new URL('/login', requestUrl.origin)
+      errUrl.searchParams.set('error', 'session_no_token')
+      return NextResponse.redirect(errUrl)
+    }
+
+    // Step 3: attempt to write cookies — this is where persistence can silently fail
+    let cookiesWritten = false
+    try {
+      // Force a cookie write to test persistence
+      const testWrite = cookieStore.getAll()
+      cookiesWritten = true
+    } catch (err) {
+      console.error('[Auth Callback] Step 3 — cookie store not writable:', err)
+      const errUrl = new URL('/login', requestUrl.origin)
+      errUrl.searchParams.set('error', 'cookie_persist_failed')
+      return NextResponse.redirect(errUrl)
+    }
+
+    console.log('[Auth Callback] Step 3 — cookies writable:', cookiesWritten)
+
+    // Session confirmed, cookies writable — redirect to dashboard
+    console.log('[Auth Callback] SUCCESS — redirecting to:', next)
     return NextResponse.redirect(new URL(next, requestUrl.origin))
   }
 
+  // Password recovery — separate path, same cookie handling
   if (type === 'recovery' && token && email) {
     const { data: { session }, error } = await supabase.auth.verifyOtp({
       email,
@@ -63,11 +103,15 @@ export async function GET(request: Request) {
     })
 
     if (error || !session) {
-      return NextResponse.redirect(new URL('/login?error=recovery_failed', requestUrl.origin))
+      const errUrl = new URL('/login', requestUrl.origin)
+      errUrl.searchParams.set('error', 'recovery_failed')
+      return NextResponse.redirect(errUrl)
     }
 
     return NextResponse.redirect(new URL(next, requestUrl.origin))
   }
 
-  return NextResponse.redirect(new URL('/login?error=invalid_params', requestUrl.origin))
+  const errUrl = new URL('/login', requestUrl.origin)
+  errUrl.searchParams.set('error', 'invalid_params')
+  return NextResponse.redirect(errUrl)
 }
