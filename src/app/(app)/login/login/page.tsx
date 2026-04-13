@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { FaGoogle } from 'react-icons/fa'
+import { createBrowserClient } from '@supabase/ssr'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -12,6 +13,13 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+
+  // Use @supabase/ssr with cookie adapter — stores PKCE verifier in cookies
+  // so the callback (server-side) can access it for code exchange
+  const getSupabaseClient = () => createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -33,7 +41,6 @@ export default function LoginPage() {
         return
       }
 
-      // Redirect based on role
       if (data.role === 'artist') {
         router.push('/dashboard/artist')
       } else {
@@ -47,24 +54,17 @@ export default function LoginPage() {
   }
 
   const handleOAuthSignIn = async () => {
-    // Redirect to Supabase OAuth
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    if (!supabaseUrl || !supabaseKey) {
-      setError('Database not configured')
-      return
-    }
-    
-    const { createClient } = await import('@supabase/supabase-js')
-    const supabase = createClient(supabaseUrl, supabaseKey)
-    
+    const supabase = getSupabaseClient()
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`
-      }
+        // PKCE code verifier is stored in cookies via SSR adapter
+        // so the server-side callback can find it
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
     })
-    
+
     if (error) {
       setError(error.message)
     }
@@ -159,11 +159,7 @@ export default function LoginPage() {
               }
               setLoading(true)
               setError('')
-              const { createClient } = await import('@supabase/supabase-js')
-              const supabase = createClient(
-                process.env.NEXT_PUBLIC_SUPABASE_URL!,
-                process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-              )
+              const supabase = getSupabaseClient()
               const { error } = await supabase.auth.signInWithOtp({
                 email,
                 options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
@@ -188,7 +184,7 @@ export default function LoginPage() {
         </form>
 
         <div className="text-center text-sm text-[var(--pf-text-muted)] mt-6">
-          Don't have an account?{' '}
+          Don&apos;t have an account?{' '}
           <Link href="/signup" className="text-[var(--pf-orange)] hover:underline">
             Create one
           </Link>
