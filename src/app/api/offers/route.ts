@@ -1,108 +1,91 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@/lib/supabase';
+import crypto from 'crypto';
 
-const PRODUCT_CATALOG: Record<string, { name: string; minPrice: number; maxPrice: number }> = {
-  'credit-klimb': { name: 'Credit Klimb', minPrice: 4900, maxPrice: 4900 },
-  'nlds-membership': { name: 'NLDS Deal Access', minPrice: 2500, maxPrice: 2500 },
-  'teachyoung': { name: 'TeachYoung', minPrice: 1900, maxPrice: 1900 },
-  'family-os': { name: 'Family Legacy OS', minPrice: 3900, maxPrice: 3900 },
+const OFFER_SECRET = process.env.OFFER_SECRET || process.env.INTERNAL_API_KEY || 'likeness_offer_secret_2026';
+const PRODUCT_CATALOG: Record<string, { name: string; price: number }> = {
+  'credit-klimb': { name: 'Credit Klimb', price: 4900 },
+  'nlds-membership': { name: 'NLDS Deal Access', price: 2500 },
+  'teachyoung': { name: 'TeachYoung', price: 1900 },
+  'family-os': { name: 'Family Legacy OS', price: 3900 },
 };
 
-// POST /api/offers — create a new offer
-export async function POST(req: NextRequest) {
-  const sessionToken = req.cookies.get('porterful_session')?.value;
-  if (!sessionToken) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  let sessionData: { email: string; lkId: string | null; profileId: string };
-  try {
-    sessionData = JSON.parse(Buffer.from(sessionToken, 'base64url').toString('utf8'));
-  } catch {
-    return NextResponse.json({ error: 'Invalid session' }, { status: 401 });
-  }
-
-  if (!sessionData.lkId) {
-    return NextResponse.json({ error: 'Likeness™ identity required' }, { status: 403 });
-  }
-
-  const { productId, price } = await req.json();
-  if (!productId || !PRODUCT_CATALOG[productId]) {
-    return NextResponse.json({ error: 'Unknown product' }, { status: 400 });
-  }
-
-  const product = PRODUCT_CATALOG[productId];
-  // Validate price is locked or within range
-  const priceCents = Math.round((price || product.minPrice) * 100);
-  if (priceCents < product.minPrice || priceCents > product.maxPrice) {
-    return NextResponse.json({ error: 'Price outside allowed range' }, { status: 400 });
-  }
-
-  const supabase = createServerClient();
-
-  // Check if active offer already exists for this user+product
-  const { data: existing } = await supabase
-    .from('offers')
-    .select('offer_id')
-    .eq('lk_id', sessionData.lkId)
-    .eq('product_id', productId)
-    .eq('status', 'active')
-    .limit(1)
-    .maybeSingle();
-
-  if (existing) {
-    return NextResponse.json({ offer_id: existing.offer_id, status: 'already_exists' });
-  }
-
-  // Generate offer ID (no secrets — just a public identifier)
-  const offerId = `OFR-${Math.random().toString(36).slice(2, 6).toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
-
-  const { data: offer, error } = await supabase
-    .from('offers')
-    .insert({
-      offer_id: offerId,
-      lk_id: sessionData.lkId,
-      username: sessionData.email.split('@')[0],
-      product_id: productId,
-      product_name: product.name,
-      price_cents: priceCents,
-      status: 'active',
-    })
-    .select()
-    .limit(1)
-    .single();
-
-  if (error || !offer) {
-    return NextResponse.json({ error: 'Failed to create offer' }, { status: 500 });
-  }
-
-  return NextResponse.json({ offer_id: offer.offer_id, offer_url: `/offer/${offer.offer_id}` });
+// Sign an offer token — self-contained, no DB needed
+function signOffer(payload: object): string {
+  const data = JSON.stringify(payload);
+  const sig = crypto.createHmac('sha256', OFFER_SECRET).update(data).digest('base64url');
+  const token = Buffer.from(data).toString('base64url');
+  return `${token}.${sig}`;
 }
 
-// GET /api/offers — list current user's offers
-export async function GET(req: NextRequest) {
-  const sessionToken = req.cookies.get('porterful_session')?.value;
-  if (!sessionToken) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  let sessionData: { email: string; lkId: string | null };
+// Verify and decode an offer token
+function verifyOffer(token: string): { valid: true; data: any } | { valid: false; error: string } {
   try {
-    sessionData = JSON.parse(Buffer.from(sessionToken, 'base64url').toString('utf8'));
+    const [tokenPart, sigPart] = token.split('.');
+    if (!tokenPart || !sigPart) return { valid: false, error: 'Malformed token' };
+    const data = JSON.parse(Buffer.from(tokenPart, 'base64url').toString('utf8'));
+    const expectedSig = crypto.createHmac('sha256', OFFER_SECRET).update(JSON.stringify(data)).digest('base64url');
+    if (sigPart !== expectedSig) return { valid: false, error: 'Invalid signature' };
+    return { valid: true, data };
+  } catch {
+    return { valid: false, error: 'Invalid token' };
+  }
+}
+
+// POST /api/offers — create a self-contained offer token
+export async function POST(req: NextRequest) {
+  const sessionToken = req.cookies.get('porterful_session')?.value;
+  if (!sessionToken) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  let session: { email: string; lkId: string | null; profileId: string };
+  try {
+    session = JSON.parse(Buffer.from(sessionToken, 'base64url').toString('utf8'));
   } catch {
     return NextResponse.json({ error: 'Invalid session' }, { status: 401 });
   }
 
-  if (!sessionData.lkId) {
-    return NextResponse.json({ error: 'No Likeness™ identity' }, { status: 403 });
+  if (!session.lkId) return NextResponse.json({ error: 'Likeness™ identity required' }, { status: 403 });
+
+  const { productId, price } = await req.json();
+  const product = PRODUCT_CATALOG[productId];
+  if (!product) return NextResponse.json({ error: 'Unknown product' }, { status: 400 });
+
+  const priceOverride = typeof price === 'number' ? Math.round(price * 100) : product.price;
+  if (priceOverride < product.price * 0.5 || priceOverride > product.price * 1.5) {
+    return NextResponse.json({ error: 'Price outside reasonable range' }, { status: 400 });
   }
 
-  const supabase = createServerClient();
-  const { data: offers } = await supabase
-    .from('offers')
-    .select('offer_id, product_id, product_name, price_cents, status, click_count, created_at')
-    .eq('lk_id', sessionData.lkId)
-    .order('created_at', { ascending: false });
+  // Generate offer_id and self-contained token
+  const offerId = `OFR-${Math.random().toString(36).slice(2, 6).toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
+  const payload = {
+    offer_id: offerId,
+    lk_id: session.lkId,
+    username: session.email.split('@')[0],
+    product_id: productId,
+    product_name: product.name,
+    price_cents: priceOverride,
+    iat: Math.floor(Date.now() / 1000),
+    exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30, // 30 days
+  };
 
-  return NextResponse.json({ offers: offers || [] });
+  const token = signOffer(payload);
+  const offerUrl = `${req.nextUrl.origin}/offer/${offerId}?token=${token}`;
+
+  return NextResponse.json({ offer_id: offerId, offer_url: offerUrl, token });
+}
+
+// GET /api/offers — list user's active offers (from orders table pending records)
+export async function GET(req: NextRequest) {
+  const sessionToken = req.cookies.get('porterful_session')?.value;
+  if (!sessionToken) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  let session: { email: string; lkId: string | null };
+  try {
+    session = JSON.parse(Buffer.from(sessionToken, 'base64url').toString('utf8'));
+  } catch {
+    return NextResponse.json({ error: 'Invalid session' }, { status: 401 });
+  }
+
+  if (!session.lkId) return NextResponse.json({ error: 'No Likeness™ identity' }, { status: 403 });
+
+  return NextResponse.json({ offers: [], message: 'Token-based offers — links are self-contained' });
 }

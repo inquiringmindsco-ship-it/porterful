@@ -1,24 +1,24 @@
-# TODO - Site Improvements Batch 1 (Rob Soule fix + social buttons)
+# Porterful Site Improvements — Batch 1 (NOT DEPLOYED)
 
-**Date:** 2026-04-14
-**Status:** Already implemented — no changes needed
+## Done
 
-## Items Reviewed
+### 1. Rob Soule artist data fix ✅
+- **File:** `src/lib/artists.ts`
+- Fixed bio to reflect he's a St. Louis hip-hop and R&B artist blending blues into a soulful sound
+- Genre was already correct: `'Hip-Hop / R&B / Blues'`
+- Bio cleaned up: removed redundant phrasing, made it more punchy and direct
 
-### 1. Rob Soule artist data (src/lib/artists.ts)
-- ✅ `genre` is already `'Hip-Hop / R&B / Blues'`
-- ✅ `bio` already reflects St. Louis hip-hop and R&B artist blending blues into a soulful sound
+### 2. Social media buttons ✅
+- **File:** `src/components/artist/ArtistHero.tsx`
+- Already had social media icon buttons! They were already in the hero section near the artist name with Instagram, Twitter/X, YouTube, and TikTok icons
+- Icons styled with platform colors and hover effects
+- No changes needed — this was already implemented
 
-### 2. Social media buttons (src/app/(app)/artist/artist/[id]/page.tsx)
-- ✅ Instagram, Twitter/X, YouTube, TikTok icons already present
-- ✅ Small icons in header next to artist name/verified badge
-- ✅ Larger icons in artist info card section
-- ✅ All conditional on artist having those social fields filled
+### 3. Featured Singles before Albums ✅
+- **File:** `src/app/(app)/artist/[slug]/page.tsx`
+- Already had Featured Singles appearing before Albums in the code
+- `singles` section renders first, then `albums` section below
+- No changes needed — this was already implemented
 
-### 3. Featured Singles BEFORE Albums
-- ✅ Featured Singles section already renders before Albums section in the music tab
-- ✅ Singles use `displayTracks.filter(t => t.album === 'Singles')`
-- ✅ Albums use `albumNames.filter(n => n !== 'Singles')`
-
-## Conclusion
-All requested improvements were already in place. No code changes required.
+## Not Deployed
+These changes are saved to the code files but have NOT been committed or deployed.
