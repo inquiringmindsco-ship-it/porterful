@@ -69,8 +69,25 @@ export async function POST(request: NextRequest) {
       quantity: item.quantity || 1,
     }))
 
-    const profileId = req.headers.get('x-pf-profile-id') || null;
-    const lkId = req.headers.get('x-pf-lk-id') || null;
+    // Get Likeness™ identity from session (set by middleware or direct cookie)
+    const sessionToken = request.cookies.get('porterful_session')?.value;
+    let profileId: string | null = null;
+    let lkId: string | null = null;
+    let sessionEmail: string | null = null;
+
+    if (sessionToken) {
+      try {
+        const sessionData = JSON.parse(Buffer.from(sessionToken, 'base64url').toString('utf8'));
+        profileId = sessionData.profileId || null;
+        lkId = sessionData.lkId || null;
+        sessionEmail = sessionData.email || null;
+      } catch {}
+    }
+
+    // Fallback to middleware-set headers (injected when same-server)
+    profileId = profileId || request.headers.get('x-pf-profile-id') || null;
+    lkId = lkId || request.headers.get('x-pf-lk-id') || null;
+    sessionEmail = sessionEmail || request.headers.get('x-pf-email') || null;
 
     const sessionParams: any = {
       payment_method_types: ['card'],
@@ -82,7 +99,7 @@ export async function POST(request: NextRequest) {
         // Attribution — ties payment to Likeness™ identity
         user_id: profileId || '',
         lk_id: lkId || '',
-        email: req.headers.get('x-pf-email') || '',
+        email: sessionEmail || '',
         source: 'porterful',
         referral_code: effectiveReferralCode || '',
         artist_fund: artistFund.toString(),
