@@ -14,12 +14,38 @@ export default function LoginPage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
 
-  // Use @supabase/ssr with cookie adapter — stores PKCE verifier in cookies
-  // so the callback (server-side) can access it for code exchange
   const getSupabaseClient = () => createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
+
+  const handleLikenessSignIn = async () => {
+    setLoading(true)
+    setError('')
+    try {
+      // Check if likeness_session cookie exists
+      const likenSession = document.cookie.match(/likeness_session=([^;]+)/)?.[1]
+      if (likenSession) {
+        // Try bridge — this will validate session and create porterful_session
+        const res = await fetch('/api/auth/porterful-bridge', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        })
+        if (res.ok) {
+          router.push('/dashboard')
+          return
+        }
+      }
+      // No valid session — redirect to LikenessVerified magic link
+      // After login, LikenessVerified redirects to our bridge endpoint
+      // which sets the cookie and redirects to /dashboard
+      const bridgeUrl = encodeURIComponent(window.location.origin + '/api/auth/porterful-bridge')
+      window.location.href = `https://likenessverified.com/login?return=${bridgeUrl}`
+    } catch {
+      setError('Could not connect to Likeness™')
+      setLoading(false)
+    }
+  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -55,19 +81,13 @@ export default function LoginPage() {
 
   const handleOAuthSignIn = async () => {
     const supabase = getSupabaseClient()
-
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        // PKCE code verifier is stored in cookies via SSR adapter
-        // so the server-side callback can find it
         redirectTo: `${window.location.origin}/auth/callback`,
       },
     })
-
-    if (error) {
-      setError(error.message)
-    }
+    if (error) setError(error.message)
   }
 
   return (
@@ -83,6 +103,34 @@ export default function LoginPage() {
             {error}
           </div>
         )}
+
+        {/* ─── LIKENESS™ UNIFIED SIGN-IN ─── */}
+        <div className="mb-6 p-5 rounded-2xl bg-gradient-to-r from-[var(--pf-orange)]/10 to-purple-500/10 border border-[var(--pf-orange)]/30">
+          <div className="text-center mb-3">
+            <span className="text-2xl mb-2 block">🔔</span>
+            <p className="font-semibold text-sm">One Login. Entire Ecosystem.</p>
+            <p className="text-xs text-[var(--pf-text-muted)] mt-1">
+              Sign in once with Likeness™ — access Porterful and all your tools in one place.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={handleLikenessSignIn}
+            disabled={loading}
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-[var(--pf-orange)] hover:bg-[var(--pf-orange-dark)] text-white font-semibold transition-colors disabled:opacity-50"
+          >
+            {loading ? 'Connecting...' : 'Continue with Likeness™'}
+          </button>
+        </div>
+
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-[var(--pf-border)]"></div>
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-4 bg-[var(--pf-bg)] text-[var(--pf-text-muted)]">or sign in with email & password</span>
+          </div>
+        </div>
 
         <form onSubmit={handleLogin} className="space-y-5">
           <div>
@@ -164,11 +212,8 @@ export default function LoginPage() {
                 email,
                 options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
               })
-              if (error) {
-                setError(error.message)
-              } else {
-                setSuccess(true)
-              }
+              if (error) setError(error.message)
+              else setSuccess(true)
               setLoading(false)
             }}
             className="w-full py-4 rounded-lg border border-[var(--pf-orange)]/50 hover:border-[var(--pf-orange)] transition-colors text-[var(--pf-orange)] font-medium"

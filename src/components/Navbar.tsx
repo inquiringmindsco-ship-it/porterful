@@ -7,7 +7,7 @@ import { useCart } from '@/lib/cart-context'
 import { Menu, X, ChevronDown, User, LogOut, ShoppingCart } from 'lucide-react'
 
 export function Navbar() {
-  const { user, supabase } = useSupabase()
+  const { user, supabase, loading } = useSupabase()
   const { items } = useCart()
   const cartCount = items.reduce((s, i) => s + i.quantity, 0)
   const [scrolled, setScrolled] = useState(false)
@@ -37,8 +37,10 @@ export function Navbar() {
   }, [profileOpen])
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut()
-    window.location.href = '/'
+    if (supabase) {
+      await supabase.auth.signOut()
+      window.location.href = '/'
+    }
   }
 
   const navLinks = [
@@ -47,6 +49,14 @@ export function Navbar() {
     { href: '/store', label: 'Store' },
     { href: '/systems', label: 'Systems' },
   ]
+
+  // Never render auth-dependent state until both:
+  // 1. mounted=true (no SSR mismatch)
+  // 2. loading=false (session state confirmed)
+  // This eliminates the flash of wrong auth state
+  const ready = mounted && !loading
+  const showUser = ready && !!user
+  const showGuest = ready && !user
 
   return (
     <>
@@ -95,8 +105,8 @@ export function Navbar() {
                 )}
               </Link>
 
-              {/* User Menu */}
-              {user ? (
+              {/* User Menu — only renders once session is confirmed */}
+              {showUser && (
                 <div className="hidden md:block relative" ref={profileRef}>
                   <button
                     onClick={() => setProfileOpen(!profileOpen)}
@@ -131,7 +141,10 @@ export function Navbar() {
                     </div>
                   )}
                 </div>
-              ) : (
+              )}
+
+              {/* Guest — Sign In + Shop Artists */}
+              {showGuest && (
                 <div className="hidden md:flex items-center gap-2">
                   <Link href="/login" className="px-4 py-2 text-sm font-medium text-[var(--pf-text-secondary)] hover:text-white transition-colors">
                     Sign In
@@ -142,17 +155,20 @@ export function Navbar() {
                 </div>
               )}
 
+              {/* Loading skeleton — shows only while session is resolving */}
+              {!ready && (
+                <div className="hidden md:flex items-center gap-2">
+                  <div className="h-10 w-24 rounded-lg bg-[var(--pf-surface)] animate-pulse" />
+                </div>
+              )}
+
               {/* Mobile Menu Toggle */}
               <button
                 onClick={() => setMobileOpen(!mobileOpen)}
                 className="p-2"
                 aria-label="Menu"
               >
-                {mobileOpen ? (
-                  <X size={22} />
-                ) : (
-                  <Menu size={22} />
-                )}
+                {mobileOpen ? <X size={22} /> : <Menu size={22} />}
               </button>
             </div>
           </div>
@@ -197,7 +213,7 @@ export function Navbar() {
           <div className="border-t border-[var(--pf-border)] my-4" />
 
           {/* User Section */}
-          {user ? (
+          {showUser && (
             <div className="space-y-1">
               <Link href="/dashboard/dashboard" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 py-3 text-[var(--pf-text-secondary)]">
                 <User size={20} />
@@ -211,7 +227,9 @@ export function Navbar() {
                 <span>Sign Out</span>
               </button>
             </div>
-          ) : (
+          )}
+
+          {showGuest && (
             <div className="space-y-3">
               <Link href="/login" onClick={() => setMobileOpen(false)} className="block py-4 text-center font-medium border border-[var(--pf-border)] rounded-lg">
                 Sign In
@@ -221,10 +239,16 @@ export function Navbar() {
               </Link>
             </div>
           )}
+
+          {!ready && (
+            <div className="space-y-3">
+              <div className="h-12 rounded-lg bg-[var(--pf-surface)] animate-pulse" />
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Overlay for mobile menu */}
+      {/* Overlay */}
       {mobileOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-[99] md:hidden"

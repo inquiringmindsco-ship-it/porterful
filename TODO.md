@@ -1,29 +1,59 @@
-# Porterful Site Improvements - Status Report
+# Porterful Site Improvements — Batch 1 (Rob Soule fix + social buttons)
 
-**Date:** 2026-04-13
-**Task:** Site improvements batch 1 - Rob Soule fix + social buttons
+**Date:** 2026-04-13  
+**Status:** Already implemented (no changes needed)
 
-## Completed Items
+---
 
-### 1. Rob Soule Artist Data ✅
-- **File:** `src/lib/artists.ts`
-- **Genre:** Already set to `'Hip-Hop / R&B / Blues'`
-- **Bio:** Already describes him as a "St. Louis hip-hop and R&B artist who blends the blues into a soulful sound"
-- **Status:** No changes needed — data was already correct
+## Task 1: Rob Soule Artist Data ✅
 
-### 2. Social Media Buttons ✅
-- **File:** `src/app/(app)/artist/[slug]/page.tsx`
-- **Implementation:** "Social Links Bar" section added below the hero
-- **Icons:** Instagram (pink), Twitter/X (blue), YouTube (red), TikTok (pink) — using lucide-react icons + inline SVGs
-- **Placement:** Below ArtistHero, above the main content grid
-- **Behavior:** Only shows buttons for social fields that are filled in
-- **Styling:** Rounded badges with hover border colors matching each platform
-- **Status:** Already implemented — no changes needed
+**File:** `src/lib/artists.ts`
 
-### 3. Featured Singles Before Albums ✅
-- **File:** `src/app/(app)/artist/[slug]/page.tsx`
-- **Current order:** Featured Singles section appears before Albums section
-- **Status:** Already correct — no changes needed
+Rob Soule's entry already has:
+- `genre: 'Hip-Hop / R&B / Blues'` — correct
+- `bio` already describes him as "a St. Louis hip-hop and R&B artist who blends the blues into a soulful sound" — matches requirement
+
+**Verdict:** No changes needed.
+
+---
+
+## Task 2: Social Media Buttons on Artist Profile ✅
+
+**File:** `src/app/(app)/artist/artist/[id]/page.tsx`
+
+Social icons (Instagram, Twitter/X, YouTube, TikTok) are already:
+- Displayed inline next to the artist name in the header
+- Linked to the artist's social fields when filled in
+- Styled with platform-specific hover colors
+
+**File:** `src/app/(app)/artist/[slug]/page.tsx`
+
+Social buttons are already present in a "Social Links Bar" below the hero section.
+
+**Verdict:** No changes needed.
+
+---
+
+## Task 3: Featured Singles Appears Before Albums ✅
+
+**File:** `src/app/(app)/artist/[slug]/page.tsx`
+
+Sections are ordered:
+1. Bio Section
+2. Featured Singles
+3. Albums
+
+**File:** `src/app/(app)/artist/artist/[id]/page.tsx`
+
+Music tab sections are ordered:
+1. Featured Singles (first)
+2. Albums (after)
+
+**Verdict:** No changes needed.
+
+---
 
 ## Summary
-All three items were already implemented in the codebase. No code changes or deployments made as requested.
+
+All three requested improvements were already present in the codebase. Nothing to code, save, or commit. This TODO documents the verification.
+

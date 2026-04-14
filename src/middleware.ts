@@ -1,102 +1,73 @@
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
-import { createServerClient } from '@supabase/ssr'
+import { NextRequest, NextResponse } from 'next/server';
+import { getPorterfulSession } from '@/lib/porterful-session';
 
-const DASHBOARD_PATHS = ['/dashboard']
-const AUTH_PATHS = ['/login', '/signup', '/superfan']
+const LIKENESS_LOGIN_URL = 'https://likenessverified.com/login';
+const PROTECTED_PATHS = ['/dashboard', '/checkout', '/api/auth/admin', '/cart', '/profile'];
+const BRIDGE_API = '/api/auth/porterful-bridge';
 
-export async function middleware(request: NextRequest) {
-  const pathname = request.nextUrl.pathname
-  const response = NextResponse.next()
+function isProtected(pathname: string): boolean {
+  return PROTECTED_PATHS.some(prefix => pathname.startsWith(prefix));
+}
 
-  // ──────────────────────────────────────────────
-  // 1. Protect dashboard routes — use SSR client only, no manual cookie check
-  // ──────────────────────────────────────────────
-  const isDashboardPath = DASHBOARD_PATHS.some(p => pathname.startsWith(p))
+function extractReturnUrl(req: NextRequest): string {
+  return encodeURIComponent(req.nextUrl.origin + req.nextUrl.pathname + req.search);
+}
 
-  if (isDashboardPath) {
-    // Create SSR client — reads cookies via request adapter, not manual name
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() {
-            return request.cookies.getAll()
-          },
-          setAll() {
-            // Middleware only reads — sets handled in route handlers
-          },
-        },
-      }
-    )
+export async function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
 
-    // getUser() reads cookies through adapter, calls Supabase /auth/v1/reveal
-    // This also handles token refresh automatically
-    const { data: { user }, error } = await supabase.auth.getUser()
-
-    if (error || !user) {
-      // No valid server session — redirect to login
-      const redirectUrl = new URL('/login', request.url)
-      redirectUrl.searchParams.set('redirect', pathname)
-      return NextResponse.redirect(redirectUrl)
-    }
-
-    // Server auth confirmed — pass user ID to route
-    response.headers.set('x-user-id', user.id)
+  // Only protect defined paths
+  if (!isProtected(pathname)) {
+    return NextResponse.next();
   }
 
-  // ──────────────────────────────────────────────
-  // 2. Redirect authenticated users away from auth pages
-  // ──────────────────────────────────────────────
-  const isAuthPath = AUTH_PATHS.some(p => pathname.startsWith(p))
-  if (isAuthPath && !pathname.includes('/api/')) {
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() {
-            return request.cookies.getAll()
-          },
-          setAll() {},
-        },
+  // Check for existing valid porterful_session
+  const session = await getPorterfulSession();
+
+  if (session) {
+    // Valid session — inject headers for downstream use and continue
+    const response = NextResponse.next();
+    response.headers.set('x-pf-email', session.email);
+    response.headers.set('x-pf-profile-id', session.profileId);
+    response.headers.set('x-pf-lk-id', session.lkId);
+    return response;
+  }
+
+  // No session — attempt bridge (maybe likeness_session exists but porterful_session not set)
+  if (req.cookies.get('likeness_session')) {
+    // Try to bridge via internal API call (bridge sets porterful_session cookie)
+    const bridgeUrl = new URL(BRIDGE_API, req.nextUrl.origin).toString();
+    try {
+      const likenSession = req.cookies.get('likeness_session')?.value || '';
+      const bridgeRes = await fetch(bridgeUrl, {
+        method: 'POST',
+        headers: { 'cookie': `likeness_session=${likenSession}` },
+      });
+
+      if (bridgeRes.ok) {
+        // Bridge succeeded — read Set-Cookie headers and forward them
+        const setCookieHeaders = bridgeRes.headers.getAll('set-cookie');
+        const response = NextResponse.next();
+        setCookieHeaders.forEach(cookie => {
+          response.headers.append('set-cookie', cookie);
+        });
+        response.headers.set('x-pf-email', (await bridgeRes.json()).email || '');
+        return response;
       }
-    )
-
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (user) {
-      // Already has server-valid session — send to dashboard
-      return NextResponse.redirect(new URL('/dashboard/dashboard', request.url))
+    } catch {
+      // Bridge failed — fall through to redirect
     }
   }
 
-  // ──────────────────────────────────────────────
-  // 3. Referral param capture
-  // ──────────────────────────────────────────────
-  const refParam = request.nextUrl.searchParams.get('ref')
-  if (refParam) {
-    const refCode = refParam.trim().toUpperCase()
-    response.cookies.set('porterful_referral', refCode, { httpOnly: true, sameSite: 'lax', maxAge: 60 * 60 * 24 * 30, path: '/' })
-    response.cookies.set('porterful_referral_client', refCode, { httpOnly: false, sameSite: 'lax', maxAge: 60 * 60 * 24 * 30, path: '/' })
-    const url = request.nextUrl.clone()
-    url.searchParams.delete('ref')
-    return NextResponse.redirect(url)
-  }
-
-  // ──────────────────────────────────────────────
-  // 4. Redirect /marketplace to /store
-  // ──────────────────────────────────────────────
-  if (pathname === '/marketplace') {
-    return NextResponse.redirect(new URL('/store', request.url))
-  }
-
-  return response
+  // Still no session — redirect to LikenessVerified login with return URL
+  const returnUrl = extractReturnUrl(req);
+  const loginUrl = new URL(LIKENESS_LOGIN_URL);
+  loginUrl.searchParams.set('return', returnUrl);
+  return NextResponse.redirect(loginUrl.toString());
 }
 
 export const config = {
   matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico|maintenance|.*\\..*).*)',
+    '/((?!_next/static|_next/image|favicon|api/products|api/stripe|fonts|images|.*\\.(?:svg|png|jpg|gif|webp|ico|css|js)).*)',
   ],
-}
+};

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import { Providers } from '@/app/providers'
 import { GlobalPlayer } from '@/components/GlobalPlayer'
+import { getServerUser } from '@/lib/supabase-auth'
 
 export const metadata: Metadata = {
   title: 'Porterful',
@@ -16,7 +17,9 @@ export const viewport: Viewport = {
   themeColor: '#000000',
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const initialUser = await getServerUser()
+
   return (
     <html lang="en" className="dark" suppressHydrationWarning style={{ background: '#0a0a0a' }}>
       <head>
@@ -24,7 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="icon" type="image/svg+xml" href="/icon.svg?v=2" />
       </head>
       <body suppressHydrationWarning style={{ margin: 0, padding: 0, background: 'var(--pf-bg)', overflow: 'visible' }}>
-        <Providers>
+        <Providers initialUser={initialUser}>
           {children}
           <GlobalPlayer />
         </Providers>

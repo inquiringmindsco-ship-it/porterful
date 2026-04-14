@@ -5,8 +5,8 @@ import Link from 'next/link'
 import { useSupabase } from '@/app/providers'
 import { useWallet } from '@/lib/wallet-context'
 import {
-  Package, Users, DollarSign, TrendingUp, Plus, Settings,
-  Store, Music, BarChart3, Upload, ChevronRight, Gift, Heart, ShieldCheck
+  Package, Users, DollarSign, Plus, Settings,
+  Store, Music, BarChart3, Upload, ChevronRight, ShieldCheck
 } from 'lucide-react'
 
 interface DashboardStats {
@@ -32,37 +32,42 @@ const EMPTY_STATS: DashboardStats = {
 }
 
 interface DashboardClientProps {
-  serverUserId: string
+  serverProfileId: string
+  lkId: string
 }
 
-export default function DashboardClient({ serverUserId }: DashboardClientProps) {
-  const { user, supabase, loading: authLoading } = useSupabase()
+export default function DashboardClient({ serverProfileId, lkId }: DashboardClientProps) {
+  // Use serverProfileId as the auth source of truth — validated via Likeness™ session bridge
+  // serverProfileId = Porterful profile ID, lkId = Likeness™ identity ID
+  const { supabase } = useSupabase()
   const { balance } = useWallet()
 
-  // Stable mount guard — prevents hydration mismatch
   const [mounted, setMounted] = useState(false)
-  useEffect(() => { setMounted(true) }, [])
-
   const [dataLoading, setDataLoading] = useState(true)
   const [stats, setStats] = useState<DashboardStats>(EMPTY_STATS)
   const [profile, setProfile] = useState<any>(null)
   const [activeTab, setActiveTab] = useState<'overview' | 'products' | 'orders' | 'analytics'>('overview')
 
-  // Load dashboard data using the server-confirmed user ID
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // Load dashboard data using the server-confirmed profile ID
+  // serverProfileId is guaranteed valid — server component validated Likeness™ session
   useEffect(() => {
     if (!mounted) return
-    if (!serverUserId) return
+    if (!serverProfileId) return
     loadDashboard()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mounted, serverUserId, supabase])
+  }, [mounted, serverProfileId, supabase])
 
   async function loadDashboard() {
-    if (!supabase || !serverUserId) return
+    if (!supabase || !serverProfileId) return
     try {
       const { data: profileData } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', serverUserId)
+        .eq('id', serverProfileId)
         .single()
       setProfile(profileData)
 
@@ -81,7 +86,7 @@ export default function DashboardClient({ serverUserId }: DashboardClientProps) 
         const { count: productsCount } = await supabase
           .from('products')
           .select('*', { count: 'exact', head: true })
-          .eq('seller_id', serverUserId)
+          .eq('seller_id', serverProfileId)
 
         const totalOrders = ordersData?.length || 0
         const totalSales = ordersData?.reduce((sum: number, o: any) => sum + (o.total || 0), 0) || 0
@@ -102,7 +107,8 @@ export default function DashboardClient({ serverUserId }: DashboardClientProps) 
     }
   }
 
-  // Server auth already confirmed user is logged in — wait for mount only
+  // Wait for mount only — serverUserId means auth is already confirmed
+  // Never redirect based on client-side user state
   if (!mounted || dataLoading) {
     return (
       <div className="min-h-screen pt-24 pb-12">
@@ -116,6 +122,7 @@ export default function DashboardClient({ serverUserId }: DashboardClientProps) 
     )
   }
 
+  // serverUserId is the source of truth — profile may still be loading
   const isArtist = profile?.role === 'artist'
   const isSupporter = profile?.role === 'supporter' || profile?.role === 'superfan'
 
@@ -128,10 +135,9 @@ export default function DashboardClient({ serverUserId }: DashboardClientProps) 
           <div className="flex items-center justify-between mb-8">
             <div>
               <h1 className="text-3xl font-bold mb-2">
-                {profile?.full_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'My'} Dashboard
+                {profile?.full_name || 'My'} Dashboard
               </h1>
               <p className="text-[var(--pf-text-secondary)] flex items-center gap-2">
-                <span>{user?.email}</span>
                 <span className="text-xs px-2 py-0.5 rounded-full bg-[var(--pf-orange)]/20 text-[var(--pf-orange)] border border-[var(--pf-orange)]/30">
                   {profile?.role || 'member'}
                 </span>
@@ -200,7 +206,7 @@ export default function DashboardClient({ serverUserId }: DashboardClientProps) 
     profile?.city,
     profile?.instagram_url || profile?.youtube_url || profile?.twitter_url || profile?.tiktok_url,
   ].filter(Boolean)
-  const completionPct = Math.round((profileFields.length / 7) * 100)
+  const completionPct = profile ? Math.round((profileFields.length / 7) * 100) : 0
 
   const nextAction = !profile?.bio ? 'Add your bio — it helps fans find you' :
                      !profile?.avatar_url ? 'Add a profile photo — builds trust' :
@@ -216,10 +222,9 @@ export default function DashboardClient({ serverUserId }: DashboardClientProps) 
           <div className="flex items-center justify-between mb-3">
             <div>
               <h1 className="text-3xl font-bold mb-1">
-                {profile?.full_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Creator'} Dashboard
+                {profile?.full_name || 'Creator'} Dashboard
               </h1>
               <p className="text-[var(--pf-text-secondary)] flex items-center gap-2 flex-wrap">
-                <span>{user?.email}</span>
                 <span className="text-xs px-2 py-0.5 rounded-full bg-[var(--pf-orange)]/20 text-[var(--pf-orange)] border border-[var(--pf-orange)]/30">
                   {profile?.role || 'artist'}
                 </span>
@@ -240,14 +245,16 @@ export default function DashboardClient({ serverUserId }: DashboardClientProps) 
               </Link>
             </div>
           </div>
-          <div className="w-full h-2 bg-[var(--pf-surface)] rounded-full overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-[var(--pf-orange)] to-purple-500 transition-all duration-500"
-              style={{ width: `${completionPct}%` }}
-            />
-          </div>
+          {profile && (
+            <div className="w-full h-2 bg-[var(--pf-surface)] rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-[var(--pf-orange)] to-purple-500 transition-all duration-500"
+                style={{ width: `${completionPct}%` }}
+              />
+            </div>
+          )}
           <div className="flex items-center gap-2 mt-2">
-            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+            <div className="w-2 h-2 rounded-full bg-green-500" />
             <p className="text-xs text-[var(--pf-text-muted)]">
               {profile?.artist_slug ? 'Your public artist page is live.' : 'Complete your artist page before you promote it.'}
             </p>
@@ -261,7 +268,7 @@ export default function DashboardClient({ serverUserId }: DashboardClientProps) 
               <ShieldCheck size={24} className="text-[var(--pf-orange)] shrink-0" />
               <div>
                 <p className="font-semibold text-sm">Verify your Likeness to unlock payouts</p>
-                <p className="text-xs text-[var(--pf-text-muted)]">Required to sell products or receive earnings on Porterful.</p>
+                <p className="text-xs text-[var(--var(--pf-text-muted))]">Required to sell products or receive earnings on Porterful.</p>
               </div>
             </div>
             <Link href="/dashboard/dashboard/likeness" className="px-4 py-2 bg-[var(--pf-orange)] text-white text-sm font-semibold rounded-xl hover:bg-[var(--pf-orange-dark)] transition-colors shrink-0">
@@ -273,24 +280,20 @@ export default function DashboardClient({ serverUserId }: DashboardClientProps) 
         {/* Share Your Page Prompt */}
         {profile?.artist_slug && (
           <div className="mb-8 p-6 bg-gradient-to-r from-[var(--pf-orange)]/10 to-purple-500/10 rounded-2xl border border-[var(--pf-orange)]/30">
-            <div className="flex flex-col md:flex-row md:items-center gap-4">
-              <div className="flex-1">
-                <h3 className="text-lg font-bold mb-1">🎤 Share Your Artist Page</h3>
-                <p className="text-[var(--pf-text-secondary)] text-sm mb-3">
-                  Your profile is live! Share it with fans so they can support you directly.
-                </p>
-                <div className="flex items-center gap-2">
-                  <code className="flex-1 px-3 py-2 bg-[var(--pf-bg)] rounded-lg border border-[var(--pf-border)] text-sm font-mono">
-                    porterful.com/artist/{profile.artist_slug}
-                  </code>
-                  <button
-                    onClick={() => navigator.clipboard.writeText(`https://porterful.com/artist/${profile.artist_slug}`)}
-                    className="pf-btn pf-btn-secondary text-sm"
-                  >
-                    Copy
-                  </button>
-                </div>
-              </div>
+            <h3 className="text-lg font-bold mb-1">🎤 Share Your Artist Page</h3>
+            <p className="text-[var(--pf-text-secondary)] text-sm mb-3">
+              Your profile is live! Share it with fans so they can support you directly.
+            </p>
+            <div className="flex items-center gap-2">
+              <code className="flex-1 px-3 py-2 bg-[var(--pf-bg)] rounded-lg border border-[var(--pf-border)] text-sm font-mono">
+                porterful.com/artist/{profile.artist_slug}
+              </code>
+              <button
+                onClick={() => navigator.clipboard.writeText(`https://porterful.com/artist/${profile.artist_slug}`)}
+                className="pf-btn pf-btn-secondary text-sm"
+              >
+                Copy
+              </button>
             </div>
           </div>
         )}
@@ -354,7 +357,7 @@ export default function DashboardClient({ serverUserId }: DashboardClientProps) 
               <div className="flex-1">
                 <h3 className="font-bold text-base mb-1">Your network starts here</h3>
                 <p className="text-sm text-[var(--pf-text-secondary)] mb-3">
-                  Share your link — every person who joins and buys earns you 3%. You're early, so build your position now.
+                  Share your link — every person who joins and buys earns you 3%. You&apos;re early, so build your position now.
                 </p>
                 <div className="flex gap-3 flex-wrap">
                   <Link href="/dashboard/dashboard/artist" className="px-4 py-2 bg-[var(--pf-orange)] text-white text-sm font-semibold rounded-lg hover:bg-[var(--pf-orange-dark)] transition-colors">
@@ -426,30 +429,29 @@ export default function DashboardClient({ serverUserId }: DashboardClientProps) 
         {activeTab === 'overview' && (
           <div className="grid lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2">
-            <div className="pf-card">
-              <div className="flex items-center justify-between p-4 border-b border-[var(--pf-border)]">
-                <h2 className="font-semibold">Recent Orders</h2>
-                <Link href="/dashboard/dashboard/orders" className="text-sm text-[var(--pf-orange)] hover:underline">
-                  View All
-                </Link>
+              <div className="pf-card">
+                <div className="flex items-center justify-between p-4 border-b border-[var(--pf-border)]">
+                  <h2 className="font-semibold">Recent Orders</h2>
+                  <Link href="/dashboard/dashboard/orders" className="text-sm text-[var(--pf-orange)] hover:underline">
+                    View All
+                  </Link>
+                </div>
+                <div className="divide-y divide-[var(--pf-border)]">
+                  {stats.total_orders === 0 ? (
+                    <div className="p-8 text-center text-[var(--pf-text-muted)]">
+                      <Package size={32} className="mx-auto mb-2 opacity-50" />
+                      <p>No orders yet</p>
+                      <p className="text-sm mt-1">Share your link to start earning</p>
+                    </div>
+                  ) : (
+                    <div className="p-4 text-sm text-[var(--pf-text-muted)]">Orders will appear here</div>
+                  )}
+                </div>
               </div>
-              <div className="divide-y divide-[var(--pf-border)]">
-                {stats.total_orders === 0 ? (
-                  <div className="p-8 text-center text-[var(--pf-text-muted)]">
-                    <Package size={32} className="mx-auto mb-2 opacity-50" />
-                    <p>No orders yet</p>
-                    <p className="text-sm mt-1">Share your link to start earning</p>
-                  </div>
-                ) : (
-                  <div className="p-4 text-sm text-[var(--pf-text-muted)]">Orders will appear here</div>
-                )}
-              </div>
-            </div>
             </div>
 
             {/* Sidebar */}
             <div className="space-y-4">
-              {/* Quick Actions */}
               <div className="pf-card p-4">
                 <h3 className="font-semibold mb-3 text-sm">Quick Actions</h3>
                 <div className="space-y-2">
@@ -472,7 +474,6 @@ export default function DashboardClient({ serverUserId }: DashboardClientProps) 
                 </div>
               </div>
 
-              {/* Referral Stats */}
               <div className="pf-card p-4">
                 <h3 className="font-semibold mb-3 text-sm">Your Network</h3>
                 <div className="space-y-3">
@@ -480,7 +481,7 @@ export default function DashboardClient({ serverUserId }: DashboardClientProps) 
                     <span className="text-[var(--pf-text-muted)]">Referral link</span>
                     <button
                       onClick={() => {
-                        const link = `${typeof window !== 'undefined' ? window.location.origin : ''}/?ref=${profile?.referral_code || ''}`
+                        const link = `${window.location.origin}/?ref=${profile?.referral_code || ''}`
                         navigator.clipboard.writeText(link)
                       }}
                       className="text-[var(--pf-orange)] hover:underline text-xs"
