@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createRouteHandlerSupabaseClient } from '@/lib/supabase-auth'
+import { createServerClient } from '@supabase/ssr'
+import type { CookieOptions } from '@supabase/ssr'
 
 export const dynamic = 'force-dynamic'
 
@@ -10,7 +11,6 @@ export async function GET(request: NextRequest) {
   const errorParam = searchParams.get('error')
   const origin = request.nextUrl.origin
 
-  // Sanitize redirect — only allow safe paths
   const safeNext = next?.startsWith('/') && !next.startsWith('//') ? next : '/dashboard'
 
   if (errorParam) {
@@ -20,13 +20,25 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL('/login?error=no_code', origin))
   }
 
-  // Build redirect response — will carry session cookies to browser on success
   const response = NextResponse.redirect(new URL(safeNext, origin), 307)
 
-  // Pass request cookies (getAll) and response (setAll) so createServerClient can:
-  // - Read code_verifier from incoming request cookies
-  // - Write session cookies (access_token, refresh_token) to response on SIGNED_IN
-  const supabase = createRouteHandlerSupabaseClient(request.cookies, response)
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll()
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            response.cookies.set(name, value, options as CookieOptions)
+          })
+        },
+      },
+    }
+  )
+
   const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 
   if (error || !data.session) {

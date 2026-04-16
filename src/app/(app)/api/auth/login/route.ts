@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createRouteHandlerSupabaseClient } from '@/lib/supabase-auth'
+import { createServerClient } from '@supabase/ssr'
+import type { CookieOptions } from '@supabase/ssr'
 
 export const dynamic = 'force-dynamic'
 
@@ -11,13 +12,27 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Email and password required' }, { status: 400 })
     }
 
-    // Build response — success redirect to /dashboard
-    const response = NextResponse.redirect(new URL('/dashboard', request.nextUrl.origin), 307)
+    // Build redirect response
+    const origin = request.nextUrl.origin
+    const response = NextResponse.redirect(new URL('/dashboard', origin), 307)
 
-    // Pass request cookies (mutable, for reading) and response (for setting session cookies).
-    // createRouteHandlerSupabaseClient reads existing cookies from request.cookies
-    // and writes new session cookies (access_token, refresh_token) to response.cookies.
-    const supabase = createRouteHandlerSupabaseClient(request.cookies, response)
+    // Create Supabase client with cookie storage that writes to response
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return request.cookies.getAll()
+          },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              response.cookies.set(name, value, options as CookieOptions)
+            })
+          },
+        },
+      }
+    )
 
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
@@ -28,8 +43,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: error?.message || 'Login failed' }, { status: 401 })
     }
 
-    // Session cookies are now on the response object.
-    // The 307 redirect will carry them to the browser.
+    // Session cookies are now on the response object via setAll callback
     return response
   } catch (err: any) {
     console.error('Login error:', err)
