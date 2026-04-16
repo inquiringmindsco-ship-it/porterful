@@ -1,8 +1,9 @@
-import { NextResponse } from 'next/server'
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
+import { NextRequest, NextResponse } from 'next/server'
+import { createRouteHandlerSupabaseClient } from '@/lib/supabase-auth'
 
-export async function POST(request: Request) {
+export const dynamic = 'force-dynamic'
+
+export async function POST(request: NextRequest) {
   try {
     const { email, password } = await request.json()
 
@@ -10,56 +11,26 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Email and password required' }, { status: 400 })
     }
 
-    const cookieStore = await cookies()
+    // Build response — success redirect to /dashboard
+    const response = NextResponse.redirect(new URL('/dashboard', request.nextUrl.origin), 307)
 
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() {
-            return cookieStore.getAll()
-          },
-          setAll(cookiesToSet) {
-            try {
-              cookiesToSet.forEach(({ name, value, options }) =>
-                cookieStore.set(name, value, options)
-              )
-            } catch {
-              // Ignore server component calls
-            }
-          },
-        },
-      }
-    )
+    // Pass request cookies (mutable, for reading) and response (for setting session cookies).
+    // createRouteHandlerSupabaseClient reads existing cookies from request.cookies
+    // and writes new session cookies (access_token, refresh_token) to response.cookies.
+    const supabase = createRouteHandlerSupabaseClient(request.cookies, response)
 
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 401 })
+    if (error || !data.session) {
+      return NextResponse.json({ error: error?.message || 'Login failed' }, { status: 401 })
     }
 
-    if (!data.user) {
-      return NextResponse.json({ error: 'Login failed' }, { status: 401 })
-    }
-
-    // Get user profile to check role
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', data.user.id)
-      .single()
-
-    // Set HttpOnly session cookie for server-side auth (middleware, API guards)
-    // Note: Supabase SSR client already sets these via setAll callback above
-    return NextResponse.json({
-      success: true,
-      user: data.user,
-      role: profile?.role || 'supporter',
-    })
+    // Session cookies are now on the response object.
+    // The 307 redirect will carry them to the browser.
+    return response
   } catch (err: any) {
     console.error('Login error:', err)
     return NextResponse.json({ error: err.message || 'Login failed' }, { status: 500 })
