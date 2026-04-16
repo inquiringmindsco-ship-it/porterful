@@ -1,62 +1,67 @@
-import { NextRequest, NextResponse } from 'next/server';
-import crypto from 'crypto';
+import { NextRequest, NextResponse } from 'next/server'
+import { createServerClient } from '@/lib/supabase'
+import crypto from 'crypto'
 
-const OFFER_SECRET = process.env.OFFER_SECRET || process.env.INTERNAL_API_KEY || 'likeness_offer_secret_2026';
+const OFFER_SECRET = process.env.OFFER_SECRET || process.env.INTERNAL_API_KEY || 'likeness_offer_secret_2026'
 
 function verifyOffer(token: string): { valid: true; data: any } | { valid: false; error: string } {
   try {
-    const [tokenPart, sigPart] = token.split('.');
-    if (!tokenPart || !sigPart) return { valid: false, error: 'Malformed token' };
-    const data = JSON.parse(Buffer.from(tokenPart, 'base64url').toString('utf8'));
-    const sig = crypto.createHmac('sha256', OFFER_SECRET).update(JSON.stringify(data)).digest('base64url');
-    if (sigPart !== sig) return { valid: false, error: 'Invalid signature' };
-    if (data.exp && data.exp < Math.floor(Date.now() / 1000)) return { valid: false, error: 'Expired' };
-    return { valid: true, data };
+    const [tokenPart, sigPart] = token.split('.')
+    if (!tokenPart || !sigPart) return { valid: false, error: 'Malformed token' }
+    const data = JSON.parse(Buffer.from(tokenPart, 'base64url').toString('utf8'))
+    const sig = crypto.createHmac('sha256', OFFER_SECRET).update(JSON.stringify(data)).digest('base64url')
+    if (sigPart !== sig) return { valid: false, error: 'Invalid signature' }
+    if (data.exp && data.exp < Math.floor(Date.now() / 1000)) return { valid: false, error: 'Expired' }
+    return { valid: true, data }
   } catch {
-    return { valid: false, error: 'Invalid token' };
+    return { valid: false, error: 'Invalid token' }
   }
 }
 
 const PRODUCT_PRICES: Record<string, number> = {
   'credit-klimb': 4900, 'nlds-membership': 2500, 'teachyoung': 1900, 'family-os': 3900,
-};
+}
 const PRODUCT_NAMES: Record<string, string> = {
   'credit-klimb': 'Credit Klimb', 'nlds-membership': 'NLDS Deal Access',
   'teachyoung': 'TeachYoung', 'family-os': 'Family Legacy OS',
-};
+}
 
 export async function POST(req: NextRequest) {
-  const { offerId, productId, token } = await req.json();
+  const { offerId, productId, token } = await req.json()
 
-  // Validate offer — either token or DB lookup
-  let offer: any;
+  let offer: any
   if (token) {
-    const result = verifyOffer(token);
-    if (!result.valid) return NextResponse.json({ error: result.error }, { status: 404 });
-    offer = result.data;
+    const result = verifyOffer(token)
+    if (!result.valid) return NextResponse.json({ error: result.error }, { status: 404 })
+    offer = result.data
   } else if (offerId) {
-    return NextResponse.json({ error: 'offerId requires token' }, { status: 400 });
+    return NextResponse.json({ error: 'offerId requires token' }, { status: 400 })
   } else {
-    return NextResponse.json({ error: 'offerId or token required' }, { status: 400 });
+    return NextResponse.json({ error: 'offerId or token required' }, { status: 400 })
   }
 
-  const sessionToken = req.cookies.get('porterful_session')?.value;
-  let session: { email: string; lkId: string | null; profileId: string } = { email: '', lkId: null, profileId: '' };
-  if (sessionToken) {
-    try { session = JSON.parse(Buffer.from(sessionToken, 'base64url').toString('utf8')); } catch {}
+  // Auth via Supabase SSR session
+  const supabase = createServerClient()
+  const { data: { user }, error } = await supabase.auth.getUser()
+
+  let email = ''
+  let profileId = ''
+  if (!error && user) {
+    email = user.email || ''
+    profileId = user.id || ''
   }
 
-  const price = offer.price_cents;
-  const productName = PRODUCT_NAMES[offer.product_id] || offer.product_name || 'Product';
+  const price = offer.price_cents
+  const productName = PRODUCT_NAMES[offer.product_id] || offer.product_name || 'Product'
 
-  const stripeKey = process.env.STRIPE_SECRET_KEY;
-  if (!stripeKey) return NextResponse.json({ error: 'Stripe not configured' }, { status: 500 });
+  const stripeKey = process.env.STRIPE_SECRET_KEY
+  if (!stripeKey) return NextResponse.json({ error: 'Stripe not configured' }, { status: 500 })
 
-  const Stripe = (await import('stripe')).default;
-  const stripe = new Stripe(stripeKey);
+  const Stripe = (await import('stripe')).default
+  const stripe = new Stripe(stripeKey)
 
-  const successUrl = `${req.nextUrl.origin}/offer/${offer.offer_id}/success?token=${token}`;
-  const cancelUrl = `${req.nextUrl.origin}/offer/${offer.offer_id}?token=${token}`;
+  const successUrl = `${req.nextUrl.origin}/offer/${offer.offer_id}/success?token=${token}`
+  const cancelUrl = `${req.nextUrl.origin}/offer/${offer.offer_id}?token=${token}`
 
   const stripeSession = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
@@ -75,13 +80,13 @@ export async function POST(req: NextRequest) {
       offer_id: offer.offer_id,
       lk_id: offer.lk_id,
       username: offer.username,
-      user_id: session.profileId || '',
-      email: session.email || '',
+      user_id: profileId,
+      email: email,
       product_id: offer.product_id,
       source: 'likeness',
       commission_cents: Math.round(price * 0.03),
     },
-  });
+  })
 
-  return NextResponse.json({ url: stripeSession.url, sessionId: stripeSession.id });
+  return NextResponse.json({ url: stripeSession.url, sessionId: stripeSession.id })
 }

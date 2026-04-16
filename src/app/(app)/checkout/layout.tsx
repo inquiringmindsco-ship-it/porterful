@@ -6,6 +6,8 @@ export const metadata: Metadata = {
   robots: 'noindex',
 }
 
+// This layout must pass children through so the parent (app)/layout.tsx
+// can wrap them with Navbar + Footer + GlobalPlayer
 export default function CheckoutLayout({
   children,
 }: {

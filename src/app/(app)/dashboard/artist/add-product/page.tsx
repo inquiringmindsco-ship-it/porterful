@@ -156,7 +156,7 @@ export default function AddProductPage() {
       }
 
       setSuccess(true)
-      setTimeout(() => router.push('/dashboard/dashboard/artist'), 1500)
+      setTimeout(() => router.push('/dashboard/artist'), 1500)
     } catch (err) {
       console.error('Submit error:', err)
       setError('Something went wrong. Try again.')
@@ -185,7 +185,7 @@ export default function AddProductPage() {
 
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
-          <Link href="/dashboard/dashboard/artist" className="p-2 rounded-lg hover:bg-[var(--pf-surface)] transition-colors">
+          <Link href="/dashboard/artist" className="p-2 rounded-lg hover:bg-[var(--pf-surface)] transition-colors">
             <ArrowLeft size={20} />
           </Link>
           <div>

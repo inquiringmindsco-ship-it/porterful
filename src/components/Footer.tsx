@@ -71,7 +71,7 @@ export function Footer() {
           <div>
             <h3 className="font-semibold mb-4 text-[var(--pf-text)]">Platform</h3>
             <ul className="space-y-2">
-              <li><Link href="/shop" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">Marketplace</Link></li>
+              <li><Link href="/store" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">Marketplace</Link></li>
               <li><Link href="/music" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">Music</Link></li>
               <li><Link href="/radio" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">Radio</Link></li>
               <li><Link href="/playlists" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">Playlists</Link></li>
@@ -95,10 +95,10 @@ export function Footer() {
           <div>
             <h3 className="font-semibold mb-4 text-[var(--pf-text)]">Sell</h3>
             <ul className="space-y-2">
-              <li><Link href="/dashboard/dashboard/upload" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">Upload Music</Link></li>
-              <li><Link href="/dashboard/dashboard/add-product" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">Add Merch</Link></li>
+              <li><Link href="/dashboard/upload" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">Upload Music</Link></li>
+              <li><Link href="/dashboard/add-product" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">Add Merch</Link></li>
               <li><Link href="/signup?role=artist" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">Become an Artist</Link></li>
-              <li><Link href="/dashboard/dashboard/artist" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">Artist Dashboard</Link></li>
+              <li><Link href="/dashboard/artist" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">Artist Dashboard</Link></li>
             </ul>
           </div>
 

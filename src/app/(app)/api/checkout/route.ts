@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createServerClient } from '@/lib/supabase'
 
 // Dynamic Stripe import
 async function getStripe() {
@@ -69,31 +70,36 @@ export async function POST(request: NextRequest) {
       quantity: item.quantity || 1,
     }))
 
-    // Get Likeness™ identity from session (set by middleware or direct cookie)
-    const sessionToken = request.cookies.get('porterful_session')?.value;
-    let profileId: string | null = null;
-    let lkId: string | null = null;
-    let sessionEmail: string | null = null;
+    // Get Supabase session from SSR cookie
+    const supabase = createServerClient()
+    const { data: { session: sbSession }, error: sbError } = await supabase.auth.getSession()
 
-    if (sessionToken) {
-      try {
-        const sessionData = JSON.parse(Buffer.from(sessionToken, 'base64url').toString('utf8'));
-        profileId = sessionData.profileId || null;
-        lkId = sessionData.lkId || null;
-        sessionEmail = sessionData.email || null;
-      } catch {}
+    let profileId: string | null = null
+    let lkId: string | null = null
+    let sessionEmail: string | null = null
+
+    if (!sbError && sbSession?.user) {
+      profileId = sbSession.user.id
+      sessionEmail = sbSession.user.email || null
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('lk_id')
+        .eq('id', profileId)
+        .limit(1)
+        .maybeSingle()
+      lkId = (profile as any)?.lk_id || null
     }
 
     // Fallback to middleware-set headers (injected when same-server)
-    profileId = profileId || request.headers.get('x-pf-profile-id') || null;
-    lkId = lkId || request.headers.get('x-pf-lk-id') || null;
-    sessionEmail = sessionEmail || request.headers.get('x-pf-email') || null;
+    profileId = profileId || request.headers.get('x-pf-profile-id') || null
+    lkId = lkId || request.headers.get('x-pf-lk-id') || null
+    sessionEmail = sessionEmail || request.headers.get('x-pf-email') || null
 
     const sessionParams: any = {
       payment_method_types: ['card'],
       line_items: lineItems,
       mode: 'payment',
-      success_url: 'https://porterful.com/checkout/checkout/success?session_id={CHECKOUT_SESSION_ID}',
+      success_url: 'https://porterful.com/checkout/success?session_id={CHECKOUT_SESSION_ID}',
       cancel_url: 'https://porterful.com/',
       metadata: {
         // Attribution — ties payment to Likeness™ identity

@@ -53,7 +53,7 @@ export async function GET(req: NextRequest) {
 
   // Handle error from LikenessVerified
   if (error) {
-    return NextResponse.redirect(new URL('/login/login?error=likeness_denied', req.nextUrl.origin));
+    return NextResponse.redirect(new URL('/login?error=likeness_denied', req.nextUrl.origin));
   }
 
   // If we have a bridge token, verify it locally (no cross-origin fetch needed)
@@ -81,9 +81,9 @@ async function bridgeToPorterful(req: NextRequest) {
   try {
     const likenSession = req.cookies.get('likeness_session')?.value;
     if (!likenSession) {
-      // No likeness_session — redirect to LikenessVerified login
-      const returnUrl = encodeURIComponent(`${req.nextUrl.origin}/api/auth/porterful-bridge`);
-      return NextResponse.redirect(`${LIKENESS_BASE}/login?return=${returnUrl}`);
+      // Missing session — redirect to Porterful's own login page
+  // Do NOT send to LikenessVerified — this is a Porterful-native auth gap
+  return NextResponse.redirect(new URL('/login?error=session_required', req.nextUrl.origin));
     }
 
     // Validate likeness_session via LikenessVerified internal endpoint
@@ -98,20 +98,20 @@ async function bridgeToPorterful(req: NextRequest) {
     });
 
     if (!likenRes.ok) {
-      const returnUrl = encodeURIComponent(`${req.nextUrl.origin}/api/auth/porterful-bridge`);
-      return NextResponse.redirect(`${LIKENESS_BASE}/login?return=${returnUrl}`);
+      // Bridge validation failed — redirect to Porterful's own login, not Likeness
+      return NextResponse.redirect(new URL('/login?error=bridge_validate_failed', req.nextUrl.origin));
     }
 
     const likenData = await likenRes.json();
     if (!likenData.valid) {
-      const returnUrl = encodeURIComponent(`${req.nextUrl.origin}/api/auth/porterful-bridge`);
-      return NextResponse.redirect(`${LIKENESS_BASE}/login?return=${returnUrl}`);
+      // Bridge validation invalid — redirect to Porterful's own login, not Likeness
+      return NextResponse.redirect(new URL('/login?error=bridge_invalid', req.nextUrl.origin));
     }
 
     return completeBridge(req, likenData.email, likenData.lkId, likenData.referralCode || null);
   } catch (e: any) {
     console.error('[porterful-bridge] Error:', e);
-    return NextResponse.redirect(new URL('/login/login?error=bridge_failed', req.nextUrl.origin));
+    return NextResponse.redirect(new URL('/login?error=bridge_failed', req.nextUrl.origin));
   }
 }
 
@@ -125,7 +125,7 @@ async function completeBridge(
   try {
     const supabase = createServerClient();
     if (!supabase) {
-      return NextResponse.redirect(new URL('/login/login?error=server_error', req.nextUrl.origin));
+      return NextResponse.redirect(new URL('/login?error=server_error', req.nextUrl.origin));
     }
     const { data: existingProfile } = await supabase
       .from('profiles')
@@ -156,7 +156,7 @@ async function completeBridge(
 
       if (createErr || !newProfile) {
         console.error('[porterful-bridge] Profile creation failed:', createErr);
-        return NextResponse.redirect(new URL('/login/login?error=profile_create_failed', req.nextUrl.origin));
+        return NextResponse.redirect(new URL('/login?error=profile_create_failed', req.nextUrl.origin));
       }
       profileId = newProfile.id;
     }
@@ -179,7 +179,10 @@ async function completeBridge(
       }
     }
 
-    // Create Porterful session token
+    // Create Porterful session token (legacy — used for Likeness bridge only)
+    // NOTE: porterful_session is no longer read by any Porterful protected route.
+    // Supabase SSR cookies are the only auth authority. Bridge users will have
+    // a porterful_session set but must rely on Supabase session for Porterful access.
     const sessionToken = Buffer.from(JSON.stringify({
       email: email.toLowerCase(),
       profileId,
@@ -187,6 +190,9 @@ async function completeBridge(
       iat: Date.now(),
     })).toString('base64url');
 
+    // Redirect to Porterful's own dashboard — NOT LikenessVerified
+    // Supabase SSR session cookies (set by signInWithOtp/Password in normal flow)
+    // are what /dashboard actually reads after Phase 2 auth fix.
     const response = NextResponse.redirect(new URL('/dashboard', req.nextUrl.origin));
     response.cookies.set('porterful_session', sessionToken, {
       httpOnly: true,
@@ -199,6 +205,6 @@ async function completeBridge(
     return response;
   } catch (e: any) {
     console.error('[porterful-bridge] completeBridge error:', e);
-    return NextResponse.redirect(new URL('/login/login?error=bridge_failed', req.nextUrl.origin));
+    return NextResponse.redirect(new URL('/login?error=bridge_failed', req.nextUrl.origin));
   }
 }

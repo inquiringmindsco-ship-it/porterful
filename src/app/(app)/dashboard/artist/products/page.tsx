@@ -131,13 +131,13 @@ export default function ArtistProductsPage() {
           </div>
           <div className="flex gap-3">
             <Link
-              href="/dashboard/dashboard/artist"
+              href="/dashboard/artist"
               className="px-4 py-2 border border-[var(--pf-border)] rounded-lg font-medium hover:border-[var(--pf-orange)] transition-colors text-sm"
             >
               ← Back to Dashboard
             </Link>
             <Link
-              href="/dashboard/dashboard/artist/add-product"
+              href="/dashboard/artist/add-product"
               className="px-4 py-2 bg-[var(--pf-orange)] text-white rounded-lg font-medium hover:bg-[var(--pf-orange-dark)] transition-colors text-sm flex items-center gap-2"
             >
               <Plus size={16} /> Add Product
@@ -164,7 +164,7 @@ export default function ArtistProductsPage() {
               Create your first merch product and start earning. Upload artwork, set your price, connect Printful.
             </p>
             <Link
-              href="/dashboard/dashboard/artist/add-product"
+              href="/dashboard/artist/add-product"
               className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--pf-orange)] text-white rounded-xl font-medium hover:bg-[var(--pf-orange-dark)] transition-colors"
             >
               <Plus size={18} /> Add Your First Product
@@ -248,7 +248,7 @@ export default function ArtistProductsPage() {
 
                       {/* Edit */}
                       <Link
-                        href={`/dashboard/dashboard/artist/edit-product/${product.id}`}
+                        href={`/dashboard/artist/edit-product/${product.id}`}
                         className="p-2 rounded-lg hover:bg-[var(--pf-bg)] transition-colors"
                         title="Edit"
                       >

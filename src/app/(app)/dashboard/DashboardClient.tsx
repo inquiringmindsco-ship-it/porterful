@@ -143,7 +143,7 @@ export default function DashboardClient({ serverProfileId, lkId }: DashboardClie
                 </span>
               </p>
             </div>
-            <Link href="/settings/settings" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--pf-surface)] border border-[var(--pf-border)] hover:border-[var(--pf-orange)] transition-colors text-sm">
+            <Link href="/settings" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--pf-surface)] border border-[var(--pf-border)] hover:border-[var(--pf-orange)] transition-colors text-sm">
               <Settings size={16} />
               Account Settings
             </Link>
@@ -235,11 +235,11 @@ export default function DashboardClient({ serverProfileId, lkId }: DashboardClie
             </div>
             <div className="flex items-center gap-2">
               {completionPct < 100 && (
-                <Link href="/dashboard/dashboard/artist" className="px-4 py-2 bg-[var(--pf-orange)] text-white text-sm font-semibold rounded-lg hover:bg-[var(--pf-orange-dark)] transition-colors">
+                <Link href="/dashboard/artist" className="px-4 py-2 bg-[var(--pf-orange)] text-white text-sm font-semibold rounded-lg hover:bg-[var(--pf-orange-dark)] transition-colors">
                   Complete Profile →
                 </Link>
               )}
-              <Link href="/settings/settings" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--pf-surface)] border border-[var(--pf-border)] hover:border-[var(--pf-orange)] transition-colors text-sm">
+              <Link href="/settings" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--pf-surface)] border border-[var(--pf-border)] hover:border-[var(--pf-orange)] transition-colors text-sm">
                 <Settings size={16} />
                 Settings
               </Link>
@@ -271,7 +271,7 @@ export default function DashboardClient({ serverProfileId, lkId }: DashboardClie
                 <p className="text-xs text-[var(--var(--pf-text-muted))]">Required to sell products or receive earnings on Porterful.</p>
               </div>
             </div>
-            <Link href="/dashboard/dashboard/likeness" className="px-4 py-2 bg-[var(--pf-orange)] text-white text-sm font-semibold rounded-xl hover:bg-[var(--pf-orange-dark)] transition-colors shrink-0">
+            <Link href="/dashboard/likeness" className="px-4 py-2 bg-[var(--pf-orange)] text-white text-sm font-semibold rounded-xl hover:bg-[var(--pf-orange-dark)] transition-colors shrink-0">
               Verify Likeness →
             </Link>
           </div>
@@ -311,7 +311,7 @@ export default function DashboardClient({ serverProfileId, lkId }: DashboardClie
                   <p className="font-medium">Complete your profile</p>
                   <p className="text-sm text-[var(--pf-text-muted)]">Add your bio, photo, and social links</p>
                 </div>
-                <Link href="/settings/settings" className="pf-btn pf-btn-secondary text-sm">Setup</Link>
+                <Link href="/settings" className="pf-btn pf-btn-secondary text-sm">Setup</Link>
               </div>
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
@@ -321,7 +321,7 @@ export default function DashboardClient({ serverProfileId, lkId }: DashboardClie
                   <p className="font-medium">Add your music</p>
                   <p className="text-sm text-[var(--pf-text-muted)]">Your catalog is your foundation</p>
                 </div>
-                <Link href="/dashboard/dashboard/upload" className="pf-btn pf-btn-secondary text-sm">Upload</Link>
+                <Link href="/dashboard/upload" className="pf-btn pf-btn-secondary text-sm">Upload</Link>
               </div>
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
@@ -360,10 +360,10 @@ export default function DashboardClient({ serverProfileId, lkId }: DashboardClie
                   Share your link — every person who joins and buys earns you 3%. You&apos;re early, so build your position now.
                 </p>
                 <div className="flex gap-3 flex-wrap">
-                  <Link href="/dashboard/dashboard/artist" className="px-4 py-2 bg-[var(--pf-orange)] text-white text-sm font-semibold rounded-lg hover:bg-[var(--pf-orange-dark)] transition-colors">
+                  <Link href="/dashboard/artist" className="px-4 py-2 bg-[var(--pf-orange)] text-white text-sm font-semibold rounded-lg hover:bg-[var(--pf-orange-dark)] transition-colors">
                     Build Your Network
                   </Link>
-                  <Link href="/dashboard/dashboard/add-product" className="px-4 py-2 bg-[var(--pf-surface)] border border-[var(--pf-border)] text-white text-sm font-medium rounded-lg hover:border-[var(--pf-orange)] transition-colors">
+                  <Link href="/dashboard/add-product" className="px-4 py-2 bg-[var(--pf-surface)] border border-[var(--pf-border)] text-white text-sm font-medium rounded-lg hover:border-[var(--pf-orange)] transition-colors">
                     Add Your First Product
                   </Link>
                 </div>
@@ -432,7 +432,7 @@ export default function DashboardClient({ serverProfileId, lkId }: DashboardClie
               <div className="pf-card">
                 <div className="flex items-center justify-between p-4 border-b border-[var(--pf-border)]">
                   <h2 className="font-semibold">Recent Orders</h2>
-                  <Link href="/dashboard/dashboard/orders" className="text-sm text-[var(--pf-orange)] hover:underline">
+                  <Link href="/dashboard/orders" className="text-sm text-[var(--pf-orange)] hover:underline">
                     View All
                   </Link>
                 </div>
@@ -455,19 +455,19 @@ export default function DashboardClient({ serverProfileId, lkId }: DashboardClie
               <div className="pf-card p-4">
                 <h3 className="font-semibold mb-3 text-sm">Quick Actions</h3>
                 <div className="space-y-2">
-                  <Link href="/dashboard/dashboard/upload" className="flex items-center gap-2 text-sm py-2 hover:text-[var(--pf-orange)] transition-colors">
+                  <Link href="/dashboard/upload" className="flex items-center gap-2 text-sm py-2 hover:text-[var(--pf-orange)] transition-colors">
                     <Upload size={14} />
                     Upload Music
                   </Link>
-                  <Link href="/dashboard/dashboard/add-product" className="flex items-center gap-2 text-sm py-2 hover:text-[var(--pf-orange)] transition-colors">
+                  <Link href="/dashboard/add-product" className="flex items-center gap-2 text-sm py-2 hover:text-[var(--pf-orange)] transition-colors">
                     <Plus size={14} />
                     Add Product
                   </Link>
-                  <Link href="/dashboard/dashboard/artist" className="flex items-center gap-2 text-sm py-2 hover:text-[var(--pf-orange)] transition-colors">
+                  <Link href="/dashboard/artist" className="flex items-center gap-2 text-sm py-2 hover:text-[var(--pf-orange)] transition-colors">
                     <Store size={14} />
                     Edit Store
                   </Link>
-                  <Link href="/dashboard/dashboard/earnings" className="flex items-center gap-2 text-sm py-2 hover:text-[var(--pf-orange)] transition-colors">
+                  <Link href="/dashboard/earnings" className="flex items-center gap-2 text-sm py-2 hover:text-[var(--pf-orange)] transition-colors">
                     <DollarSign size={14} />
                     View Earnings
                   </Link>
@@ -503,7 +503,7 @@ export default function DashboardClient({ serverProfileId, lkId }: DashboardClie
           <div>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold">My Products</h2>
-              <Link href="/dashboard/dashboard/add-product" className="pf-btn pf-btn-primary text-sm">
+              <Link href="/dashboard/add-product" className="pf-btn pf-btn-primary text-sm">
                 <Plus size={16} className="inline mr-1" />
                 Add Product
               </Link>
@@ -512,7 +512,7 @@ export default function DashboardClient({ serverProfileId, lkId }: DashboardClie
               <div className="pf-card p-12 text-center">
                 <Store size={48} className="mx-auto mb-4 text-[var(--pf-text-muted)]" />
                 <p className="text-[var(--pf-text-secondary)] mb-4">No products yet</p>
-                <Link href="/dashboard/dashboard/add-product" className="pf-btn pf-btn-primary">
+                <Link href="/dashboard/add-product" className="pf-btn pf-btn-primary">
                   Add Your First Product
                 </Link>
               </div>

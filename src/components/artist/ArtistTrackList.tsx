@@ -45,7 +45,7 @@ export function ArtistTrackList({ tracks }: ArtistTrackListProps) {
             quantity: 1,
             type: 'track',
           }],
-          successUrl: `${window.location.origin}/checkout/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+          successUrl: `${window.location.origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
           cancelUrl: `${window.location.origin}${window.location.pathname}`,
         })
       })

@@ -1,21 +1,18 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server'
+import { createServerClient } from '@/lib/supabase'
 
 export async function GET(req: NextRequest) {
-  const sessionToken = req.cookies.get('porterful_session')?.value;
+  const supabase = createServerClient()
+  const { data: { user }, error } = await supabase.auth.getUser()
 
-  if (!sessionToken) {
-    return NextResponse.json({ authenticated: false });
+  if (error || !user) {
+    return NextResponse.json({ authenticated: false })
   }
 
-  try {
-    const data = JSON.parse(Buffer.from(sessionToken, 'base64url').toString('utf8'));
-    return NextResponse.json({
-      authenticated: true,
-      email: data.email || null,
-      lkId: data.lkId || null,
-      profileId: data.profileId || null,
-    });
-  } catch {
-    return NextResponse.json({ authenticated: false });
-  }
+  return NextResponse.json({
+    authenticated: true,
+    email: user.email || null,
+    profileId: user.id || null,
+    lkId: null,
+  })
 }

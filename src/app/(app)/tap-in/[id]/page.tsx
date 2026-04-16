@@ -232,7 +232,7 @@ export default function TapInProductPage() {
             <Link href="/artists" className="px-6 py-3 bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-lg font-medium hover:border-[var(--pf-orange)] transition-colors">
               Browse Artists
             </Link>
-            <Link href="/shop" className="px-6 py-3 bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-lg font-medium hover:border-[var(--pf-orange)] transition-colors">
+            <Link href="/store" className="px-6 py-3 bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-lg font-medium hover:border-[var(--pf-orange)] transition-colors">
               Shop Store
             </Link>
             <Link href="/tap-in" className="px-6 py-3 bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-lg font-medium hover:border-[var(--pf-orange)] transition-colors">

@@ -625,7 +625,7 @@ export default function MusicPage() {
             <div>
               <p className="text-sm uppercase tracking-widest text-[var(--pf-orange)] mb-4">Explore</p>
               <div className="space-y-3">
-                <Link href="/shop"
+                <Link href="/store"
                   className="flex items-center justify-between p-4 rounded-xl bg-[var(--pf-surface)] hover:bg-[var(--pf-orange)]/10 border border-[var(--pf-border)] transition-colors group">
                   <div>
                     <p className="font-medium">Custom Name Chains</p>
@@ -634,7 +634,7 @@ export default function MusicPage() {
                   <ChevronRight size={20} className="text-[var(--pf-text-secondary)] group-hover:text-[var(--pf-orange)]" />
                 </Link>
 
-                <Link href="/shop"
+                <Link href="/store"
                   className="flex items-center justify-between p-4 rounded-xl bg-[var(--pf-surface)] hover:bg-[var(--pf-orange)]/10 border border-[var(--pf-border)] transition-colors group">
                   <div>
                     <p className="font-medium">"There It Is, Here It Go"</p>

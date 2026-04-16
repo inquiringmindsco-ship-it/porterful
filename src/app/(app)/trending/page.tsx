@@ -254,7 +254,7 @@ export default function TrendingPage() {
           <p className="text-[var(--pf-text-secondary)] mb-4">
             Want to see all products?
           </p>
-          <Link href="/shop" className="pf-btn pf-btn-primary inline-flex items-center gap-2">
+          <Link href="/store" className="pf-btn pf-btn-primary inline-flex items-center gap-2">
             Browse Full Shop <ChevronRight size={16} />
           </Link>
         </div>

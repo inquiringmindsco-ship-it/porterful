@@ -127,7 +127,7 @@ export default function ApplyFormPage() {
                 </div>
               )}
 
-              <Link href="/dashboard/dashboard" className="pf-btn pf-btn-primary">
+              <Link href="/dashboard" className="pf-btn pf-btn-primary">
                 Go to Dashboard
               </Link>
             </>

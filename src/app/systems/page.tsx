@@ -355,7 +355,7 @@ export default function SystemsPage() {
               className="px-6 py-3 bg-[var(--pf-orange)] hover:bg-[var(--pf-orange)]/90 text-black font-medium rounded-full transition-colors">
               Start with Music
             </a>
-            <a href="/shop"
+            <a href="/store"
               className="px-6 py-3 bg-[var(--pf-surface)] hover:bg-[var(--pf-border)] text-[var(--pf-text)] font-medium rounded-full transition-colors border border-[var(--pf-border)]">
               Shop Chains
             </a>

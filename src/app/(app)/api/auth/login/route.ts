@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
-import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+import { createRouteHandlerSupabaseClient } from '@/lib/supabase-auth'
 
 export async function POST(request: Request) {
   try {
@@ -11,27 +11,13 @@ export async function POST(request: Request) {
     }
 
     const cookieStore = await cookies()
-
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() {
-            return cookieStore.getAll()
-          },
-          setAll(cookiesToSet) {
-            try {
-              cookiesToSet.forEach(({ name, value, options }) =>
-                cookieStore.set(name, value, options)
-              )
-            } catch {
-              // Ignore server component calls
-            }
-          },
-        },
-      }
-    )
+    const response = NextResponse.json({
+      success: true,
+      user: null,
+      role: 'supporter',
+      redirectTo: '/dashboard',
+    })
+    const supabase = createRouteHandlerSupabaseClient(cookieStore, response)
 
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
@@ -53,12 +39,17 @@ export async function POST(request: Request) {
       .eq('id', data.user.id)
       .single()
 
-    // Set HttpOnly session cookie for server-side auth (middleware, API guards)
-    // Note: Supabase SSR client already sets these via setAll callback above
+    response.headers.set('content-type', 'application/json')
+    response.headers.delete('content-length')
+    response.body?.cancel()
+
     return NextResponse.json({
       success: true,
       user: data.user,
       role: profile?.role || 'supporter',
+      redirectTo: '/dashboard',
+    }, {
+      headers: response.headers,
     })
   } catch (err: any) {
     console.error('Login error:', err)

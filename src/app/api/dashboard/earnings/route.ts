@@ -1,60 +1,53 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@/lib/supabase';
+import { NextRequest, NextResponse } from 'next/server'
+import { createServerClient } from '@/lib/supabase'
 
-// GET /api/dashboard/earnings — read real earnings from existing ledger
 export async function GET(req: NextRequest) {
-  const sessionToken = req.cookies.get('porterful_session')?.value;
-  if (!sessionToken) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const supabase = createServerClient()
+  const { data: { user }, error } = await supabase.auth.getUser()
+
+  if (error || !user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  let session: { email: string; lkId: string | null; profileId: string };
-  try {
-    session = JSON.parse(Buffer.from(sessionToken, 'base64url').toString('utf8'));
-  } catch {
-    return NextResponse.json({ error: 'Invalid session' }, { status: 401 });
+  const email = user.email?.toLowerCase()
+  if (!email) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const supabase = createServerClient();
-
-  // Find profile by email
-  let sellerId: string | null = null;
   const { data: profile } = await supabase
     .from('profiles')
-    .select('id, username')
-    .eq('email', session.email.toLowerCase())
+    .select('id, username, lk_id')
+    .eq('id', user.id)
     .limit(1)
-    .maybeSingle();
+    .maybeSingle()
 
-  if (profile) sellerId = profile.id;
+  const sellerId = profile?.id || null
+  const lkId = profile?.lk_id || null
 
-  // 1. Get all orders where this user is the referrer (seller earnings)
   const { data: soldOrders } = await supabase
     .from('orders')
     .select('id, amount, seller_total, product_id, buyer_email, created_at, stripe_checkout_session_id')
     .eq('referrer_id', sellerId)
     .eq('status', 'completed')
     .order('created_at', { ascending: false })
-    .limit(20);
+    .limit(20)
 
-  const totalSold = (soldOrders || []).reduce((sum: number, o: any) => sum + (o.seller_total || 0), 0);
-  const totalOrders = soldOrders?.length || 0;
+  const totalSold = (soldOrders || []).reduce((sum: number, o: any) => sum + (o.seller_total || 0), 0)
+  const totalOrders = soldOrders?.length || 0
 
-  // 2. Get superfan earnings if applicable
   const { data: superfan } = await supabase
     .from('superfans')
     .select('id, total_earnings, available_earnings, tier')
     .eq('id', sellerId)
     .limit(1)
-    .maybeSingle();
+    .maybeSingle()
 
-  // 3. Get recent orders as buyer
   const { data: purchases } = await supabase
     .from('orders')
     .select('id, amount, product_id, created_at')
-    .eq('buyer_email', session.email.toLowerCase())
+    .eq('buyer_email', email)
     .order('created_at', { ascending: false })
-    .limit(5);
+    .limit(5)
 
   return NextResponse.json({
     seller: {
@@ -68,5 +61,6 @@ export async function GET(req: NextRequest) {
       tier: superfan.tier,
     } : null,
     purchases: purchases || [],
-  });
+    lkId,
+  })
 }

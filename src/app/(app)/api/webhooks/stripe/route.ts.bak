@@ -52,6 +52,7 @@ export async function POST(request: NextRequest) {
         const metadata = session.metadata || {}
         const productId = metadata.product_id
         const offerId = metadata.offer_id
+        const lkId = metadata.lk_id
         const source = metadata.source
 
         if (!productId) {
@@ -324,6 +325,7 @@ export async function POST(request: NextRequest) {
               console.error('[porterful-webhook] Confirmation email failed:', err)
             )
           }
+        }
         break
       }
       

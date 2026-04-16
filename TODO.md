@@ -1,24 +1,18 @@
-# Porterful Site Improvements — Batch 1 (NOT DEPLOYED)
+# Site Improvements Batch 1 - Status (April 16, 2026)
 
-## Done
+## Tasks Completed ✓
 
-### 1. Rob Soule artist data fix ✅
-- **File:** `src/lib/artists.ts`
-- Fixed bio to reflect he's a St. Louis hip-hop and R&B artist blending blues into a soulful sound
-- Genre was already correct: `'Hip-Hop / R&B / Blues'`
-- Bio cleaned up: removed redundant phrasing, made it more punchy and direct
+### 1. Rob Soule Artist Data (src/lib/artists.ts)
+- Genre: Already set to 'Hip-Hop / R&B / Blues' ✓
+- Bio: Already reflects St. Louis hip-hop and R&B artist blending blues into a soulful sound ✓
 
-### 2. Social media buttons ✅
-- **File:** `src/components/artist/ArtistHero.tsx`
-- Already had social media icon buttons! They were already in the hero section near the artist name with Instagram, Twitter/X, YouTube, and TikTok icons
-- Icons styled with platform colors and hover effects
-- No changes needed — this was already implemented
+### 2. Social Media Buttons (src/app/(app)/artist/[slug]/page.tsx)
+- ArtistHero component already includes circular icon social buttons for Instagram, X/Twitter, YouTube, and TikTok
+- Buttons appear in the hero section near artist name
+- Text-label version also present in Social Links Bar below hero
 
-### 3. Featured Singles before Albums ✅
-- **File:** `src/app/(app)/artist/[slug]/page.tsx`
-- Already had Featured Singles appearing before Albums in the code
-- `singles` section renders first, then `albums` section below
-- No changes needed — this was already implemented
+### 3. Featured Singles Before Albums
+- Artist profile page already has Featured Singles section before Albums section
+- Order: Bio → Featured Singles → Albums ✓
 
-## Not Deployed
-These changes are saved to the code files but have NOT been committed or deployed.
+## Status: All items already implemented. No code changes needed.

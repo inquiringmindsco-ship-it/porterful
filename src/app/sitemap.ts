@@ -9,8 +9,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '',
     '/competition',
     '/digital',
-    '/marketplace',
-    '/shop',
     '/store',
     '/radio',
     '/playlists',

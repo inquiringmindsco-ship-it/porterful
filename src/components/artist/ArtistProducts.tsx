@@ -17,7 +17,7 @@ export function ArtistProducts({ products, artistName }: ArtistProductsProps) {
     <div className="bg-[var(--pf-surface)] rounded-2xl p-5 border border-[var(--pf-border)] min-h-[200px] flex flex-col">
       <div className="flex items-center justify-between mb-4">
         <p className="text-sm uppercase tracking-widest text-[var(--pf-orange)]">{artistName} Store</p>
-        <Link href="/shop" className="text-xs text-[var(--pf-text-muted)] hover:text-[var(--pf-orange)] transition-colors" title="Browse all merch">
+        <Link href="/store" className="text-xs text-[var(--pf-text-muted)] hover:text-[var(--pf-orange)] transition-colors" title="Browse all merch">
           View all →
         </Link>
       </div>
@@ -27,7 +27,7 @@ export function ArtistProducts({ products, artistName }: ArtistProductsProps) {
           displayProducts.map((product) => (
             <Link
               key={product.id}
-              href={`/product/product/${product.id}`}
+              href={`/product/${product.id}`}
               className="flex items-center gap-3 p-3 rounded-xl bg-[var(--pf-bg)] border border-[var(--pf-border)] hover:border-[var(--pf-orange)]/40 transition-colors group"
             >
               <div className="relative w-11 h-11 rounded-lg overflow-hidden bg-black shrink-0">
@@ -67,7 +67,7 @@ export function ArtistProducts({ products, artistName }: ArtistProductsProps) {
               ].map((product) => (
                 <Link
                   key={product.id}
-                  href={`/product/product/${product.id}`}
+                  href={`/product/${product.id}`}
                   className="flex items-center gap-3 p-3 rounded-xl bg-[var(--pf-bg)] border border-[var(--pf-border)] hover:border-[var(--pf-orange)]/40 transition-colors group"
                 >
                   <div className="relative w-11 h-11 rounded-lg overflow-hidden bg-black shrink-0">

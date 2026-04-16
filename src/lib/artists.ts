@@ -165,12 +165,12 @@ On Porterful, Nikee Turbo's fans are superfans — earning rewards every time th
     slug: 'rob-soule',
     genre: 'Hip-Hop / R&B / Blues',
     location: 'St. Louis, MO',
-    bio: `St. Louis hip-hop and R&B artist who weaves the blues into a soulful sound all his own. Rooted in the Lou's rich musical legacy — the soul, the struggle, the stories — Rob didn't just absorb it, he translated it into something new.
+    bio: `Rob Soule is a St. Louis hip-hop and R&B artist who blends the blues into a soulful sound all his own. Rooted in the Lou's rich musical legacy — the soul, the struggle, the stories — he didn't just absorb it, he translated it into something new.
 
 His music sits at the intersection where hip-hop meets the blues. Where the 808 meets the guitar. Where the street meets the soul. It's St. Louis music because it could only come from here — from the blocks, the history, the people.
 
-Track by track, he's been building a sound that cuts through. Porterful is where he's planting his flag. This is STL music for STL people and everyone else who can feel it.`,
-    shortBio: 'St. Louis-based hip-hop & R&B artist weaving blues into a soulful sound. Rooted in the Lou, building something new.',
+Track by track, he's been building a sound that cuts through. Porterful is where he's planted his flag. This is STL music for STL people and everyone else who can feel it.`,
+    shortBio: 'St. Louis hip-hop & R&B artist blending blues into a soulful sound. Rooted in the Lou.',
     verified: true,
     likeness_verified: false,
     image: '/artist-images/rob-soule/avatar.jpg',
@@ -183,6 +183,7 @@ Track by track, he's been building a sound that cuts through. Porterful is where
     social: {
       youtube: '@RobSouleMusic',
       instagram: 'RobSouleMusic',
+      twitter: 'RobSouleMusic',
     },
     coverSlides: [
       { src: '/artist-images/rob-soule/avatar.jpg', alt: 'Rob Soule' },

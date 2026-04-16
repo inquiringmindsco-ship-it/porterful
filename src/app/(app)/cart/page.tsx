@@ -18,7 +18,7 @@ export default function CartPage() {
   const handleCheckout = () => {
     // Store cart in localStorage for checkout page
     localStorage.setItem('porterful-checkout-items', JSON.stringify(items));
-    router.push('/checkout/checkout');
+    router.push('/checkout');
   };
 
   return (
@@ -33,7 +33,7 @@ export default function CartPage() {
             <p className="text-[var(--pf-text-secondary)] mb-6">
               Looks like you haven't added anything yet.
             </p>
-            <Link href="/shop" className="pf-btn pf-btn-primary">
+            <Link href="/store" className="pf-btn pf-btn-primary">
               Browse Shop
             </Link>
           </div>
@@ -54,7 +54,7 @@ export default function CartPage() {
                   </div>
                   
                   <div className="flex-1">
-                    <Link href={`/product/product/${item.productId}`} className="font-semibold hover:text-[var(--pf-orange)]">
+                    <Link href={`/product/${item.productId}`} className="font-semibold hover:text-[var(--pf-orange)]">
                       {item.name}
                     </Link>
                     <p className="text-sm text-[var(--pf-text-muted)]">{item.artist}</p>
@@ -164,7 +164,7 @@ export default function CartPage() {
                   Proceed to Checkout
                 </button>
 
-                <Link href="/shop" className="block text-center text-[var(--pf-text-secondary)] hover:text-white text-sm mt-4">
+                <Link href="/store" className="block text-center text-[var(--pf-text-secondary)] hover:text-white text-sm mt-4">
                   Continue Shopping
                 </Link>
               </div>
