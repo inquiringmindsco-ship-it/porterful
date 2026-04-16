@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
+import { randomUUID } from 'crypto'
 import { createServerClient } from '@/lib/supabase'
 
 // Lazy-initialize Stripe only when needed
@@ -47,19 +48,31 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({ received: true, warning: 'Supabase not configured' })
         }
 
-        const items = session.metadata?.items
-          ? JSON.parse(session.metadata.items)
-          : []
+        // ── Hardened metadata extraction ──────────────────────────────────
+        const metadata = session.metadata || {}
+        const productId = metadata.product_id
+        const offerId = metadata.offer_id
+        const lkId = metadata.lk_id
+        const source = metadata.source
+
+        if (!productId) {
+          console.error('❌ Webhook: missing required metadata.product_id — cannot save order')
+          console.error('   session.id:', session.id)
+          console.error('   metadata:', JSON.stringify(metadata))
+          return NextResponse.json({ error: 'Missing required metadata.product_id' }, { status: 400 })
+        }
+
+        const items = metadata.items ? JSON.parse(metadata.items) : []
 
         const amountCents = session.amount_total || 0
         const subtotalCents = session.amount_subtotal || 0
-        const artistFundCents = parseFloat(session.metadata?.artist_fund || '0') * 100
-        const superfanCents = parseFloat(session.metadata?.superfan_share || '0') * 100
+        const artistFundCents = parseFloat(metadata.artist_fund || '0') * 100
+        const superfanCents = parseFloat(metadata.superfan_share || '0') * 100
         const platformCents = Math.round(subtotalCents * 0.10)
         const sellerCents = subtotalCents - artistFundCents - superfanCents - platformCents
 
         const buyerEmail = session.customer_email || session.customer_details?.email
-        const buyerUserId = session.metadata?.user_id || null
+        const buyerUserId = metadata.user_id || null
 
         // Resolve lk_id → profiles.id for referrer attribution
         let resolvedReferrerId: string | null = null
@@ -78,47 +91,63 @@ export async function POST(request: NextRequest) {
           }
         }
 
-        const { data: order, error: orderError } = await supabase
+        // ── Idempotency: check for existing order by session or payment intent ──
+        const sessionId = session.id
+        const paymentIntentId = session.payment_intent as string
+        const { data: existingOrder } = await supabase
           .from('orders')
-          .insert({
-            id: session.id,
-            status: 'completed',
-            buyer_email: buyerEmail,
-            product_id: session.metadata?.product_id || null,
-            amount: amountCents / 100,
-            user_id: buyerUserId,
-            stripe_checkout_session_id: session.id,
-            stripe_payment_intent_id: session.payment_intent as string,
-            referrer_id: resolvedReferrerId,
-            seller_total: sellerCents / 100,
-            artist_fund_total: artistFundCents / 100,
-            superfan_total: superfanCents / 100,
-            platform_total: platformCents / 100,
-            shipping_address: (session as any).shipping_details ? JSON.stringify({
-              name: (session as any).shipping_details?.name || '',
-              line1: (session as any).shipping_details?.address?.line1 || '',
-              city: (session as any).shipping_details?.address?.city || '',
-              state: (session as any).shipping_details?.address?.state || '',
-              postal_code: (session as any).shipping_details?.address?.postal_code || '',
-              country: (session as any).shipping_details?.address?.country || 'US',
-            }) : null,
-          })
-          .select()
-          .single()
+          .select('id')
+          .eq('stripe_checkout_session_id', sessionId)
+          .maybeSingle()
 
-        if (orderError) {
-          console.error('❌ Failed to save order:', orderError.message)
+        if (existingOrder) {
+          console.log('ℹ️ Order already exists for session:', sessionId, '— skipping duplicate')
         } else {
+          // Generate proper UUID for orders.id (Stripe session IDs are not valid UUIDs)
+          const orderId = randomUUID()
+
+          const { data: order, error: orderError } = await supabase
+            .from('orders')
+            .insert({
+              id: orderId,
+              status: 'completed',
+              buyer_email: buyerEmail,
+              product_id: productId,
+              amount: amountCents / 100,
+              user_id: buyerUserId,
+              stripe_checkout_session_id: sessionId,
+              stripe_payment_intent_id: paymentIntentId,
+              referrer_id: resolvedReferrerId,
+              seller_total: sellerCents / 100,
+              artist_fund_total: artistFundCents / 100,
+              superfan_total: superfanCents / 100,
+              platform_total: platformCents / 100,
+              shipping_address: (session as any).shipping_details ? JSON.stringify({
+                name: (session as any).shipping_details?.name || '',
+                line1: (session as any).shipping_details?.address?.line1 || '',
+                city: (session as any).shipping_details?.address?.city || '',
+                state: (session as any).shipping_details?.address?.state || '',
+                postal_code: (session as any).shipping_details?.address?.postal_code || '',
+                country: (session as any).shipping_details?.address?.country || 'US',
+              }) : null,
+            })
+            .select()
+            .single()
+
+          if (orderError) {
+            console.error('❌ Failed to save order:', orderError.message)
+            return NextResponse.json({ error: 'Failed to save order: ' + orderError.message }, { status: 500 })
+          }
           console.log('✅ Order saved:', order.id)
 
           // ── Create Entitlement ────────────────────────────────────────────
-          if (buyerEmail && session.metadata?.product_id) {
+          if (buyerEmail && productId) {
             try {
               const { data: existing } = await supabase
                 .from('entitlements')
                 .select('id')
                 .eq('buyer_email', buyerEmail)
-                .eq('product_id', session.metadata.product_id)
+                .eq('product_id', productId)
                 .eq('status', 'active')
                 .maybeSingle()
               
@@ -128,10 +157,10 @@ export async function POST(request: NextRequest) {
                   .insert({
                     buyer_email: buyerEmail,
                     buyer_user_id: buyerUserId,
-                    product_id: session.metadata.product_id,
-                    offer_id: session.metadata?.offer_id || null,
+                    product_id: productId,
+                    offer_id: offerId || null,
                     referrer_id: resolvedReferrerId,
-                    order_id: session.id,
+                    order_id: orderId,
                     status: 'active',
                   })
                   .select()
@@ -151,9 +180,7 @@ export async function POST(request: NextRequest) {
           }
 
           // ── Credit Referral Earnings ─────────────────────────────────────────
-          // Prefer lk_id resolution; fall back to referral_code
-          const lkId = session.metadata?.lk_id
-          const referralCode = session.metadata?.referral_code
+          const referralCode = metadata.referral_code
           
           let resolvedReferrerId2: string | null = null
           if (lkId) {
@@ -174,7 +201,7 @@ export async function POST(request: NextRequest) {
             try {
               await supabase.from('referral_earnings').insert({
                 superfan_id: referralProfileId,
-                order_id: session.id,
+                order_id: orderId,
                 amount: superfanCents / 100,
                 status: 'pending',
               })
@@ -197,6 +224,7 @@ export async function POST(request: NextRequest) {
               console.error('❌ Referral earnings error:', refErr)
             }
           }
+        }
 
         // ── Dropship Order Forwarding ────────────────────────────────────
           const dropshipItems = items.filter((item: any) => item.dropship === true)
