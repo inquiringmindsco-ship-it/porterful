@@ -42,19 +42,28 @@ export function Providers({
         
         if (error) {
           console.error('Session validation error:', error)
+          // Don't clear SSR-confirmed user on transient errors
+          if (!initialUser) {
+            setSession(null)
+            setUser(null)
+            sessionRef.current = null
+          }
+        } else if (validSession) {
+          // Session confirmed — update state
+          setSession(validSession)
+          setUser(validSession.user ?? null)
+          sessionRef.current = validSession.access_token
+        }
+        // If no session but we have initialUser from SSR, trust SSR for now
+        // Client cookies may not be fully synced yet
+      } catch (err) {
+        console.error('Session validation failed:', err)
+        // Don't clear SSR-confirmed user on transient errors
+        if (!initialUser) {
           setSession(null)
           setUser(null)
           sessionRef.current = null
-        } else {
-          setSession(validSession)
-          setUser(validSession?.user ?? null)
-          sessionRef.current = validSession?.access_token ?? null
         }
-      } catch (err) {
-        console.error('Session validation failed:', err)
-        setSession(null)
-        setUser(null)
-        sessionRef.current = null
       }
       setLoading(false)
     }
