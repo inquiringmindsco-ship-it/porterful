@@ -108,7 +108,7 @@ export function captureMessage(message: string, level: 'info' | 'warning' | 'err
 
 // Auth-specific error tracking
 export function captureAuthError(error: unknown, context: {
-  step: 'login' | 'callback' | 'logout' | 'session-refresh';
+  step: 'login' | 'callback' | 'logout' | 'session-refresh' | 'session-validation';
   provider?: 'email' | 'google' | 'likeness';
   userId?: string;
 }) {
