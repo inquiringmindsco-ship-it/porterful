@@ -248,7 +248,7 @@ export default function DashboardClient({ serverProfileId, lkId, initialProfile 
             <Package size={24} className="text-orange-400" />
             <span className="text-sm font-medium">Sell Merch</span>
           </Link>
-          <Link href="/store/{profile?.username || profile?.id}" className="pf-card p-4 flex flex-col items-center justify-center gap-2 hover:border-[var(--pf-orange)] transition-colors">
+          <Link href={`/store/${profile?.username || profile?.id}`} className="pf-card p-4 flex flex-col items-center justify-center gap-2 hover:border-[var(--pf-orange)] transition-colors">
             <Share2 size={24} className="text-blue-400" />
             <span className="text-sm font-medium">Share Store</span>
           </Link>
