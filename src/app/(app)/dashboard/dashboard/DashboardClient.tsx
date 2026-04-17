@@ -117,10 +117,10 @@ export default function DashboardClient({ serverProfileId, lkId, initialProfile 
   // Dynamic Primary CTA based on state
   const getPrimaryCTA = () => {
     if (!isProfileComplete) {
-      return { label: 'Complete Profile', href: '/dashboard/artist/edit', icon: Edit, color: 'bg-orange-500 hover:bg-orange-600' }
+      return { label: 'Complete Profile', href: '/dashboard/dashboard/artist/edit', icon: Edit, color: 'bg-orange-500 hover:bg-orange-600' }
     }
     if (!hasTracks) {
-      return { label: 'Upload First Track', href: '/dashboard/upload', icon: Upload, color: 'bg-orange-500 hover:bg-orange-600' }
+      return { label: 'Upload First Track', href: '/dashboard/dashboard/upload', icon: Upload, color: 'bg-orange-500 hover:bg-orange-600' }
     }
     if (!hasProducts) {
       return { label: 'Add Product', href: '/dashboard/add-product', icon: Package, color: 'bg-orange-500 hover:bg-orange-600' }
@@ -240,7 +240,7 @@ export default function DashboardClient({ serverProfileId, lkId, initialProfile 
 
         {/* QUICK ACTIONS - 4 buttons max */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <Link href="/dashboard/upload" className="pf-card p-4 flex flex-col items-center justify-center gap-2 hover:border-[var(--pf-orange)] transition-colors">
+          <Link href="/dashboard/dashboard/upload" className="pf-card p-4 flex flex-col items-center justify-center gap-2 hover:border-[var(--pf-orange)] transition-colors">
             <Upload size={24} className="text-purple-400" />
             <span className="text-sm font-medium">Upload Track</span>
           </Link>
@@ -252,7 +252,7 @@ export default function DashboardClient({ serverProfileId, lkId, initialProfile 
             <Share2 size={24} className="text-blue-400" />
             <span className="text-sm font-medium">Share Store</span>
           </Link>
-          <Link href="/dashboard/artist/edit" className="pf-card p-4 flex flex-col items-center justify-center gap-2 hover:border-[var(--pf-orange)] transition-colors">
+          <Link href="/dashboard/dashboard/artist/edit" className="pf-card p-4 flex flex-col items-center justify-center gap-2 hover:border-[var(--pf-orange)] transition-colors">
             <Edit size={24} className="text-green-400" />
             <span className="text-sm font-medium">Edit Profile</span>
           </Link>
@@ -292,7 +292,7 @@ function ContentOverview({ stats }: { stats: DashboardStats }) {
               <ChevronRight size={16} className="text-[var(--pf-text-muted)]" />
             </div>
           </Link>
-          <Link href="/dashboard/upload" className="block p-3 rounded-lg hover:bg-[var(--pf-surface)] transition-colors">
+          <Link href="/dashboard/dashboard/upload" className="block p-3 rounded-lg hover:bg-[var(--pf-surface)] transition-colors">
             <div className="flex items-center justify-between">
               <span className="text-sm">Upload New Track</span>
               <ChevronRight size={16} className="text-[var(--pf-text-muted)]" />
