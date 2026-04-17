@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useSupabase } from '@/app/providers'
 import { useWallet } from '@/lib/wallet-context'
-import { Upload, Package, Share2, Edit, DollarSign, TrendingUp, Music, ChevronRight, Check, Loader2 } from 'lucide-react'
+import { Upload, Package, Share2, Edit, DollarSign, TrendingUp, Music, ChevronRight } from 'lucide-react'
 
 interface DashboardStats {
   total_earnings: number
@@ -38,13 +38,12 @@ export default function DashboardClient({ serverProfileId, lkId, initialProfile 
   const [dataLoading, setDataLoading] = useState(true)
   const [stats, setStats] = useState<DashboardStats>(EMPTY_STATS)
   const [profile, setProfile] = useState<any>(initialProfile)
-  const [actionLoading, setActionLoading] = useState<string | null>(null)
-
   useEffect(() => { setMounted(true) }, [])
 
   useEffect(() => {
     if (!mounted || !serverProfileId) return
     loadDashboard()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mounted, serverProfileId, supabase])
 
   async function loadDashboard() {
@@ -244,7 +243,7 @@ export default function DashboardClient({ serverProfileId, lkId, initialProfile 
             <Upload size={24} className="text-purple-400" />
             <span className="text-sm font-medium">Upload Track</span>
           </Link>
-          <Link href="/dashboard/add-product" className="pf-card p-4 flex flex-col items-center justify-center gap-2 hover:border-[var(--pf-orange)] transition-colors">
+          <Link href="/dashboard/dashboard/add-product" className="pf-card p-4 flex flex-col items-center justify-center gap-2 hover:border-[var(--pf-orange)] transition-colors">
             <Package size={24} className="text-orange-400" />
             <span className="text-sm font-medium">Sell Merch</span>
           </Link>
@@ -298,7 +297,7 @@ function ContentOverview({ stats }: { stats: DashboardStats }) {
               <ChevronRight size={16} className="text-[var(--pf-text-muted)]" />
             </div>
           </Link>
-          <Link href="/dashboard/add-product" className="block p-3 rounded-lg hover:bg-[var(--pf-surface)] transition-colors">
+          <Link href="/dashboard/dashboard/add-product" className="block p-3 rounded-lg hover:bg-[var(--pf-surface)] transition-colors">
             <div className="flex items-center justify-between">
               <span className="text-sm">Add Product</span>
               <ChevronRight size={16} className="text-[var(--pf-text-muted)]" />
