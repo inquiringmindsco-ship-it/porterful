@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@/lib/supabase'
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import {
   LIKENESS_REGISTRATION_URL,
   getLikenessVerificationState,
@@ -8,34 +8,41 @@ import {
 
 // Sanitize filename to comply with Supabase Storage filename rules
 function sanitizeFilename(name: string): string {
-  // Get the file extension
   const ext = name.split('.').pop() || ''
   const nameWithoutExt = name.slice(0, -(ext.length + 1))
-  
-  // Remove or replace problematic characters: < > : " / \ | ? * ( ) [ ]
-  // Also remove leading/trailing dots and spaces
   const sanitized = nameWithoutExt
     .replace(/[<>:"/\\|?*()[\]]/g, '-')
     .replace(/\s+/g, '-')
     .replace(/\.\.+/g, '.')
     .replace(/^-+|-+$/g, '')
-    .substring(0, 100) // Cap at 100 chars to be safe
-  
+    .substring(0, 100)
   const cleanExt = ext.replace(/[^a-zA-Z0-9]/g, '').toLowerCase()
-  
-  return `${sanitized || 'audio'}.${cleanExt || 'mp3'}`
+  return `${sanitized || 'file'}.${cleanExt || 'bin'}`
 }
 
 export async function POST(request: NextRequest) {
   try {
-    // Auth check
-    const supabase = createServerClient()
-    if (!supabase) {
-      return NextResponse.json({ error: 'Server not configured' }, { status: 500 })
-    }
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    // Auth check - properly read cookies from request
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return request.cookies.getAll()
+          },
+          setAll() {
+            // We don't need to set cookies in this route
+          },
+        },
+      }
+    )
+    
+    const { data: { session }, error } = await supabase.auth.getSession()
+    
+    if (error || !session?.user) {
+      console.error('Upload auth failed:', error?.message || 'No session')
+      return NextResponse.json({ error: 'Unauthorized - please log in' }, { status: 401 })
     }
 
     // Likeness monetization gate
