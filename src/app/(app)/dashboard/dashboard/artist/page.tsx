@@ -17,8 +17,6 @@ const Icon = {
   Edit: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>,
   Trash: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3,6 5,6 21,6" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" /></svg>,
   Plus: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>,
-  Settings: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" /></svg>,
-  Users: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 00-3-3.87" /><path d="M16 3.13a4 4 0 010 7.75" /></svg>,
   ChevronUp: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="18,15 12,9 6,15" /></svg>,
   ChevronDown: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6,9 12,15 18,9" /></svg>,
 }
@@ -83,9 +81,6 @@ export default function ArtistDashboardPage() {
     )
   }
 
-  const isProfileComplete = profile?.name || profile?.full_name
-  const hasBio = profile?.bio
-
   const tracksByAlbum = TRACKS.reduce((acc, track) => {
     const album = track.album || 'Singles'
     if (!acc[album]) acc[album] = []
@@ -115,80 +110,18 @@ export default function ArtistDashboardPage() {
     <div className="min-h-screen pt-24 pb-12">
       <div className="pf-container max-w-4xl">
 
-        {/* ONBOARDING PANEL */}
-        {(!isProfileComplete || !hasBio) && (
-          <div className="mb-8 p-6 bg-gradient-to-r from-orange-500/10 via-purple-500/5 to-orange-500/10 rounded-2xl border border-orange-500/30">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 bg-orange-500/20 rounded-xl flex items-center justify-center shrink-0">
-                <span className="text-2xl">🎤</span>
-              </div>
-              <div className="flex-1">
-                <h2 className="text-xl font-black mb-1">Welcome to Porterful, Artist</h2>
-                <p className="text-[var(--pf-text-secondary)] text-sm mb-4">
-                  Complete your artist profile to go live. Takes 2 minutes. Your page goes live immediately after.
-                </p>
-                <div className="flex flex-wrap gap-3">
-                  <Link href="/dashboard/artist/edit" className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-lg transition text-sm">
-                    Complete Your Profile →
-                  </Link>
-                  <Link href="/dashboard/upload" className="px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-medium rounded-lg transition text-sm">
-                    Upload Your First Track
-                  </Link>
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-5 pt-5 border-t border-[var(--pf-border)]">
-              {[
-                { label: 'Add your name & bio', done: !!isProfileComplete, href: '/dashboard/artist/edit' },
-                { label: 'Upload a photo', done: !!profile?.avatar_url, href: '/dashboard/artist/edit' },
-                { label: 'Add social links', done: !!profile?.instagram_url || !!profile?.youtube_url, href: '/dashboard/artist/edit' },
-                { label: 'Upload first track', done: false, href: '/dashboard/upload' },
-              ].map((item, i) => (
-                <div key={i} className={'flex items-center gap-2 p-3 rounded-lg ' + (item.done ? 'bg-green-500/10' : 'bg-[var(--pf-surface)]')}>
-                  <div className={'w-6 h-6 rounded-full flex items-center justify-center text-xs ' + (item.done ? 'bg-green-500 text-white' : 'bg-orange-500/20 text-orange-400')}>
-                    {item.done ? '✓' : i + 1}
-                  </div>
-                  <span className="text-xs font-medium">{item.label}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-[var(--pf-text)]">Artist Dashboard</h1>
-            <p className="text-[var(--pf-text-secondary)]">Manage your music, albums, and products</p>
+            <h1 className="text-2xl font-bold">My Catalog</h1>
+            <p className="text-sm text-[var(--pf-text-secondary)]">Music, albums, and products</p>
           </div>
           <div className="flex gap-3">
-            {/* BACKEND STUB: Referrals link */}
-            {/* ─────────────────────────────────────────────────────────
-               TODO: When wired, show referral stats here:
-                 const { data: referralStats } = await supabase
-                   .from('referrals')
-                   .select('count, total_commission')
-                   .eq('referrer_id', user.id)
-                 
-               const referralCount = referralStats?.length ?? 0
-               const totalCommission = referralStats?.reduce((s, r) => s + r.commission, 0) ?? 0
-               
-               Example data:
-                 const referralData = {
-                   activeReferrals: 12,
-                   totalEarned: 145.50,
-                   pendingPayout: 23.40
-                 }
-               ───────────────────────────────────────────────────────── */}
-            <Link href="/dashboard/referrals" className="pf-btn pf-btn-secondary flex items-center gap-2 opacity-60 border-dashed">
-              <Icon.Users /> Referrals <span className="text-xs text-yellow-400">Soon</span>
+            <Link href="/dashboard/dashboard/upload" className="pf-btn pf-btn-primary flex items-center gap-2">
+              <Icon.Upload /> Upload
             </Link>
-            <Link href="/dashboard/collaborations" className="pf-btn pf-btn-secondary flex items-center gap-2">
-              <Icon.Users /> Collaborations
-            </Link>
-            <Link href="/dashboard/upload" className="pf-btn pf-btn-primary flex items-center gap-2">
-              <Icon.Upload /> Upload New
+            <Link href="/dashboard/dashboard/artist/edit" className="pf-btn pf-btn-secondary flex items-center gap-2">
+              <Icon.Edit /> Edit Profile
             </Link>
           </div>
         </div>
@@ -231,18 +164,6 @@ export default function ArtistDashboardPage() {
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Profile Actions */}
-        <div className="pf-card p-4 mb-6 flex items-center justify-between">
-          <div>
-            <h2 className="font-semibold">Your Public Profile</h2>
-            <p className="text-sm text-[var(--pf-text-muted)]">Update your photo, bio, genre, and social links</p>
-          </div>
-          <Link href="/dashboard/artist/edit" className="pf-btn pf-btn-primary flex items-center gap-2">
-            <Icon.Edit />
-            Edit Artist Profile
-          </Link>
         </div>
 
         {/* Tabs */}
@@ -346,75 +267,9 @@ export default function ArtistDashboardPage() {
         {/* Products Tab */}
         {activeTab === 'products' && (
           <div className="space-y-4">
-            {/* BACKEND STUB: Printful Integration Status */}
-            {/* ─────────────────────────────────────────────────────────
-               TODO: When wired, fetch Printful status from Supabase:
-                 const { data: profile } = await supabase
-                   .from('profiles')
-                   .select('printful_connected, printful_products_synced')
-                   .eq('id', user.id)
-                   .single()
-                 
-               Example data:
-                 const printfulStatus = {
-                   connected: profile?.printful_connected ?? false,
-                   syncedProducts: profile?.printful_products_synced ?? 0,
-                   lastSync: profile?.printful_last_sync_at ?? null
-                 }
-               ───────────────────────────────────────────────────────── */}
-            <div className="bg-[var(--pf-surface)] border-2 border-dashed border-blue-500/30 rounded-xl p-5 opacity-75">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center flex-shrink-0">
-                  <Icon.Package />
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-semibold">Printful Integration</h3>
-                    <span className="px-2 py-0.5 rounded-full text-xs bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
-                      Not Connected
-                    </span>
-                  </div>
-                  <p className="text-sm text-[var(--pf-text-secondary)] mb-3">
-                    Connect Printful to enable print-on-demand products. Your merch will be 
-                    automatically fulfilled and shipped to customers with zero inventory.
-                  </p>
-                  <div className="flex flex-wrap gap-3">
-                    <Link 
-                      href="/dashboard/settings/printful"
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition text-sm"
-                    >
-                      Connect Printful →
-                    </Link>
-                    <a 
-                      href="https://www.printful.com/docs/api" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--pf-bg)] hover:bg-[var(--pf-border)] text-[var(--pf-text-secondary)] font-medium rounded-lg transition text-sm"
-                    >
-                      View API Docs
-                    </a>
-                  </div>
-                  <div className="mt-3 pt-3 border-t border-[var(--pf-border)] grid grid-cols-3 gap-4 text-xs">
-                    <div>
-                      <span className="text-[var(--pf-text-muted)]">Products Synced</span>
-                      <p className="font-medium mt-0.5 text-[var(--pf-text-secondary)]">—</p>
-                    </div>
-                    <div>
-                      <span className="text-[var(--pf-text-muted)]">Last Sync</span>
-                      <p className="font-medium mt-0.5 text-[var(--pf-text-secondary)]">—</p>
-                    </div>
-                    <div>
-                      <span className="text-[var(--pf-text-muted)]">API Status</span>
-                      <p className="font-medium mt-0.5 text-yellow-400">Disconnected</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold">Merch & Products</h2>
-              <Link href="/dashboard/add-product" className="pf-btn pf-btn-primary flex items-center gap-2">
+              <h2 className="text-xl font-bold">Products</h2>
+              <Link href="/dashboard/dashboard/add-product" className="pf-btn pf-btn-primary flex items-center gap-2">
                 <Icon.Plus /> Add Product
               </Link>
             </div>
@@ -441,12 +296,6 @@ export default function ArtistDashboardPage() {
           </div>
         )}
 
-        {/* Settings Link */}
-        <div className="mt-8 pt-8 border-t border-[var(--pf-border)]">
-          <Link href="/settings" className="pf-btn pf-btn-secondary flex items-center gap-2">
-            <Icon.Settings /> Account Settings
-          </Link>
-        </div>
       </div>
     </div>
   )

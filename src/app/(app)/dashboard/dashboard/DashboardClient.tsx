@@ -38,9 +38,13 @@ export default function DashboardClient({ serverProfileId, lkId, initialProfile 
 
   const [mounted, setMounted] = useState(false)
   const [dataLoading, setDataLoading] = useState(true)
+  const [actionLoading, setActionLoading] = useState<string | null>(null)
+  const [actionSuccess, setActionSuccess] = useState<string | null>(null)
+  const [actionError, setActionError] = useState<string | null>(null)
   const [stats, setStats] = useState<DashboardStats>(EMPTY_STATS)
   const [profile, setProfile] = useState<any>(initialProfile)
   const [copied, setCopied] = useState<'page' | 'ref' | null>(null)
+  const [pendingBalance, setPendingBalance] = useState<number>(0)
 
   useEffect(() => { setMounted(true) }, [])
 
@@ -56,17 +60,17 @@ export default function DashboardClient({ serverProfileId, lkId, initialProfile 
       const profileData = initialProfile
       setProfile(profileData)
 
-      if (profileData?.role === 'supporter' || profileData?.role === 'superfan') {
-        setStats(EMPTY_STATS)
-        setDataLoading(false)
-        return
-      }
-
+      // Fetch pending balance from order_items
       if (profileData?.role === 'artist') {
         const { data: orderItemsData } = await supabase
           .from('order_items')
-          .select('order_id, price, quantity')
+          .select('order_id, price, quantity, status')
           .eq('seller_id', serverProfileId)
+
+        const pending = (orderItemsData || [])
+          .filter((item: any) => item.status === 'pending')
+          .reduce((sum: number, item: any) => sum + Number(item.price || 0) * Number(item.quantity || 0), 0)
+        setPendingBalance(pending)
 
         const { count: productsCount } = await supabase
           .from('products')
@@ -75,10 +79,9 @@ export default function DashboardClient({ serverProfileId, lkId, initialProfile 
 
         const uniqueOrderIds = new Set((orderItemsData || []).map((item: any) => item.order_id).filter(Boolean))
         const totalOrders = uniqueOrderIds.size
-        const totalSales = (orderItemsData || []).reduce(
-          (sum: number, item: any) => sum + Number(item.price || 0) * Number(item.quantity || 0),
-          0
-        )
+        const totalSales = (orderItemsData || [])
+          .filter((item: any) => item.status === 'completed')
+          .reduce((sum: number, item: any) => sum + Number(item.price || 0) * Number(item.quantity || 0), 0)
 
         setStats({
           total_sales: totalSales,
@@ -87,18 +90,34 @@ export default function DashboardClient({ serverProfileId, lkId, initialProfile 
           artist_fund_generated: totalSales * 0.1,
           this_month: { sales: totalSales, orders: totalOrders, growth: '0%' },
         })
+      } else {
+        setPendingBalance(0)
       }
     } catch (error) {
       console.error('Failed to load dashboard:', error)
+      setActionError('Failed to load dashboard data')
     } finally {
       setDataLoading(false)
     }
   }
 
   function copy(type: 'page' | 'ref', text: string) {
+    setActionLoading('copy')
     navigator.clipboard.writeText(text)
-    setCopied(type)
-    setTimeout(() => setCopied(null), 2000)
+      .then(() => {
+        setCopied(type)
+        setActionSuccess('Copied to clipboard!')
+        setTimeout(() => {
+          setCopied(null)
+          setActionSuccess(null)
+        }, 2000)
+      })
+      .catch(() => {
+        setActionError('Failed to copy')
+      })
+      .finally(() => {
+        setActionLoading(null)
+      })
   }
 
   if (!mounted || dataLoading) {
@@ -114,8 +133,63 @@ export default function DashboardClient({ serverProfileId, lkId, initialProfile 
     )
   }
 
+  // Error state
+  if (actionError && !dataLoading) {
+    return (
+      <div className="min-h-screen pt-24 pb-12">
+        <div className="pf-container">
+          <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg mb-4">
+            <p className="text-sm text-red-400">{actionError}</p>
+            <button onClick={() => { setActionError(null); setDataLoading(true); loadDashboard(); }} className="mt-2 text-xs text-red-300 hover:underline">Retry</button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   const isArtist = profile?.role === 'artist'
   const isSupporter = !isArtist
+
+  // Money visibility
+  const availableBalance = balance / 100
+  const totalEarned = availableBalance + pendingBalance
+  const canCashOut = availableBalance >= 25
+
+  // Profile completion
+  const profileFields = [
+    profile?.full_name,
+    profile?.bio,
+    profile?.avatar_url,
+    profile?.genre,
+    profile?.city,
+    profile?.instagram_url || profile?.youtube_url || profile?.twitter_url || profile?.tiktok_url,
+  ].filter(Boolean)
+  const completionPct = profile ? Math.round((profileFields.length / 6) * 100) : 0
+
+  // State machine: determine user state and primary CTA
+  const getUserState = () => {
+    if (!profile?.archetype) return 'NEW_USER'
+    if (!profile?.likeness_verified) return 'UNVERIFIED'
+    if (!profile?.full_name || !profile?.bio || !profile?.avatar_url) return 'INCOMPLETE_PROFILE'
+    if (stats.total_products === 0) return 'NO_PRODUCTS'
+    if (!profile?.artist_slug) return 'NO_SLUG'
+    return 'LIVE_SELLING'
+  }
+
+  const userState = getUserState()
+
+  // Primary CTA based on state
+  const primaryCTA = {
+    NEW_USER: { label: 'Take 20-Second Quiz', sub: 'Unlock your earning path', href: '/likelihood', icon: <ArrowRight size={20} />, color: 'from-orange-500/20 to-amber-500/10 border-[var(--pf-orange)]/30' },
+    UNVERIFIED: { label: 'Verify Likeness', sub: 'Required to cash out', href: '/dashboard/dashboard/likeness', icon: <ShieldCheck size={20} />, color: 'from-orange-500/20 to-amber-500/10 border-[var(--pf-orange)]/30' },
+    INCOMPLETE_PROFILE: { label: 'Finish Profile', sub: '3 clicks to go live', href: '/dashboard/dashboard/artist/edit', icon: <ArrowRight size={20} />, color: 'from-purple-500/15 to-blue-500/10 border-purple-500/30' },
+    NO_PRODUCTS: { label: 'Add First Product', sub: 'Start making money', href: '/dashboard/dashboard/add-product', icon: <Plus size={20} />, color: 'from-green-500/15 to-emerald-500/10 border-green-500/30' },
+    NO_SLUG: { label: 'Set Your URL', sub: 'Publish your store', href: '/dashboard/dashboard/artist/edit', icon: <ExternalLink size={20} />, color: 'from-blue-500/15 to-cyan-500/10 border-blue-500/30' },
+    LIVE_SELLING: { label: 'Share Your Page', sub: `porterful.com/artist/${profile.artist_slug}`, href: null, icon: <Copy size={20} />, color: 'from-[var(--pf-orange)]/15 to-amber-500/10 border-[var(--pf-orange)]/30' },
+  }[userState]
+
+  const pageUrl = profile?.artist_slug ? `https://porterful.com/artist/${profile.artist_slug}` : null
+  const refUrl = `${typeof window !== 'undefined' ? window.location.origin : 'https://porterful.com'}/?ref=${profile?.referral_code || ''}`
 
   // ─── Supporter ───────────────────────────────────────────────────────────
   if (isSupporter) {
@@ -138,29 +212,41 @@ export default function DashboardClient({ serverProfileId, lkId, initialProfile 
           <div className="grid sm:grid-cols-3 gap-4 mb-6">
             <div className="pf-card p-5 border border-[var(--pf-orange)]/30">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-xs text-[var(--pf-text-muted)]">Wallet</span>
+                <span className="text-xs text-[var(--pf-text-muted)]">Available</span>
                 <DollarSign size={16} className="text-[var(--pf-orange)]" />
               </div>
-              <p className="text-2xl font-bold">${(balance / 100).toFixed(2)}</p>
-              <Link href="/wallet" className="text-xs text-[var(--pf-orange)] hover:underline mt-1 inline-block">Add funds</Link>
+              <p className="text-2xl font-bold">${availableBalance.toFixed(2)}</p>
+              <p className="text-xs text-[var(--pf-text-muted)] mt-1">{canCashOut ? 'Ready to withdraw' : `$${(25 - availableBalance).toFixed(2)} to cash out`}</p>
             </div>
             <div className="pf-card p-5">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-xs text-[var(--pf-text-muted)]">Purchases</span>
-                <Package size={16} className="text-blue-400" />
+                <span className="text-xs text-[var(--pf-text-muted)]">Pending</span>
+                <DollarSign size={16} className="text-blue-400" />
               </div>
-              <p className="text-2xl font-bold">0</p>
-              <p className="text-xs text-[var(--pf-text-muted)] mt-1">No purchases yet</p>
+              <p className="text-2xl font-bold">${pendingBalance.toFixed(2)}</p>
+              <p className="text-xs text-[var(--pf-text-muted)] mt-1">Processing</p>
             </div>
             <div className="pf-card p-5">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-xs text-[var(--pf-text-muted)]">Referrals</span>
-                <Users size={16} className="text-purple-400" />
+                <span className="text-xs text-[var(--pf-text-muted)]">Total Earned</span>
+                <DollarSign size={16} className="text-green-400" />
               </div>
-              <p className="text-2xl font-bold">{profile?.total_referrals || 0}</p>
-              <p className="text-xs text-[var(--pf-text-muted)] mt-1">Network earnings</p>
+              <p className="text-2xl font-bold">${totalEarned.toFixed(2)}</p>
+              <p className="text-xs text-[var(--pf-text-muted)] mt-1">Lifetime</p>
             </div>
           </div>
+
+          {canCashOut && (
+            <div className="mb-6 p-4 bg-gradient-to-r from-green-500/15 to-emerald-500/10 border border-green-500/30 rounded-xl flex items-center justify-between">
+              <div>
+                <p className="font-bold text-sm">Ready to cash out ${availableBalance.toFixed(2)}?</p>
+                <p className="text-xs text-[var(--pf-text-muted)] mt-0.5">Withdraw to your connected account</p>
+              </div>
+              <button className="px-4 py-2 bg-green-500 text-white text-sm font-bold rounded-xl hover:bg-green-600 transition-colors">
+                Cash Out →
+              </button>
+            </div>
+          )}
 
           <div className="pf-card p-5 flex items-center justify-between">
             <div>
@@ -177,32 +263,6 @@ export default function DashboardClient({ serverProfileId, lkId, initialProfile 
   }
 
   // ─── Artist ───────────────────────────────────────────────────────────────
-  const profileFields = [
-    profile?.full_name,
-    profile?.bio,
-    profile?.avatar_url,
-    profile?.genre,
-    profile?.city,
-    profile?.instagram_url || profile?.youtube_url || profile?.twitter_url || profile?.tiktok_url,
-  ].filter(Boolean)
-  const completionPct = profile ? Math.round((profileFields.length / 6) * 100) : 0
-
-  // Single dynamic primary CTA
-  const primaryCTA = !profile?.likeness_verified
-    ? { label: 'Verify Likeness', sub: 'Required to receive payouts', href: '/dashboard/dashboard/likeness', icon: <ShieldCheck size={20} />, color: 'from-orange-500/20 to-amber-500/10 border-[var(--pf-orange)]/30' }
-    : !profile?.full_name || !profile?.bio
-    ? { label: 'Finish your profile', sub: 'Add your name and bio to go live', href: '/dashboard/dashboard/artist/edit', icon: <ArrowRight size={20} />, color: 'from-purple-500/15 to-blue-500/10 border-purple-500/30' }
-    : !profile?.avatar_url
-    ? { label: 'Add a photo', sub: 'A face builds trust with fans', href: '/dashboard/dashboard/artist/edit', icon: <ArrowRight size={20} />, color: 'from-purple-500/15 to-blue-500/10 border-purple-500/30' }
-    : stats.total_products === 0
-    ? { label: 'Add your first product', sub: 'Start making money while you sleep', href: '/dashboard/dashboard/add-product', icon: <Plus size={20} />, color: 'from-green-500/15 to-emerald-500/10 border-green-500/30' }
-    : !profile?.artist_slug
-    ? { label: 'Set your page URL', sub: 'Publish your artist page', href: '/dashboard/dashboard/artist/edit', icon: <ExternalLink size={20} />, color: 'from-blue-500/15 to-cyan-500/10 border-blue-500/30' }
-    : { label: 'Share your page', sub: `porterful.com/artist/${profile.artist_slug}`, href: null, icon: <Copy size={20} />, color: 'from-[var(--pf-orange)]/15 to-amber-500/10 border-[var(--pf-orange)]/30' }
-
-  const pageUrl = profile?.artist_slug ? `https://porterful.com/artist/${profile.artist_slug}` : null
-  const refUrl = `${typeof window !== 'undefined' ? window.location.origin : 'https://porterful.com'}/?ref=${profile?.referral_code || ''}`
-
   return (
     <div className="min-h-screen pt-24 pb-12">
       <div className="pf-container max-w-4xl">
@@ -240,8 +300,8 @@ export default function DashboardClient({ serverProfileId, lkId, initialProfile 
           </div>
         )}
 
-        {/* Primary CTA */}
-        <div className={`mb-6 p-5 rounded-2xl bg-gradient-to-r ${primaryCTA.color} border flex items-center justify-between gap-4`}>
+        {/* Primary CTA - State Machine Driven */}
+        <div className={`mb-6 p-5 rounded-2xl bg-gradient-to-r ${primaryCTA.color} border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4`}>
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
               {primaryCTA.icon}
@@ -252,22 +312,36 @@ export default function DashboardClient({ serverProfileId, lkId, initialProfile 
             </div>
           </div>
           {primaryCTA.href ? (
-            <Link href={primaryCTA.href} className="px-4 py-2 bg-white text-black text-sm font-bold rounded-xl hover:bg-white/90 transition-colors shrink-0">
+            <Link href={primaryCTA.href} className="w-full sm:w-auto px-4 py-2 bg-white text-black text-sm font-bold rounded-xl hover:bg-white/90 transition-colors shrink-0 text-center">
               Go →
             </Link>
           ) : pageUrl ? (
             <button
               onClick={() => copy('page', pageUrl)}
-              className="flex items-center gap-2 px-4 py-2 bg-white text-black text-sm font-bold rounded-xl hover:bg-white/90 transition-colors shrink-0"
+              disabled={actionLoading === 'copy'}
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-white text-black text-sm font-bold rounded-xl hover:bg-white/90 transition-colors shrink-0 disabled:opacity-50"
             >
-              {copied === 'page' ? <Check size={14} /> : <Copy size={14} />}
-              {copied === 'page' ? 'Copied!' : 'Copy Link'}
+              {actionLoading === 'copy' ? (
+                <span className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+              ) : copied === 'page' ? (
+                <Check size={14} />
+              ) : (
+                <Copy size={14} />
+              )}
+              {actionLoading === 'copy' ? 'Copying...' : copied === 'page' ? 'Copied!' : 'Copy Link'}
             </button>
           ) : null}
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
+        {/* Success/Error States */}
+        {actionSuccess && (
+          <div className="mb-4 p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
+            <p className="text-sm text-green-400">{actionSuccess}</p>
+          </div>
+        )}
+
+        {/* Stats - Mobile Optimized */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
           <div className="pf-card p-5">
             <div className="flex items-center justify-between mb-1">
               <span className="text-xs text-[var(--pf-text-muted)]">Earned</span>
@@ -294,26 +368,40 @@ export default function DashboardClient({ serverProfileId, lkId, initialProfile 
           </div>
         </div>
 
-        {/* Action buttons */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+        {/* Action Buttons - Max 4, Revenue-Focused, Mobile Optimized */}
+        <div className="grid grid-cols-2 gap-3 mb-8">
           {[
-            { label: 'Upload Music', href: '/dashboard/dashboard/upload', icon: <Upload size={18} />, primary: true },
             { label: 'Add Product', href: '/dashboard/dashboard/add-product', icon: <Plus size={18} />, primary: true },
-            { label: 'My Catalog', href: '/dashboard/dashboard/artist', icon: <Music size={18} />, primary: false },
-            { label: 'Earnings', href: '/dashboard/dashboard/earnings', icon: <DollarSign size={18} />, primary: false },
-          ].map((action) => (
-            <Link
+            { label: 'Share Page', action: () => pageUrl && copy('page', pageUrl), icon: <Copy size={18} />, primary: true },
+            ...(stats.total_sales > 0 ? [{ label: 'Earnings', href: '/dashboard/dashboard/earnings', icon: <DollarSign size={18} />, primary: false }] : []),
+            ...(stats.total_orders > 5 ? [{ label: 'Analytics', href: '/dashboard/dashboard/analytics', icon: <ExternalLink size={18} />, primary: false }] : []),
+          ].slice(0, 4).map((action) => (
+            <button
               key={action.label}
-              href={action.href}
-              className={`flex flex-col items-center gap-2 p-4 rounded-xl border transition-colors text-sm font-semibold ${
+              onClick={() => action.action && action.action()}
+              className={`flex flex-col items-center gap-2 p-4 rounded-xl border transition-colors text-sm font-semibold min-h-[44px] ${
                 action.primary
                   ? 'bg-[var(--pf-orange)] border-[var(--pf-orange)] text-white hover:bg-[var(--pf-orange-dark)]'
                   : 'bg-[var(--pf-surface)] border-[var(--pf-border)] hover:border-[var(--pf-orange)]'
-              }`}
+              } ${action.href ? 'cursor-pointer' : ''}`}
+              disabled={actionLoading === 'copy'}
             >
-              {action.icon}
-              {action.label}
-            </Link>
+              {action.href ? (
+                <Link href={action.href} className="flex flex-col items-center gap-2 w-full h-full">
+                  {action.icon}
+                  {action.label}
+                </Link>
+              ) : (
+                <>
+                  {actionLoading === 'copy' ? (
+                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    action.icon
+                  )}
+                  {action.label}
+                </>
+              )}
+            </button>
           ))}
         </div>
 
