@@ -62,8 +62,10 @@ export async function POST(request: NextRequest) {
     const path = `${folder}/${filename}`
 
     // Upload to Supabase Storage using service role (bypasses RLS)
+    // Encode each path segment individually to handle any remaining edge-case chars
+    const encodedPath = path.split('/').map(encodeURIComponent).join('/')
     const uploadRes = await fetch(
-      `${supabaseUrl}/storage/v1/object/${path}`,
+      `${supabaseUrl}/storage/v1/object/${encodedPath}`,
       {
         method: 'POST',
         headers: {
@@ -82,7 +84,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Return public URL
-    const publicUrl = `${supabaseUrl}/storage/v1/object/public/${path}`
+    const publicUrl = `${supabaseUrl}/storage/v1/object/public/${encodedPath}`
 
     return NextResponse.json({ 
       url: publicUrl,
