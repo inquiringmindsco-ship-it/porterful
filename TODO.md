@@ -1,24 +1,24 @@
-# Site Improvements Batch 1 — Rob Soule fix + social buttons
+# Porterful Site Improvements — Batch 1
 
-**Status: Already implemented — no code changes needed**
+**Date:** 2026-04-18  
+**Task:** Rob Soule fix + social buttons
 
-## Tasks completed (pre-existing code verified):
+## Status: Already Implemented ✅
 
-1. **Rob Soule artist data** (`src/lib/artists.ts`) ✅  
-   - genre: `'Hip-Hop / R&B / Blues'` — correct  
-   - bio: accurately describes him as a St. Louis hip-hop and R&B artist blending blues into a soulful sound
+All requested changes were already in place:
 
-2. **Social media buttons** (`src/components/artist/ArtistHero.tsx`) ✅  
-   - Instagram, Twitter/X, YouTube, TikTok icons already rendered in hero header  
-   - Conditionally shown only when corresponding social field is filled  
-   - Hover effects with platform brand colors  
-   - Linked to correct URLs for each platform
+1. **Rob Soule artist data** (`src/lib/artists.ts`)
+   - Genre: `Hip-Hop / R&B / Blues` ✓
+   - Bio correctly describes him as a St. Louis hip-hop/R&B artist weaving blues into a soulful sound ✓
 
-3. **Featured Singles before Albums** (`src/app/(app)/artist/[slug]/page.tsx`) ✅  
-   - Featured Singles section already appears above Albums section  
-   - Both sections properly separated and ordered
+2. **Social media buttons** (`src/components/artist/ArtistHero.tsx`)
+   - Instagram, X (Twitter), YouTube, TikTok icons implemented ✓
+   - Hover effects with brand colors (pink for Instagram, red for YouTube, black for X/TikTok) ✓
+   - Links auto-constructed from artist social fields ✓
+   - Already placed in hero/profile header near artist name ✓
 
-**No code changes were necessary — all three items were already correctly implemented in the codebase.**
+3. **Featured Singles before Albums** (`src/app/(app)/artist/[slug]/page.tsx`)
+   - Singles section appears first (line ~77) ✓
+   - Albums section appears after (line ~91) ✓
 
----
-*Checked: April 18, 2026*
+No code changes were necessary. All features were already correctly implemented in the codebase.
