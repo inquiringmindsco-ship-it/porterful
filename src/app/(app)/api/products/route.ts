@@ -153,7 +153,6 @@ export async function POST(request: NextRequest) {
         seller_type: 'artist',
         status,
         artist_name: artistName,
-        seller_percent: 0.80,
       })
       .select()
       .single()

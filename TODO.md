@@ -1,20 +1,42 @@
-# Porterful Site Improvements - Site Visit 2026-04-18
+# Porterful Site Improvements - Batch 1
 
-## Task: Batch 1 - Rob Soule fix + social buttons
+**Date:** 2026-04-18  
+**Status:** Code changes saved, NOT committed or deployed
 
-Reviewed all requested changes. They were already implemented:
+## Changes Made
 
-1. **Rob Soule artist data** (`src/lib/artists.ts`):
-   - Genre already set to `'Hip-Hop / R&B / Blues'`
-   - Bio already reflects STL hip-hop/R&B with blues/soulful sound
+### 1. Rob Soule Artist Data Fix
+**File:** `src/app/(app)/artists/page.tsx` (PLATFORM_ARTISTS static fallback)
 
-2. **Social media buttons** (`src/app/(app)/artist/[slug]/page.tsx`):
-   - Social Links Bar already present below hero section
-   - Shows Instagram, Twitter/X, YouTube, TikTok icons with full link buttons
-   - Icons styled with brand colors (pink, blue, red, pink)
+- Changed `genre` from `'Rock / Alternative'` → `'Hip-Hop / R&B / Blues'`
+- Changed `bio` from rock description → St. Louis hip-hop/R&B/blues description
 
-3. **Featured Singles before Albums**:
-   - Already in correct order in artist page template
-   - Singles section appears first, Albums section after
+**Note:** The main artists data in `src/lib/artists.ts` already had Rob Soule with the correct genre and bio. Only the static fallback in the artists listing page had the old rock artist data.
 
-**No code changes needed** - all requested improvements were already in place.
+---
+
+### 2. Social Media Buttons on Artist Profile
+**Files:**
+- `src/app/(app)/artist/[slug]/page.tsx` — Social links bar below hero + icons in ArtistHero component
+- `src/app/(app)/artist/artist/[id]/page.tsx` — Social icon buttons next to artist name in profile header
+
+Both pages already have Instagram, Twitter/X, YouTube, and TikTok icons with links. They appear in the hero/header section with proper hover effects.
+
+---
+
+### 3. Featured Singles Before Albums
+**Files:** (Already correct in both pages)
+- `src/app/(app)/artist/[slug]/page.tsx` — Singles section at line 120, Albums at line 135
+- `src/app/(app)/artist/artist/[id]/page.tsx` — Singles section at line 460, Albums at line 495
+
+Both pages already have the correct ordering (Featured Singles → Albums).
+
+---
+
+## No Changes Needed For:
+- Social buttons — already implemented
+- Singles before Albums — already implemented  
+- Rob Soule in `src/lib/artists.ts` — already correct
+
+## Files Modified:
+- `/Users/sentinel/Documents/porterful/src/app/(app)/artists/page.tsx` (1 fix)

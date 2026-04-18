@@ -102,8 +102,8 @@ const PLATFORM_ARTISTS: ArtistProfile[] = [
     full_name: 'Rob Soule',
     email: null,
     avatar_url: '/artist-images/rob-soule/hq720.jpg',
-    bio: 'Rock artist out of St. Louis. Melodic rock with powerful vocals and guitar-driven sound.',
-    genre: 'Rock / Alternative',
+    bio: 'St. Louis hip-hop and R&B artist who weaves the blues into a soulful sound all his own. Rooted in the Lou\'s rich musical legacy — the soul, the struggle, the stories — translated into something new.',
+    genre: 'Hip-Hop / R&B / Blues',
     location: 'St. Louis, MO',
     verified: true,
     likeness_verified: false, // no account linked
