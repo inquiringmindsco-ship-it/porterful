@@ -55,7 +55,6 @@ export default async function DashboardRoot() {
   return (
     <DashboardClient
       serverProfileId={user.id}
-      lkId={profile.lk_id}
       initialProfile={profile}
     />
   )

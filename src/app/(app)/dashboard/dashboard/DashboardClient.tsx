@@ -22,11 +22,10 @@ const EMPTY_STATS: DashboardStats = {
 
 interface DashboardClientProps {
   serverProfileId: string
-  lkId: string
   initialProfile: any
 }
 
-export default function DashboardClient({ serverProfileId, lkId, initialProfile }: DashboardClientProps) {
+export default function DashboardClient({ serverProfileId, initialProfile }: DashboardClientProps) {
   const { supabase } = useSupabase()
   const { balance } = useWallet()
 
@@ -114,6 +113,9 @@ export default function DashboardClient({ serverProfileId, lkId, initialProfile 
     if (!isProfileComplete) {
       return { label: 'Complete Profile', href: '/dashboard/dashboard/artist/edit', icon: Edit, color: 'bg-orange-500 hover:bg-orange-600' }
     }
+    if (!hasOffers) {
+      return { label: 'Choose Products to Sell', href: '/dashboard/dashboard/catalog', icon: Package, color: 'bg-orange-500 hover:bg-orange-600' }
+    }
     if (!hasTracks) {
       return { label: 'Upload First Track', href: '/dashboard/dashboard/upload', icon: Upload, color: 'bg-orange-500 hover:bg-orange-600' }
     }
@@ -191,7 +193,7 @@ export default function DashboardClient({ serverProfileId, lkId, initialProfile 
               <p className="text-2xl font-bold text-blue-400">{stats.sales_count}</p>
             </div>
             <div>
-              <p className="text-xs text-[var(--pf-text-muted)] mb-1">Catalog</p>
+              <p className="text-xs text-[var(--pf-text-muted)] mb-1">Offers</p>
               <p className="text-2xl font-bold text-purple-400">{stats.total_tracks} tracks • {stats.total_offers} offers</p>
             </div>
             <div className="flex items-center justify-end">

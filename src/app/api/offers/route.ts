@@ -105,7 +105,7 @@ export async function POST(req: NextRequest) {
   const { productId } = body;
   if (!productId) return NextResponse.json({ error: 'Missing productId' }, { status: 400 });
 
-  // Resolve product — check static products first, then DB
+  // Resolve product from the curated catalog, with legacy static store slugs as fallback.
   const resolvedProduct = resolveCatalogProduct(productId);
   if (!resolvedProduct) {
     return NextResponse.json({ error: 'Unknown product' }, { status: 400 });

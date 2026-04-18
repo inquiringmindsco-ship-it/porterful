@@ -237,9 +237,9 @@ export default function ArtistDashboardPage() {
               <div className="pf-card p-12 text-center">
                 <Icon.Package />
                 <p className="text-lg font-medium mt-4">No products selected</p>
-                <p className="text-sm text-[var(--pf-text-muted)] mb-4">Choose from Porterful's catalog to start selling</p>
+                <p className="text-sm text-[var(--pf-text-muted)] mb-4">Porterful manages the inventory. Choose a product from the catalog to start selling.</p>
                 <Link href="/dashboard/dashboard/catalog" className="pf-btn pf-btn-primary">
-                  Choose Products
+                  Choose Products to Sell
                 </Link>
               </div>
             ) : (
