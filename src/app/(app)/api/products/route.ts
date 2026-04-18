@@ -1,6 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
+import { createServerClient as createAdminClient } from '@/lib/supabase'
 import { PRODUCTS } from '@/lib/products'
-import { getAuthenticatedClient } from '@/lib/auth-utils'
+
+async function getSessionUser() {
+  const cookieStore = await cookies()
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() { return cookieStore.getAll() },
+        setAll(cookiesToSet) {
+          try { cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options)) } catch {}
+        },
+      },
+    }
+  )
+  const { data: { session } } = await supabase.auth.getSession()
+  return session?.user ?? null
+}
 
 const LIVE_PRODUCT_LIMIT = 3
 
@@ -16,15 +36,15 @@ export async function GET(request: NextRequest) {
   // If mine=1, fetch from Supabase with auth
   if (mine) {
     try {
-      const auth = await getAuthenticatedClient()
-      if (!auth?.user) {
+      const user = await getSessionUser()
+      if (!user) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
       }
-      const { supabase, user } = auth
+      const supabase = createAdminClient()
 
       const query = supabase
         .from('products')
-        .select('id, name, description, category, base_price, images, status, printful_product_id, printful_sync_status, seller_id, created_at')
+        .select('*')
         .eq('seller_id', user.id)
         .order('created_at', { ascending: false })
 
@@ -76,17 +96,11 @@ export async function GET(request: NextRequest) {
 // POST /api/products - Create a new product
 export async function POST(request: NextRequest) {
   try {
-    const auth = await getAuthenticatedClient()
-    if (!auth?.user) {
+    const user = await getSessionUser()
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-    const { supabase, user } = auth
-
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('full_name, username')
-      .eq('id', user.id)
-      .single()
+    const supabase = createAdminClient()
 
     const { count: liveProductsCount } = await supabase
       .from('products')
@@ -110,9 +124,6 @@ export async function POST(request: NextRequest) {
     if (!name || !category || !price) {
       return NextResponse.json({ error: 'Missing required fields: name, category, price' }, { status: 400 })
     }
-
-    // Get artist name from profile
-    const artistName = profile?.full_name || profile?.username || 'Unknown Artist'
 
     const { data, error } = await supabase
       .from('products')

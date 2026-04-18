@@ -19,7 +19,7 @@ interface ArtistProduct {
   status: 'draft' | 'live' | 'archived'
   printful_product_id: string | null
   printful_sync_status: string | null
-  artist_name: string | null
+  seller_id: string
   created_at: string
 }
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAuthenticatedClient } from '@/lib/auth-utils'
+import { createServerClient as createAdminClient } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
 
@@ -22,7 +23,8 @@ export async function GET(request: NextRequest) {
     if (!auth?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-    const { supabase, user } = auth
+    const { user } = auth
+    const supabase = createAdminClient()
 
     const { data, error } = await supabase
       .from('tracks')
@@ -50,7 +52,8 @@ export async function POST(request: NextRequest) {
     if (!auth?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-    const { supabase, user } = auth
+    const { user } = auth
+    const supabase = createAdminClient()
 
     const { data: profile } = await supabase
       .from('profiles')

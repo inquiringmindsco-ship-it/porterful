@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { createServerClient as createAdminClient } from '@/lib/supabase';
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
+import { getAuthenticatedClient } from '@/lib/auth-utils';
 
 // Static store products — IDs are string slugs, not DB UUIDs
 const STATIC_PRODUCTS: Record<string, { name: string; price_cents: number }> = {
@@ -26,21 +25,8 @@ function signOffer(payload: object): string {
 }
 
 async function getSupabaseUser() {
-  const cookieStore = await cookies();
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() { return cookieStore.getAll() },
-        setAll(cookiesToSet) {
-          try { cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options)) } catch {}
-        },
-      },
-    }
-  );
-  const { data: { session } } = await supabase.auth.getSession();
-  return session?.user ?? null;
+  const auth = await getAuthenticatedClient();
+  return auth?.user ?? null;
 }
 
 // POST /api/offers — create a self-contained offer token
