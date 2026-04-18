@@ -61,38 +61,6 @@ export default async function ArtistPage({ params }: PageProps) {
       {/* Hero Section */}
       <ArtistHero artist={artist} featuredTrack={featuredTrack} totalPlays={totalPlays} />
 
-      {/* Social Links Bar */}
-      {artist.social && (artist.social.instagram || artist.social.twitter || artist.social.youtube || artist.social.tiktok) && (
-        <div className="max-w-6xl mx-auto px-6 pt-6">
-          <div className="flex items-center gap-3">
-            {artist.social.instagram && (
-              <a href={`https://instagram.com/${artist.social.instagram}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--pf-surface)] border border-[var(--pf-border)] hover:border-pink-500 transition-colors text-sm text-[var(--pf-text-secondary)]">
-                <Instagram size={15} className="text-pink-400" />
-                <span>@{artist.social.instagram}</span>
-              </a>
-            )}
-            {artist.social.twitter && (
-              <a href={`https://x.com/${artist.social.twitter}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--pf-surface)] border border-[var(--pf-border)] hover:border-blue-500 transition-colors text-sm text-[var(--pf-text-secondary)]">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="text-blue-400"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-                <span>@{artist.social.twitter}</span>
-              </a>
-            )}
-            {artist.social.youtube && (
-              <a href={`https://youtube.com/${artist.social.youtube.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--pf-surface)] border border-[var(--pf-border)] hover:border-red-500 transition-colors text-sm text-[var(--pf-text-secondary)]">
-                <Youtube size={15} className="text-red-500" />
-                <span>{artist.social.youtube}</span>
-              </a>
-            )}
-            {artist.social.tiktok && (
-              <a href={`https://tiktok.com/@${artist.social.tiktok.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--pf-surface)] border border-[var(--pf-border)] hover:border-pink-600 transition-colors text-sm text-[var(--pf-text-secondary)]">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="text-pink-500"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.73a8.26 8.26 0 0 0 4.83 1.54V6.78a4.85 4.85 0 0 1-1-.09z"/></svg>
-                <span>@{artist.social.tiktok}</span>
-              </a>
-            )}
-          </div>
-        </div>
-      )}
-
       {/* Content Grid */}
       <div className="max-w-6xl mx-auto px-6 py-12">
         <div className="grid lg:grid-cols-3 gap-10">

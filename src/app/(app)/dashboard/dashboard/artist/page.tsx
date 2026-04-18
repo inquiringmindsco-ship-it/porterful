@@ -35,7 +35,7 @@ export default function ArtistDashboardPage() {
     const metadataImages = product.metadata?.images
     return Array.isArray(metadataImages) && metadataImages.length > 0 ? metadataImages[0] : null
   }
-  const getProductPrice = (product: any) => product.price ?? product.base_price ?? 0
+  const getProductPrice = (product: any) => Number(product.price ?? product.base_price ?? 0)
 
   useEffect(() => {
     if (authLoading) return
@@ -229,46 +229,52 @@ export default function ArtistDashboardPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold">Products</h2>
-              <Link href="/dashboard/dashboard/artist/add-product" className="pf-btn pf-btn-primary flex items-center gap-2">
-                <Icon.Plus /> Add Product
+              <Link href="/dashboard/dashboard/catalog" className="pf-btn pf-btn-primary flex items-center gap-2">
+                <Icon.Plus /> Choose Products
               </Link>
             </div>
             {dbProducts.length === 0 ? (
               <div className="pf-card p-12 text-center">
                 <Icon.Package />
-                <p className="text-lg font-medium mt-4">No products yet</p>
-                <p className="text-sm text-[var(--pf-text-muted)] mb-4">Add your first product to start selling</p>
-                <Link href="/dashboard/dashboard/artist/add-product" className="pf-btn pf-btn-primary">
-                  Add Product
+                <p className="text-lg font-medium mt-4">No products selected</p>
+                <p className="text-sm text-[var(--pf-text-muted)] mb-4">Choose from Porterful's catalog to start selling</p>
+                <Link href="/dashboard/dashboard/catalog" className="pf-btn pf-btn-primary">
+                  Choose Products
                 </Link>
               </div>
             ) : (
               <div className="space-y-3">
-                {dbProducts.map((product: any) => (
-                  <div key={product.id} className="pf-card p-4 flex items-center gap-4">
-                    <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-[var(--pf-surface)] shrink-0">
-                      {getProductImage(product) ? (
-                        <Image src={getProductImage(product)} alt={getProductTitle(product)} fill sizes="64px" className="object-cover" />
-                      ) : (
-                        <div className="absolute inset-0 flex items-center justify-center text-[var(--pf-text-muted)]">
-                          <Icon.Package />
-                        </div>
-                      )}
+                {dbProducts.map((product: any) => {
+                  const productTitle = getProductTitle(product)
+                  const productImage = getProductImage(product)
+                  const productPrice = getProductPrice(product)
+
+                  return (
+                    <div key={product.id} className="pf-card p-4 flex items-center gap-4">
+                      <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-[var(--pf-surface)] shrink-0">
+                        {productImage ? (
+                          <Image src={productImage} alt={productTitle} fill sizes="64px" className="object-cover" />
+                        ) : (
+                          <div className="absolute inset-0 flex items-center justify-center text-[var(--pf-text-muted)]">
+                            <Icon.Package />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-medium truncate">{productTitle}</h3>
+                        <p className="text-sm text-[var(--pf-text-muted)]">
+                          {product.category} • ${productPrice.toFixed(2)}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className={'px-2 py-1 rounded text-xs ' + (product.status === 'live' ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400')}>
+                          {product.status === 'live' ? 'Live' : 'Draft'}
+                        </span>
+                        <button className="pf-btn pf-btn-secondary"><Icon.Edit /></button>
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-medium truncate">{getProductTitle(product)}</h3>
-                      <p className="text-sm text-[var(--pf-text-muted)]">
-                        {product.category} • ${getProductPrice(product).toFixed(2)}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className={'px-2 py-1 rounded text-xs ' + (product.status === 'live' ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400')}>
-                        {product.status === 'live' ? 'Live' : 'Draft'}
-                      </span>
-                      <button className="pf-btn pf-btn-secondary"><Icon.Edit /></button>
-                    </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             )}
           </div>

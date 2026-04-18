@@ -579,8 +579,8 @@ export default function ArtistProfilePage({ params }: { params: { id: string } }
               <div className="mt-8 p-6 rounded-xl bg-gradient-to-r from-[var(--pf-orange)]/10 to-purple-500/10 border border-[var(--pf-orange)]/20">
                 <h3 className="font-bold mb-2">Sell Your Own Merch</h3>
                 <p className="text-[var(--pf-text-secondary)] text-sm mb-4">Add your own products to the store. Print-on-demand — no inventory needed.</p>
-                <Link href="/dashboard/add-product" className="pf-btn pf-btn-primary inline-flex items-center gap-2 text-sm">
-                  <Plus size={16} /> Add Product
+                <Link href="/dashboard/dashboard/catalog" className="pf-btn pf-btn-primary inline-flex items-center gap-2 text-sm">
+                  <Plus size={16} /> Choose Products
                 </Link>
               </div>
             )}

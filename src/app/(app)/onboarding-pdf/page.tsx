@@ -28,7 +28,7 @@ const PILOT_ROLES = [
     porterfulSteps: [
       '<a href="https://porterful.com/signup" target="_blank">Sign up at porterful.com</a>',
       'Go to Settings → add your business name and logo',
-      'Go to Dashboard → Add Product to list your first item',
+      'Go to Dashboard → Choose Products to pick what to sell',
       'Set your prices and fill in product details',
       'Share your Porterful link wherever you sell',
     ],

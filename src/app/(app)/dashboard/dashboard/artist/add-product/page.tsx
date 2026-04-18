@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useRef } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -46,30 +46,11 @@ export default function AddProductPage() {
 
   // Image upload
   const [uploadingImage, setUploadingImage] = useState(false)
-  const imageInputRef = useRef<HTMLInputElement>(null)
+  const imageInputRef = useRef<HTMLInputElement | null>(null)
 
-  // ─── Guards (after all hooks, before event handlers) ───────────────────
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  if (authLoading) return (
-    <div className="min-h-screen pt-20 pb-24 flex items-center justify-center">
-      <div className="text-[var(--pf-text-muted)]">Loading...</div>
-    </div>
-  )
-
-  if (!user) return (
-    <div className="min-h-screen pt-20 pb-24 flex items-center justify-center">
-      <div className="text-center">
-        <AlertCircle className="w-12 h-12 text-[var(--pf-orange)] mx-auto mb-4" />
-        <h2 className="text-xl font-bold mb-2">Sign in required</h2>
-        <p className="text-[var(--pf-text-secondary)] mb-4">You need to be signed in to add products.</p>
-        <Link href="/login" className="pf-btn pf-btn-primary">Sign In</Link>
-      </div>
-    </div>
-  )
-
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const handleImageUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
+    console.log('[add-product] handleImageUpload fired', { hasFile: !!file, hasUser: !!user })
     if (!file || !user) return
 
     setUploadingImage(true)
@@ -91,7 +72,43 @@ export default function AddProductPage() {
       setUploadingImage(false)
       e.target.value = ''
     }
-  }, [user])
+  }
+
+  const nativeChangeHandler = (event: Event) => {
+    console.log('[add-product] nativeChangeHandler fired')
+    void handleImageUpload(event as unknown as React.ChangeEvent<HTMLInputElement>)
+  }
+
+  const attachImageInput = (node: HTMLInputElement | null) => {
+    if (imageInputRef.current) {
+      imageInputRef.current.removeEventListener('change', nativeChangeHandler as EventListener)
+    }
+
+    imageInputRef.current = node
+
+    if (node) {
+      console.log('[add-product] attachImageInput', { hasNode: true })
+      node.addEventListener('change', nativeChangeHandler as EventListener)
+    }
+  }
+
+  // ─── Guards (after all hooks, before event handlers) ───────────────────
+  if (authLoading) return (
+    <div className="min-h-screen pt-20 pb-24 flex items-center justify-center">
+      <div className="text-[var(--pf-text-muted)]">Loading...</div>
+    </div>
+  )
+
+  if (!user) return (
+    <div className="min-h-screen pt-20 pb-24 flex items-center justify-center">
+      <div className="text-center">
+        <AlertCircle className="w-12 h-12 text-[var(--pf-orange)] mx-auto mb-4" />
+        <h2 className="text-xl font-bold mb-2">Sign in required</h2>
+        <p className="text-[var(--pf-text-secondary)] mb-4">You need to be signed in to add products.</p>
+        <Link href="/login" className="pf-btn pf-btn-primary">Sign In</Link>
+      </div>
+    </div>
+  )
 
   const removeImage = (url: string) => {
     setImages(prev => prev.filter(u => u !== url))
@@ -241,11 +258,10 @@ export default function AddProductPage() {
             </div>
 
             <input
-              ref={imageInputRef}
+              ref={attachImageInput}
               type="file"
               accept="image/*"
               className="hidden"
-              onChange={handleImageUpload}
             />
           </div>
 

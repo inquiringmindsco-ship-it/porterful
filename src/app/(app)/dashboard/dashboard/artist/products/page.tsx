@@ -11,15 +11,18 @@ import { useSupabase } from '@/app/providers'
 
 interface ArtistProduct {
   id: string
-  name: string
+  title: string
   description: string | null
   category: string
   base_price: number
-  images: string[]
+  price?: number | null
+  image_url?: string | null
+  metadata?: { images?: string[] } | null
   status: 'draft' | 'live' | 'archived'
   printful_product_id: string | null
   printful_sync_status: string | null
   seller_id: string
+  seller_type?: string | null
   created_at: string
 }
 
@@ -45,6 +48,19 @@ export default function ArtistProductsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [actionLoading, setActionLoading] = useState<string | null>(null)
+
+  const getProductTitle = (product: ArtistProduct) => product.title || 'Untitled product'
+  const getProductImage = (product: ArtistProduct) => {
+    if (product.image_url) return product.image_url
+    const metadataImages = product.metadata?.images
+    return Array.isArray(metadataImages) && metadataImages.length > 0 ? metadataImages[0] : null
+  }
+  const getProductImageCount = (product: ArtistProduct) => {
+    const metadataImages = product.metadata?.images
+    if (Array.isArray(metadataImages) && metadataImages.length > 0) return metadataImages.length
+    return product.image_url ? 1 : 0
+  }
+  const getProductPrice = (product: ArtistProduct) => Number(product.price ?? product.base_price ?? 0)
 
   const fetchProducts = useCallback(async () => {
     if (!user) return
@@ -90,7 +106,7 @@ export default function ArtistProductsPage() {
   }
 
   const deleteProduct = async (product: ArtistProduct) => {
-    if (!confirm(`Delete "${product.name}"? This cannot be undone.`)) return
+    if (!confirm(`Delete "${getProductTitle(product)}"? This cannot be undone.`)) return
     setActionLoading(product.id)
     try {
       const res = await fetch(`/api/products/${product.id}`, { method: 'DELETE' })
@@ -137,10 +153,10 @@ export default function ArtistProductsPage() {
               ← Back to Dashboard
             </Link>
             <Link
-              href="/dashboard/dashboard/artist/add-product"
+              href="/dashboard/dashboard/catalog"
               className="px-4 py-2 bg-[var(--pf-orange)] text-white rounded-lg font-medium hover:bg-[var(--pf-orange-dark)] transition-colors text-sm flex items-center gap-2"
             >
-              <Plus size={16} /> Add Product
+              <Plus size={16} /> Choose Products
             </Link>
           </div>
         </div>
@@ -164,7 +180,7 @@ export default function ArtistProductsPage() {
               Create your first merch product and start earning. Upload artwork, set your price, connect Printful.
             </p>
             <Link
-              href="/dashboard/dashboard/artist/add-product"
+              href="/dashboard/dashboard/catalog"
               className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--pf-orange)] text-white rounded-xl font-medium hover:bg-[var(--pf-orange-dark)] transition-colors"
             >
               <Plus size={18} /> Add Your First Product
@@ -177,6 +193,9 @@ export default function ArtistProductsPage() {
           <div className="space-y-4">
             {products.map(product => {
               const statusInfo = STATUS_LABELS[product.status]
+              const productTitle = getProductTitle(product)
+              const productImage = getProductImage(product)
+              const productPrice = getProductPrice(product)
               return (
                 <div
                   key={product.id}
@@ -185,10 +204,10 @@ export default function ArtistProductsPage() {
                   <div className="flex items-center gap-4">
                     {/* Image */}
                     <div className="w-20 h-20 rounded-xl overflow-hidden bg-[var(--pf-bg)] shrink-0">
-                      {product.images?.[0] ? (
+                      {productImage ? (
                         <Image
-                          src={product.images[0]}
-                          alt={product.name}
+                          src={productImage}
+                          alt={productTitle}
                           width={80}
                           height={80}
                           className="object-cover w-full h-full"
@@ -203,7 +222,7 @@ export default function ArtistProductsPage() {
                     {/* Info */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-semibold truncate">{product.name}</h3>
+                        <h3 className="font-semibold truncate">{productTitle}</h3>
                         <span className={`px-2 py-0.5 rounded-full text-xs font-medium border ${statusInfo.className}`}>
                           {statusInfo.label}
                         </span>
@@ -216,11 +235,11 @@ export default function ArtistProductsPage() {
                       <div className="flex items-center gap-3 text-sm text-[var(--pf-text-muted)]">
                         <span>{CATEGORY_LABELS[product.category] || product.category}</span>
                         <span>·</span>
-                        <span className="font-medium text-[var(--pf-text)]">${product.base_price?.toFixed(2)}</span>
-                        {product.images?.length > 0 && (
+                        <span className="font-medium text-[var(--pf-text)]">${productPrice.toFixed(2)}</span>
+                        {productImage && getProductImageCount(product) > 0 && (
                           <>
                             <span>·</span>
-                            <span>{product.images.length} image{product.images.length !== 1 ? 's' : ''}</span>
+                            <span>{getProductImageCount(product)} image{getProductImageCount(product) !== 1 ? 's' : ''}</span>
                           </>
                         )}
                       </div>

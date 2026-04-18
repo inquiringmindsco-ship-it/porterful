@@ -42,7 +42,7 @@ export async function GET(request: Request) {
         *,
         order_items (
           *,
-          products (name, images)
+          products (title, image_url, metadata)
         )
       `)
       .eq('buyer_id', user.id)
@@ -122,7 +122,7 @@ export async function POST(request: Request) {
       subtotal += itemTotal
       return {
         product_id: product.id,
-        product_name: product.name,
+        product_name: product.title,
         quantity: item.quantity,
         price: product.price,
         seller_id: product.seller_id,

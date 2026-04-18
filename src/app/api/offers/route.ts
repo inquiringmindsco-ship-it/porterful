@@ -52,12 +52,12 @@ export async function POST(req: NextRequest) {
     const supabase = createAdminClient();
     const { data: product } = await supabase
       .from('products')
-      .select('id, name, base_price')
+      .select('id, title, base_price')
       .eq('id', productId)
       .limit(1)
       .single();
     if (!product) return NextResponse.json({ error: 'Unknown product' }, { status: 400 });
-    productName = product.name;
+    productName = product.title;
     priceCents = Math.round(Number(product.base_price) * 100);
   }
 

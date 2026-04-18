@@ -118,7 +118,7 @@ export default function DashboardClient({ serverProfileId, lkId, initialProfile 
       return { label: 'Upload First Track', href: '/dashboard/dashboard/upload', icon: Upload, color: 'bg-orange-500 hover:bg-orange-600' }
     }
     if (!hasProducts) {
-          return { label: 'Add Product', href: '/dashboard/dashboard/artist/add-product', icon: Package, color: 'bg-orange-500 hover:bg-orange-600' }
+      return { label: 'Sell Products', href: '/dashboard/dashboard/catalog', icon: Package, color: 'bg-orange-500 hover:bg-orange-600' }
     }
     return { label: 'Share Your Store', href: '/store/' + (profile?.username || profile?.id), icon: Share2, color: 'bg-orange-500 hover:bg-orange-600' }
   }
@@ -232,9 +232,9 @@ export default function DashboardClient({ serverProfileId, lkId, initialProfile 
             <Upload size={24} className="text-purple-400" />
             <span className="text-sm font-medium">Upload Track</span>
           </Link>
-          <Link href="/dashboard/dashboard/artist/add-product" className="pf-card p-4 flex flex-col items-center justify-center gap-2 hover:border-[var(--pf-orange)] transition-colors">
+          <Link href="/dashboard/dashboard/catalog" className="pf-card p-4 flex flex-col items-center justify-center gap-2 hover:border-[var(--pf-orange)] transition-colors">
             <Package size={24} className="text-orange-400" />
-            <span className="text-sm font-medium">Add Product</span>
+            <span className="text-sm font-medium">Sell Products</span>
           </Link>
           <Link href={`/store/${profile?.username || profile?.id}`} className="pf-card p-4 flex flex-col items-center justify-center gap-2 hover:border-[var(--pf-orange)] transition-colors">
             <Share2 size={24} className="text-blue-400" />
@@ -286,9 +286,9 @@ function ContentOverview({ stats }: { stats: DashboardStats }) {
               <ChevronRight size={16} className="text-[var(--pf-text-muted)]" />
             </div>
           </Link>
-          <Link href="/dashboard/dashboard/artist/add-product" className="block p-3 rounded-lg hover:bg-[var(--pf-surface)] transition-colors">
+          <Link href="/dashboard/dashboard/catalog" className="block p-3 rounded-lg hover:bg-[var(--pf-surface)] transition-colors">
             <div className="flex items-center justify-between">
-              <span className="text-sm">Add Product</span>
+              <span className="text-sm">Browse Catalog</span>
               <ChevronRight size={16} className="text-[var(--pf-text-muted)]" />
             </div>
           </Link>

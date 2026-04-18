@@ -1,42 +1,25 @@
-# Porterful Site Improvements - Batch 1
+# Porterful Site Improvements — Batch 1 (Rob Soule fix + social buttons)
 
-**Date:** 2026-04-18  
-**Status:** Code changes saved, NOT committed or deployed
+**Status: SAVED (not committed or deployed)**
+
+---
 
 ## Changes Made
 
-### 1. Rob Soule Artist Data Fix
-**File:** `src/app/(app)/artists/page.tsx` (PLATFORM_ARTISTS static fallback)
+### 1. Rob Soule Artist Data — ✅ Already Correct
+- Genre: `Hip-Hop / R&B / Blues` — was already set correctly
+- Bio: Already described him correctly as "St. Louis hip-hop and R&B artist who weaves the blues into a soulful sound"
+- No changes needed
 
-- Changed `genre` from `'Rock / Alternative'` → `'Hip-Hop / R&B / Blues'`
-- Changed `bio` from rock description → St. Louis hip-hop/R&B/blues description
+### 2. Social Media Buttons — ✅ Fixed
+- **Problem:** Artist profile page (`src/app/(app)/artist/[slug]/page.tsx`) had a duplicate social links bar between the Hero section and the content grid, showing text links like `@username` in pill badges
+- **Fix:** Removed the duplicate bar — social buttons with icons already exist in the `ArtistHero` component (`src/components/artist/ArtistHero.tsx`), displayed as a row of circular icon buttons in the profile header area, near the artist name. The duplicate text-based bar was redundant and visually inconsistent
+- Removed the `Instagram`, `Youtube`, and unused `Music2` imports from the page file since they're no longer used there
 
-**Note:** The main artists data in `src/lib/artists.ts` already had Rob Soule with the correct genre and bio. Only the static fallback in the artists listing page had the old rock artist data.
-
----
-
-### 2. Social Media Buttons on Artist Profile
-**Files:**
-- `src/app/(app)/artist/[slug]/page.tsx` — Social links bar below hero + icons in ArtistHero component
-- `src/app/(app)/artist/artist/[id]/page.tsx` — Social icon buttons next to artist name in profile header
-
-Both pages already have Instagram, Twitter/X, YouTube, and TikTok icons with links. They appear in the hero/header section with proper hover effects.
+### 3. Featured Singles Before Albums — ✅ Already Correct
+- On artist profile pages, the "Featured Singles" section already appears before the "Albums" section
+- No changes needed
 
 ---
 
-### 3. Featured Singles Before Albums
-**Files:** (Already correct in both pages)
-- `src/app/(app)/artist/[slug]/page.tsx` — Singles section at line 120, Albums at line 135
-- `src/app/(app)/artist/artist/[id]/page.tsx` — Singles section at line 460, Albums at line 495
-
-Both pages already have the correct ordering (Featured Singles → Albums).
-
----
-
-## No Changes Needed For:
-- Social buttons — already implemented
-- Singles before Albums — already implemented  
-- Rob Soule in `src/lib/artists.ts` — already correct
-
-## Files Modified:
-- `/Users/sentinel/Documents/porterful/src/app/(app)/artists/page.tsx` (1 fix)
+**Note:** All changes saved to working directory. Ready for review/deploy when approved.
