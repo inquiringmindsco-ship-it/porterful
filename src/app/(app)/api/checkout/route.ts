@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { decodePorterfulSession } from '@/lib/porterful-session'
+import { normalizeReferralHandle } from '@/lib/referral'
 
 // Dynamic Stripe import
 async function getStripe() {
@@ -17,7 +18,7 @@ export async function POST(request: NextRequest) {
 
     // Read referral cookie server-side — fallback to client-passed value
     const cookieReferralCode = request.cookies.get('porterful_referral')?.value || null
-    const effectiveReferralCode = referralCode || cookieReferralCode
+    const effectiveReferralCode = normalizeReferralHandle(referralCode || cookieReferralCode)
 
     // Check if this is digital (tracks) or physical (merch)
     const isDigital = items.some((item: any) => item.type === 'track' || item.type === 'digital')

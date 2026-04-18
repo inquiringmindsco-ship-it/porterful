@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useSupabase } from '@/app/providers'
 import { useWallet } from '@/lib/wallet-context'
-import { Upload, Package, Share2, Edit, DollarSign, Music, ChevronRight } from 'lucide-react'
+import { Upload, Package, Share2, Edit, DollarSign, Music, ChevronRight, Copy } from 'lucide-react'
 
 interface DashboardStats {
   total_earnings: number
@@ -118,8 +118,37 @@ export default function DashboardClient({ serverProfileId, initialProfile }: Das
   const isArtist = profile?.role === 'artist'
   const isProfileComplete = profile?.name && profile?.avatar_url
   const hasOffers = stats.total_offers > 0 || hasRecentOffer
-  const hasTracks = stats.total_tracks > 0
   const displayOfferCount = Math.max(stats.total_offers, hasRecentOffer ? 1 : 0)
+  const storeHandle = profile?.username || profile?.referral_code || profile?.id
+  const storePath = storeHandle ? `/store?ref=${encodeURIComponent(storeHandle)}` : '/store'
+  const storeUrl = typeof window !== 'undefined'
+    ? `${window.location.origin}${storePath}`
+    : `https://porterful.com${storePath}`
+
+  const handleCopyStoreLink = async () => {
+    try {
+      await navigator.clipboard.writeText(storeUrl)
+      setCopySuccess(true)
+      window.setTimeout(() => setCopySuccess(false), 1500)
+    } catch (error) {
+      console.error('Failed to copy store link:', error)
+    }
+  }
+
+  const handleShareStoreLink = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: 'Porterful Store',
+          url: storeUrl,
+        })
+      } else {
+        await handleCopyStoreLink()
+      }
+    } catch (error) {
+      console.error('Failed to share store link:', error)
+    }
+  }
 
   // Dynamic Primary CTA based on state
   const getPrimaryCTA = () => {
@@ -129,10 +158,7 @@ export default function DashboardClient({ serverProfileId, initialProfile }: Das
     if (!hasOffers) {
       return { label: 'Choose Products to Sell', href: '/dashboard/dashboard/catalog', icon: Package, color: 'bg-orange-500 hover:bg-orange-600' }
     }
-    if (!hasTracks) {
-      return { label: 'Upload First Track', href: '/dashboard/dashboard/upload', icon: Upload, color: 'bg-orange-500 hover:bg-orange-600' }
-    }
-    return { label: 'Share Your Store', href: '/store/' + (profile?.username || profile?.id), icon: Share2, color: 'bg-orange-500 hover:bg-orange-600' }
+    return { label: 'My Store Link', href: storePath, icon: Share2, color: 'bg-orange-500 hover:bg-orange-600' }
   }
 
   const primaryCTA = getPrimaryCTA()
@@ -238,32 +264,30 @@ export default function DashboardClient({ serverProfileId, initialProfile }: Das
           </div>
         </div>
 
-        {/* MY STORE LINK */}
         <div className="bg-gradient-to-r from-[var(--pf-orange)]/10 to-purple-500/10 border border-[var(--pf-orange)]/20 rounded-xl p-6 mb-6">
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <h3 className="font-bold text-lg">My Store Link</h3>
-              <p className="text-sm text-[var(--pf-text-muted)]">Share this link — earn 3% commission on every sale</p>
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div className="min-w-0">
+              <p className="text-sm text-[var(--pf-text-muted)] mb-1">My Store Link</p>
+              <p className="truncate font-mono text-sm text-[var(--pf-text)]">{storePath}</p>
             </div>
-          </div>
-          <div className="flex gap-3">
-            <input
-              type="text"
-              readOnly
-              value={`porterful.com/store?ref=${profile?.username || profile?.id}`}
-              className="flex-1 px-4 py-3 bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-xl text-sm font-mono text-[var(--pf-text-secondary)]"
-              onClick={(e) => (e.target as HTMLInputElement).select()}
-            />
-            <button
-              onClick={() => {
-                navigator.clipboard.writeText(`https://porterful.com/store?ref=${profile?.username || profile?.id}`)
-                setCopySuccess(true)
-                setTimeout(() => setCopySuccess(false), 2000)
-              }}
-              className="px-6 py-3 bg-[var(--pf-orange)] hover:bg-[var(--pf-orange-dark)] text-white rounded-xl font-bold transition-colors flex items-center gap-2"
-            >
-              {copySuccess ? '✓ Copied' : 'Copy Link'}
-            </button>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={handleCopyStoreLink}
+                className="inline-flex items-center gap-2 rounded-lg border border-[var(--pf-border)] px-4 py-2 text-sm font-semibold text-[var(--pf-text)] transition-colors hover:border-[var(--pf-orange)]/40"
+              >
+                <Copy size={14} />
+                {copySuccess ? 'Copied' : 'Copy'}
+              </button>
+              <button
+                type="button"
+                onClick={handleShareStoreLink}
+                className="inline-flex items-center gap-2 rounded-lg bg-[var(--pf-orange)] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[var(--pf-orange-dark)]"
+              >
+                <Share2 size={14} />
+                Share
+              </button>
+            </div>
           </div>
         </div>
 
@@ -273,10 +297,15 @@ export default function DashboardClient({ serverProfileId, initialProfile }: Das
             <Upload size={24} className="text-purple-400" />
             <span className="text-sm font-medium">Upload Track</span>
           </Link>
-          
-          <Link href={`/store/${profile?.username || profile?.id}`} className="pf-card p-4 flex flex-col items-center justify-center gap-2 hover:border-[var(--pf-orange)] transition-colors">
+
+          <Link href="/dashboard/dashboard/catalog" className="pf-card p-4 flex flex-col items-center justify-center gap-2 hover:border-[var(--pf-orange)] transition-colors">
+            <Package size={24} className="text-orange-400" />
+            <span className="text-sm font-medium">Choose Products</span>
+          </Link>
+
+          <Link href={storePath} className="pf-card p-4 flex flex-col items-center justify-center gap-2 hover:border-[var(--pf-orange)] transition-colors">
             <Share2 size={24} className="text-blue-400" />
-            <span className="text-sm font-medium">Share Store</span>
+            <span className="text-sm font-medium">My Store Link</span>
           </Link>
           <Link href="/dashboard/dashboard/earnings" className="pf-card p-4 flex flex-col items-center justify-center gap-2 hover:border-[var(--pf-orange)] transition-colors">
             <DollarSign size={24} className="text-green-400" />

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase';
 import Stripe from 'stripe';
+import { resolveReferrerId, normalizeReferralHandle } from '@/lib/referral';
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
@@ -21,46 +22,20 @@ export async function POST(req: NextRequest) {
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session;
     const metadata = session.metadata || {};
-    const { lk_id, user_id, username, product_id, source, offer_id } = metadata;
+    const { lk_id, user_id, username, product_id, source, offer_id, referral_code } = metadata;
     const supabase = createServerClient();
 
     if (session.payment_status !== 'paid') {
       return NextResponse.json({ received: true });
     }
 
-    // Resolve referrer_id from Likeness™ identity (lk_id)
-    // The profiles table links Likeness™ identity to Porterful profile
+    // Resolve referrer_id from the referral handle carried through checkout.
     let referrerId: string | null = null;
-    let profileId: string | null = null;
+    const profileId: string | null = null;
 
-    if (lk_id) {
-      // Find profile(s) that have this Likeness™ identity
-      // profiles table may store lk_id in metadata — check via email if available
-      if (session.customer_email) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('email', session.customer_email.toLowerCase())
-          .limit(1)
-          .maybeSingle();
-        if (profile) {
-          referrerId = profile.id;
-          profileId = profile.id;
-        }
-      }
-      // Fallback: try to find by username match in metadata
-      if (!referrerId && username) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('username', username)
-          .limit(1)
-          .maybeSingle();
-        if (profile) {
-          referrerId = profile.id;
-          profileId = profile.id;
-        }
-      }
+    const referrerHandle = normalizeReferralHandle(referral_code || username || lk_id || null)
+    if (referrerHandle) {
+      referrerId = await resolveReferrerId(supabase, referrerHandle)
     }
 
     // Also try to find buyer profile
@@ -166,7 +141,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Update superfans earnings if referrer is a superfan
-    if (referrerId) {
+    if (referrerId && superfanTotal > 0) {
       const { data: superfan } = await supabase
         .from('superfans')
         .select('id, total_earnings, available_earnings')
@@ -175,14 +150,25 @@ export async function POST(req: NextRequest) {
         .maybeSingle();
 
       if (superfan) {
-        const commission = Math.round(amount * 0.03);
         await supabase
           .from('superfans')
           .update({
-            total_earnings: (superfan.total_earnings || 0) + commission,
-            available_earnings: (superfan.available_earnings || 0) + commission,
+            total_earnings: (superfan.total_earnings || 0) + superfanTotal,
+            available_earnings: (superfan.available_earnings || 0) + superfanTotal,
           })
           .eq('id', referrerId);
+      }
+
+      // Record in referral_earnings table (correct schema: superfan_id, order_id, amount DECIMAL, status)
+      if (order?.id) {
+        await supabase
+          .from('referral_earnings')
+          .insert({
+            superfan_id: referrerId,
+            order_id: order.id,
+            amount: superfanTotal / 100,
+            status: 'pending',
+          });
       }
     }
   }

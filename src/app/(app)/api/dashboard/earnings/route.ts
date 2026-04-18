@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase';
 import { decodePorterfulSession } from '@/lib/porterful-session';
 
-// GET /api/dashboard/earnings — read real earnings from existing ledger
 export async function GET(req: NextRequest) {
   const sessionToken = req.cookies.get('porterful_session')?.value;
   if (!sessionToken) {
@@ -47,32 +46,27 @@ export async function GET(req: NextRequest) {
     .limit(1)
     .maybeSingle();
 
-  // 3. Get recent orders as buyer
+  // 3. Get referral earnings (commissions from being a referrer)
+  const { data: referralRows } = await supabase
+    .from('referral_earnings')
+    .select('id, amount, status, created_at, order_id')
+    .eq('superfan_id', sellerId)
+    .order('created_at', { ascending: false })
+    .limit(20);
+
+  const referralEarnings = (referralRows || []).map((r: any) => ({
+    ...r,
+    amount_cents: Math.round((r.amount || 0) * 100),
+  }));
+  const totalReferralCents = referralEarnings.reduce((s: number, r: any) => s + r.amount_cents, 0);
+
+  // 4. Get recent orders as buyer
   const { data: purchases } = await supabase
     .from('orders')
     .select('id, amount, product_id, created_at')
     .eq('buyer_email', session.email.toLowerCase())
     .order('created_at', { ascending: false })
     .limit(5);
-
-  // 4. Get referral earnings breakdown from referral_earnings table
-  const { data: referralRows } = await supabase
-    .from('referral_earnings')
-    .select('id, commission_cents, status, created_at, order_id')
-    .eq('referrer_id', sellerId)
-    .order('created_at', { ascending: false })
-    .limit(20);
-
-  const pendingReferral = (referralRows || [])
-    .filter(e => e.status === 'pending')
-    .reduce((sum: number, e: any) => sum + (e.commission_cents || 0), 0);
-
-  const totalReferralEarned = (referralRows || [])
-    .reduce((sum: number, e: any) => sum + (e.commission_cents || 0), 0);
-
-  const paidReferral = (referralRows || [])
-    .filter(e => e.status === 'paid')
-    .reduce((sum: number, e: any) => sum + (e.commission_cents || 0), 0);
 
   return NextResponse.json({
     seller: {
@@ -85,12 +79,19 @@ export async function GET(req: NextRequest) {
       available_cents: Math.round((superfan.available_earnings || 0) * 100),
       tier: superfan.tier,
     } : null,
-    purchases: purchases || [],
     referral: {
-      total_earned_cents: totalReferralEarned,
-      pending_cents: pendingReferral,
-      paid_cents: paidReferral,
-      history: referralRows || [],
+      total_earned_cents: totalReferralCents,
+      pending_cents: referralEarnings
+        .filter((r: any) => r.status === 'pending')
+        .reduce((s: number, r: any) => s + r.amount_cents, 0),
+      available_cents: referralEarnings
+        .filter((r: any) => r.status === 'available')
+        .reduce((s: number, r: any) => s + r.amount_cents, 0),
+      paid_cents: referralEarnings
+        .filter((r: any) => r.status === 'withdrawn')
+        .reduce((s: number, r: any) => s + r.amount_cents, 0),
+      recent: referralEarnings.slice(0, 10),
     },
+    purchases: purchases || [],
   });
 }

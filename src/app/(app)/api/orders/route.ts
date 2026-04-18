@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
+import { resolveReferrerId, normalizeReferralHandle } from '@/lib/referral'
 
 // GET /api/orders - List user's orders
 export async function GET(request: Request) {
@@ -96,7 +97,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { items, shipping_address, referrer_code } = body
+    const { items, shipping_address, referrer_code, referralCode } = body
 
     // Validate items
     if (!items || items.length === 0) {
@@ -118,44 +119,45 @@ export async function POST(request: Request) {
     let subtotal = 0
     const orderItems = items.map((item: any) => {
       const product = products.find(p => p.id === item.product_id)
-      const itemTotal = product.price * item.quantity
+      const itemTotal = Number(product.price) * Number(item.quantity)
       subtotal += itemTotal
       return {
         product_id: product.id,
-        product_name: product.title,
+        product_name: product.title || product.name || 'Product',
         quantity: item.quantity,
         price: product.price,
         seller_id: product.seller_id,
-        artist_id: product.linked_artist_id,
+        artist_id: product.linked_artist_id || product.artist_id,
       }
     })
 
     // Calculate revenue splits
-    const sellerTotal = subtotal * 0.67
-    const artistFundTotal = subtotal * 0.20
-    const superfanTotal = subtotal * 0.03
-    const platformTotal = subtotal * 0.10
+    const sellerTotal = Math.round(subtotal * 0.67)
+    const artistFundTotal = Math.round(subtotal * 0.20)
+    const superfanTotal = Math.round(subtotal * 0.03)
+    const platformTotal = Math.round(subtotal * 0.10)
 
     // Get referrer if provided
-    let referrerId = null
-    if (referrer_code) {
-      const { data: referrer } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('referral_code', referrer_code)
-        .single()
-      if (referrer) {
-        referrerId = referrer.id
-      }
-    }
+    const referrerHandle = normalizeReferralHandle(
+      referrer_code ||
+      referralCode ||
+      cookieStore.get('porterful_referral')?.value ||
+      null
+    )
+    const referrerId = await resolveReferrerId(supabase, referrerHandle)
 
     // Create order
     const { data: order, error: orderError } = await supabase
       .from('orders')
       .insert({
+        user_id: user.id,
         buyer_id: user.id,
-        subtotal,
-        total: subtotal,
+        buyer_email: user.email || null,
+        amount: subtotal,
+        seller_total: sellerTotal,
+        artist_fund_total: artistFundTotal,
+        superfan_total: superfanTotal,
+        platform_total: platformTotal,
         referrer_id: referrerId,
         shipping_address: shipping_address,
         status: 'pending',

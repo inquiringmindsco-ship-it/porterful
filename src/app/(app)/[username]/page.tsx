@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 
-export default async function StoreUsernameAliasPage({
+export default async function UsernameAliasPage({
   params,
 }: {
   params: Promise<{ username: string }>

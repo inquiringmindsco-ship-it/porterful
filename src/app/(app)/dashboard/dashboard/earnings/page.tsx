@@ -28,6 +28,18 @@ interface EarningsData {
     product_id: string;
     created_at: string;
   }>;
+  referral: {
+    total_earned_cents: number;
+    pending_cents: number;
+    paid_cents: number;
+    history: Array<{
+      id: string;
+      commission_cents: number;
+      status: string;
+      created_at: string;
+      order_id: string;
+    }>;
+  };
 }
 
 function formatCents(c: number) {
@@ -94,7 +106,7 @@ export default function EarningsDashboard() {
     );
   }
 
-  const { seller, superfan } = data;
+  const { seller, superfan, referral, purchases } = data;
   const hasSales = seller.order_count > 0;
   return (
     <div className="space-y-8">
@@ -156,6 +168,49 @@ export default function EarningsDashboard() {
           <p className="text-sm text-gray-500">Items bought through Porterful</p>
         </div>
       </div>
+
+      {/* Referral Commissions */}
+      {data.referral && (
+        <div className="bg-gradient-to-r from-green-500/10 to-emerald-600/10 border border-green-500/30 rounded-2xl p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
+              <TrendingUp className="w-5 h-5 text-green-400" />
+            </div>
+            <div>
+              <p className="text-sm text-gray-400">Referral Commissions</p>
+              <p className="text-2xl font-black text-white">{formatCents(data.referral.total_earned_cents)}</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-xs text-gray-500 mb-1">Pending</p>
+              <p className="text-lg font-bold text-yellow-400">{formatCents(data.referral.pending_cents)}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500 mb-1">Paid Out</p>
+              <p className="text-lg font-bold text-green-400">{formatCents(data.referral.paid_cents)}</p>
+            </div>
+          </div>
+          {data.referral.history.length > 0 && (
+            <div className="mt-4 pt-4 border-t border-green-500/20">
+              <p className="text-xs text-gray-500 mb-2">{data.referral.recent.length} referral commission(s)</p>
+              {data.referral.recent.slice(0, 3).map((entry) => (
+                <div key={entry.id} className="flex items-center justify-between py-1">
+                  <span className="text-sm text-gray-400 flex items-center gap-1">
+                    <Clock className="w-3 h-3" /> {timeAgo(entry.created_at)}
+                  </span>
+                  <span className="text-sm font-bold text-green-400">+{formatCents(entry.amount_cents)}</span>
+                  <span className={`text-xs px-2 py-0.5 rounded-full ${
+                    entry.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400' :
+                    entry.status === 'withdrawn' ? 'bg-green-500/20 text-green-400' :
+                    'bg-gray-500/20 text-gray-400'
+                  }`}>{entry.status}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Recent Sales */}
       <div>

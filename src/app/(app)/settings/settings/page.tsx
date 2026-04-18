@@ -310,11 +310,11 @@ export default function SettingsPage() {
                       <input
                         type="text"
                         readOnly
-                        value={`https://porterful.com?ref=${referralCode}`}
+                        value={`https://porterful.com/store?ref=${encodeURIComponent(referralCode)}`}
                         className="flex-1 bg-[var(--pf-bg)] border border-gray-700 rounded-lg px-4 py-3"
                       />
                       <button
-                        onClick={() => navigator.clipboard.writeText(`https://porterful.com?ref=${referralCode}`)}
+                        onClick={() => navigator.clipboard.writeText(`https://porterful.com/store?ref=${encodeURIComponent(referralCode)}`)}
                         className="bg-[var(--pf-surface)] text-white px-4 py-3 rounded-lg hover:bg-[var(--pf-surface-hover)] transition-colors"
                       >
                         Copy Link
