@@ -52,6 +52,19 @@ function CatalogCard({ product }: { product: (typeof FEATURED_PRODUCTS)[number] 
         copied: false,
         error: '',
       })
+
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem(
+          'porterful_recent_offer',
+          JSON.stringify({
+            offerId: data.offer_id,
+            offerLink: data.offer_url || data.offer_link || null,
+            productId: product.id,
+            productName: product.name,
+            createdAt: Date.now(),
+          })
+        )
+      }
     } catch (error: any) {
       setState((prev) => ({
         ...prev,

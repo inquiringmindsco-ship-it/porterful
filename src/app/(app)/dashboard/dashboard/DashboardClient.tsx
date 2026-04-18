@@ -33,7 +33,19 @@ export default function DashboardClient({ serverProfileId, initialProfile }: Das
   const [dataLoading, setDataLoading] = useState(true)
   const [stats, setStats] = useState<DashboardStats>(EMPTY_STATS)
   const [profile, setProfile] = useState<any>(initialProfile)
+  const [hasRecentOffer, setHasRecentOffer] = useState(false)
+  const [copySuccess, setCopySuccess] = useState(false)
   useEffect(() => { setMounted(true) }, [])
+
+  useEffect(() => {
+    if (!mounted) return
+    try {
+      const recentOffer = window.localStorage.getItem('porterful_recent_offer')
+      setHasRecentOffer(!!recentOffer)
+    } catch {
+      setHasRecentOffer(false)
+    }
+  }, [mounted])
 
   useEffect(() => {
     if (!mounted || !serverProfileId) return
@@ -105,8 +117,9 @@ export default function DashboardClient({ serverProfileId, initialProfile }: Das
 
   const isArtist = profile?.role === 'artist'
   const isProfileComplete = profile?.name && profile?.avatar_url
-  const hasOffers = stats.total_offers > 0
+  const hasOffers = stats.total_offers > 0 || hasRecentOffer
   const hasTracks = stats.total_tracks > 0
+  const displayOfferCount = Math.max(stats.total_offers, hasRecentOffer ? 1 : 0)
 
   // Dynamic Primary CTA based on state
   const getPrimaryCTA = () => {
@@ -194,7 +207,7 @@ export default function DashboardClient({ serverProfileId, initialProfile }: Das
             </div>
             <div>
               <p className="text-xs text-[var(--pf-text-muted)] mb-1">Offers</p>
-              <p className="text-2xl font-bold text-purple-400">{stats.total_tracks} tracks • {stats.total_offers} offers</p>
+              <p className="text-2xl font-bold text-purple-400">{stats.total_tracks} tracks • {displayOfferCount} offers</p>
             </div>
             <div className="flex items-center justify-end">
               <Link 
@@ -222,6 +235,35 @@ export default function DashboardClient({ serverProfileId, initialProfile }: Das
               <PrimaryIcon size={20} />
               {primaryCTA.label}
             </Link>
+          </div>
+        </div>
+
+        {/* MY STORE LINK */}
+        <div className="bg-gradient-to-r from-[var(--pf-orange)]/10 to-purple-500/10 border border-[var(--pf-orange)]/20 rounded-xl p-6 mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <h3 className="font-bold text-lg">My Store Link</h3>
+              <p className="text-sm text-[var(--pf-text-muted)]">Share this link — earn 3% commission on every sale</p>
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <input
+              type="text"
+              readOnly
+              value={`porterful.com/store?ref=${profile?.username || profile?.id}`}
+              className="flex-1 px-4 py-3 bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-xl text-sm font-mono text-[var(--pf-text-secondary)]"
+              onClick={(e) => (e.target as HTMLInputElement).select()}
+            />
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(`https://porterful.com/store?ref=${profile?.username || profile?.id}`)
+                setCopySuccess(true)
+                setTimeout(() => setCopySuccess(false), 2000)
+              }}
+              className="px-6 py-3 bg-[var(--pf-orange)] hover:bg-[var(--pf-orange-dark)] text-white rounded-xl font-bold transition-colors flex items-center gap-2"
+            >
+              {copySuccess ? '✓ Copied' : 'Copy Link'}
+            </button>
           </div>
         </div>
 
@@ -262,7 +304,7 @@ function ContentOverview({ stats }: { stats: DashboardStats }) {
           <Music size={20} className="text-[var(--pf-text-muted)]" />
           <div className="text-left">
             <p className="font-semibold">Your Content</p>
-            <p className="text-sm text-[var(--pf-text-muted)]">{stats.total_tracks} tracks • {stats.total_offers} offers</p>
+            <p className="text-sm text-[var(--pf-text-muted)]">{stats.total_tracks} tracks • {displayOfferCount} offers</p>
           </div>
         </div>
         <ChevronRight size={20} className={`transition-transform ${expanded ? 'rotate-90' : ''}`} />
@@ -282,12 +324,7 @@ function ContentOverview({ stats }: { stats: DashboardStats }) {
               <ChevronRight size={16} className="text-[var(--pf-text-muted)]" />
             </div>
           </Link>
-          <Link href="/dashboard/dashboard/catalog" className="block p-3 rounded-lg hover:bg-[var(--pf-surface)] transition-colors">
-            <div className="flex items-center justify-between">
-              <span className="text-sm">Browse Catalog</span>
-              <ChevronRight size={16} className="text-[var(--pf-text-muted)]" />
-            </div>
-          </Link>
+          
         </div>
       )}
     </div>

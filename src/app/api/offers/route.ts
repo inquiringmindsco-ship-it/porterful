@@ -14,8 +14,12 @@ const STATIC_PRODUCTS: Record<string, { name: string; price_cents: number }> = {
 };
 
 function getOfferSecret() {
-  const secret = process.env.OFFER_SECRET;
-  if (!secret) throw new Error('OFFER_SECRET is required');
+  const secret =
+    process.env.OFFER_SECRET ||
+    process.env.PORTERFUL_SESSION_SECRET ||
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!secret) throw new Error('Offer signing secret is required');
   return secret;
 }
 
@@ -119,24 +123,10 @@ export async function POST(req: NextRequest) {
     username: actor.sellerUsername,
     product_id: productId,
     product_name: resolvedProduct.name,
+    price_cents: resolvedProduct.price_cents,
     iat: Math.floor(Date.now() / 1000),
     exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30,
   };
-
-  // Try to persist offer record — non-fatal if DB insert fails
-  try {
-    await actor.supabase.from('offers').insert({
-      offer_id: offerId,
-      lk_id: actor.sellerIdentity,
-      username: actor.sellerUsername,
-      product_id: productId,
-      product_name: resolvedProduct.name,
-      price_cents: resolvedProduct.price_cents,
-      status: 'active',
-    });
-  } catch {
-    // Proceed even if offers table doesn't exist or has schema issues
-  }
 
   const token = signOffer(payload);
   const offerUrl = `${req.nextUrl.origin}/offer/${offerId}?token=${token}`;

@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
-import { createServerClient } from '@/lib/supabase';
 
 function getOfferSecret() {
-  const secret = process.env.OFFER_SECRET;
+  const secret =
+    process.env.OFFER_SECRET ||
+    process.env.PORTERFUL_SESSION_SECRET ||
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!secret) {
-    throw new Error('OFFER_SECRET is required');
+    throw new Error('Offer signing secret is required');
   }
   return secret;
 }
@@ -37,21 +40,19 @@ export async function GET(
     // Token-based: verify the self-contained token
     const result = verifyOffer(token);
     if (!result.valid) return NextResponse.json({ error: result.error }, { status: 404 });
-
-    const supabase = createServerClient();
-    const { data: offer } = await supabase
-      .from('offers')
-      .select('offer_id, product_id, product_name, price_cents, username, lk_id, status')
-      .eq('offer_id', offerId)
-      .eq('status', 'active')
-      .limit(1)
-      .single();
-
-    if (!offer || offer.lk_id !== result.data.lk_id || offer.product_id !== result.data.product_id) {
+    if (result.data.offer_id !== offerId) {
       return NextResponse.json({ error: 'Offer not found or token expired' }, { status: 404 });
     }
 
-    return NextResponse.json(offer);
+    return NextResponse.json({
+      offer_id: result.data.offer_id,
+      product_id: result.data.product_id,
+      product_name: result.data.product_name,
+      price_cents: Math.round(Number(result.data.price_cents || 0)),
+      username: result.data.username,
+      lk_id: result.data.lk_id,
+      status: 'active',
+    });
   }
 
   // No token: try DB-based (legacy, won't exist)

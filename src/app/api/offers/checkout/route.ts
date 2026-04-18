@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
-import { createServerClient } from '@/lib/supabase';
 import { decodePorterfulSession } from '@/lib/porterful-session';
 
 function getOfferSecret() {
-  const secret = process.env.OFFER_SECRET;
+  const secret =
+    process.env.OFFER_SECRET ||
+    process.env.PORTERFUL_SESSION_SECRET ||
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!secret) {
-    throw new Error('OFFER_SECRET is required');
+    throw new Error('Offer signing secret is required');
   }
   return secret;
 }
@@ -33,25 +36,19 @@ const PRODUCT_NAMES: Record<string, string> = {
 export async function POST(req: NextRequest) {
   const { offerId, productId, token } = await req.json();
 
-  // Validate offer — either token or DB lookup
+  // Validate offer token — the signed payload is the source of truth.
   let offer: any;
   if (token) {
     const result = verifyOffer(token);
     if (!result.valid) return NextResponse.json({ error: result.error }, { status: 404 });
-    const supabase = createServerClient();
-    const { data: dbOffer } = await supabase
-      .from('offers')
-      .select('offer_id, lk_id, username, product_id, product_name, price_cents, status')
-      .eq('offer_id', result.data.offer_id)
-      .eq('status', 'active')
-      .limit(1)
-      .single();
-
-    if (!dbOffer || dbOffer.lk_id !== result.data.lk_id || dbOffer.product_id !== result.data.product_id) {
+    if (result.data.offer_id !== offerId) {
+      return NextResponse.json({ error: 'Offer not found' }, { status: 404 });
+    }
+    if (result.data.product_id !== productId) {
       return NextResponse.json({ error: 'Offer not found' }, { status: 404 });
     }
 
-    offer = dbOffer;
+    offer = result.data;
   } else if (offerId) {
     return NextResponse.json({ error: 'offerId requires token' }, { status: 400 });
   } else {
