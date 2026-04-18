@@ -29,6 +29,14 @@ export default function ArtistDashboardPage() {
   const [dbProducts, setDbProducts] = useState<any[]>([])
   const [featured, setFeatured] = useState<string[]>([])
 
+  const getProductTitle = (product: any) => product.title || product.name || 'Untitled product'
+  const getProductImage = (product: any) => {
+    if (product.image_url) return product.image_url
+    const metadataImages = product.metadata?.images
+    return Array.isArray(metadataImages) && metadataImages.length > 0 ? metadataImages[0] : null
+  }
+  const getProductPrice = (product: any) => product.price ?? product.base_price ?? 0
+
   useEffect(() => {
     if (authLoading) return
     if (!user) {
@@ -239,8 +247,8 @@ export default function ArtistDashboardPage() {
                 {dbProducts.map((product: any) => (
                   <div key={product.id} className="pf-card p-4 flex items-center gap-4">
                     <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-[var(--pf-surface)] shrink-0">
-                      {product.images && product.images[0] ? (
-                        <Image src={product.images[0]} alt={product.name} fill sizes="64px" className="object-cover" />
+                      {getProductImage(product) ? (
+                        <Image src={getProductImage(product)} alt={getProductTitle(product)} fill sizes="64px" className="object-cover" />
                       ) : (
                         <div className="absolute inset-0 flex items-center justify-center text-[var(--pf-text-muted)]">
                           <Icon.Package />
@@ -248,9 +256,9 @@ export default function ArtistDashboardPage() {
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-medium truncate">{product.name}</h3>
+                      <h3 className="font-medium truncate">{getProductTitle(product)}</h3>
                       <p className="text-sm text-[var(--pf-text-muted)]">
-                        {product.category} • ${product.base_price}
+                        {product.category} • ${getProductPrice(product).toFixed(2)}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">

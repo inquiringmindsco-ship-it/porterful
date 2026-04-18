@@ -36,7 +36,7 @@ export default function AddProductPage() {
   const [success, setSuccess] = useState(false)
 
   // Form state
-  const [name, setName] = useState('')
+  const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [category, setCategory] = useState('')
   const [price, setPrice] = useState('')
@@ -115,7 +115,7 @@ export default function AddProductPage() {
   const handleSubmit = async (status: 'draft' | 'live') => {
     setError('')
 
-    if (!name.trim()) { setError('Product name is required.'); return }
+    if (!title.trim()) { setError('Product title is required.'); return }
     if (!category) { setError('Category is required.'); return }
     if (!price || parseFloat(price) <= 0) { setError('Valid price is required.'); return }
 
@@ -125,11 +125,12 @@ export default function AddProductPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: name.trim(),
+          title: title.trim(),
           description: description.trim(),
           category,
           price: parseFloat(price),
-          images,
+          image_url: images[0] || null,
+          metadata: images.length > 0 ? { images } : null,
           variants: variants.filter(v => v.name.trim()),
           printful_product_id: printfulProductId.trim() || null,
           status,
@@ -254,11 +255,11 @@ export default function AddProductPage() {
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1.5">Product Name *</label>
+                <label className="block text-sm font-medium mb-1.5">Product Title *</label>
                 <input
                   type="text"
-                  value={name}
-                  onChange={e => setName(e.target.value)}
+                  value={title}
+                  onChange={e => setTitle(e.target.value)}
                   placeholder="e.g. METTLE T-Shirt"
                   className="w-full px-4 py-2.5 bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg text-[var(--pf-text)] placeholder:text-[var(--pf-text-muted)] focus:outline-none focus:border-[var(--pf-orange)]"
                 />

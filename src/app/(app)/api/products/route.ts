@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
 
       const query = supabase
         .from('products')
-        .select('*')
+        .select('id, title, description, category, base_price, price, image_url, metadata, variants, printful_product_id, printful_sync_status, seller_id, seller_type, status, created_at')
         .eq('seller_id', user.id)
         .order('created_at', { ascending: false })
 
@@ -117,26 +117,40 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json()
     const {
-      name, description, category, price, images = [],
-      variants = [], printful_product_id = null, status = 'draft',
+      title,
+      name,
+      description,
+      category,
+      price,
+      image_url = null,
+      metadata = null,
+      images = [],
+      variants = [],
+      printful_product_id = null,
+      status = 'draft',
     } = body
 
-    if (!name || !category || !price) {
-      return NextResponse.json({ error: 'Missing required fields: name, category, price' }, { status: 400 })
+    const productTitle = (typeof title === 'string' ? title : name || '').trim()
+    const numericPrice = Number(price)
+    const coverImageUrl = image_url || images[0] || null
+
+    if (!productTitle || !category || Number.isNaN(numericPrice) || numericPrice <= 0) {
+      return NextResponse.json({ error: 'Missing required fields: title, category, price' }, { status: 400 })
     }
 
     const { data, error } = await supabase
       .from('products')
       .insert({
-        name,
+        title: productTitle,
         description: description || null,
         category,
-        base_price: parseFloat(price),
-        images,
+        base_price: numericPrice,
+        price: numericPrice,
+        image_url: coverImageUrl,
+        metadata: metadata || (images.length > 0 ? { images } : null),
         variants,
         printful_product_id,
         printful_sync_status: printful_product_id ? 'pending' : 'not_linked',
-        inventory_count: 999,
         seller_id: user.id,
         seller_type: 'artist',
         status,
