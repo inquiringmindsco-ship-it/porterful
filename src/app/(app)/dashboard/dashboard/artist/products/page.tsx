@@ -183,7 +183,7 @@ export default function ArtistProductsPage() {
               href="/dashboard/dashboard/catalog"
               className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--pf-orange)] text-white rounded-xl font-medium hover:bg-[var(--pf-orange-dark)] transition-colors"
             >
-              <Plus size={18} /> Add Your First Product
+              <Plus size={18} /> Choose Your First Products
             </Link>
           </div>
         )}
