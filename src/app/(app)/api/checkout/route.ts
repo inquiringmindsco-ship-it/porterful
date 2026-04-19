@@ -108,6 +108,7 @@ export async function POST(request: NextRequest) {
         artist_fund: artistFund.toString(),
         superfan_share: superfanShare.toString(),
         type: items[0]?.type || 'product',
+        product_id: items[0]?.id || '',
         audio_url: items[0]?.audioUrl || '',
         track_name: items[0]?.name || '',
         track_artist: items[0]?.artist || '',

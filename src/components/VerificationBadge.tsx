@@ -105,79 +105,49 @@ export function VerificationForm({ onComplete }: { onComplete?: () => void }) {
   };
 
   return (
-    <div className="pf-card p-6">
-      <h3 className="text-xl font-bold mb-4">Verification & Badges</h3>
-      <p className="text-[var(--pf-text-secondary)] mb-6">
-        Highlight your identity and connect with customers who want to support your community.
-      </p>
-
-      <div className="space-y-4">
-        <label className="flex items-start gap-3 p-4 bg-[var(--pf-surface)] rounded-lg cursor-pointer hover:bg-[var(--pf-surface-hover)]">
+    <div className="border border-[var(--pf-border)] rounded-2xl p-6">
+      <div className="space-y-3">
+        <label className="flex items-center gap-3 p-4 border border-[var(--pf-border)] rounded-xl cursor-pointer hover:border-[var(--pf-orange)]/40 transition-colors">
           <input
             type="checkbox"
             checked={isVeteran}
             onChange={(e) => setIsVeteran(e.target.checked)}
-            className="w-5 h-5 mt-0.5 rounded border-[var(--pf-border)] text-[var(--pf-orange)] focus:ring-[var(--pf-orange)]"
+            className="w-4 h-4 rounded border-[var(--pf-border)] text-[var(--pf-orange)] focus:ring-[var(--pf-orange)]"
           />
-          <div className="flex-1">
-            <div className="flex items-center gap-2">
-              <span className="text-lg">🎖️</span>
-              <span className="font-medium">Veteran-Owned</span>
-            </div>
-            <p className="text-sm text-[var(--pf-text-secondary)] mt-1">
-              I am a veteran of the U.S. Armed Forces. Porterful donates 1% of sales from veteran-owned products to veteran support organizations.
-            </p>
-          </div>
+          <span className="text-lg">🎖️</span>
+          <span className="text-sm font-medium">Veteran-Owned</span>
         </label>
 
-        <label className="flex items-start gap-3 p-4 bg-[var(--pf-surface)] rounded-lg cursor-pointer hover:bg-[var(--pf-surface-hover)]">
+        <label className="flex items-center gap-3 p-4 border border-[var(--pf-border)] rounded-xl cursor-pointer hover:border-[var(--pf-orange)]/40 transition-colors">
           <input
             type="checkbox"
             checked={isBlackOwned}
             onChange={(e) => setIsBlackOwned(e.target.checked)}
-            className="w-5 h-5 mt-0.5 rounded border-[var(--pf-border)] text-[var(--pf-orange)] focus:ring-[var(--pf-orange)]"
+            className="w-4 h-4 rounded border-[var(--pf-border)] text-[var(--pf-orange)] focus:ring-[var(--pf-orange)]"
           />
-          <div className="flex-1">
-            <div className="flex items-center gap-2">
-              <span className="text-lg">✊</span>
-              <span className="font-medium">Black-Owned Business</span>
-            </div>
-            <p className="text-sm text-[var(--pf-text-secondary)] mt-1">
-              This business is at least 51% Black-owned and operated.
-            </p>
-          </div>
+          <span className="text-lg">✊</span>
+          <span className="text-sm font-medium">Black-Owned Business</span>
         </label>
 
-        <label className="flex items-start gap-3 p-4 bg-[var(--pf-surface)] rounded-lg cursor-pointer hover:bg-[var(--pf-surface-hover)]">
+        <label className="flex items-center gap-3 p-4 border border-[var(--pf-border)] rounded-xl cursor-pointer hover:border-[var(--pf-orange)]/40 transition-colors">
           <input
             type="checkbox"
             checked={isMinorityOwned}
             onChange={(e) => setIsMinorityOwned(e.target.checked)}
-            className="w-5 h-5 mt-0.5 rounded border-[var(--pf-border)] text-[var(--pf-orange)] focus:ring-[var(--pf-orange)]"
+            className="w-4 h-4 rounded border-[var(--pf-border)] text-[var(--pf-orange)] focus:ring-[var(--pf-orange)]"
           />
-          <div className="flex-1">
-            <div className="flex items-center gap-2">
-              <span className="text-lg">🌍</span>
-              <span className="font-medium">Minority-Owned Business</span>
-            </div>
-            <p className="text-sm text-[var(--pf-text-secondary)] mt-1">
-              This business is at least 51% owned by individuals from underrepresented groups.
-            </p>
-          </div>
+          <span className="text-lg">🌍</span>
+          <span className="text-sm font-medium">Minority-Owned Business</span>
         </label>
       </div>
 
       <button
         onClick={handleSubmit}
         disabled={submitting || (!isVeteran && !isBlackOwned && !isMinorityOwned)}
-        className="mt-6 w-full pf-btn pf-btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+        className="mt-5 w-full py-2.5 bg-[var(--pf-orange)] text-white text-sm font-semibold rounded-xl hover:bg-[var(--pf-orange-dark)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {submitting ? 'Saving...' : 'Save Verification'}
+        {submitting ? 'Saving...' : 'Save'}
       </button>
-
-      <p className="text-xs text-[var(--pf-text-muted)] mt-4 text-center">
-        Self-identification is based on honor system. Porterful may request verification documents for badge eligibility.
-      </p>
     </div>
   );
 }
