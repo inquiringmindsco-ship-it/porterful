@@ -1,20 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthenticatedClient } from '@/lib/auth-utils';
+import { createServerClient } from '@/lib/supabase';
 
 // POST /api/tracks — Upload a new track
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await getAuthenticatedClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const auth = await getAuthenticatedClient();
+    if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const { supabase, user } = auth;
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const profileId = user.id;
+    const body = await request.json();
+    const { title, audio_url, cover_url, album, price } = body;
+
+    if (!title?.trim()) return NextResponse.json({ error: 'Title is required' }, { status: 400 });
+    if (!audio_url?.trim()) return NextResponse.json({ error: 'Audio file is required' }, { status: 400 });
 
     // Verify user is an artist
     const { data: profile } = await supabase
       .from('profiles')
       .select('id, role')
-      .eq('id', profileId)
+      .eq('id', user.id)
       .single();
 
     if (!profile || profile.role !== 'artist') {
@@ -55,7 +61,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, track: data });
   } catch (err: any) {
-    if (err.message === 'Unauthorized' || err.status === 401) {
+    if (err.message?.includes('Unauthorized') || err.status === 401) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     console.error('[tracks] Exception:', err);
