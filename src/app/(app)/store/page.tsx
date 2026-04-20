@@ -218,7 +218,7 @@ export default function StorePage() {
           <div className="space-y-4">
             <div className="inline-flex items-center gap-2 rounded-full border border-[var(--pf-border)] bg-[var(--pf-surface)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--pf-text-muted)]">
               <ShoppingBag size={12} />
-              Porterful Store
+              Store — part of Likeness™
             </div>
             <div className="space-y-2">
               <h1 className="text-3xl font-black tracking-tight sm:text-4xl">Choose Products to Sell</h1>

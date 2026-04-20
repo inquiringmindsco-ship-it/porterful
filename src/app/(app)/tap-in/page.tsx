@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Wifi, Tag, CreditCard, ArrowRight, Disc3, Sparkles } from 'lucide-react'
+import { Wifi, Tag, CreditCard, Disc3, Sparkles } from 'lucide-react'
 
 const PRODUCTS = [
   {
@@ -103,7 +103,7 @@ export default function TapInPage() {
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--pf-orange)]/10 rounded-full text-[var(--pf-orange)] text-sm font-medium mb-6">
             <Wifi size={16} />
-            Signal
+            Signal — part of Likeness™
           </div>
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
             Turn your likeness into a signal.
@@ -113,7 +113,7 @@ export default function TapInPage() {
           </p>
           <div className="mt-6">
             <Link
-              href="/product/product/gune-shirt"
+              href="/store"
               className="inline-flex items-center justify-center rounded-full bg-[var(--pf-orange)] px-6 py-3 text-sm font-semibold text-[#111111] transition-all duration-200 ease-out hover:scale-[1.03] hover:bg-[var(--pf-orange-light)]"
             >
               Get Your Shirt
@@ -122,15 +122,14 @@ export default function TapInPage() {
         </div>
 
         {/* Products */}
-        <h2 className="text-2xl font-bold mb-6">Choose a product</h2>
+        <h2 className="text-2xl font-bold mb-6">Signal formats</h2>
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {PRODUCTS.map((product) => {
             const Icon = product.icon
             return (
-              <Link 
+              <article
                 key={product.id}
-                href={`/tap-in/${product.id}`}
-                className={`p-6 bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-2xl text-left hover:border-[var(--pf-orange)] transition-all hover:shadow-lg hover:shadow-[var(--pf-orange)]/10 ${product.bg}`}
+                className={`p-6 bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-2xl text-left transition-colors hover:border-[var(--pf-orange)] ${product.bg}`}
               >
                 <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${product.color} flex items-center justify-center mb-4 relative`}>
                   {product.style === 'diamond' && (
@@ -142,13 +141,9 @@ export default function TapInPage() {
                   <Icon size={28} className="text-white" />
                 </div>
                 <h3 className="font-bold mb-1">{product.name}</h3>
-                <p className="text-2xl font-bold text-[var(--pf-orange)] mb-3">${product.price}</p>
                 <p className="text-sm text-[var(--pf-text-secondary)] mb-3">{product.description}</p>
                 <p className="text-xs text-[var(--pf-text-muted)]">{product.useCase}</p>
-                <div className="mt-4 flex items-center gap-1 text-[var(--pf-orange)] text-sm font-medium">
-                  View Product <ArrowRight size={14} />
-                </div>
-              </Link>
+              </article>
             )
           })}
         </div>

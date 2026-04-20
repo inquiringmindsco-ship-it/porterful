@@ -52,7 +52,7 @@ export default function AccessPage() {
         </nav>
 
         <section className="rounded-3xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-6 md:p-8">
-          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--pf-orange)]">Access</p>
+          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--pf-orange)]">Access — part of Likeness™</p>
           <h1 className="mt-2 text-3xl md:text-4xl font-bold leading-tight">
             Access opportunities connected to your likeness.
           </h1>
