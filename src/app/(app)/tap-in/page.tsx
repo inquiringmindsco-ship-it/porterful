@@ -115,10 +115,11 @@ export default function TapInPage() {
           <div className="mt-6">
             <Link
               href="/store"
-              className="inline-flex items-center justify-center rounded-full bg-[var(--pf-orange)] px-6 py-3 text-sm font-semibold text-[#111111] transition-all duration-200 ease-out hover:scale-[1.03] hover:bg-[var(--pf-orange-light)]"
+              className="pf-btn pf-btn-primary rounded-full px-6 py-3 text-sm font-semibold"
             >
-              Get Your Shirt
+              Get Your Signal →
             </Link>
+            <p className="mt-2 text-sm text-[var(--pf-text-muted)]">Each signal links to your likeness.</p>
           </div>
         </div>
 
