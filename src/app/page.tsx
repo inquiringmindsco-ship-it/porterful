@@ -6,7 +6,6 @@ import { useEffect, useRef, useState } from 'react'
 import { ArrowRight, Info, Pause, Play, ShoppingBag } from 'lucide-react'
 import { FaLinkedinIn } from 'react-icons/fa6'
 import { SiInstagram, SiTiktok, SiYoutube, SiX } from 'react-icons/si'
-import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
 import { LikenessInfoModal } from '@/components/LikenessInfoModal'
 import { useAudio, type Track } from '@/lib/audio-context'
@@ -79,7 +78,6 @@ export default function HomePage() {
 
   return (
     <>
-      <Navbar />
       <main ref={revealScopeRef} className="min-h-screen bg-[var(--pf-bg)] pt-16 md:pt-20">
         <section className="border-b border-[var(--pf-border)] bg-gradient-to-b from-[var(--pf-orange)]/10 via-[var(--pf-bg)] to-[var(--pf-bg)]">
           <div className="pf-container py-10 md:py-16">
@@ -114,6 +112,9 @@ export default function HomePage() {
                 <div className="mt-8">
                   <Link href="/verify" className="pf-btn pf-btn-primary inline-flex items-center justify-center gap-2">
                     Register Now
+                  </Link>
+                  <Link href="/activate" className="pf-btn pf-btn-secondary mt-3 inline-flex items-center justify-center gap-2 sm:mt-0 sm:ml-3">
+                    Already have a code?
                   </Link>
                   <p className="mt-2 text-sm text-[var(--pf-text-muted)]">Takes less than 2 minutes.</p>
                   <p className="mt-2 text-sm font-medium text-[var(--pf-text-secondary)]">

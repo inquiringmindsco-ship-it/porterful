@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import { Providers } from '@/app/providers'
+import { Navbar } from '@/components/Navbar'
+import { AudioErrorBoundary } from '@/components/AudioErrorBoundary'
 import { GlobalPlayer } from '@/components/GlobalPlayer'
 import { getServerUser } from '@/lib/supabase-auth'
 import { getThemeBootstrapScript, getThemeColor } from '@/lib/theme'
@@ -34,8 +36,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body suppressHydrationWarning style={{ margin: 0, padding: 0, background: 'var(--pf-bg)', overflow: 'visible' }}>
         <Providers initialUser={initialUser}>
+          <Navbar />
           {children}
-          <GlobalPlayer />
+          <AudioErrorBoundary>
+            <GlobalPlayer />
+          </AudioErrorBoundary>
         </Providers>
       </body>
     </html>

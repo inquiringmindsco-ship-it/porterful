@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase';
 import Stripe from 'stripe';
 import { resolveReferrerId, normalizeReferralHandle } from '@/lib/referral';
+import { getActivationCodeByValue, normalizeActivationCode } from '@/lib/activation';
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
@@ -24,6 +25,15 @@ export async function POST(req: NextRequest) {
     const metadata = session.metadata || {};
     const { lk_id, user_id, username, product_id, source, offer_id, referral_code } = metadata;
     const supabase = createServerClient();
+    const activationCodeValue = normalizeActivationCode(metadata.activation_code_value || metadata.activation_code || null);
+    const discountCents = Math.max(0, Math.round(Number(metadata.discount_cents || 0)));
+    const paymentMethod = (metadata.payment_method as string) || 'stripe';
+
+    let activationCodeId: string | null = metadata.activation_code_id || null;
+    if (!activationCodeId && activationCodeValue) {
+      const { data: activationCode } = await getActivationCodeByValue(supabase, activationCodeValue);
+      activationCodeId = activationCode?.id || null;
+    }
 
     if (session.payment_status !== 'paid') {
       return NextResponse.json({ received: true });
@@ -67,6 +77,17 @@ export async function POST(req: NextRequest) {
 
     if (existingOrder) {
       order = existingOrder;
+      if (activationCodeId || paymentMethod !== 'stripe' || discountCents > 0) {
+        await supabase
+          .from('orders')
+          .update({
+            activation_code_id: activationCodeId,
+            payment_method: paymentMethod,
+            discount_cents: discountCents,
+            referrer_id: referrerId,
+          })
+          .eq('id', order.id);
+      }
     } else {
       const { data: createdOrder, error: orderError } = await supabase
         .from('orders')
@@ -82,6 +103,9 @@ export async function POST(req: NextRequest) {
           platform_total: platformTotal,
           stripe_checkout_session_id: session.id,
           buyer_email: session.customer_email || null,
+          activation_code_id: activationCodeId,
+          payment_method: paymentMethod,
+          discount_cents: discountCents,
           // Store Likeness™ identity in metadata fields
           user_id: profileId || user_id || null,
         })
@@ -126,6 +150,15 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    if (activationCodeId && order?.id) {
+      await supabase
+        .from('activation_codes')
+        .update({
+          order_id: order.id,
+        })
+        .eq('id', activationCodeId);
+    }
+
     // Also record in payments table if tier-based
     if (metadata.tier) {
       await supabase
@@ -163,8 +196,8 @@ export async function POST(req: NextRequest) {
         await supabase
           .from('referral_earnings')
           .update({
-            referrer_id: referrerId,
-            commission_cents: superfanTotal,
+            superfan_id: referrerId,
+            amount: superfanTotal / 100,
             status: 'pending',
           })
           .eq('id', existingReferral.id);
@@ -172,9 +205,9 @@ export async function POST(req: NextRequest) {
         const { error: referralError } = await supabase
           .from('referral_earnings')
           .insert({
-            referrer_id: referrerId,
+            superfan_id: referrerId,
             order_id: orderId,
-            commission_cents: superfanTotal,
+            amount: superfanTotal / 100,
             status: 'pending',
           });
 
@@ -195,8 +228,8 @@ export async function POST(req: NextRequest) {
         await supabase
           .from('superfans')
           .update({
-            total_earnings: (superfan.total_earnings || 0) + superfanTotal,
-            available_earnings: (superfan.available_earnings || 0) + superfanTotal,
+            total_earnings: (superfan.total_earnings || 0) + (superfanTotal / 100),
+            available_earnings: (superfan.available_earnings || 0) + (superfanTotal / 100),
           })
           .eq('id', referrerId);
       }

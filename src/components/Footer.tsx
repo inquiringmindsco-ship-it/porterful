@@ -86,7 +86,6 @@ export function Footer() {
             <ul className="space-y-2">
               <li><Link href="/blog" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">Blog</Link></li>
               <li><Link href="/superfan" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">Superfan</Link></li>
-              <li><Link href="/systems" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">Explore</Link></li>
               <li><Link href="/support" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">Support Artists</Link></li>
             </ul>
           </div>

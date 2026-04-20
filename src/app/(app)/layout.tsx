@@ -1,12 +1,9 @@
 import type { Metadata } from 'next'
 import Script from 'next/script'
 import '../globals.css'
-import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
 import { InstallPrompt, IOSInstallInstructions } from '@/components/InstallPrompt'
 import { ArtistModal } from '@/components/ArtistModal'
-import { AudioErrorBoundary } from '@/components/AudioErrorBoundary'
-import { GlobalPlayer } from '@/components/GlobalPlayer'
 import { TrackLockedToast } from '@/components/TrackLockedToast'
 import { KeyboardShortcuts } from '@/lib/keyboard-shortcuts'
 
@@ -80,16 +77,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       />
       <Script src="/pwa.js" strategy="afterInteractive" />
       <KeyboardShortcuts />
-      <Navbar />
       <main className="min-h-screen pb-24 pt-16 md:pt-20">
         {children}
       </main>
       <Footer />
       <ArtistModal />
       <TrackLockedToast />
-      <AudioErrorBoundary>
-        <GlobalPlayer />
-      </AudioErrorBoundary>
       <InstallPrompt />
       <IOSInstallInstructions />
     </>

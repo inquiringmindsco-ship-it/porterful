@@ -15,6 +15,9 @@ CREATE TABLE profiles (
   role TEXT DEFAULT 'supporter' CHECK (role IN ('supporter', 'superfan', 'artist', 'business', 'brand', 'admin')),
   referral_code TEXT UNIQUE DEFAULT 'PF-' || UPPER(SUBSTRING(MD5(RANDOM()::TEXT) FROM 1 FOR 8)),
   referred_by UUID REFERENCES profiles(id),
+  paid_cash BOOLEAN DEFAULT FALSE,
+  cash_paid_at TIMESTAMPTZ,
+  activation_code_id UUID,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -126,6 +129,11 @@ CREATE TABLE orders (
   -- Referral tracking
   referrer_id UUID REFERENCES profiles(id), -- Superfan who referred
   
+  -- Cash/activation tracking
+  activation_code_id UUID,
+  payment_method TEXT DEFAULT 'stripe' CHECK (payment_method IN ('stripe', 'cash', 'code')),
+  discount_cents INTEGER DEFAULT 0,
+
   -- Stripe
   stripe_payment_intent_id TEXT,
   stripe_checkout_session_id TEXT,
@@ -265,6 +273,27 @@ CREATE TABLE referral_earnings (
 );
 
 -- ============================================
+-- ACTIVATION CODES
+-- ============================================
+CREATE TABLE activation_codes (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  code_value TEXT NOT NULL UNIQUE,
+  status TEXT DEFAULT 'unused' CHECK (status IN ('unused', 'used')),
+  kind TEXT DEFAULT 'activation' CHECK (kind IN ('activation', 'discount')),
+  prepaid BOOLEAN DEFAULT FALSE,
+  discount_cents INTEGER DEFAULT 0,
+  shirt_type TEXT,
+  source TEXT,
+  metadata JSONB DEFAULT '{}'::jsonb,
+  redeemed_by_profile_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
+  redeemed_email TEXT,
+  order_id UUID REFERENCES orders(id) ON DELETE SET NULL,
+  used_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ============================================
 -- DROPSHIP ORDERS (Third-party fulfillment)
 -- ============================================
 CREATE TABLE dropship_orders (
@@ -320,6 +349,9 @@ CREATE INDEX idx_tracks_artist ON tracks(artist_id);
 CREATE INDEX idx_goals_artist ON goals(artist_id);
 CREATE INDEX idx_referrals_referrer ON referrals(referrer_id);
 CREATE INDEX idx_referral_earnings_superfan ON referral_earnings(superfan_id);
+CREATE INDEX idx_activation_codes_code_value ON activation_codes(code_value);
+CREATE INDEX idx_activation_codes_status ON activation_codes(status);
+CREATE INDEX idx_activation_codes_redeemed_email ON activation_codes(redeemed_email);
 CREATE INDEX idx_followers_artist ON followers(artist_id);
 
 -- ============================================

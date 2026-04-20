@@ -47,7 +47,7 @@ export default function ClaimPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#08080B] flex flex-col items-center justify-center px-4">
+    <main className="min-h-screen bg-[#08080B] flex flex-col items-center justify-center px-4 pt-16 md:pt-20">
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}

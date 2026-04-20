@@ -25,6 +25,9 @@ export default function CheckoutPage() {
   const [processing, setProcessing] = useState(false);
   const [showSupportTip, setShowSupportTip] = useState(true);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [activationCode, setActivationCode] = useState('');
+  const [paymentMode, setPaymentMode] = useState<'stripe' | 'cash' | null>(null);
+  const [paymentNotice, setPaymentNotice] = useState('');
   
   const [shipping, setShipping] = useState({
     name: '', email: '', address: '', city: '', state: '', zip: '', country: 'US',
@@ -85,11 +88,24 @@ export default function CheckoutPage() {
         body: JSON.stringify({
           items: stripeItems,
           shippingEmail: shipping.email,
+          shippingAddress: shipping,
           referralCode: null,
+          activationCode: activationCode.trim() || null,
         }),
       });
 
       const data = await response.json();
+
+      if (data.cash || data.noCharge) {
+        await new Promise(resolve => setTimeout(resolve, 900));
+        clearCart();
+        localStorage.removeItem('porterful-checkout-items');
+        setPaymentMode('cash');
+        setPaymentNotice(data.message || 'No card was charged. Your signal has been activated.');
+        setStep('complete');
+        setProcessing(false);
+        return;
+      }
 
       if (data.url) {
         if (data.demo) {
@@ -125,6 +141,14 @@ export default function CheckoutPage() {
             <p className="text-[var(--pf-text-secondary)] mb-6">
               Thank you for supporting independent artists.
             </p>
+            {paymentMode === 'cash' && (
+              <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4 mb-6 text-left">
+                <p className="font-semibold text-green-400">Activation code applied</p>
+                <p className="text-sm text-[var(--pf-text-muted)] mt-1">
+                  {paymentNotice || 'No card was charged. Your signal has been activated.'}
+                </p>
+              </div>
+            )}
             
             <div className="bg-[var(--pf-bg)] rounded-lg p-6 mb-6">
               <div className="flex justify-between mb-2">
@@ -344,6 +368,22 @@ export default function CheckoutPage() {
                     <p className="text-sm text-[var(--pf-text-muted)]">You'll enter your card details on the next page</p>
                   </div>
                 </div>
+              </div>
+
+              <div className="border-t border-[var(--pf-border)] pt-4 mb-6">
+                <label className="block text-sm font-semibold text-[var(--pf-text-muted)] uppercase tracking-wider mb-2">
+                  Activation code
+                </label>
+                <input
+                  type="text"
+                  value={activationCode}
+                  onChange={(e) => setActivationCode(e.target.value)}
+                  placeholder="Already have a code?"
+                  className="w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 focus:outline-none focus:border-[var(--pf-orange)]"
+                />
+                <p className="text-xs text-[var(--pf-text-muted)] mt-2">
+                  Codes can activate a cash order or apply a discount at checkout.
+                </p>
               </div>
 
               <button 

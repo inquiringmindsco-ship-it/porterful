@@ -92,6 +92,39 @@ export async function POST(request: Request) {
       }
     }
 
+    // If this email already redeemed a cash activation or prepaid checkout, mark the profile.
+    try {
+      const normalizedEmail = email.toLowerCase()
+      const { data: activationCode } = await supabase
+        .from('activation_codes')
+        .select('id, code_value, kind, prepaid, redeemed_email, used_at')
+        .eq('redeemed_email', normalizedEmail)
+        .eq('status', 'used')
+        .order('used_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+
+      const { data: cashOrder } = await supabase
+        .from('orders')
+        .select('id, activation_code_id, payment_method, buyer_email, created_at')
+        .eq('buyer_email', normalizedEmail)
+        .in('payment_method', ['cash', 'code'])
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+
+      const activationCodeId = activationCode?.id || cashOrder?.activation_code_id || null
+      if (activationCodeId || cashOrder) {
+        await supabase.from('profiles').update({
+          paid_cash: true,
+          cash_paid_at: new Date().toISOString(),
+          activation_code_id: activationCodeId,
+        }).eq('id', userId)
+      }
+    } catch (cashErr) {
+      console.warn('Cash activation lookup failed (non-fatal):', cashErr)
+    }
+
     // If artist, create artist record
     if (role === 'artist') {
       const slug = name.toLowerCase()

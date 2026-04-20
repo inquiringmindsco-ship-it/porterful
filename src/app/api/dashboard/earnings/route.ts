@@ -57,8 +57,8 @@ export async function GET(req: NextRequest) {
   // 4. Get referral earnings breakdown from referral_earnings table
   const { data: referralRows, error: referralError } = await supabase
     .from('referral_earnings')
-    .select('id, referrer_id, order_id, commission_cents, status, created_at')
-    .eq('referrer_id', sellerId)
+    .select('id, superfan_id, order_id, amount, status, created_at')
+    .eq('superfan_id', sellerId)
     .order('created_at', { ascending: false })
     .limit(20);
 
@@ -66,13 +66,16 @@ export async function GET(req: NextRequest) {
     console.warn('[dashboard/earnings] referral_earnings unavailable:', referralError.message);
   }
 
-  const referralHistory = referralRows || [];
+  const referralHistory = (referralRows || []).map((row: any) => ({
+    ...row,
+    status: row.status === 'withdrawn' ? 'paid' : row.status,
+    commission_cents: Math.round(Number(row.amount || 0) * 100),
+  }));
   const pendingReferral = referralHistory
-    .filter((row: any) => row.status === 'pending' || row.status === 'credited')
+    .filter((row: any) => row.status === 'pending')
     .reduce((sum: number, row: any) => sum + Number(row.commission_cents || 0), 0);
 
   const totalReferralEarned = referralHistory
-    .filter((row: any) => row.status !== 'refunded')
     .reduce((sum: number, row: any) => sum + Number(row.commission_cents || 0), 0);
 
   const paidReferral = referralHistory

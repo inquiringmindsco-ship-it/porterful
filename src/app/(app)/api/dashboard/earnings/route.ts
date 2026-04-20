@@ -56,9 +56,10 @@ export async function GET(req: NextRequest) {
 
   const referralEarnings = (referralRows || []).map((r: any) => ({
     ...r,
-    amount_cents: Math.round((r.amount || 0) * 100),
+    status: r.status === 'withdrawn' ? 'paid' : r.status,
+    commission_cents: Math.round((r.amount || 0) * 100),
   }));
-  const totalReferralCents = referralEarnings.reduce((s: number, r: any) => s + r.amount_cents, 0);
+  const totalReferralCents = referralEarnings.reduce((s: number, r: any) => s + r.commission_cents, 0);
 
   // 4. Get recent orders as buyer
   const { data: purchases } = await supabase
@@ -83,13 +84,13 @@ export async function GET(req: NextRequest) {
       total_earned_cents: totalReferralCents,
       pending_cents: referralEarnings
         .filter((r: any) => r.status === 'pending')
-        .reduce((s: number, r: any) => s + r.amount_cents, 0),
+        .reduce((s: number, r: any) => s + r.commission_cents, 0),
       available_cents: referralEarnings
         .filter((r: any) => r.status === 'available')
-        .reduce((s: number, r: any) => s + r.amount_cents, 0),
+        .reduce((s: number, r: any) => s + r.commission_cents, 0),
       paid_cents: referralEarnings
-        .filter((r: any) => r.status === 'withdrawn')
-        .reduce((s: number, r: any) => s + r.amount_cents, 0),
+        .filter((r: any) => r.status === 'paid')
+        .reduce((s: number, r: any) => s + r.commission_cents, 0),
       recent: referralEarnings.slice(0, 10),
     },
     purchases: purchases || [],

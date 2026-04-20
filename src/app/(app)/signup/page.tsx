@@ -47,6 +47,11 @@ export default function SignupPage() {
   const [youtube, setYoutube] = useState('')
   const [website, setWebsite] = useState('')
   const [industry, setIndustry] = useState('')
+  const nextPath = (() => {
+    const next = searchParams.get('next')
+    if (!next || !next.startsWith('/') || next.startsWith('//')) return ''
+    return next
+  })()
 
   // Pre-select role from URL param
   useEffect(() => {
@@ -123,8 +128,9 @@ export default function SignupPage() {
       const loginData = await loginRes.json()
 
       if (loginRes.ok) {
-        // Redirect based on role
-        if (role === 'artist') {
+        if (nextPath) {
+          router.push(nextPath)
+        } else if (role === 'artist') {
           router.push('/dashboard/artist')
         } else {
           router.push('/dashboard')
