@@ -1,9 +1,8 @@
 'use client'
 
-import { useAudio, Track } from '@/lib/audio-context'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Play, Pause, Disc, Verified, ChevronLeft } from 'lucide-react'
+import { Disc, Verified, ChevronLeft } from 'lucide-react'
 import { LikenessBadge } from '@/components/likeness/LikenessGate'
 
 // Social platform icons as inline SVG components
@@ -53,19 +52,47 @@ interface ArtistHeroProps {
     trackCount?: number
     social?: Record<string, string>
   }
-  featuredTrack?: Track
-  totalPlays: number
 }
 
-function formatFollowers(n: number): string {
-  if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M'
-  if (n >= 1000) return (n / 1000).toFixed(0) + 'K'
-  return n.toString()
-}
-
-export function ArtistHero({ artist, featuredTrack, totalPlays }: ArtistHeroProps) {
-  const { currentTrack, isPlaying, playTrack, togglePlay, setMode } = useAudio()
-  const isActive = currentTrack?.id === featuredTrack?.id
+export function ArtistHero({ artist }: ArtistHeroProps) {
+  const socialLinks = [
+    artist.social?.instagram && {
+      key: 'instagram',
+      href: `https://instagram.com/${artist.social.instagram}`,
+      label: 'Instagram',
+      icon: InstagramIcon,
+      className: 'hover:text-[#E4405F] hover:border-[#E4405F]',
+    },
+    artist.social?.twitter && {
+      key: 'twitter',
+      href: `https://twitter.com/${artist.social.twitter}`,
+      label: 'X (Twitter)',
+      icon: XIcon,
+      className: 'hover:text-white hover:bg-black hover:border-black',
+    },
+    artist.social?.youtube && {
+      key: 'youtube',
+      href: artist.social.youtube.startsWith('http') ? artist.social.youtube : `https://youtube.com/${artist.social.youtube}`,
+      label: 'YouTube',
+      icon: YouTubeIcon,
+      className: 'hover:text-[#FF0000] hover:border-[#FF0000]',
+    },
+    artist.social?.tiktok && {
+      key: 'tiktok',
+      href: `https://tiktok.com/@${artist.social.tiktok}`,
+      label: 'TikTok',
+      icon: TikTokIcon,
+      className: 'hover:text-white hover:bg-black hover:border-black',
+    },
+  ]
+    .filter(Boolean)
+    .slice(0, 3) as Array<{
+      key: string
+      href: string
+      label: string
+      icon: (props: { size?: number }) => JSX.Element
+      className: string
+    }>
 
   return (
     <section className="relative bg-gradient-to-b from-[var(--pf-orange)]/10 via-[var(--pf-bg)] to-[var(--pf-bg)]">
@@ -121,35 +148,6 @@ export function ArtistHero({ artist, featuredTrack, totalPlays }: ArtistHeroProp
               {artist.genre} · {artist.location}
             </p>
 
-            {/* Featured Track */}
-            {featuredTrack && (
-              <button
-                onClick={() => {
-                  if (isActive) {
-                    togglePlay()
-                  } else {
-                    setMode('artist')
-                    playTrack(featuredTrack)
-                  }
-                }}
-                aria-label={isActive && isPlaying ? `Pause "${featuredTrack.title}" by ${artist.name}` : `Play "${featuredTrack.title}" by ${artist.name}`}
-                title={isActive && isPlaying ? `Pause "${featuredTrack.title}"` : `Play "${featuredTrack.title}" — listen, then explore merch in the sidebar`}
-                className="inline-flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-3 rounded-full bg-[var(--pf-orange)] hover:bg-[var(--pf-orange-dark)] text-white font-semibold transition-all shadow-lg shadow-[var(--pf-orange)]/20 mb-6 sm:mb-8 whitespace-nowrap"
-              >
-                {isActive && isPlaying ? (
-                  <>
-                    <Pause size={18} className="sm:w-5 sm:h-5" />
-                    <span className="text-sm sm:text-base">Pause</span>
-                  </>
-                ) : (
-                  <>
-                    <Play size={18} className="sm:w-5 sm:h-5 ml-0.5" />
-                    <span className="text-sm sm:text-base">Play Track</span>
-                  </>
-                )}
-              </button>
-            )}
-
             {/* Stats */}
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2 text-[var(--pf-text-secondary)]">
@@ -159,52 +157,20 @@ export function ArtistHero({ artist, featuredTrack, totalPlays }: ArtistHeroProp
             </div>
 
             {/* Social Links */}
-            {artist.social && (artist.social.instagram || artist.social.twitter || artist.social.youtube || artist.social.tiktok) && (
+            {socialLinks.length > 0 && (
               <div className="flex items-center justify-center lg:justify-start gap-3 mt-6">
-                {artist.social.instagram && (
+                {socialLinks.map(({ key, href, label, icon: Icon, className }) => (
                   <a
-                    href={`https://instagram.com/${artist.social.instagram}`}
+                    key={key}
+                    href={href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-9 h-9 rounded-full bg-[var(--pf-bg)] border border-[var(--pf-border)] flex items-center justify-center text-[var(--pf-text-secondary)] hover:text-[#E4405F] hover:border-[#E4405F] transition-colors"
-                    aria-label="Instagram"
+                    className={`w-9 h-9 rounded-full bg-[var(--pf-bg)] border border-[var(--pf-border)] flex items-center justify-center text-[var(--pf-text-secondary)] transition-colors ${className}`}
+                    aria-label={label}
                   >
-                    <InstagramIcon />
+                    <Icon />
                   </a>
-                )}
-                {artist.social.twitter && (
-                  <a
-                    href={`https://twitter.com/${artist.social.twitter}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-9 h-9 rounded-full bg-[var(--pf-bg)] border border-[var(--pf-border)] flex items-center justify-center text-[var(--pf-text-secondary)] hover:text-white hover:bg-black hover:border-black transition-colors"
-                    aria-label="X (Twitter)"
-                  >
-                    <XIcon />
-                  </a>
-                )}
-                {artist.social.youtube && (
-                  <a
-                    href={artist.social.youtube.startsWith('http') ? artist.social.youtube : `https://youtube.com/${artist.social.youtube}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-9 h-9 rounded-full bg-[var(--pf-bg)] border border-[var(--pf-border)] flex items-center justify-center text-[var(--pf-text-secondary)] hover:text-[#FF0000] hover:border-[#FF0000] transition-colors"
-                    aria-label="YouTube"
-                  >
-                    <YouTubeIcon />
-                  </a>
-                )}
-                {artist.social.tiktok && (
-                  <a
-                    href={`https://tiktok.com/@${artist.social.tiktok}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-9 h-9 rounded-full bg-[var(--pf-bg)] border border-[var(--pf-border)] flex items-center justify-center text-[var(--pf-text-secondary)] hover:text-white hover:bg-black hover:border-black transition-colors"
-                    aria-label="TikTok"
-                  >
-                    <TikTokIcon />
-                  </a>
-                )}
+                ))}
               </div>
             )}
           </div>

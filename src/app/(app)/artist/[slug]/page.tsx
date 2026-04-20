@@ -1,8 +1,6 @@
 import { Metadata } from 'next'
-import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { Instagram, Youtube, Twitter, Music2 } from 'lucide-react'
 import { getArtistById, getArtistTracks, ARTISTS } from '@/lib/artists'
 import { FEATURED_PRODUCTS } from '@/lib/products'
 import { ArtistHero } from '@/components/artist/ArtistHero'
@@ -46,8 +44,6 @@ export default async function ArtistPage({ params }: PageProps) {
   }
 
   const tracks = getArtistTracks(slug)
-  const featuredTrack = tracks[0]
-  const totalPlays = tracks.reduce((sum, t) => sum + (t.plays || 0), 0)
 
   // Separate singles from albums
   const ALBUM_LIST = ['Ambiguous', 'From Feast to Famine', 'God Is Good', 'One Day', 'Streets Thought I Left', 'Roxannity', 'Artgasm', 'Levi']
@@ -59,7 +55,7 @@ export default async function ArtistPage({ params }: PageProps) {
   return (
     <div className="min-h-screen pb-24">
       {/* Hero Section */}
-      <ArtistHero artist={artist} featuredTrack={featuredTrack} totalPlays={totalPlays} />
+      <ArtistHero artist={artist} />
 
       {/* Content Grid */}
       <div className="max-w-6xl mx-auto px-6 py-12">
@@ -95,7 +91,7 @@ export default async function ArtistPage({ params }: PageProps) {
                 <ArtistTrackList tracks={singles} />
                 <p className="text-xs text-[var(--pf-text-muted)] mt-3 text-center">
                   {singles.length === 1 ? 'This track' : `${singles.length} tracks`}
-                  {` — listen, then explore merch & support options in the sidebar`}
+                  {` — listen, then choose support or merch in the sidebar`}
                 </p>
               </section>
             )}
@@ -120,50 +116,6 @@ export default async function ArtistPage({ params }: PageProps) {
 
             {/* Products */}
             <ArtistProducts products={products} artistName={artist.name} />
-
-            {/* Superfan CTA */}
-            <div className="bg-gradient-to-br from-[var(--pf-orange)]/10 to-purple-600/10 rounded-2xl p-5 border border-[var(--pf-orange)]/20 flex flex-col min-h-[140px]">
-              <div className="flex items-start justify-between mb-2">
-                <div className="text-2xl">⭐</div>
-              </div>
-              <h3 className="font-bold text-base mb-1">Become a Superfan</h3>
-              <p className="text-sm text-[var(--pf-text-secondary)] flex-1">
-                Earn 3% on everything your referrals buy. Help {artist.name.split(' ')[0]} grow without spending a dime.
-              </p>
-              <p className="text-xs text-[var(--pf-text-muted)] mt-2">
-                No purchase required to join
-              </p>
-              <Link
-                href="/superfan"
-                className="mt-4 block w-full py-2.5 rounded-xl text-center text-sm font-semibold bg-[var(--pf-orange)] text-white hover:bg-[var(--pf-orange-dark)] transition-colors"
-              >
-                Learn More
-              </Link>
-            </div>
-
-            {/* Platform Stats */}
-            <div className="bg-[var(--pf-surface)] rounded-2xl p-5 border border-[var(--pf-border)] min-h-[160px]">
-              <p className="text-sm uppercase tracking-widest text-[var(--pf-text-muted)] mb-4">Platform</p>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-[var(--pf-text-secondary)]">Artist revenue share</span>
-                  <span className="text-sm font-semibold text-[var(--pf-orange)]">80%</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-[var(--pf-text-secondary)]">Superfan commission</span>
-                  <span className="text-sm font-semibold">3–8%</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-[var(--pf-text-secondary)]">Platform fee</span>
-                  <span className="text-sm font-semibold">10%</span>
-                </div>
-              </div>
-              <div className="mt-4 pt-4 border-t border-[var(--pf-border)]">
-                <Link href="/ecosystem" className="text-sm text-[var(--pf-orange)] hover:underline">
-                  How Porterful works →
-                </Link>
-              </div>
-            </div>
 
           </div>
         </div>

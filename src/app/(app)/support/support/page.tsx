@@ -1,8 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
-import { Search, Music, Mic2, Star, Crown, Zap, Lock, Check } from 'lucide-react';
+import { Search, Heart, Check } from 'lucide-react';
 
 // Demo artists for search
 const DEMO_ARTISTS = [
@@ -19,7 +18,8 @@ type Artist = typeof DEMO_ARTISTS[number];
 export default function ProudToPayPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedArtist, setSelectedArtist] = useState<Artist | null>(null);
-  const [loading, setLoading] = useState<string | null>(null);
+  const [loading, setLoading] = useState<number | null>(null);
+  const supportAmounts = [1, 5, 10];
 
   const filteredArtists = DEMO_ARTISTS.filter(artist =>
     artist.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -27,18 +27,18 @@ export default function ProudToPayPage() {
     artist.location.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleBuy = async (type: 'song' | 'album' | 'full') => {
-    setLoading(type);
+  const handleSupport = async (amount: number) => {
+    setLoading(amount);
     try {
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           items: [{
-            productId: type === 'full' ? 'full-access' : `${type}-${selectedArtist?.id || 'default'}`,
-            name: type === 'full' ? 'Full Access - All Music Unlocked' : `${type.charAt(0).toUpperCase() + type.slice(1)} - ${selectedArtist?.name || 'Any Artist'}`,
+            productId: `support-${selectedArtist?.id || 'default'}-${amount}`,
+            name: `Support ${selectedArtist?.name || 'Any Artist'}`,
             artist: selectedArtist?.name || 'Various Artists',
-            price: type === 'song' ? 1 : type === 'album' ? 3.99 : 5.99,
+            price: amount,
             quantity: 1,
             type: 'digital',
             image: '/logo.svg'
@@ -58,26 +58,26 @@ export default function ProudToPayPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--pf-bg)] text-white pt-24 pb-12">
+    <div className="min-h-screen bg-[var(--pf-bg)] text-[var(--pf-text)] pt-24 pb-12">
       <div className="pf-container">
         {/* Hero */}
         <div className="text-center mb-12">
           <span className="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/10 border border-purple-500/30 rounded-full text-purple-400 text-sm font-medium mb-6">
-            <Star size={16} />
-            PROUD TO PAY
+            <Heart size={16} />
+            Support
           </span>
           <h1 className="text-4xl md:text-6xl font-bold mb-4">
-            Pay What Makes Sense<br />
-            <span className="text-[var(--pf-orange)]">Directly to Artists</span>
+            Support an artist.<br />
+            <span className="text-[var(--pf-orange)]">Pick an amount.</span>
           </h1>
           <p className="text-xl text-[var(--pf-text-secondary)] max-w-2xl mx-auto">
-            Skip the streaming middleman. Your money goes straight to the artists you love.
+            Choose someone, choose an amount, and tap in.
           </p>
         </div>
 
         {/* Artist Selection */}
         <div className="max-w-xl mx-auto mb-12">
-          <h2 className="text-xl font-bold text-center mb-4">Select an Artist to Support</h2>
+          <h2 className="text-xl font-bold text-center mb-4">Choose an artist</h2>
           <div className="relative mb-4">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--pf-text-muted)]" size={20} />
             <input
@@ -132,170 +132,32 @@ export default function ProudToPayPage() {
           </div>
         </div>
 
-        {/* Pricing Cards */}
+        {/* Amounts */}
         <div className="max-w-4xl mx-auto mb-16">
-          <h2 className="text-2xl font-bold text-center mb-8">Choose Your Support</h2>
+          <h2 className="text-2xl font-bold text-center mb-8">Choose an amount</h2>
           
           <div className="grid md:grid-cols-3 gap-6">
-            {/* Song */}
-            <div className="pf-card p-6 text-center">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-500/20 flex items-center justify-center">
-                <Music className="text-blue-400" size={28} />
+            {supportAmounts.map((amount) => (
+              <div key={amount} className={`pf-card p-6 text-center ${amount === 5 ? 'border-2 border-[var(--pf-orange)]' : ''}`}>
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--pf-orange)]/15 flex items-center justify-center">
+                  <Heart className="text-[var(--pf-orange)]" size={28} />
+                </div>
+                <h3 className="text-xl font-bold mb-2">Support</h3>
+                <p className="text-4xl font-bold mb-2">${amount}</p>
+                <p className="text-sm text-[var(--pf-text-muted)] mb-6">One-time support</p>
+                <button 
+                  onClick={() => handleSupport(amount)}
+                  disabled={loading === amount || !selectedArtist}
+                  className="block w-full py-3 px-6 bg-[var(--pf-orange)] text-white rounded-xl font-medium text-center hover:bg-[var(--pf-orange-dark)] transition-colors disabled:opacity-50"
+                >
+                  {loading === amount ? 'Processing...' : `Support $${amount}`}
+                </button>
               </div>
-              <h3 className="text-xl font-bold mb-2">Single Song</h3>
-              <p className="text-4xl font-bold mb-2">$1</p>
-              <p className="text-sm text-[var(--pf-text-muted)] mb-4">One-time payment</p>
-              <ul className="text-sm text-left space-y-2 mb-6">
-                <li className="flex items-center gap-2">
-                  <Check size={14} className="text-green-400" />
-                  1 song unlocked
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check size={14} className="text-green-400" />
-                  Download included
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check size={14} className="text-green-400" />
-                  80% to artist
-                </li>
-              </ul>
-              <button 
-                onClick={() => handleBuy('song')}
-                disabled={loading === 'song'}
-                className="block w-full py-3 px-6 bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-xl font-medium text-center hover:border-blue-500 transition-colors disabled:opacity-50"
-              >
-                {loading === 'song' ? 'Processing...' : 'Buy Song — $1'}
-              </button>
-            </div>
-
-            {/* Album */}
-            <div className="pf-card p-6 text-center border-2 border-purple-500/50">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-purple-500/20 flex items-center justify-center">
-                <Music className="text-purple-400" size={28} />
-              </div>
-              <h3 className="text-xl font-bold mb-2">Album / EP</h3>
-              <p className="text-4xl font-bold mb-2">$3.99</p>
-              <p className="text-sm text-[var(--pf-text-muted)] mb-4">One-time payment</p>
-              <ul className="text-sm text-left space-y-2 mb-6">
-                <li className="flex items-center gap-2">
-                  <Check size={14} className="text-green-400" />
-                  Full album unlocked
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check size={14} className="text-green-400" />
-                  All tracks downloadable
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check size={14} className="text-green-400" />
-                  80% to artist
-                </li>
-              </ul>
-              <Link 
-                href="/digital"
-                className="block w-full py-3 px-6 bg-purple-500 text-white rounded-xl font-medium text-center hover:bg-purple-600 transition-colors"
-              >
-                Browse Albums
-              </Link>
-            </div>
-
-            {/* Full Access */}
-            <div className="pf-card p-6 text-center border-2 border-[var(--pf-orange)] relative overflow-hidden">
-              <div className="absolute top-0 left-0 right-0 bg-[var(--pf-orange)] text-white text-xs font-bold py-1 text-center">
-                BEST VALUE
-              </div>
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--pf-orange)]/20 flex items-center justify-center">
-                <Crown className="text-[var(--pf-orange)]" size={28} />
-              </div>
-              <h3 className="text-xl font-bold mb-2">Full Access</h3>
-              <p className="text-4xl font-bold mb-2">$5.99</p>
-              <p className="text-sm text-[var(--pf-text-muted)] mb-4">One-time payment</p>
-              <ul className="text-sm text-left space-y-2 mb-6">
-                <li className="flex items-center gap-2">
-                  <Check size={14} className="text-green-400" />
-                  <strong>Every song unlocked</strong>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check size={14} className="text-green-400" />
-                  All albums, all artists
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check size={14} className="text-green-400" />
-                  No subscription
-                </li>
-              </ul>
-              <button 
-                onClick={() => handleBuy('full')}
-                disabled={loading === 'full'}
-                className="block w-full py-3 px-6 bg-[var(--pf-orange)] text-white rounded-xl font-medium text-center hover:bg-[var(--pf-orange-dark)] transition-colors disabled:opacity-50"
-              >
-                {loading === 'full' ? 'Processing...' : 'Unlock Everything — $5.99'}
-              </button>
-            </div>
+            ))}
           </div>
-        </div>
-
-        {/* Value Comparison */}
-        <div className="max-w-3xl mx-auto mb-16">
-          <h2 className="text-2xl font-bold text-center mb-8">Why This Works</h2>
-          <div className="pf-card p-6">
-            <div className="grid md:grid-cols-3 gap-4">
-              <div className="text-center p-4 bg-red-500/10 rounded-lg">
-                <p className="text-sm text-red-400 mb-2">Spotify</p>
-                <p className="text-2xl font-bold mb-2">1,666 plays</p>
-                <p className="text-sm text-[var(--pf-text-muted)]">= $5 to artist</p>
-                <p className="text-xs text-[var(--pf-text-muted)] mt-1">($0.003/stream)</p>
-              </div>
-              <div className="text-center p-4 bg-red-500/10 rounded-lg">
-                <p className="text-sm text-red-400 mb-2">Apple Music</p>
-                <p className="text-2xl font-bold mb-2">500 plays</p>
-                <p className="text-sm text-[var(--pf-text-muted)]">= $5 to artist</p>
-                <p className="text-xs text-[var(--pf-text-muted)] mt-1">($0.01/stream)</p>
-              </div>
-              <div className="text-center p-4 bg-green-500/10 rounded-lg border border-green-500/30">
-                <p className="text-sm text-green-400 mb-2">Porterful</p>
-                <p className="text-2xl font-bold mb-2">1 payment</p>
-                <p className="text-sm text-[var(--pf-text-muted)]">= $4.79 to artist (80%)</p>
-                <p className="text-xs text-green-400 mt-1">No subscription!</p>
-              </div>
-            </div>
-            <p className="text-center text-sm text-[var(--pf-text-secondary)] mt-4">
-              Spotify and Apple Music pay per stream. Porterful pays 80% directly to artists — one payment, forever access.
-            </p>
-          </div>
-        </div>
-
-        {/* How It Works */}
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-2xl font-bold text-center mb-8">How It Works</h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--pf-orange)]/20 flex items-center justify-center">
-                <Music className="text-[var(--pf-orange)]" size={28} />
-              </div>
-              <h3 className="font-semibold mb-2">Choose</h3>
-              <p className="text-sm text-[var(--pf-text-secondary)]">
-                Pick a song ($1), album ($3.99), or unlock everything ($5.99)
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-purple-500/20 flex items-center justify-center">
-                <Star className="text-purple-400" size={28} />
-              </div>
-              <h3 className="font-semibold mb-2">Pay Once</h3>
-              <p className="text-sm text-[var(--pf-text-secondary)]">
-                No subscription. No recurring charges. One payment.
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-500/20 flex items-center justify-center">
-                <Mic2 className="text-green-400" size={28} />
-              </div>
-              <h3 className="font-semibold mb-2">Artists Get Paid</h3>
-              <p className="text-sm text-[var(--pf-text-secondary)]">
-                80% goes directly to artists. No middleman.
-              </p>
-            </div>
-          </div>
+          <p className="text-center text-sm text-[var(--pf-text-secondary)] mt-4">
+            Choose an artist above, then pick an amount below.
+          </p>
         </div>
       </div>
     </div>

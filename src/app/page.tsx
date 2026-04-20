@@ -2,9 +2,11 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowRight, Music2, Pause, Play, ShoppingBag } from 'lucide-react'
+import { useState } from 'react'
+import { ArrowRight, Info, Pause, Play, ShoppingBag } from 'lucide-react'
 import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
+import { LikenessInfoModal } from '@/components/LikenessInfoModal'
 import { useAudio, type Track } from '@/lib/audio-context'
 import { TRACKS } from '@/lib/data'
 import { ARTISTS } from '@/lib/artists'
@@ -25,16 +27,9 @@ const supportProducts = FEATURED_PRODUCTS
 
 const artistSpotlight = ARTISTS.slice(0, 4)
 
-function formatPlays(plays: number) {
-  if (plays >= 1000000) return `${(plays / 1000000).toFixed(1)}M`
-  if (plays >= 1000) return `${Math.round(plays / 1000)}K`
-  return plays.toString()
-}
-
 export default function HomePage() {
-  const { currentTrack, isPlaying, playTrack, togglePlay, setQueue, setMode } = useAudio()
-
-  const isFeaturedTrackActive = currentTrack?.id === featuredTrack?.id
+  const { currentTrack, playTrack, togglePlay, setQueue, setMode } = useAudio()
+  const [showInfo, setShowInfo] = useState(false)
 
   const startFeaturedPlayback = (track: Track) => {
     setMode('track')
@@ -57,33 +52,32 @@ export default function HomePage() {
             <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
               <div>
                 <p className="mb-3 text-sm font-semibold uppercase tracking-[0.3em] text-[var(--pf-orange)]">
-                  Support Artists Directly
+                  Likeness
                 </p>
-                <h1 className="max-w-3xl text-4xl font-bold leading-tight md:text-6xl">
-                  Hear the music. Back the artist. Buy direct.
-                </h1>
-                <p className="mt-4 max-w-2xl text-lg text-[var(--pf-text-secondary)]">
-                  Porterful is built for one thing: helping fans support artists by listening, buying music,
-                  and purchasing products directly from the source.
-                </p>
-
-                <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <div className="flex flex-wrap items-start gap-3">
+                  <h1 className="max-w-3xl text-4xl font-bold leading-tight md:text-6xl">
+                    Own your likeness.
+                    <br />
+                    Make it official.
+                  </h1>
                   <button
                     type="button"
-                    onClick={() => featuredTrack && startFeaturedPlayback(featuredTrack)}
-                    className="pf-btn pf-btn-primary inline-flex items-center justify-center gap-2"
+                    onClick={() => setShowInfo(true)}
+                    className="mt-1 inline-flex h-9 w-9 items-center justify-center rounded-full border border-[var(--pf-border)] bg-[var(--pf-surface)] text-[var(--pf-text-secondary)] transition-colors hover:border-[var(--pf-orange)] hover:text-[var(--pf-text)]"
+                    aria-label="What is Likeness?"
                   >
-                    {isFeaturedTrackActive && isPlaying ? <Pause size={18} /> : <Play size={18} className="ml-0.5" />}
-                    Play Music
+                    <Info size={16} />
                   </button>
-                  <Link href={`/artist/${featuredArtist.slug}`} className="pf-btn pf-btn-secondary inline-flex items-center justify-center gap-2">
-                    <Music2 size={18} />
-                    Support Artist
+                </div>
+                <p className="mt-4 max-w-2xl text-lg text-[var(--pf-text-secondary)]">
+                  Register it. Link it. Tap into it anytime.
+                </p>
+
+                <div className="mt-8">
+                  <Link href="/verify" className="pf-btn pf-btn-primary inline-flex items-center justify-center gap-2">
+                    Register Now
                   </Link>
-                  <Link href="/store" className="pf-btn pf-btn-secondary inline-flex items-center justify-center gap-2">
-                    <ShoppingBag size={18} />
-                    Browse Store
-                  </Link>
+                  <p className="mt-2 text-sm text-[var(--pf-text-muted)]">Takes less than 2 minutes.</p>
                 </div>
 
                 <div className="mt-8 grid gap-3 sm:grid-cols-3">
@@ -121,56 +115,12 @@ export default function HomePage() {
                       {featuredArtist.name} • {featuredTrack?.album}
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => featuredTrack && startFeaturedPlayback(featuredTrack)}
-                    className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[var(--pf-orange)] text-white transition hover:bg-[var(--pf-orange-dark)]"
-                    aria-label={isFeaturedTrackActive && isPlaying ? 'Pause featured track' : 'Play featured track'}
-                  >
-                    {isFeaturedTrackActive && isPlaying ? <Pause size={22} /> : <Play size={22} className="ml-0.5" />}
-                  </button>
                 </div>
 
                 <div className="mt-5 rounded-2xl bg-[var(--pf-bg)] p-4">
                   <div className="flex items-center justify-between text-sm text-[var(--pf-text-secondary)]">
-                    <span>{formatPlays(featuredTrack?.plays || 0)} plays</span>
+                    <span>Featured release</span>
                     <span>${featuredTrack?.price || 1} track</span>
-                  </div>
-                  <div className="mt-4 flex flex-wrap gap-3">
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        if (!featuredTrack) return
-                        try {
-                          const res = await fetch('/api/checkout', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                              items: [{
-                                id: featuredTrack.id,
-                                name: featuredTrack.title,
-                                artist: featuredTrack.artist,
-                                price: featuredTrack.price || 1,
-                                type: 'digital',
-                                quantity: 1,
-                                image: featuredTrack.image,
-                                audioUrl: featuredTrack.audio_url,
-                              }],
-                            }),
-                          })
-                          const data = await res.json()
-                          if (data.url) window.location.href = data.url
-                        } catch (err) {
-                          console.error('Checkout error:', err)
-                        }
-                      }}
-                      className="px-4 py-2 rounded-xl bg-[var(--pf-orange)] text-white text-sm font-bold hover:bg-[var(--pf-orange-dark)] transition-colors"
-                    >
-                      Buy Track — ${featuredTrack?.price || 1}
-                    </button>
-                    <Link href={`/artist/${featuredArtist.slug}`} className="px-4 py-2 rounded-xl border border-[var(--pf-border)] text-sm font-medium hover:border-[var(--pf-orange)] hover:text-[var(--pf-orange)] transition-colors">
-                      Artist Page
-                    </Link>
                   </div>
                 </div>
               </div>
@@ -182,8 +132,8 @@ export default function HomePage() {
           <div className="pf-container py-10">
             <div className="mb-6 flex items-end justify-between gap-4">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--pf-orange)]">Start Listening</p>
-                <h2 className="mt-2 text-3xl font-bold">Play something in the first minute</h2>
+                <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--pf-orange)]">Featured tracks</p>
+                <h2 className="mt-2 text-3xl font-bold">Tap to listen</h2>
               </div>
               <Link href="/music" className="hidden text-sm font-medium text-[var(--pf-orange)] hover:underline md:block">
                 Open full music page
@@ -215,7 +165,6 @@ export default function HomePage() {
                     </div>
                     <div className="text-right">
                       <p className="text-sm font-medium">${track.price || 1}</p>
-                      <p className="text-xs text-[var(--pf-text-muted)]">{formatPlays(track.plays || 0)} plays</p>
                     </div>
                   </button>
                 )
@@ -228,8 +177,8 @@ export default function HomePage() {
           <div className="pf-container py-10">
             <div className="mb-6 flex items-end justify-between gap-4">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--pf-orange)]">Support Now</p>
-                <h2 className="mt-2 text-3xl font-bold">Buy directly from artists</h2>
+                <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--pf-orange)]">Support</p>
+                <h2 className="mt-2 text-3xl font-bold">Buy directly</h2>
               </div>
               <Link href="/store" className="hidden text-sm font-medium text-[var(--pf-orange)] hover:underline md:block">
                 View full store
@@ -258,7 +207,7 @@ export default function HomePage() {
                   <div className="mt-4 flex items-center justify-between">
                     <span className="text-lg font-bold">${product.price}</span>
                     <span className="inline-flex items-center gap-1 text-sm font-medium text-[var(--pf-orange)]">
-                      Support now
+                      Support
                       <ArrowRight size={15} />
                     </span>
                   </div>
@@ -273,7 +222,7 @@ export default function HomePage() {
             <div className="mb-6 flex items-end justify-between gap-4">
               <div>
                 <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--pf-orange)]">Artists</p>
-                <h2 className="mt-2 text-3xl font-bold">Explore who you can support</h2>
+                <h2 className="mt-2 text-3xl font-bold">Browse artists</h2>
               </div>
               <Link href="/artists" className="hidden text-sm font-medium text-[var(--pf-orange)] hover:underline md:block">
                 Browse artists
@@ -306,6 +255,7 @@ export default function HomePage() {
         </section>
       </main>
       <Footer />
+      <LikenessInfoModal open={showInfo} onClose={() => setShowInfo(false)} />
     </>
   )
 }
