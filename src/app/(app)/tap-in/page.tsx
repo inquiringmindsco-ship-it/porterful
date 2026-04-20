@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { Wifi, Tag, CreditCard, Disc3, Sparkles } from 'lucide-react'
+import { SignalShirtViewer } from '@/components/signal/SignalShirtViewer'
 
 const PRODUCTS = [
   {
@@ -120,6 +121,8 @@ export default function TapInPage() {
             </Link>
           </div>
         </div>
+
+        <SignalShirtViewer />
 
         {/* Products */}
         <h2 className="text-2xl font-bold mb-6">Signal formats</h2>
