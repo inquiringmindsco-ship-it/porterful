@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Heart, ShoppingBag, Share2 } from 'lucide-react'
 
 interface ArtistSupportCardProps {
@@ -15,7 +15,12 @@ interface ArtistSupportCardProps {
 export function ArtistSupportCard({ artist }: ArtistSupportCardProps) {
   const [selectedAmount, setSelectedAmount] = useState(5)
   const [loading, setLoading] = useState(false)
+  const [loaded, setLoaded] = useState(false)
   const supportAmounts = [1, 5, 10]
+
+  useEffect(() => {
+    setLoaded(true)
+  }, [])
 
   const handleSupport = async () => {
     setLoading(true)
@@ -52,16 +57,17 @@ export function ArtistSupportCard({ artist }: ArtistSupportCardProps) {
       <p className="text-xs text-[var(--pf-text-muted)] mb-4">Pick an amount and tap in.</p>
 
       <div className="mb-4 flex gap-2">
-        {supportAmounts.map((amount) => (
+        {supportAmounts.map((amount, index) => (
           <button
             key={amount}
             type="button"
             onClick={() => setSelectedAmount(amount)}
-            className={`flex-1 rounded-xl border px-3 py-2 text-sm font-semibold transition-colors ${
+            className={`flex-1 rounded-xl border px-3 py-2 text-sm font-semibold transition-all duration-200 ease-out ${
               selectedAmount === amount
                 ? 'border-[var(--pf-orange)] bg-[var(--pf-orange)] text-[#111111]'
                 : 'border-[var(--pf-border)] bg-[var(--pf-bg)] text-[var(--pf-text-secondary)] hover:border-[var(--pf-orange)] hover:text-[var(--pf-text)]'
-            }`}
+            } ${loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1'}`}
+            style={{ transitionDelay: `${index * 60}ms` }}
           >
             ${amount}
           </button>
@@ -71,7 +77,11 @@ export function ArtistSupportCard({ artist }: ArtistSupportCardProps) {
       <button
         onClick={handleSupport}
         disabled={loading}
-        className="mb-3 flex items-center gap-3 rounded-xl bg-gradient-to-r from-[var(--pf-orange)] to-[var(--pf-orange-light)] p-4 text-left text-[#111111] transition-all hover:shadow-lg hover:scale-[1.01] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
+        className={`mb-3 flex items-center gap-3 rounded-xl bg-gradient-to-r from-[var(--pf-orange)] to-[var(--pf-orange-light)] p-4 text-left text-[#111111] transition-all duration-200 ease-out hover:scale-[1.03] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70 ${
+          loaded
+            ? 'opacity-100 shadow-[0_14px_30px_-18px_rgba(198,167,94,0.62)]'
+            : 'opacity-95 shadow-[0_0_0_1px_rgba(198,167,94,0.14)]'
+        }`}
       >
         <div className="w-10 h-10 rounded-full bg-black/10 flex items-center justify-center shrink-0">
           <Heart size={20} className="text-[#111111]" />

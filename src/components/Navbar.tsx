@@ -94,10 +94,10 @@ export function Navbar() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="text-sm font-medium text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors relative group"
+                  className="text-sm font-medium text-[var(--pf-text-secondary)] transition-colors duration-200 ease-out relative group hover:text-[var(--pf-orange)]"
                 >
                   {link.label}
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[var(--pf-orange)] group-hover:w-full transition-all" />
+                  <span className="absolute -bottom-1 left-0 h-0.5 w-0 bg-[var(--pf-orange)] transition-all duration-200 ease-out group-hover:w-full" />
                 </Link>
               ))}
             </div>
@@ -108,7 +108,7 @@ export function Navbar() {
               {/* Cart Icon */}
               <Link
                 href="/cart"
-                className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-[var(--pf-surface)] transition-colors"
+                className="relative flex items-center gap-1.5 rounded-lg px-3 py-1.5 transition-colors duration-200 ease-out hover:bg-[var(--pf-surface)]"
                 aria-label={`Cart (${cartCount} items)`}
               >
                 <ShoppingCart size={20} />
@@ -122,7 +122,7 @@ export function Navbar() {
               <div className="relative hidden md:block" ref={themeRef}>
                 <button
                   onClick={() => setThemeOpen(prev => !prev)}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-[var(--pf-surface)] transition-colors"
+                  className="flex items-center gap-2 rounded-lg px-3 py-1.5 transition-colors duration-200 ease-out hover:bg-[var(--pf-surface)]"
                   aria-label={`Theme: ${themeLabel}`}
                   aria-haspopup="menu"
                   aria-expanded={themeOpen}
@@ -160,7 +160,7 @@ export function Navbar() {
                 <div className="hidden md:block relative" ref={profileRef}>
                   <button
                     onClick={() => setProfileOpen(!profileOpen)}
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-[var(--pf-surface)] transition-colors"
+                    className="flex items-center gap-2 rounded-lg px-3 py-1.5 transition-colors duration-200 ease-out hover:bg-[var(--pf-surface)]"
                   >
                     <div className="w-8 h-8 rounded-full bg-[var(--pf-orange)] flex items-center justify-center text-[#111111] text-sm font-semibold">
                       {user.email?.[0].toUpperCase()}
@@ -196,10 +196,10 @@ export function Navbar() {
               {/* Guest — Sign In + Shop Artists */}
               {showGuest && (
                 <div className="hidden md:flex items-center gap-2">
-                  <Link href="/login" className="px-4 py-2 text-sm font-medium text-[var(--pf-text-secondary)] hover:text-[var(--pf-text)] transition-colors">
+                  <Link href="/login" className="px-4 py-2 text-sm font-medium text-[var(--pf-text-secondary)] transition-colors duration-200 ease-out hover:text-[var(--pf-text)]">
                     Sign In
                   </Link>
-                  <Link href="/store" className="px-4 py-2 text-sm font-semibold bg-[var(--pf-orange)] text-[#111111] rounded-lg hover:bg-[var(--pf-orange-light)] transition-colors">
+                  <Link href="/store" className="rounded-lg bg-[var(--pf-orange)] px-4 py-2 text-sm font-semibold text-[#111111] transition-all duration-200 ease-out hover:scale-[1.03] hover:bg-[var(--pf-orange-light)]">
                     Shop Artists
                   </Link>
                 </div>
@@ -308,7 +308,7 @@ export function Navbar() {
               <Link href="/login" onClick={() => setMobileOpen(false)} className="block py-4 text-center font-medium border border-[var(--pf-border)] rounded-lg">
                 Sign In
               </Link>
-              <Link href="/store" onClick={() => setMobileOpen(false)} className="block py-4 text-center font-semibold bg-[var(--pf-orange)] text-[#111111] rounded-lg">
+              <Link href="/store" onClick={() => setMobileOpen(false)} className="block rounded-lg bg-[var(--pf-orange)] py-4 text-center font-semibold text-[#111111] transition-all duration-200 ease-out hover:scale-[1.02] hover:bg-[var(--pf-orange-light)]">
                 Shop Artists
               </Link>
             </div>

@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ArrowRight, Info, Pause, Play, ShoppingBag } from 'lucide-react'
 import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
@@ -30,6 +30,30 @@ const artistSpotlight = ARTISTS.slice(0, 4)
 export default function HomePage() {
   const { currentTrack, playTrack, togglePlay, setQueue, setMode } = useAudio()
   const [showInfo, setShowInfo] = useState(false)
+  const revealScopeRef = useRef<HTMLElement | null>(null)
+
+  useEffect(() => {
+    const scope = revealScopeRef.current
+    if (!scope) return
+
+    const groups = Array.from(scope.querySelectorAll<HTMLElement>('.pf-reveal-group'))
+    if (groups.length === 0) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return
+          const target = entry.target as HTMLElement
+          target.classList.add('is-visible')
+          observer.unobserve(target)
+        })
+      },
+      { threshold: 0.18, rootMargin: '0px 0px -8% 0px' },
+    )
+
+    groups.forEach((group) => observer.observe(group))
+    return () => observer.disconnect()
+  }, [])
 
   const startFeaturedPlayback = (track: Track) => {
     setMode('track')
@@ -46,23 +70,23 @@ export default function HomePage() {
   return (
     <>
       <Navbar />
-      <main className="min-h-screen bg-[var(--pf-bg)] pt-16 md:pt-20">
+      <main ref={revealScopeRef} className="min-h-screen bg-[var(--pf-bg)] pt-16 md:pt-20">
         <section className="border-b border-[var(--pf-border)] bg-gradient-to-b from-[var(--pf-orange)]/10 via-[var(--pf-bg)] to-[var(--pf-bg)]">
           <div className="pf-container py-10 md:py-16">
             <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
               <div className="relative isolate">
                 <div
                   aria-hidden="true"
-                  className="pointer-events-none absolute -left-8 top-2 h-40 w-80 rounded-full bg-[radial-gradient(circle_at_center,rgba(198,167,94,0.18),transparent_72%)] blur-3xl"
+                  className="pointer-events-none absolute left-1/2 top-0 h-44 w-[34rem] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(198,167,94,0.18),transparent_72%)] blur-3xl"
                 />
                 <p className="mb-3 text-sm font-semibold uppercase tracking-[0.3em] text-[var(--pf-orange)]">
                   Likeness
                 </p>
                 <div className="flex flex-wrap items-start gap-3">
-                  <h1 className="max-w-3xl text-4xl font-bold leading-tight md:text-6xl">
-                    Your likeness is already in use.
+                  <h1 className="max-w-3xl text-4xl font-extrabold leading-tight tracking-[-0.04em] md:text-6xl">
+                    Your likeness is already being used.
                     <br />
-                    This makes it yours.
+                    This puts it on record.
                   </h1>
                   <button
                     type="button"
@@ -88,20 +112,20 @@ export default function HomePage() {
                   <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--pf-orange)]">What you get</p>
                 </div>
 
-                <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                  <div className="rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-4">
+                <div className="pf-reveal-group mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                  <div className="pf-reveal-child rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-4" style={{ transitionDelay: '0ms' }}>
                     <p className="text-base font-semibold">Your identity, recorded</p>
                     <p className="mt-1 text-sm text-[var(--pf-text-secondary)]">Time-stamped. Referenced. Yours.</p>
                   </div>
-                  <div className="rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-4">
+                  <div className="pf-reveal-child rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-4" style={{ transitionDelay: '60ms' }}>
                     <p className="text-base font-semibold">Proof of presence</p>
                     <p className="mt-1 text-sm text-[var(--pf-text-secondary)]">Show what’s connected to you clearly.</p>
                   </div>
-                  <div className="rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-4">
+                  <div className="pf-reveal-child rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-4" style={{ transitionDelay: '120ms' }}>
                     <p className="text-base font-semibold">One access point</p>
                     <p className="mt-1 text-sm text-[var(--pf-text-secondary)]">Everything tied to you, in one place.</p>
                   </div>
-                  <div className="rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-4">
+                  <div className="pf-reveal-child rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-4" style={{ transitionDelay: '180ms' }}>
                     <p className="text-base font-semibold">A signal others can verify</p>
                     <p className="mt-1 text-sm text-[var(--pf-text-secondary)]">Seen. Tap-ready. Real.</p>
                   </div>
@@ -140,9 +164,9 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="border-b border-[var(--pf-border)]">
+        <section className="pf-reveal-group border-b border-[var(--pf-border)]">
           <div className="pf-container py-10">
-            <div className="mb-6 flex items-end justify-between gap-4">
+            <div className="pf-reveal-child mb-6 flex items-end justify-between gap-4" style={{ transitionDelay: '0ms' }}>
               <div>
                 <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--pf-orange)]">Featured tracks</p>
                 <h2 className="mt-2 text-3xl font-bold">Tap to listen</h2>
@@ -153,14 +177,15 @@ export default function HomePage() {
             </div>
 
             <div className="grid gap-4 lg:grid-cols-2">
-              {featuredTracks.map((track) => {
+              {featuredTracks.map((track, index) => {
                 const isActive = currentTrack?.id === track.id
                 return (
                   <button
                     key={track.id}
                     type="button"
                     onClick={() => startFeaturedPlayback(track)}
-                    className="flex items-center gap-4 rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-4 text-left transition hover:border-[var(--pf-orange)]"
+                    className="pf-reveal-child flex items-center gap-4 rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-4 text-left transition hover:border-[var(--pf-orange)]"
+                    style={{ transitionDelay: `${(index + 1) * 60}ms` }}
                   >
                     <div className="relative h-16 w-16 overflow-hidden rounded-xl">
                       <Image
@@ -185,9 +210,9 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="border-b border-[var(--pf-border)]">
+        <section className="pf-reveal-group border-b border-[var(--pf-border)]">
           <div className="pf-container py-10">
-            <div className="mb-6 flex items-end justify-between gap-4">
+            <div className="pf-reveal-child mb-6 flex items-end justify-between gap-4" style={{ transitionDelay: '0ms' }}>
               <div>
                 <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--pf-orange)]">Support</p>
                 <h2 className="mt-2 text-3xl font-bold">Buy directly</h2>
@@ -198,11 +223,12 @@ export default function HomePage() {
             </div>
 
             <div className="grid gap-5 md:grid-cols-3">
-              {supportProducts.map((product) => (
+              {supportProducts.map((product, index) => (
                 <Link
                   key={product.id}
                   href={`/product/${product.id}`}
-                  className="group rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-4 transition hover:border-[var(--pf-orange)]"
+                  className="pf-reveal-child group rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-4 transition hover:border-[var(--pf-orange)]"
+                  style={{ transitionDelay: `${(index + 1) * 60}ms` }}
                 >
                   <div className="relative mb-4 aspect-square overflow-hidden rounded-xl">
                     <Image
@@ -229,9 +255,9 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section>
+        <section className="pf-reveal-group">
           <div className="pf-container py-10">
-            <div className="mb-6 flex items-end justify-between gap-4">
+            <div className="pf-reveal-child mb-6 flex items-end justify-between gap-4" style={{ transitionDelay: '0ms' }}>
               <div>
                 <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--pf-orange)]">Artists</p>
                 <h2 className="mt-2 text-3xl font-bold">Browse artists</h2>
@@ -242,11 +268,12 @@ export default function HomePage() {
             </div>
 
             <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-              {artistSpotlight.map((artist) => (
+              {artistSpotlight.map((artist, index) => (
                 <Link
                   key={artist.id}
                   href={`/artist/${artist.slug}`}
-                  className="group rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-4 transition hover:border-[var(--pf-orange)]"
+                  className="pf-reveal-child group rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-4 transition hover:border-[var(--pf-orange)]"
+                  style={{ transitionDelay: `${(index + 1) * 60}ms` }}
                 >
                   <div className="relative mb-4 aspect-[4/5] overflow-hidden rounded-xl">
                     <Image
