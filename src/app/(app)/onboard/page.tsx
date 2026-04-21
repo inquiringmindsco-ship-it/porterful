@@ -252,7 +252,7 @@ export default function OnboardPage() {
             </Link>
 
             <Link
-              href="/dashboard/dashboard"
+              href="/dashboard"
               className="w-full py-3.5 bg-[var(--pf-surface)] border border-[var(--pf-border)] text-white font-medium rounded-xl hover:border-[var(--pf-orange)] transition-colors flex items-center justify-center gap-2"
             >
               Complete Profile → Unlock Payouts

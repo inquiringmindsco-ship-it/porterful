@@ -18,8 +18,8 @@ interface LikenessStatus {
 
 const NAV = [
   { label: 'My Vault', href: '/dashboard' },
-  { label: 'Social', href: '/dashboard/dashboard/likeness' },
-  { label: 'Access', href: '/dashboard/dashboard/access' },
+  { label: 'Social', href: '/dashboard/likeness' },
+  { label: 'Access', href: '/dashboard/access' },
 ]
 
 export default function DashboardClient({ serverProfileId, initialProfile }: DashboardClientProps) {
@@ -118,7 +118,7 @@ export default function DashboardClient({ serverProfileId, initialProfile }: Das
             <p className="text-xs uppercase tracking-widest text-[var(--pf-text-muted)] mb-1">Start here</p>
             <p className="text-lg font-bold mb-5">Verify your first account</p>
             <Link
-              href="/dashboard/dashboard/likeness"
+              href="/dashboard/likeness"
               className="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--pf-orange)] text-white text-sm font-semibold rounded-xl hover:bg-[var(--pf-orange-dark)] transition-colors"
             >
               <ShieldCheck size={16} />
@@ -130,14 +130,14 @@ export default function DashboardClient({ serverProfileId, initialProfile }: Das
             <p className="text-xs uppercase tracking-widest text-[var(--pf-text-muted)] mb-4">Next move</p>
             <div className="flex flex-wrap gap-3">
               <Link
-                href="/dashboard/dashboard/catalog"
+                href="/dashboard/catalog"
                 className="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--pf-orange)] text-white text-sm font-semibold rounded-xl hover:bg-[var(--pf-orange-dark)] transition-colors"
               >
                 <Package size={16} />
                 Sell
               </Link>
               <Link
-                href="/dashboard/dashboard/access"
+                href="/dashboard/access"
                 className="inline-flex items-center gap-2 px-5 py-2.5 border border-[var(--pf-border)] text-sm font-semibold rounded-xl hover:border-[var(--pf-orange)]/50 transition-colors"
               >
                 <Share2 size={16} />

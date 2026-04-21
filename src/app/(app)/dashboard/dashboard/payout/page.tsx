@@ -141,7 +141,7 @@ export default function PayoutPage() {
       <div className="min-h-screen pt-20 pb-24 bg-[var(--pf-bg)]">
         <div className="pf-container max-w-2xl mx-auto">
           <Link 
-            href="/dashboard/dashboard"
+            href="/dashboard"
             className="inline-flex items-center gap-2 text-[var(--pf-text-muted)] hover:text-white mb-8"
           >
             <ArrowLeft size={20} />
@@ -193,7 +193,7 @@ export default function PayoutPage() {
             Expect it to arrive in 2-3 business days.
           </p>
           <Link
-            href="/dashboard/dashboard"
+            href="/dashboard"
             className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--pf-orange)] text-white rounded-xl font-semibold hover:bg-[var(--pf-orange-dark)] transition-colors"
           >
             Back to Dashboard
@@ -208,7 +208,7 @@ export default function PayoutPage() {
       <div className="pf-container max-w-2xl mx-auto">
         {/* Header */}
         <Link 
-          href="/dashboard/dashboard"
+          href="/dashboard"
           className="inline-flex items-center gap-2 text-[var(--pf-text-muted)] hover:text-white mb-8"
         >
           <ArrowLeft size={20} />

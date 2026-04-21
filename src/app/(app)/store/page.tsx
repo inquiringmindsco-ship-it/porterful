@@ -218,7 +218,7 @@ export default function StorePage() {
           <div className="space-y-4">
             <div className="inline-flex items-center gap-2 rounded-full border border-[var(--pf-border)] bg-[var(--pf-surface)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--pf-text-muted)]">
               <ShoppingBag size={12} />
-              Store — part of Likeness™
+              Store — part of Porterful™
             </div>
             <div className="space-y-2">
               <h1 className="text-3xl font-black tracking-tight sm:text-4xl">Choose Products to Sell</h1>
@@ -231,7 +231,7 @@ export default function StorePage() {
           <div className="rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] px-4 py-3">
             <p className="flex items-center gap-2 text-sm font-medium text-[var(--pf-text)]">
               <ShieldCheck size={16} className="text-[var(--pf-orange)]" />
-              Verification is only required to withdraw earnings.
+              Payout verification is only required to withdraw earnings.
             </p>
           </div>
         </div>

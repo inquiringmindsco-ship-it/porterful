@@ -119,10 +119,10 @@ export default function ArtistDashboardPage() {
             <p className="text-sm text-[var(--pf-text-secondary)]">Music and products</p>
           </div>
           <div className="flex gap-3">
-            <Link href="/dashboard/dashboard/upload" className="pf-btn pf-btn-primary flex items-center gap-2">
+            <Link href="/dashboard/upload" className="pf-btn pf-btn-primary flex items-center gap-2">
               <Icon.Upload /> Upload
             </Link>
-            <Link href="/dashboard/dashboard/artist/edit" className="pf-btn pf-btn-secondary flex items-center gap-2">
+            <Link href="/dashboard/artist/edit" className="pf-btn pf-btn-secondary flex items-center gap-2">
               <Icon.Edit /> Edit Profile
             </Link>
           </div>
@@ -175,7 +175,7 @@ export default function ArtistDashboardPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold">All Tracks</h2>
-              <Link href="/dashboard/dashboard/upload" className="pf-btn pf-btn-primary flex items-center gap-2">
+              <Link href="/dashboard/upload" className="pf-btn pf-btn-primary flex items-center gap-2">
                 <Icon.Plus /> Upload Track
               </Link>
             </div>
@@ -184,7 +184,7 @@ export default function ArtistDashboardPage() {
                 <Icon.Music />
                 <p className="text-lg font-medium mt-4">No tracks yet</p>
                 <p className="text-sm text-[var(--pf-text-muted)] mb-4">Upload your first track to get started</p>
-                <Link href="/dashboard/dashboard/upload" className="pf-btn pf-btn-primary">
+                <Link href="/dashboard/upload" className="pf-btn pf-btn-primary">
                   Upload Track
                 </Link>
               </div>
@@ -229,7 +229,7 @@ export default function ArtistDashboardPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold">Products</h2>
-              <Link href="/dashboard/dashboard/catalog" className="pf-btn pf-btn-primary flex items-center gap-2">
+              <Link href="/dashboard/catalog" className="pf-btn pf-btn-primary flex items-center gap-2">
                 <Icon.Plus /> Choose Products
               </Link>
             </div>
@@ -238,7 +238,7 @@ export default function ArtistDashboardPage() {
                 <Icon.Package />
                 <p className="text-lg font-medium mt-4">No products selected</p>
                 <p className="text-sm text-[var(--pf-text-muted)] mb-4">Porterful manages the inventory. Choose a product from the catalog to start selling.</p>
-                <Link href="/dashboard/dashboard/catalog" className="pf-btn pf-btn-primary">
+                <Link href="/dashboard/catalog" className="pf-btn pf-btn-primary">
                   Choose Products to Sell
                 </Link>
               </div>

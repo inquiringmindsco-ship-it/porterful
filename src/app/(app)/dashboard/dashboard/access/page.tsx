@@ -5,8 +5,8 @@ import { usePathname } from 'next/navigation'
 
 const NAV = [
   { label: 'My Vault', href: '/dashboard' },
-  { label: 'Social', href: '/dashboard/dashboard/likeness' },
-  { label: 'Access', href: '/dashboard/dashboard/access' },
+  { label: 'Social', href: '/dashboard/likeness' },
+  { label: 'Access', href: '/dashboard/access' },
 ]
 
 const ACCESS_STEPS = [
@@ -61,7 +61,7 @@ export default function AccessPage() {
           </p>
           <div className="mt-6">
             <Link
-              href="/verify"
+              href="/register"
               className="inline-flex items-center justify-center rounded-xl bg-[var(--pf-orange)] px-5 py-3 text-sm font-semibold text-[#111111] transition-colors hover:bg-[var(--pf-orange-light)]"
             >
               Register to Access

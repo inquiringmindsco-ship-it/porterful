@@ -21,12 +21,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/contact',
     '/faq',
     '/support',
+    '/signal',
+    '/register',
     '/signup',
     '/signup/superfan',
     '/login',
     '/dashboard',
+    '/dashboard/access',
+    '/dashboard/catalog',
     '/dashboard/artist',
     '/dashboard/upload',
+    '/products',
     '/terms',
     '/privacy',
     '/press-kit',
@@ -59,7 +64,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     if (page === '') return 1.0
     if (page === '/competition') return 0.95  // High priority - active campaign
     if (page.startsWith('/album')) return 0.7
-    if (page === '/digital' || page === '/marketplace' || page === '/store') return 0.9
+    if (page === '/digital' || page === '/marketplace' || page === '/store' || page === '/products') return 0.9
     return 0.8
   }
   

@@ -12,8 +12,8 @@ interface LikenessStatus {
 
 const NAV = [
   { label: 'My Vault', href: '/dashboard' },
-  { label: 'Social', href: '/dashboard/dashboard/likeness' },
-  { label: 'Access', href: '/dashboard/dashboard/access' },
+  { label: 'Social', href: '/dashboard/likeness' },
+  { label: 'Access', href: '/dashboard/access' },
 ]
 
 export default function SocialPage() {

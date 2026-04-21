@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useState, useEffect, useRef } from 'react'
+import { usePathname } from 'next/navigation'
 import { useSupabase } from '@/app/providers'
 import { useCart } from '@/lib/cart-context'
 import { useTheme } from '@/lib/theme-context'
@@ -11,6 +12,7 @@ import type { Theme } from '@/lib/theme'
 
 export function Navbar() {
   const { user, supabase, loading } = useSupabase()
+  const pathname = usePathname()
   const { theme, setTheme } = useTheme()
   const { items } = useCart()
   const cartCount = items.reduce((s, i) => s + i.quantity, 0)
@@ -52,18 +54,39 @@ export function Navbar() {
     }
   }
 
-  const navLinks = [
-    { href: '/store', label: 'Shop' },
-    { href: '/artists', label: 'Artists' },
-    { href: '/music', label: 'Music' },
-    { href: '/signal', label: 'Signal' },
-  ]
+  const isLikenessSurface =
+    pathname === '/dashboard' ||
+    pathname.startsWith('/dashboard/likeness') ||
+    pathname.startsWith('/dashboard/access') ||
+    pathname.startsWith('/dashboard/payout') ||
+    pathname.startsWith('/signal') ||
+    pathname.startsWith('/tap-in') ||
+    pathname.startsWith('/register') ||
+    pathname.startsWith('/verify')
+
+  const navLinks = isLikenessSurface
+    ? [
+        { href: '/register', label: 'Register' },
+        { href: '/dashboard', label: 'Verify' },
+        { href: '/signal', label: 'Signal' },
+        { href: '/dashboard/access', label: 'Access' },
+      ]
+    : [
+        { href: '/store', label: 'Shop' },
+        { href: '/artists', label: 'Artists' },
+        { href: '/music', label: 'Music' },
+        { href: '/support', label: 'Support' },
+      ]
   const themeLabel = theme === 'creator' ? 'Creator' : theme === 'dark' ? 'Dark' : 'Light'
   const ThemeIcon = theme === 'creator' ? Palette : theme === 'dark' ? Moon : SunMedium
   const themeOptions: Array<{ value: Theme; label: string }> = THEMES.map((value) => ({
     value,
     label: value === 'creator' ? 'Creator' : value === 'dark' ? 'Dark' : 'Light',
   }))
+  const brandLabel = isLikenessSurface ? 'Likeness™' : 'Porterful'
+  const brandLetter = isLikenessSurface ? 'L' : 'P'
+  const dashboardHref = isLikenessSurface ? '/dashboard' : '/dashboard/artist'
+  const dashboardLabel = isLikenessSurface ? 'Dashboard' : 'My Dashboard'
 
   // Never render auth-dependent state until both:
   // 1. mounted=true (no SSR mismatch)
@@ -84,9 +107,9 @@ export function Navbar() {
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2 group">
               <div className="w-9 h-9 rounded-lg bg-[var(--pf-orange)] flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
-                <span className="text-[#111111] font-bold text-sm">L</span>
+                <span className="text-[#111111] font-bold text-sm">{brandLetter}</span>
               </div>
-              <span className="font-semibold text-lg tracking-tight hidden sm:block">Likeness™</span>
+              <span className="font-semibold text-lg tracking-tight hidden sm:block">{brandLabel}</span>
             </Link>
 
             {/* Desktop Nav */}
@@ -107,18 +130,20 @@ export function Navbar() {
             <div className="flex items-center gap-2">
 
               {/* Cart Icon */}
-              <Link
-                href="/cart"
-                className="relative flex items-center gap-1.5 rounded-lg px-3 py-1.5 transition-colors duration-200 ease-out hover:bg-[var(--pf-surface)]"
-                aria-label={`Cart (${cartCount} items)`}
-              >
-                <ShoppingCart size={20} />
-              {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-[var(--pf-orange)] text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
-                  {mounted ? (cartCount > 9 ? '9+' : cartCount) : '0'}
-                </span>
+              {!isLikenessSurface && (
+                <Link
+                  href="/cart"
+                  className="relative flex items-center gap-1.5 rounded-lg px-3 py-1.5 transition-colors duration-200 ease-out hover:bg-[var(--pf-surface)]"
+                  aria-label={`Cart (${cartCount} items)`}
+                >
+                  <ShoppingCart size={20} />
+                  {cartCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-[var(--pf-orange)] text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                      {mounted ? (cartCount > 9 ? '9+' : cartCount) : '0'}
+                    </span>
+                  )}
+                </Link>
               )}
-            </Link>
 
               <div className="relative hidden md:block" ref={themeRef}>
                 <button
@@ -175,9 +200,9 @@ export function Navbar() {
                         <p className="text-sm font-medium truncate">{user.email}</p>
                       </div>
                       <div className="py-2">
-                        <Link href="/dashboard" className="flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-[var(--pf-bg)] transition-colors" onClick={() => setProfileOpen(false)}>
+                        <Link href={dashboardHref} className="flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-[var(--pf-bg)] transition-colors" onClick={() => setProfileOpen(false)}>
                           <User size={16} />
-                          <span>Dashboard</span>
+                          <span>{dashboardLabel}</span>
                         </Link>
                       </div>
                       <div className="border-t border-[var(--pf-border)] py-2">
@@ -287,9 +312,9 @@ export function Navbar() {
 
           {showUser && (
             <div className="space-y-1">
-              <Link href="/dashboard" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 py-3 text-[var(--pf-text-secondary)]">
+              <Link href={dashboardHref} onClick={() => setMobileOpen(false)} className="flex items-center gap-3 py-3 text-[var(--pf-text-secondary)]">
                 <User size={20} />
-                <span>Dashboard</span>
+                <span>{dashboardLabel}</span>
               </Link>
               <button
                 onClick={() => { handleSignOut(); setMobileOpen(false); }}

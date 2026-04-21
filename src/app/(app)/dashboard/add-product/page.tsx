@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
 
 export default function DashboardAddProductAliasPage() {
-  redirect('/dashboard/dashboard/catalog')
+  redirect('/dashboard/catalog')
 }

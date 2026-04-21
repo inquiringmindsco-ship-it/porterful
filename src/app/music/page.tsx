@@ -573,13 +573,13 @@ export default function MusicPage() {
                   O D Porter is a St. Louis-born artist who grew up between the music of New Orleans and the streets of the Lou.
                 </p>
                 <p>
-                  Born in Miami, raised between NOLA and the Lou — most known from the STL. After years of grinding in the underground, O D Porter built Porterful out of frustration with platforms that take 80% of what artists earn.
+                  Born in Miami, raised between NOLA and the Lou — most known from the STL. After years of grinding in the underground, O D Porter built Porterful to give artists a direct marketplace that keeps more of every sale.
                 </p>
                 <p>
                   He wrote his story down — the real one, unfiltered — in his book <span className="text-[var(--pf-text)] italic">"There It Is, Here It Go."</span>
                 </p>
                 <p>
-                  Now he&apos;s building the ecosystem that should have existed all along — where artists own the platform, keep the revenue, and connect directly with the people who believe in them.
+                  Now he&apos;s building the marketplace that should have existed all along — where artists connect directly with the people who believe in them and keep the loop moving.
                 </p>
               </div>
 

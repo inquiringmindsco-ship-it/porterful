@@ -26,18 +26,6 @@ export default function LoginClient({ nextPath, initialError = null }: LoginClie
     }
   }, [user, nextPath, router])
 
-  const handleLikenessSignIn = async () => {
-    setLoading(true)
-    setError('')
-    try {
-      const bridgeUrl = encodeURIComponent(window.location.origin + '/api/auth/porterful-bridge')
-      window.location.href = `https://likenessverified.com/login?return=${bridgeUrl}`
-    } catch {
-      setError('Could not connect to Likeness™')
-      setLoading(false)
-    }
-  }
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -97,32 +85,6 @@ export default function LoginClient({ nextPath, initialError = null }: LoginClie
           </div>
         )}
 
-        <div className="mb-6 p-5 rounded-2xl bg-gradient-to-r from-[var(--pf-orange)]/10 to-purple-500/10 border border-[var(--pf-orange)]/30">
-          <div className="text-center mb-3">
-            <span className="text-2xl mb-2 block">🔔</span>
-            <p className="font-semibold text-sm">One Login. Entire Ecosystem.</p>
-            <p className="text-xs text-[var(--pf-text-muted)] mt-1">
-              Sign in once with Likeness™ — access Porterful and all your tools in one place.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={handleLikenessSignIn}
-            disabled={loading}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-[var(--pf-orange)] hover:bg-[var(--pf-orange-dark)] text-white font-semibold transition-colors disabled:opacity-50"
-          >
-            {loading ? 'Connecting...' : 'Continue with Likeness™'}
-          </button>
-        </div>
-
-        <div className="relative my-6">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-[var(--pf-border)]"></div>
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-4 bg-[var(--pf-bg)] text-[var(--pf-text-muted)]">or sign in with email & password</span>
-          </div>
-        </div>
 
         <form onSubmit={handleLogin} className="space-y-5">
           <div>

@@ -2,8 +2,8 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { useEffect, useRef } from 'react'
-import { ArrowRight, Pause, Play, ShoppingBag } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { ArrowRight, Pause, Play } from 'lucide-react'
 import { Footer } from '@/components/Footer'
 import { useAudio, type Track } from '@/lib/audio-context'
 import { TRACKS } from '@/lib/data'
@@ -17,9 +17,8 @@ const featuredTracks = TRACKS
   .sort((a, b) => (b.plays || 0) - (a.plays || 0))
   .slice(0, 4) as Track[]
 
-const featuredTrack = featuredTracks[0]
-
-const supportProducts = FEATURED_PRODUCTS
+const featuredProduct = FEATURED_PRODUCTS.find((product) => product.featured) ?? FEATURED_PRODUCTS[0]
+const featuredProducts = FEATURED_PRODUCTS
   .filter((product) => product.artist !== 'Porterful' && product.artist !== 'Various Artists')
   .slice(0, 3)
 
@@ -28,6 +27,11 @@ const artistSpotlight = ARTISTS.slice(0, 4)
 export default function HomePage() {
   const { currentTrack, playTrack, togglePlay, setQueue, setMode } = useAudio()
   const revealScopeRef = useRef<HTMLElement | null>(null)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     const scope = revealScopeRef.current
@@ -69,82 +73,77 @@ export default function HomePage() {
       <main ref={revealScopeRef} className="min-h-screen bg-[var(--pf-bg)] pt-16 md:pt-20">
         <section className="border-b border-[var(--pf-border)] bg-gradient-to-b from-[var(--pf-orange)]/10 via-[var(--pf-bg)] to-[var(--pf-bg)]">
           <div className="pf-container py-10 md:py-16">
-            <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
+            <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
               <div className="relative isolate">
                 <div
                   aria-hidden="true"
                   className="pointer-events-none absolute left-1/2 top-0 h-44 w-[34rem] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(198,167,94,0.18),transparent_72%)] blur-3xl"
                 />
                 <p className="mb-3 text-sm font-semibold uppercase tracking-[0.3em] text-[var(--pf-orange)]">
-                  Support artists. Discover music.
+                  Porterful™
                 </p>
                 <h1 className="max-w-3xl text-4xl font-extrabold leading-tight tracking-[-0.04em] md:text-6xl">
-                  Artists. Music. Merch.
+                  Shop music.
                   <br />
-                  Direct to you.
+                  Support artists.
+                  <br />
+                  Discover what&apos;s next.
                 </h1>
                 <p className="mt-4 max-w-2xl text-lg text-[var(--pf-text-secondary)]">
-                  Stream, buy, and support independent artists directly. No label. No middleman. 80% goes to the artist.
+                  Curated drops, direct support, and music from artists you can actually reach.
                 </p>
 
                 <div className="mt-8 flex flex-wrap gap-3">
-                  <Link href="/artists" className="pf-btn pf-btn-primary inline-flex items-center justify-center gap-2">
-                    Browse Artists
+                  <Link href="/store" className="pf-btn pf-btn-primary inline-flex items-center justify-center gap-2">
+                    Shop Products
                   </Link>
-                  <Link href="/store" className="pf-btn pf-btn-secondary inline-flex items-center justify-center gap-2">
-                    <ShoppingBag size={16} />
-                    Shop Now
+                  <Link href="/artists" className="pf-btn pf-btn-secondary inline-flex items-center justify-center gap-2">
+                    Browse Artists
                   </Link>
                 </div>
 
-                <div className="pf-reveal-group mt-8 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                  <div className="pf-reveal-child rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-4" style={{ transitionDelay: '0ms' }}>
-                    <p className="text-base font-semibold">Independent artists</p>
-                    <p className="mt-1 text-sm text-[var(--pf-text-secondary)]">Real people. Real work.</p>
-                  </div>
-                  <div className="pf-reveal-child rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-4" style={{ transitionDelay: '60ms' }}>
-                    <p className="text-base font-semibold">80% to artists</p>
-                    <p className="mt-1 text-sm text-[var(--pf-text-secondary)]">Every purchase goes direct.</p>
-                  </div>
-                  <div className="pf-reveal-child rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-4" style={{ transitionDelay: '120ms' }}>
-                    <p className="text-base font-semibold">Music + merch</p>
-                    <p className="mt-1 text-sm text-[var(--pf-text-secondary)]">Tracks, vinyl, apparel, and more.</p>
-                  </div>
+                <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                  {[
+                    { label: 'Direct support', value: 'Buy from artists' },
+                    { label: 'New drops', value: 'Updated weekly' },
+                    { label: 'Music first', value: 'Listen and share' },
+                  ].map((item) => (
+                    <div key={item.label} className="rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-4">
+                      <p className="text-xs uppercase tracking-[0.25em] text-[var(--pf-text-muted)]">{item.label}</p>
+                      <p className="mt-2 text-sm font-semibold text-[var(--pf-text)]">{item.value}</p>
+                    </div>
+                  ))}
                 </div>
               </div>
 
               <div className="rounded-[28px] border border-[var(--pf-border)] bg-[var(--pf-surface)] p-5 shadow-2xl shadow-black/30">
-                <div className="relative mb-5 aspect-square overflow-hidden rounded-2xl">
+                <div className="relative mb-5 aspect-[4/5] overflow-hidden rounded-2xl">
                   <Image
-                    src={featuredTrack?.image || featuredArtist.image}
-                    alt={featuredTrack?.title || featuredArtist.name}
+                    src={featuredProduct.image}
+                    alt={featuredProduct.name}
                     fill
                     sizes="(max-width: 1024px) 100vw, 40vw"
                     className="object-cover"
                   />
                 </div>
-
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <p className="text-sm uppercase tracking-[0.25em] text-[var(--pf-orange)]">Now Featured</p>
-                    <h2 className="mt-2 text-2xl font-bold">{featuredTrack?.title}</h2>
+                    <p className="text-sm uppercase tracking-[0.25em] text-[var(--pf-orange)]">Featured drop</p>
+                    <h2 className="mt-2 text-2xl font-bold">{featuredProduct.name}</h2>
                     <p className="mt-1 text-[var(--pf-text-secondary)]">
-                      {featuredArtist.name} • {featuredTrack?.album}
+                      {featuredProduct.artist} • {featuredProduct.category}
                     </p>
                   </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => featuredTrack && startFeaturedPlayback(featuredTrack)}
-                  className="mt-5 flex w-full items-center justify-center gap-3 rounded-2xl bg-[var(--pf-bg)] p-4 transition hover:border hover:border-[var(--pf-orange)]"
-                >
-                  {currentTrack?.id === featuredTrack?.id ? <Pause size={18} /> : <Play size={18} />}
-                  <span className="text-sm font-medium">
-                    {currentTrack?.id === featuredTrack?.id ? 'Pause' : 'Play Track'}
+                  <span className="shrink-0 rounded-full border border-[var(--pf-border)] bg-[var(--pf-bg)] px-3 py-1 text-sm font-semibold">
+                    ${featuredProduct.price.toFixed(2)}
                   </span>
-                  <span className="ml-auto text-sm text-[var(--pf-text-secondary)]">${featuredTrack?.price || 1}</span>
-                </button>
+                </div>
+                <div className="mt-5 rounded-2xl bg-[var(--pf-bg)] p-4">
+                  <div className="flex items-center justify-between text-sm text-[var(--pf-text-secondary)]">
+                    <span>Featured release</span>
+                    <span>Porterful-managed inventory</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -154,65 +153,19 @@ export default function HomePage() {
           <div className="pf-container py-10">
             <div className="pf-reveal-child mb-6 flex items-end justify-between gap-4" style={{ transitionDelay: '0ms' }}>
               <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--pf-orange)]">Featured tracks</p>
-                <h2 className="mt-2 text-3xl font-bold">Tap to listen</h2>
-              </div>
-              <Link href="/music" className="hidden text-sm font-medium text-[var(--pf-orange)] hover:underline md:block">
-                Open full music page
-              </Link>
-            </div>
-
-            <div className="grid gap-4 lg:grid-cols-2">
-              {featuredTracks.map((track, index) => {
-                const isActive = currentTrack?.id === track.id
-                return (
-                  <button
-                    key={track.id}
-                    type="button"
-                    onClick={() => startFeaturedPlayback(track)}
-                    className="pf-reveal-child flex items-center gap-4 rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-4 text-left transition hover:border-[var(--pf-orange)]"
-                    style={{ transitionDelay: `${(index + 1) * 60}ms` }}
-                  >
-                    <div className="relative h-16 w-16 overflow-hidden rounded-xl">
-                      <Image
-                        src={track.image || featuredArtist.image}
-                        alt={track.title}
-                        fill
-                        sizes="64px"
-                        className="object-cover"
-                      />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className={`truncate font-semibold ${isActive ? 'text-[var(--pf-orange)]' : ''}`}>{track.title}</p>
-                      <p className="truncate text-sm text-[var(--pf-text-secondary)]">{track.album}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium">${track.price || 1}</p>
-                    </div>
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-        </section>
-
-        <section className="pf-reveal-group border-b border-[var(--pf-border)]">
-          <div className="pf-container py-10">
-            <div className="pf-reveal-child mb-6 flex items-end justify-between gap-4" style={{ transitionDelay: '0ms' }}>
-              <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--pf-orange)]">Support</p>
-                <h2 className="mt-2 text-3xl font-bold">Buy directly</h2>
+                <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--pf-orange)]">Featured products</p>
+                <h2 className="mt-2 text-3xl font-bold">Shop the catalog</h2>
               </div>
               <Link href="/store" className="hidden text-sm font-medium text-[var(--pf-orange)] hover:underline md:block">
-                View full store
+                Open the store
               </Link>
             </div>
 
-            <div className="grid gap-5 md:grid-cols-3">
-              {supportProducts.map((product, index) => (
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {featuredProducts.map((product, index) => (
                 <Link
                   key={product.id}
-                  href={`/product/${product.id}`}
+                  href="/store"
                   className="pf-reveal-child group rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-4 transition hover:border-[var(--pf-orange)]"
                   style={{ transitionDelay: `${(index + 1) * 60}ms` }}
                 >
@@ -221,20 +174,16 @@ export default function HomePage() {
                       src={product.image}
                       alt={product.name}
                       fill
-                      sizes="(max-width: 768px) 100vw, 33vw"
+                      sizes="(max-width: 1280px) 50vw, 25vw"
                       className="object-cover transition duration-300 group-hover:scale-105"
                     />
                   </div>
-                  <p className="text-xs uppercase tracking-[0.25em] text-[var(--pf-text-muted)]">{product.artist}</p>
-                  <h3 className="mt-2 text-xl font-semibold">{product.name}</h3>
-                  <p className="mt-2 text-sm text-[var(--pf-text-secondary)]">{product.description}</p>
-                  <div className="mt-4 flex items-center justify-between">
-                    <span className="text-lg font-bold">${product.price}</span>
-                    <span className="inline-flex items-center gap-1 text-sm font-medium text-[var(--pf-orange)]">
-                      Support
-                      <ArrowRight size={15} />
-                    </span>
+                  <p className="text-xs uppercase tracking-[0.2em] text-[var(--pf-text-muted)]">{product.category}</p>
+                  <div className="mt-2 flex items-start justify-between gap-3">
+                    <h3 className="text-lg font-semibold">{product.name}</h3>
+                    <span className="shrink-0 font-semibold text-[var(--pf-orange)]">${product.price.toFixed(2)}</span>
                   </div>
+                  <p className="mt-2 text-sm text-[var(--pf-text-secondary)]">{product.artist}</p>
                 </Link>
               ))}
             </div>
@@ -279,7 +228,81 @@ export default function HomePage() {
           </div>
         </section>
 
+        <section className="pf-reveal-group border-t border-[var(--pf-border)]">
+          <div className="pf-container py-10">
+            <div className="pf-reveal-child mb-6 flex items-end justify-between gap-4" style={{ transitionDelay: '0ms' }}>
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--pf-orange)]">Music</p>
+                <h2 className="mt-2 text-3xl font-bold">Tap to listen</h2>
+              </div>
+              <Link href="/music" className="hidden text-sm font-medium text-[var(--pf-orange)] hover:underline md:block">
+                Open full music page
+              </Link>
+            </div>
 
+            <div className="grid gap-4 lg:grid-cols-2">
+              {featuredTracks.map((track, index) => {
+                const isActive = currentTrack?.id === track.id
+                return (
+                  <button
+                    key={track.id}
+                    type="button"
+                    onClick={() => {
+                      setMode('track')
+                      setQueue(featuredTracks)
+                      if (isActive) {
+                        togglePlay()
+                        return
+                      }
+                      playTrack(track)
+                    }}
+                    className="pf-reveal-child flex items-center gap-4 rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-4 text-left transition hover:border-[var(--pf-orange)]"
+                    style={{ transitionDelay: `${(index + 1) * 60}ms` }}
+                  >
+                    <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl">
+                      <Image src={track.image ?? ''} alt={track.title} fill sizes="80px" className="object-cover" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs uppercase tracking-[0.2em] text-[var(--pf-text-muted)]">{track.album}</p>
+                      <h3 className="mt-1 text-lg font-semibold">{track.title}</h3>
+                      <p className="mt-1 truncate text-sm text-[var(--pf-text-secondary)]">{track.artist}</p>
+                    </div>
+                    <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[var(--pf-border)] bg-[var(--pf-bg)] text-[var(--pf-text)]">
+                      {mounted && isActive ? <Pause size={18} /> : <Play size={18} />}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        </section>
+
+        <section className="pf-reveal-group border-t border-[var(--pf-border)]">
+          <div className="pf-container py-10">
+            <div className="pf-reveal-child grid gap-4 md:grid-cols-2" style={{ transitionDelay: '0ms' }}>
+              <div className="rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-6 md:p-8">
+                <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--pf-orange)]">Porterful™</p>
+                <h2 className="mt-2 text-2xl font-bold">The marketplace</h2>
+                <p className="mt-3 text-base leading-7 text-[var(--pf-text-secondary)]">
+                  Shop music, merch, and drops directly from the people making them.
+                </p>
+                <Link href="/store" className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-[var(--pf-orange)] hover:underline">
+                  Go to Store <ArrowRight size={14} />
+                </Link>
+              </div>
+              <div className="rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-6 md:p-8">
+                <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--pf-orange)]">Support</p>
+                <h2 className="mt-2 text-2xl font-bold">Keep the loop moving</h2>
+                <p className="mt-3 text-base leading-7 text-[var(--pf-text-secondary)]">
+                  Discover artists, share what you love, and support the work you want to keep alive.
+                </p>
+                <Link href="/support" className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-[var(--pf-orange)] hover:underline">
+                  Support Artists <ArrowRight size={14} />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
       <Footer />
     </>
