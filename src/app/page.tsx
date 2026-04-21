@@ -81,7 +81,7 @@ export default function HomePage() {
               <div className="relative isolate">
                 <div
                   aria-hidden="true"
-                  className="pointer-events-none absolute left-1/2 top-0 h-44 w-[34rem] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(198,167,94,0.18),transparent_72%)] blur-3xl"
+                  className="pointer-events-none absolute left-1/2 top-0 h-44 w-[34rem] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.18),transparent_72%)] blur-3xl"
                 />
                 <p className="mb-3 text-sm font-semibold uppercase tracking-[0.3em] pf-brand-gradient-text">
                   Porterful™
