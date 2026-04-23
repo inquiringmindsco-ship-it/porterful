@@ -75,6 +75,7 @@ export function Navbar() {
         { href: '/store', label: 'Shop' },
         { href: '/artists', label: 'Artists' },
         { href: '/music', label: 'Music' },
+        { href: '/affiliate', label: 'Sell' },
         { href: '/support', label: 'Support' },
       ]
   const themeLabel = theme === 'creator' ? 'Creator' : theme === 'dark' ? 'Dark' : 'Light'

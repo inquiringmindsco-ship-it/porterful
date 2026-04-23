@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session;
     const metadata = session.metadata || {};
-    const { lk_id, user_id, username, product_id, source, offer_id, referral_code } = metadata;
+    const { lk_id, user_id, username, product_id, source, offer_id, referral_code, affiliate_link_id } = metadata;
     const supabase = createServerClient();
     const activationCodeValue = normalizeActivationCode(metadata.activation_code_value || metadata.activation_code || null);
     const discountCents = Math.max(0, Math.round(Number(metadata.discount_cents || 0)));
@@ -46,6 +46,25 @@ export async function POST(req: NextRequest) {
     const referrerHandle = normalizeReferralHandle(referral_code || username || lk_id || null)
     if (referrerHandle) {
       referrerId = await resolveReferrerId(supabase, referrerHandle)
+    }
+
+    // Affiliate referral: look up by affiliate_link_id and credit the affiliate
+    let affiliateId: string | null = null;
+    if (affiliate_link_id) {
+      const { data: affiliate } = await supabase
+        .from('affiliates')
+        .select('id')
+        .eq('link_id', affiliate_link_id)
+        .limit(1)
+        .maybeSingle();
+      if (affiliate) {
+        affiliateId = affiliate.id;
+        // Increment referral count
+        await supabase
+          .from('affiliates')
+          .update({ referral_count: (affiliate.referral_count || 0) + 1 })
+          .eq('id', affiliate.id);
+      }
     }
 
     // Also try to find buyer profile
@@ -232,6 +251,32 @@ export async function POST(req: NextRequest) {
             available_earnings: (superfan.available_earnings || 0) + (superfanTotal / 100),
           })
           .eq('id', referrerId);
+      }
+    }
+
+    // Affiliate earnings: credit the affiliate (3% commission)
+    if (affiliateId && superfanTotal > 0) {
+      const { data: affiliate } = await supabase
+        .from('affiliates')
+        .select('id, email, referral_count')
+        .eq('id', affiliateId)
+        .limit(1)
+        .maybeSingle();
+
+      if (affiliate) {
+        const affiliateEarning = superfanTotal / 100;
+        const { error: earningsError } = await supabase
+          .from('affiliate_earnings')
+          .insert({
+            affiliate_id: affiliateId,
+            order_id: orderId,
+            amount: affiliateEarning,
+            status: 'pending',
+          });
+
+        if (earningsError) {
+          console.error('[stripe-webhook] Affiliate earnings insert failed:', earningsError.message);
+        }
       }
     }
   }

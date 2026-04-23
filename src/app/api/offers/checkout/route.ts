@@ -98,6 +98,7 @@ export async function POST(req: NextRequest) {
       product_id: offer.product_id,
       source: 'likeness',
       commission_cents: Math.round(price * 0.03),
+      affiliate_link_id: req.cookies.get('porterful_affiliate_ref')?.value || '',
     },
   });
 
