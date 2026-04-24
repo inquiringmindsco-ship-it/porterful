@@ -77,7 +77,7 @@ export default function EcosystemPage() {
       {/* Hero */}
       <section className="pt-32 pb-20 px-6 text-center">
         <h1 className="text-5xl md:text-6xl font-black mb-4">The Porterful Ecosystem</h1>
-        <p className="text-xl text-[var(--pf-text-muted)] max-w-2xl mx-auto">Five systems. One mission. Infrastructure for wealth creation in communities that need it most.</p>
+        <p className="text-xl text-[var(--pf-text-muted)] max-w-2xl mx-auto">Five systems. One mission.</p>
       </section>
 
       {/* System Cards */}

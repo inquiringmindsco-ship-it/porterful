@@ -12,6 +12,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/marketplace',
     '/shop',
     '/store',
+    '/tap',
     '/radio',
     '/playlists',
     '/trending',

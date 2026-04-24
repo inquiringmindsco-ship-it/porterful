@@ -6,6 +6,7 @@ const PUBLIC_PATHS = [
   '/music',
   '/artists',
   '/store',
+  '/tap',
   '/signal',
   '/tap-in',
   '/systems',

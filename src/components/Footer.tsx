@@ -20,7 +20,12 @@ function isLikenessSurface(pathname: string | null) {
 
 export function Footer() {
   const pathname = usePathname()
+  const hideOnTapRoute = pathname.startsWith('/tap')
   const likenessSurface = isLikenessSurface(pathname)
+
+  if (hideOnTapRoute) {
+    return null
+  }
 
   if (likenessSurface) {
     return (

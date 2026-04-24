@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { usePathname } from 'next/navigation'
 import {
   Play, Pause, SkipBack, SkipForward, Volume2, VolumeX,
   ChevronUp, ChevronDown, X, Maximize2
@@ -18,6 +19,8 @@ function formatTime(seconds: number) {
 
 export function GlobalPlayer() {
   const { currentTrack, isPlaying, togglePlay, playNext, playPrev, setVolume, seek, progress, duration, mode } = useAudio()
+  const pathname = usePathname()
+  const hideOnTapRoute = pathname.startsWith('/tap')
   const [volume, setVolumeState] = useState(80)
   const [isMuted, setIsMuted] = useState(false)
   const [expanded, setExpanded] = useState(false)
@@ -47,6 +50,7 @@ export function GlobalPlayer() {
   // Don't render player shell until mounted
   if (!mounted) return null
   if (!currentTrack) return null
+  if (hideOnTapRoute) return null
 
   // Seek on progress bar click
   const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {

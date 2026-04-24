@@ -25,10 +25,10 @@ export function useTheme() {
 function getInitialTheme(): Theme {
   if (typeof window === 'undefined') return 'dark'
 
-  return resolveTheme(
-    localStorage.getItem(THEME_STORAGE_KEY),
-    window.matchMedia('(prefers-color-scheme: dark)').matches,
-  )
+  // No localStorage key — always respect system preference as the default baseline.
+  // Only use saved value if explicitly set (and valid), otherwise fall back to system.
+  const saved = localStorage.getItem(THEME_STORAGE_KEY)
+  return resolveTheme(saved === '' ? null : saved, window.matchMedia('(prefers-color-scheme: dark)').matches)
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {

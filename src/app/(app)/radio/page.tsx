@@ -150,48 +150,11 @@ export default function RadioPage() {
           </div>
         )}
 
-        {/* How It Works */}
-        <div className="bg-[var(--pf-surface)] rounded-xl p-6 border border-[var(--pf-border)]">
-          <h3 className="text-lg font-bold mb-4">How Radio Works</h3>
-          <div className="grid sm:grid-cols-3 gap-4">
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-lg bg-[var(--pf-orange)]/10 flex items-center justify-center shrink-0">
-                <Radio size={20} className="text-[var(--pf-orange)]" />
-              </div>
-              <div>
-                <p className="font-medium">Shuffle Mode</p>
-                <p className="text-sm text-[var(--pf-text-secondary)]">Tracks play in random order</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-lg bg-[var(--pf-orange)]/10 flex items-center justify-center shrink-0">
-                <Heart size={20} className="text-[var(--pf-orange)]" />
-              </div>
-              <div>
-                <p className="font-medium">Full Tracks</p>
-                <p className="text-sm text-[var(--pf-text-secondary)]">Listen to complete songs</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-lg bg-[var(--pf-orange)]/10 flex items-center justify-center shrink-0">
-                <ShoppingBag size={20} className="text-[var(--pf-orange)]" />
-              </div>
-              <div>
-                <p className="font-medium">Support Artists</p>
-                <p className="text-sm text-[var(--pf-text-secondary)]">80% goes to the artist</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* CTA */}
         <div className="mt-8 text-center">
-          <p className="text-[var(--pf-text-secondary)] mb-4">
-            Want to own the music? Buy tracks to keep them forever.
-          </p>
           <Link href="/music" className="pf-btn pf-btn-primary inline-flex items-center gap-2">
             <ShoppingBag size={18} />
-            Browse All Music
+            Buy Tracks
           </Link>
         </div>
       </div>

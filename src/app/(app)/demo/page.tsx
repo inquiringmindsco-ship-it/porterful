@@ -17,7 +17,7 @@ const DEMO_TYPES = [
       { icon: Mail, text: 'Notify fans when you drop' },
       { icon: BarChart3, text: 'See plays, sales & earnings' },
     ],
-    stats: { plays: '2.4M', earnings: '$12,847', fans: '3,241' },
+    stats: { plays: '—', earnings: '—', fans: '—' },
     demoRole: 'artist',
   },
   {
@@ -32,7 +32,7 @@ const DEMO_TYPES = [
       { icon: TrendingUp, text: 'Track your impact' },
       { icon: Sparkles, text: 'Earn from your referrals' },
     ],
-    stats: { supported: '12 artists', earned: '$847', impact: 'Top 5%' },
+    stats: { supported: '—', earned: '—', impact: '—' },
     demoRole: 'supporter',
   },
   {
@@ -47,7 +47,7 @@ const DEMO_TYPES = [
       { icon: Music, text: 'Sponsor releases' },
       { icon: TrendingUp, text: 'Track campaign results' },
     ],
-    stats: { artists: '890+', reach: '4.2M', campaigns: '23' },
+    stats: { artists: '—', reach: '—', campaigns: '—' },
     demoRole: 'brand',
   },
   {
@@ -62,7 +62,7 @@ const DEMO_TYPES = [
       { icon: DollarSign, text: 'No upfront inventory' },
       { icon: Truck, text: 'We handle shipping' },
     ],
-    stats: { products: '48', orders: '1,293', profit: '$38,420' },
+    stats: { products: '—', orders: '—', profit: '—' },
     demoRole: 'business',
   },
 ]

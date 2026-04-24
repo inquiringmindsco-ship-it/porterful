@@ -60,18 +60,6 @@ export default function HomePage() {
     return () => observer.disconnect()
   }, [])
 
-  const startFeaturedPlayback = (track: Track) => {
-    setMode('track')
-    setQueue(featuredTracks)
-
-    if (currentTrack?.id === track.id) {
-      togglePlay()
-      return
-    }
-
-    playTrack(track)
-  }
-
   return (
     <>
       <main ref={revealScopeRef} className="min-h-screen bg-[var(--pf-bg)] pt-16 md:pt-20">
@@ -83,40 +71,17 @@ export default function HomePage() {
                   aria-hidden="true"
                   className="pointer-events-none absolute left-1/2 top-0 h-44 w-[34rem] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.18),transparent_72%)] blur-3xl"
                 />
-                <p className="mb-3 text-sm font-semibold uppercase tracking-[0.3em] pf-brand-gradient-text">
-                  Porterful™
-                </p>
                 <h1 className="max-w-3xl text-4xl font-extrabold leading-tight tracking-[-0.04em] md:text-6xl">
-                  Shop music.
-                  <br />
-                  Support artists.
-                  <br />
-                  Discover what&apos;s next.
+                  Music. Directly from the artists.
                 </h1>
-                <p className="mt-4 max-w-2xl text-lg text-[var(--pf-text-secondary)]">
-                  Curated drops, direct support, and music from artists you can actually reach.
-                </p>
 
                 <div className="mt-8 flex flex-wrap gap-3">
                   <Link href="/store" className="pf-brand-gradient inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 font-medium text-white transition-all duration-200 ease-out hover:scale-[1.03] active:scale-[0.98]">
                     Shop Products
                   </Link>
-                  <Link href="/artists" className="pf-btn pf-btn-secondary inline-flex items-center justify-center gap-2">
-                    Browse Artists
+                  <Link href="/music" className="pf-btn pf-btn-secondary inline-flex items-center justify-center gap-2">
+                    Listen Now
                   </Link>
-                </div>
-
-                <div className="mt-6 grid gap-3 sm:grid-cols-3">
-                  {[
-                    { label: 'Direct support', value: 'Buy from artists' },
-                    { label: 'New drops', value: 'Updated weekly' },
-                    { label: 'Music first', value: 'Listen and share' },
-                  ].map((item) => (
-                    <div key={item.label} className="rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-4">
-                      <p className="text-xs uppercase tracking-[0.25em] text-[var(--pf-text-muted)]">{item.label}</p>
-                      <p className="mt-2 text-sm font-semibold text-[var(--pf-text)]">{item.value}</p>
-                    </div>
-                  ))}
                 </div>
               </div>
 
@@ -144,8 +109,7 @@ export default function HomePage() {
                 </div>
                 <div className="mt-5 rounded-2xl bg-[var(--pf-bg)] p-4">
                   <div className="flex items-center justify-between text-sm text-[var(--pf-text-secondary)]">
-                    <span>Featured release</span>
-                    <span>Porterful-managed inventory</span>
+                    <Link href="/store" className="text-[var(--pf-orange)] hover:underline">Shop now →</Link>
                   </div>
                 </div>
               </div>
@@ -286,22 +250,16 @@ export default function HomePage() {
             <div className="pf-reveal-child grid gap-4 md:grid-cols-2" style={{ transitionDelay: '0ms' }}>
               <div className="rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-6 md:p-8">
                 <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--pf-orange)]">Porterful™</p>
-                <h2 className="mt-2 text-2xl font-bold">The marketplace</h2>
-                <p className="mt-3 text-base leading-7 text-[var(--pf-text-secondary)]">
-                  Shop music, merch, and drops directly from the people making them.
-                </p>
+                <h2 className="mt-2 text-2xl font-bold">Shop music & merch</h2>
                 <Link href="/store" className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-[var(--pf-orange)] hover:underline">
                   Go to Store <ArrowRight size={14} />
                 </Link>
               </div>
               <div className="rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-6 md:p-8">
                 <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--pf-orange)]">Support</p>
-                <h2 className="mt-2 text-2xl font-bold">Keep the loop moving</h2>
-                <p className="mt-3 text-base leading-7 text-[var(--pf-text-secondary)]">
-                  Discover artists, share what you love, and support the work you want to keep alive.
-                </p>
-                <Link href="/support" className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-[var(--pf-orange)] hover:underline">
-                  Support Artists <ArrowRight size={14} />
+                <h2 className="mt-2 text-2xl font-bold">Buy direct from artists</h2>
+                <Link href="/music" className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-[var(--pf-orange)] hover:underline">
+                  Browse Music <ArrowRight size={14} />
                 </Link>
               </div>
             </div>

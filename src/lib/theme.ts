@@ -23,10 +23,12 @@ export function isTheme(value: unknown): value is Theme {
 }
 
 export function resolveTheme(savedTheme: string | null | undefined, prefersDark: boolean): Theme {
+  // Explicitly saved theme (light/dark/creator) always wins — user made a choice
   if (isTheme(savedTheme)) {
     return savedTheme
   }
 
+  // No saved preference — fall back to system setting
   return prefersDark ? 'dark' : 'light'
 }
 

@@ -23,6 +23,38 @@ CREATE TABLE profiles (
 );
 
 -- ============================================
+-- TAP PROFILES
+-- ============================================
+CREATE TABLE tap_profiles (
+  slug TEXT UNIQUE NOT NULL,
+  display_name TEXT NOT NULL,
+  hero_image_url TEXT NOT NULL,
+  primary_product_id TEXT,
+  store_url TEXT NOT NULL,
+  ref_code TEXT UNIQUE NOT NULL,
+  is_active BOOLEAN DEFAULT TRUE,
+  bio TEXT,
+  secondary_products JSONB DEFAULT '[]',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ============================================
+-- TAP EVENTS
+-- ============================================
+CREATE TABLE tap_events (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  event_type TEXT NOT NULL CHECK (event_type IN ('visit', 'register', 'store', 'learn')),
+  path TEXT NOT NULL,
+  slug TEXT,
+  ref TEXT,
+  product TEXT,
+  campaign TEXT,
+  destination_href TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ============================================
 -- SUPERFANS
 -- ============================================
 CREATE TABLE superfans (
@@ -336,6 +368,10 @@ CREATE TABLE reviews (
 -- ============================================
 CREATE INDEX idx_profiles_role ON profiles(role);
 CREATE INDEX idx_profiles_referral_code ON profiles(referral_code);
+CREATE INDEX idx_tap_profiles_active ON tap_profiles(is_active) WHERE is_active = true;
+CREATE INDEX idx_tap_events_slug ON tap_events(slug);
+CREATE INDEX idx_tap_events_type ON tap_events(event_type);
+CREATE INDEX idx_tap_events_created_at ON tap_events(created_at);
 CREATE INDEX idx_products_category ON products(category);
 CREATE INDEX idx_products_seller ON products(seller_id);
 CREATE INDEX idx_products_artist ON products(linked_artist_id);
@@ -410,6 +446,8 @@ CREATE TRIGGER on_referral_created
 -- ROW LEVEL SECURITY
 -- ============================================
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE tap_profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE tap_events ENABLE ROW LEVEL SECURITY;
 ALTER TABLE superfans ENABLE ROW LEVEL SECURITY;
 ALTER TABLE artists ENABLE ROW LEVEL SECURITY;
 ALTER TABLE businesses ENABLE ROW LEVEL SECURITY;
@@ -429,6 +467,10 @@ ALTER TABLE reviews ENABLE ROW LEVEL SECURITY;
 -- Public read profiles
 CREATE POLICY "Public profiles are viewable" ON profiles
   FOR SELECT USING (true);
+
+-- Public tap profiles are viewable when active
+CREATE POLICY "Public tap profiles are viewable" ON tap_profiles
+  FOR SELECT USING (is_active = true);
 
 -- Users can update own profile
 CREATE POLICY "Users can update own profile" ON profiles

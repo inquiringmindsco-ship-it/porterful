@@ -1,13 +1,17 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { VerificationForm } from '@/components/VerificationBadge';
+import { buildTapHref, getTapParams } from '@/lib/tap';
 
 export default function VerifyPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const tapParams = getTapParams(searchParams);
+  const dashboardHref = buildTapHref('/dashboard', tapParams);
 
   const handleComplete = async () => {
-    router.push('/dashboard');
+    router.push(dashboardHref);
   };
 
   return (
@@ -17,7 +21,7 @@ export default function VerifyPage() {
         <VerificationForm onComplete={handleComplete} />
         <div className="text-center mt-6">
           <button
-            onClick={() => router.push('/dashboard')}
+            onClick={() => router.push(dashboardHref)}
             className="text-sm text-[var(--pf-text-muted)] hover:text-[var(--pf-text)] transition-colors"
           >
             Skip for now

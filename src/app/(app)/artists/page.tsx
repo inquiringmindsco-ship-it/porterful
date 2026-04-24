@@ -180,11 +180,10 @@ export default function ArtistsPage() {
         <div className="pf-container">
           <div className="max-w-2xl">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              <span className="text-[var(--pf-orange)]">Artists</span> on Porterful
+              <span className="text-[var(--pf-orange)]">Artists</span>
             </h1>
             <p className="text-lg text-[var(--pf-text-secondary)]">
-              Discover independent artists selling music and merch directly to fans. 
-              No labels, no middlemen — just artists and their community.
+              Buy music and merch directly. No middlemen.
             </p>
             <Link 
               href="/signup?role=artist" 
@@ -254,9 +253,6 @@ export default function ArtistsPage() {
               <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                 <div>
                   <h3 className="text-lg font-bold mb-1">Get notified when they drop</h3>
-                  <p className="text-sm text-[var(--pf-text-secondary)]">
-                    Follow artists to get alerts when they release new music or merch.
-                  </p>
                 </div>
                 <Link 
                   href="/signup?role=supporter" 

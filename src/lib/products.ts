@@ -19,6 +19,11 @@ export interface Product {
   sales?: number
   rating?: number
   reviews?: number
+  // Fulfillment
+  // - "printful" = linked to Printful catalog (works)
+  // - "dropship" = third-party supplier (works)
+  // - "mock" = placeholder, CANNOT fulfill right now
+  fulfillment?: 'printful' | 'dropship' | 'mock'
   // Dropship fields
   dropship?: boolean
   supplier?: string
@@ -26,6 +31,36 @@ export interface Product {
 }
 
 export const PRODUCTS: Product[] = [
+  // ==========================================================
+  // FULFILLABLE PRODUCTS (Printful or dropship linked)
+  // ==========================================================
+
+  {
+    id: 'rc-fpv-mini-car',
+    name: 'RC FPV Mini Car',
+    price: 59.95,
+    category: 'Tech',
+    artist: 'Porterful',
+    image: 'https://images.unsplash.com/photo-1589587158918-3d7b4fcdd3c9?w=800',
+    featured: true,
+    description: 'Real-time HD FPV streaming directly to your phone. Dual control via app or remote. Built-in rechargeable battery — no data plan or Wi-Fi router needed. Integrated signal transmitter for instant private connection.',
+    fulfillment: 'dropship',
+    dropship: true,
+    supplier: 'carcamfpv',
+    supplierPrice: 44.95,
+    inStock: true,
+    artistCut: 48,
+    sales: 0,
+    rating: 4.8,
+    reviews: 136,
+  },
+
+  // ==========================================================
+  // MOCK PRODUCTS — cannot fulfill right now
+  // Printful not configured, no supplier linked
+  // These are design mockups / placeholder listings
+  // ==========================================================
+
   {
     id: 'signal-shirt',
     name: 'LIKENESS Signal Shirt',
@@ -48,6 +83,7 @@ export const PRODUCTS: Product[] = [
     description: 'Wear your signal. NFC tap point connects anyone who taps to your Likeness registry. Available in Black, White, and Origin.',
     colors: ['Black', 'White', 'Origin'],
     sizes: ['S', 'M', 'L', 'XL', 'XXL'],
+    fulfillment: 'mock', // Images are placeholders, no Printful link
     inStock: true,
     artistCut: 0,
     sales: 0,

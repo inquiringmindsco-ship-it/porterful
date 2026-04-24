@@ -258,12 +258,7 @@ export default function MusicPage() {
                 </button>
               </div>
 
-              {/* Stats row */}
               <div className="flex items-center justify-center lg:justify-start gap-8 mt-8">
-                <div className="flex items-center gap-2 text-[var(--pf-text-secondary)]">
-                  <Heart size={16} />
-                  <span className="text-sm">{ARTISTS.length}+ artists supported</span>
-                </div>
                 <div className="flex items-center gap-2 text-[var(--pf-text-secondary)]">
                   <Disc size={16} />
                   <span className="text-sm">{uniqueAlbums.length} albums</span>
@@ -568,18 +563,9 @@ export default function MusicPage() {
             {/* Bio */}
             <div>
               <p className="text-sm uppercase tracking-widest text-[var(--pf-orange)] mb-4">About the Artist</p>
-              <div className="space-y-4 text-[var(--pf-text-secondary)]">
+              <div className="space-y-4 text-[var(--var(--pf-text-secondary))]">
                 <p>
-                  O D Porter is a St. Louis-born artist who grew up between the music of New Orleans and the streets of the Lou.
-                </p>
-                <p>
-                  Born in Miami, raised between NOLA and the Lou — most known from the STL. After years of grinding in the underground, O D Porter built Porterful to give artists a direct marketplace that keeps more of every sale.
-                </p>
-                <p>
-                  He wrote his story down — the real one, unfiltered — in his book <span className="text-[var(--pf-text)] italic">"There It Is, Here It Go."</span>
-                </p>
-                <p>
-                  Now he&apos;s building the marketplace that should have existed all along — where artists connect directly with the people who believe in them and keep the loop moving.
+                  Born Miami, raised NOLA &amp; St. Louis. Building Porterful — a direct marketplace where artists keep more of every sale.
                 </p>
               </div>
 
@@ -607,7 +593,7 @@ export default function MusicPage() {
             <div>
               <p className="text-sm uppercase tracking-widest text-[var(--pf-orange)] mb-4">Explore</p>
               <div className="space-y-3">
-                <Link href="/shop"
+                <Link href="/store"
                   className="flex items-center justify-between p-4 rounded-xl bg-[var(--pf-surface)] hover:bg-[var(--pf-orange)]/10 border border-[var(--pf-border)] transition-colors group">
                   <div>
                     <p className="font-medium">Custom Name Chains</p>
@@ -616,7 +602,7 @@ export default function MusicPage() {
                   <ChevronRight size={20} className="text-[var(--pf-text-secondary)] group-hover:text-[var(--pf-orange)]" />
                 </Link>
 
-                <Link href="/shop"
+                <Link href="/store"
                   className="flex items-center justify-between p-4 rounded-xl bg-[var(--pf-surface)] hover:bg-[var(--pf-orange)]/10 border border-[var(--pf-border)] transition-colors group">
                   <div>
                     <p className="font-medium">"There It Is, Here It Go"</p>

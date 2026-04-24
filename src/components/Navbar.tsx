@@ -6,23 +6,20 @@ import { usePathname } from 'next/navigation'
 import { useSupabase } from '@/app/providers'
 import { useCart } from '@/lib/cart-context'
 import { useTheme } from '@/lib/theme-context'
-import { Menu, X, ChevronDown, User, LogOut, ShoppingCart, Moon, SunMedium, Palette } from 'lucide-react'
-import { THEMES } from '@/lib/theme'
-import type { Theme } from '@/lib/theme'
+import { Menu, X, ChevronDown, User, LogOut, ShoppingCart } from 'lucide-react'
 
 export function Navbar() {
   const { user, supabase, loading } = useSupabase()
   const pathname = usePathname()
-  const { theme, setTheme } = useTheme()
+  const hideOnTapRoute = pathname.startsWith('/tap')
+
   const { items } = useCart()
   const cartCount = items.reduce((s, i) => s + i.quantity, 0)
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
-  const [themeOpen, setThemeOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
   const profileRef = useRef<HTMLDivElement>(null)
-  const themeRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     setMounted(true)
@@ -39,13 +36,10 @@ export function Navbar() {
       if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
         setProfileOpen(false)
       }
-      if (themeRef.current && !themeRef.current.contains(e.target as Node)) {
-        setThemeOpen(false)
-      }
     }
-    if (profileOpen || themeOpen) document.addEventListener('mousedown', handleClickOutside)
+    if (profileOpen) document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [profileOpen, themeOpen])
+  }, [profileOpen])
 
   const handleSignOut = async () => {
     if (supabase) {
@@ -96,6 +90,10 @@ export function Navbar() {
   const ready = mounted && !loading
   const showUser = ready && !!user
   const showGuest = ready && !user
+
+  if (hideOnTapRoute) {
+    return null
+  }
 
   return (
     <>

@@ -84,6 +84,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
   const currentIndexRef = useRef(-1);
   const currentTrackRef = useRef<Track | null>(null);
   const purchasedTracksRef = useRef<Set<string>>(new Set());
+  const preloadRef = useRef<HTMLAudioElement | null>(null);
 
   // Keep refs in sync
   useEffect(() => {
@@ -108,6 +109,11 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     audioRef.current = audio;
     audio.volume = volume / 100;
     audio.preload = 'auto';
+
+    // Create a hidden preload audio element for next-track preloading
+    preloadRef.current = new Audio();
+    preloadRef.current.volume = 0; // silent preload
+    preloadRef.current.preload = 'metadata';
 
     let previewTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -206,6 +212,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     const handlePlay = () => {
       try {
         setIsPlaying(true);
+        preloadNextTrack();
       } catch (err) {
         logError('play', err);
       }
@@ -317,6 +324,10 @@ export function AudioProvider({ children }: { children: ReactNode }) {
       audio.removeEventListener('pause', handlePause);
       audio.removeEventListener('canplay', handleCanPlay);
       audioRef.current = null;
+      if (preloadRef.current) {
+        preloadRef.current.src = '';
+        preloadRef.current = null;
+      }
     };
   }, [mode]);
 
@@ -501,6 +512,24 @@ export function AudioProvider({ children }: { children: ReactNode }) {
       next.add(trackId);
       return next;
     });
+  }, []);
+
+  // ─── SMART PRELOAD ───────────────────────────────────────────────────────
+  const preloadNextTrack = useCallback(() => {
+    try {
+      const currentQueue = queueRef.current;
+      if (currentQueue.length === 0) return;
+      const currentIdx = currentIndexRef.current;
+      const nextIdx = (currentIdx + 1) % currentQueue.length;
+      const nextTrack = currentQueue[nextIdx];
+      if (nextTrack && nextTrack.audio_url && preloadRef.current) {
+        log('preloading next track', nextTrack.id);
+        preloadRef.current.src = nextTrack.audio_url;
+        preloadRef.current.load();
+      }
+    } catch (err) {
+      logError('preloadNextTrack', err);
+    }
   }, []);
 
   const hasPurchased = useCallback((trackId: string) => purchasedTracks.has(trackId), [purchasedTracks]);

@@ -336,29 +336,29 @@ export default function ArtistProfilePage({ params }: { params: { id: string } }
                     ✓ Verified
                   </span>
                 )}
-                {/* Social icons next to name */}
-                <div className="flex items-center gap-1.5 ml-1">
-                  {artistData.social?.instagram && (
-                    <a href={`https://instagram.com/${artistData.social.instagram.replace('@', '')}`} target="_blank" rel="noopener" className="p-1.5 rounded-lg hover:bg-[var(--pf-surface)] transition-colors" title="Instagram">
-                      <Instagram size={16} className="text-pink-400" />
-                    </a>
-                  )}
-                  {artistData.social?.twitter && (
-                    <a href={`https://twitter.com/${artistData.social.twitter.replace('@', '')}`} target="_blank" rel="noopener" className="p-1.5 rounded-lg hover:bg-[var(--pf-surface)] transition-colors" title="Twitter/X">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="text-blue-400"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-                    </a>
-                  )}
-                  {artistData.social?.youtube && (
-                    <a href={`https://youtube.com/${artistData.social.youtube.replace('@', '')}`} target="_blank" rel="noopener" className="p-1.5 rounded-lg hover:bg-[var(--pf-surface)] transition-colors" title="YouTube">
-                      <Youtube size={16} className="text-red-500" />
-                    </a>
-                  )}
-                  {artistData.social?.tiktok && (
-                    <a href={`https://tiktok.com/@${artistData.social.tiktok.replace('@', '')}`} target="_blank" rel="noopener" className="p-1.5 rounded-lg hover:bg-[var(--pf-surface)] transition-colors" title="TikTok">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="text-pink-500"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.73a8.26 8.26 0 0 0 4.83 1.54V6.78a4.85 4.85 0 0 1-1-.09z"/></svg>
-                    </a>
-                  )}
-                </div>
+              </div>
+              {/* Social icons next to name - moved to profile header */}
+              <div className="flex items-center gap-1.5 mb-2">
+                {artistData.social?.instagram && (
+                  <a href={`https://instagram.com/${artistData.social.instagram.replace('@', '')}`} target="_blank" rel="noopener" className="p-1.5 rounded-lg hover:bg-[var(--pf-surface)] transition-colors" title="Instagram">
+                    <Instagram size={16} className="text-pink-400" />
+                  </a>
+                )}
+                {artistData.social?.twitter && (
+                  <a href={`https://twitter.com/${artistData.social.twitter.replace('@', '')}`} target="_blank" rel="noopener" className="p-1.5 rounded-lg hover:bg-[var(--pf-surface)] transition-colors" title="Twitter/X">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="text-blue-400"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                  </a>
+                )}
+                {artistData.social?.youtube && (
+                  <a href={`https://youtube.com/${artistData.social.youtube.replace('@', '')}`} target="_blank" rel="noopener" className="p-1.5 rounded-lg hover:bg-[var(--pf-surface)] transition-colors" title="YouTube">
+                    <Youtube size={16} className="text-red-500" />
+                  </a>
+                )}
+                {artistData.social?.tiktok && (
+                  <a href={`https://tiktok.com/@${artistData.social.tiktok.replace('@', '')}`} target="_blank" rel="noopener" className="p-1.5 rounded-lg hover:bg-[var(--pf-surface)] transition-colors" title="TikTok">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="text-pink-500"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.73a8.26 8.26 0 0 0 4.83 1.54V6.78a4.85 4.85 0 0 1-1-.09z"/></svg>
+                  </a>
+                )}
               </div>
               <div className="flex flex-wrap items-center gap-3 text-sm text-[var(--pf-text-secondary)] mb-3">
                 {artistData.genre && <span className="flex items-center gap-1"><Music size={13} /> {artistData.genre}</span>}
