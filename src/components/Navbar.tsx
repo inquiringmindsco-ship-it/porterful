@@ -14,10 +14,12 @@ export function Navbar() {
   const hideOnTapRoute = pathname.startsWith('/tap')
 
   const { items } = useCart()
+  const { theme, setTheme } = useTheme()
   const cartCount = items.reduce((s, i) => s + i.quantity, 0)
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
+  const [themeOpen, setThemeOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
   const profileRef = useRef<HTMLDivElement>(null)
 
