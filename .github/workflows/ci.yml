@@ -143,49 +143,12 @@ jobs:
           ! grep -r "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9" --include="*.ts" --include="*.tsx" --include="*.js" src/ || (echo "❌ Found Supabase keys in source code" && exit 1)
           echo "✅ No hardcoded secrets found"
 
-  # Job 5: Deploy (only on main branch, all checks passed)
-  deploy:
-    name: Deploy to Production
-    runs-on: ubuntu-latest
-    needs: [lint, build, security]
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      
-      - name: Verify committed state
-        run: |
-          echo "Verifying deployment from committed SHA: ${{ github.sha }}"
-          git status
-          if ! git diff --cached --quiet; then
-            echo "❌ Deployment blocked: Uncommitted changes detected"
-            exit 1
-          fi
-          echo "✅ Deployment from clean committed state"
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-      
-      - name: Install Vercel CLI
-        run: npm install -g vercel@latest
-      
-      - name: Deploy to Vercel
-        run: |
-          npm install -g vercel@latest
-          vercel deploy --prod --yes
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
-          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
-          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
-          NEXT_PUBLIC_SENTRY_DSN: ${{ secrets.NEXT_PUBLIC_SENTRY_DSN }}
+  # Job 5: Deploy - DISABLED (using Vercel Git integration instead)
+  # To re-enable, uncomment below and ensure VERCEL_TOKEN has org access
+  # deploy:
+  #   name: Deploy to Production
+  #   runs-on: ubuntu-latest
+  #   needs: [lint, build, security]
+  #   if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+  #   steps:
+  #     ...
