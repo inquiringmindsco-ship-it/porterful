@@ -70,6 +70,8 @@ export async function POST(request: NextRequest) {
 }
 
 // GET /api/tracks — List tracks (public)
+import { TRACKS } from '@/lib/data';
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const artistId = searchParams.get('artist_id');
@@ -92,5 +94,28 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json({ tracks: data });
+  // Merge local static tracks (Gune, ATM Trap, O D Porter catalog)
+  const localTracks = TRACKS.map(t => ({
+    id: t.id,
+    title: t.title,
+    artist: t.artist,
+    album: t.album,
+    audio_url: t.audio_url,
+    cover_url: (t as any).image || (t as any).cover_url || null,
+    price: t.price || 1,
+    plays: t.plays || 0,
+    duration: t.duration,
+    is_active: true,
+    created_at: '2024-01-01T00:00:00Z',
+  }));
+
+  // Merge database tracks with local tracks (local takes priority for duplicates)
+  const merged = [...data || []];
+  localTracks.forEach(local => {
+    if (!merged.find(db => db.id === local.id || db.title === local.title)) {
+      merged.push(local);
+    }
+  });
+
+  return NextResponse.json({ tracks: merged });
 }
