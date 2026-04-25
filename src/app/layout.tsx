@@ -5,7 +5,7 @@ import { Navbar } from '@/components/Navbar'
 import { AudioErrorBoundary } from '@/components/AudioErrorBoundary'
 import { GlobalPlayer } from '@/components/GlobalPlayer'
 import { getServerUser } from '@/lib/supabase-auth'
-import { getThemeBootstrapScript, getThemeColor } from '@/lib/theme'
+import { getThemeBootstrapScript } from '@/lib/theme'
 
 export const metadata: Metadata = {
   title: {
@@ -20,16 +20,14 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: getThemeColor('dark'),
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const initialUser = await getServerUser()
 
   return (
-    <html lang="en" suppressHydrationWarning style={{ background: getThemeColor('dark') }}>
+    <html lang="en" suppressHydrationWarning>
       <head>
-        <meta name="theme-color" content={getThemeColor('dark')} />
         <link rel="icon" type="image/svg+xml" href="/icon.svg?v=2" />
         <script
           dangerouslySetInnerHTML={{
@@ -37,7 +35,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           }}
         />
       </head>
-      <body suppressHydrationWarning style={{ margin: 0, padding: 0, background: 'var(--pf-bg)', overflow: 'visible' }}>
+      <body suppressHydrationWarning style={{ margin: 0, padding: 0, overflow: 'visible' }}>
         <Providers initialUser={initialUser}>
           <Navbar />
           {children}
