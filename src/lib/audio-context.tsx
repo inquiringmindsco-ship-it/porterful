@@ -304,7 +304,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     const track = currentQueue[nextIdx];
     
     if (track) {
-      playTrack(track, currentArtist, currentAlbum, currentQueue, nextIdx);
+      playTrack(track, currentArtist || undefined, currentAlbum || undefined, currentQueue, nextIdx);
     }
   }, [playTrack, currentArtist, currentAlbum]);
 
@@ -328,7 +328,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     const track = currentQueue[prevIdx];
     
     if (track) {
-      playTrack(track, currentArtist, currentAlbum, currentQueue, prevIdx);
+      playTrack(track, currentArtist || undefined, currentAlbum || undefined, currentQueue, prevIdx);
     }
   }, [playTrack, currentArtist, currentAlbum]);
 
