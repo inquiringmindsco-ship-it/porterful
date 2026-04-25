@@ -2,6 +2,10 @@
 /* Porterful: vibrant orange/pink/purple spectrum (marketplace energy) */
 /* Likeness: minimal black/gold/monochrome (system layer) */
 /* This is the canonical Porterful color palette — update here only */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
   /* Dark theme (default) */
   --pf-bg: #111111;
