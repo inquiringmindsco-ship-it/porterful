@@ -18,7 +18,19 @@ function formatTime(seconds: number) {
 }
 
 export function GlobalPlayer() {
-  const { currentTrack, isPlaying, togglePlay, playNext, playPrev, setVolume, seek, progress, duration, mode } = useAudio()
+  const { 
+    currentTrack, 
+    currentArtist,
+    isPlaying, 
+    togglePlay, 
+    playNext, 
+    playPrev, 
+    setVolume, 
+    seekTo, 
+    currentTime,
+    duration, 
+    progress 
+  } = useAudio()
   const pathname = usePathname()
   const hideOnTapRoute = pathname.startsWith('/tap')
   const [volume, setVolumeState] = useState(80)
@@ -32,7 +44,7 @@ export function GlobalPlayer() {
     setMounted(true)
   }, [])
 
-  // Volume control — guard with mounted check (audio context differs server vs client)
+  // Volume control
   useEffect(() => {
     if (!mounted) return
     setVolume(volume)
@@ -47,7 +59,6 @@ export function GlobalPlayer() {
     }
   }, [isMuted, volume, setVolume, mounted])
 
-  // Don't render player shell until mounted
   if (!mounted) return null
   if (!currentTrack) return null
   if (hideOnTapRoute) return null
@@ -57,15 +68,13 @@ export function GlobalPlayer() {
     if (!progressRef.current || !duration) return
     const rect = progressRef.current.getBoundingClientRect()
     const percent = (e.clientX - rect.left) / rect.width
-    seek(percent * duration)
+    seekTo(percent * duration)
   }
 
-  if (!currentTrack) return null
-
-  const artistSlug = getArtistSlugByName(currentTrack.artist) || 'artists'
+  const artistSlug = currentArtist?.slug || getArtistSlugByName(currentTrack.artist) || 'artists'
   const artistHref = `/artist/${artistSlug}`
 
-  const progressPercent = duration > 0 ? (progress / duration) * 100 : 0
+  const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0
 
   return (
     <>

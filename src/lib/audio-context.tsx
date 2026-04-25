@@ -10,7 +10,7 @@ function log(event: string, data?: any) {
   }
 }
 
-// ─── TRACK TYPE ───────────────────────────────────────────────────────────────
+// ─── TYPES ────────────────────────────────────────────────────────────────────
 export interface Track {
   id: string;
   title: string;
@@ -24,59 +24,86 @@ export interface Track {
   price?: number;
 }
 
+export interface Artist {
+  id: string;
+  name: string;
+  slug: string;
+  image?: string;
+}
+
+export interface Album {
+  id: string;
+  title: string;
+  artist: string;
+  year?: number;
+  cover_url?: string;
+}
+
 // ─── CONTEXT TYPE ─────────────────────────────────────────────────────────────
-interface AudioContext {
+interface AudioContextType {
+  // Playback state
   currentTrack: Track | null;
+  currentArtist: Artist | null;
+  currentAlbum: Album | null;
   isPlaying: boolean;
-  volume: number;
-  progress: number;
+  currentTime: number;
   duration: number;
-  mode: 'track' | 'radio' | 'artist';
-  setMode: (mode: 'track' | 'radio' | 'artist') => void;
-  playTrack: (track: Track) => void;
-  loadTrack: (track: Track) => void;
+  progress: number; // 0-100 percentage
+  
+  // Queue state
+  queue: Track[];
+  currentIndex: number;
+  
+  // Actions
+  playTrack: (track: Track, artist?: Artist, album?: Album, queue?: Track[], index?: number) => void;
   togglePlay: () => void;
   pause: () => void;
   playNext: () => void;
   playPrev: () => void;
+  seekTo: (time: number) => void;
+  
+  // Volume
+  volume: number;
   setVolume: (v: number) => void;
-  seek: (p: number) => void;
-  queue: Track[];
+  
+  // Queue management
   setQueue: (tracks: Track[]) => void;
-  currentIndex: number;
-  hasPurchased: (trackId: string) => boolean;
 }
 
-const AudioCtx = createContext<AudioContext | null>(null);
+const AudioCtx = createContext<AudioContextType | null>(null);
 
 // ─── AUDIO PROVIDER ───────────────────────────────────────────────────────────
 export function AudioProvider({ children }: { children: ReactNode }) {
+  // Playback state
   const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
+  const [currentArtist, setCurrentArtist] = useState<Artist | null>(null);
+  const [currentAlbum, setCurrentAlbum] = useState<Album | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolumeState] = useState(80);
-  const [progress, setProgress] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [progress, setProgress] = useState(0);
+  
+  // Queue state
   const [queue, setQueue] = useState<Track[]>([]);
   const [currentIndex, setCurrentIndex] = useState(-1);
-  const [mode, setMode] = useState<'track' | 'radio' | 'artist'>('track');
-  const [purchasedTracks] = useState<Set<string>>(new Set()); // Stub for now
+  
+  const [volume, setVolumeState] = useState(80);
 
+  // Refs for sync
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const queueRef = useRef<Track[]>([]);
   const currentIndexRef = useRef(-1);
-  const currentTrackRef = useRef<Track | null>(null);
 
   // Keep refs in sync
   useEffect(() => {
     queueRef.current = queue;
-    currentIndexRef.current = currentIndex;
-  }, [queue, currentIndex]);
+  }, [queue]);
 
   useEffect(() => {
-    currentTrackRef.current = currentTrack;
-  }, [currentTrack]);
+    currentIndexRef.current = currentIndex;
+  }, [currentIndex]);
 
-  // Create audio element on mount - NO ANIMATIONS, NO FADES
+  // Initialize audio element
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
@@ -86,64 +113,66 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     audio.volume = volume / 100;
     audio.preload = 'auto';
 
-    // ─── EVENT: timeupdate ───────────────────────────────────────────────────
+    // Time update - sync currentTime and progress
     const handleTimeUpdate = () => {
-      if (!audioRef.current || !audio.duration) return;
-      const pct = (audioRef.current.currentTime / audio.duration) * 100;
-      setProgress(isNaN(pct) ? 0 : pct);
-    };
-
-    // ─── EVENT: loadedmetadata ────────────────────────────────────────────────
-    const handleLoadedMetadata = () => {
-      if (audioRef.current) {
-        setDuration(audioRef.current.duration);
+      if (!audioRef.current) return;
+      const current = audioRef.current.currentTime;
+      const dur = audioRef.current.duration;
+      setCurrentTime(current);
+      if (dur > 0) {
+        setProgress((current / dur) * 100);
       }
     };
 
-    // ─── EVENT: error ───────────────────────────────────────────────────────
-    const handleAudioError = () => {
-      console.error('[AUDIO] Error:', audio.error);
-      setIsPlaying(false);
+    // Metadata loaded - sync duration
+    const handleLoadedMetadata = () => {
+      if (audioRef.current) {
+        const dur = audioRef.current.duration;
+        if (dur && !isNaN(dur) && isFinite(dur)) {
+          setDuration(dur);
+        }
+      }
     };
 
-    // ─── EVENT: ended ───────────────────────────────────────────────────────
+    // Track ended - auto play next
     const handleEnded = () => {
       log('Track ended');
       const currentQueue = queueRef.current;
       const currentIdx = currentIndexRef.current;
       
-      if (currentQueue.length > 0) {
+      if (currentQueue.length > 0 && currentIdx >= 0) {
         const nextIdx = (currentIdx + 1) % currentQueue.length;
         const nextTrack = currentQueue[nextIdx];
         if (nextTrack) {
-          // Call playTrack to use the same logic as manual click
-          // Defer to avoid state update during event handler
-          setTimeout(() => playTrack(nextTrack), 0);
+          setTimeout(() => playTrack(nextTrack, undefined, undefined, currentQueue, nextIdx), 0);
         }
       }
     };
 
-    // ─── EVENT: play ────────────────────────────────────────────────────────
+    // Play/Pause events
     const handlePlay = () => setIsPlaying(true);
-
-    // ─── EVENT: pause ───────────────────────────────────────────────────────
     const handlePause = () => setIsPlaying(false);
+    
+    // Error handling
+    const handleError = () => {
+      console.error('[AUDIO] Error:', audio.error);
+      setIsPlaying(false);
+    };
 
-    // Attach listeners
     audio.addEventListener('timeupdate', handleTimeUpdate);
     audio.addEventListener('loadedmetadata', handleLoadedMetadata);
-    audio.addEventListener('error', handleAudioError);
     audio.addEventListener('ended', handleEnded);
     audio.addEventListener('play', handlePlay);
     audio.addEventListener('pause', handlePause);
+    audio.addEventListener('error', handleError);
 
     return () => {
       audio.removeEventListener('timeupdate', handleTimeUpdate);
       audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
-      audio.removeEventListener('error', handleAudioError);
       audio.removeEventListener('ended', handleEnded);
       audio.removeEventListener('play', handlePlay);
       audio.removeEventListener('pause', handlePause);
+      audio.removeEventListener('error', handleError);
       audioRef.current = null;
     };
   }, []);
@@ -156,35 +185,59 @@ export function AudioProvider({ children }: { children: ReactNode }) {
   }, [volume]);
 
   // ─── PLAY TRACK ────────────────────────────────────────────────────────────
-  const playTrack = useCallback((track: Track) => {
-    log('playTrack', track.id);
+  const playTrack = useCallback((
+    track: Track, 
+    artist?: Artist, 
+    album?: Album, 
+    newQueue?: Track[], 
+    index?: number
+  ) => {
+    log('playTrack', { track: track.id, artist: artist?.name, album: album?.title });
     
     if (!audioRef.current) return;
     
     const audio = audioRef.current;
     
-    // Reset audio element completely
+    // Stop current playback
     audio.pause();
     audio.currentTime = 0;
     
-    // Update state
-    setCurrentTrack(track);
-    const idx = queue.findIndex(t => t.id === track.id);
-    if (idx >= 0) setCurrentIndex(idx);
+    // Reset state
+    setCurrentTime(0);
     setProgress(0);
-    setDuration(0);
+    setDuration(0); // Will be set by loadedmetadata
     
-    // Validate audio URL
+    // Set new track
+    setCurrentTrack(track);
+    setCurrentArtist(artist || null);
+    setCurrentAlbum(album || null);
+    
+    // Update queue if provided
+    if (newQueue && newQueue.length > 0) {
+      setQueue(newQueue);
+      queueRef.current = newQueue;
+      
+      const idx = index !== undefined ? index : newQueue.findIndex(t => t.id === track.id);
+      setCurrentIndex(idx >= 0 ? idx : 0);
+      currentIndexRef.current = idx >= 0 ? idx : 0;
+    } else {
+      // If no queue provided, create single-track queue
+      setQueue([track]);
+      queueRef.current = [track];
+      setCurrentIndex(0);
+      currentIndexRef.current = 0;
+    }
+    
+    // Validate and load audio
     if (!track.audio_url) {
       console.error('[AUDIO] No audio_url for track', track.id);
       return;
     }
     
-    // Set src and load
     audio.src = track.audio_url;
     audio.load();
     
-    // Play immediately - no fade, no delay
+    // Play
     const playPromise = audio.play();
     if (playPromise) {
       playPromise.catch((err) => {
@@ -192,33 +245,25 @@ export function AudioProvider({ children }: { children: ReactNode }) {
         setIsPlaying(false);
       });
     }
-  }, [queue]);
+  }, []);
 
-  const loadTrack = useCallback((track: Track) => {
-    setCurrentTrack(track);
-    const idx = queue.findIndex(t => t.id === track.id);
-    if (idx >= 0) setCurrentIndex(idx);
-    
-    if (audioRef.current && track.audio_url) {
-      audioRef.current.src = track.audio_url;
-      audioRef.current.load();
-    }
-  }, [queue]);
-
+  // ─── TOGGLE PLAY ───────────────────────────────────────────────────────────
   const togglePlay = useCallback(() => {
-    if (!audioRef.current) return;
+    if (!audioRef.current || !currentTrack) return;
     
     if (isPlaying) {
       audioRef.current.pause();
-    } else if (currentTrack?.audio_url) {
+    } else {
       audioRef.current.play().catch(() => {});
     }
   }, [isPlaying, currentTrack]);
 
+  // ─── PAUSE ─────────────────────────────────────────────────────────────────
   const pause = useCallback(() => {
     audioRef.current?.pause();
   }, []);
 
+  // ─── PLAY NEXT ─────────────────────────────────────────────────────────────
   const playNext = useCallback(() => {
     const currentQueue = queueRef.current;
     if (currentQueue.length === 0) return;
@@ -228,13 +273,18 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     const track = currentQueue[nextIdx];
     
     if (track) {
-      playTrack(track);
+      playTrack(track, currentArtist, currentAlbum, currentQueue, nextIdx);
     }
-  }, [playTrack]);
+  }, [playTrack, currentArtist, currentAlbum]);
 
+  // ─── PLAY PREV ─────────────────────────────────────────────────────────────
   const playPrev = useCallback(() => {
-    if (audioRef.current && audioRef.current.currentTime > 3) {
+    if (!audioRef.current) return;
+    
+    // If more than 3 seconds in, restart track
+    if (audioRef.current.currentTime > 3) {
       audioRef.current.currentTime = 0;
+      setCurrentTime(0);
       setProgress(0);
       return;
     }
@@ -247,36 +297,48 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     const track = currentQueue[prevIdx];
     
     if (track) {
-      playTrack(track);
+      playTrack(track, currentArtist, currentAlbum, currentQueue, prevIdx);
     }
-  }, [playTrack]);
+  }, [playTrack, currentArtist, currentAlbum]);
 
-  const setVolume = useCallback((v: number) => {
-    setVolumeState(v);
-    if (audioRef.current) audioRef.current.volume = v / 100;
-  }, []);
-
-  const seek = useCallback((p: number) => {
+  // ─── SEEK TO ─────────────────────────────────────────────────────────────────
+  const seekTo = useCallback((time: number) => {
     if (!audioRef.current || !duration) return;
-    audioRef.current.currentTime = (p / 100) * duration;
-    setProgress(p);
+    
+    const clampedTime = Math.max(0, Math.min(time, duration));
+    audioRef.current.currentTime = clampedTime;
+    setCurrentTime(clampedTime);
+    setProgress((clampedTime / duration) * 100);
   }, [duration]);
 
-  const hasPurchased = useCallback((trackId: string) => purchasedTracks.has(trackId), [purchasedTracks]);
-
-  // Initialize queue
-  useEffect(() => {
-    if (queue.length > 0 && currentIndex === -1) {
-      setCurrentIndex(0);
-      if (!currentTrack) setCurrentTrack(queue[0]);
+  // ─── SET VOLUME ─────────────────────────────────────────────────────────────
+  const setVolume = useCallback((v: number) => {
+    setVolumeState(v);
+    if (audioRef.current) {
+      audioRef.current.volume = v / 100;
     }
-  }, [queue, currentIndex, currentTrack]);
+  }, []);
 
   return (
     <AudioCtx.Provider value={{
-      currentTrack, isPlaying, volume, progress, duration, mode, setMode,
-      playTrack, loadTrack, togglePlay, pause, playNext, playPrev,
-      setVolume, seek, queue, setQueue, currentIndex, hasPurchased,
+      currentTrack,
+      currentArtist,
+      currentAlbum,
+      isPlaying,
+      currentTime,
+      duration,
+      progress,
+      queue,
+      currentIndex,
+      volume,
+      playTrack,
+      togglePlay,
+      pause,
+      playNext,
+      playPrev,
+      seekTo,
+      setVolume,
+      setQueue,
     }}>
       {children}
     </AudioCtx.Provider>
@@ -286,12 +348,8 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 // ─── HOOK ─────────────────────────────────────────────────────────────────────
 export function useAudio() {
   const ctx = useContext(AudioCtx);
-  if (!ctx) return {
-    currentTrack: null, isPlaying: false, volume: 80, progress: 0, duration: 0,
-    mode: 'track' as const, setMode: () => {},
-    playTrack: () => {}, loadTrack: () => {}, togglePlay: () => {}, pause: () => {},
-    playNext: () => {}, playPrev: () => {}, setVolume: () => {}, seek: () => {},
-    queue: [], setQueue: () => {}, currentIndex: -1, hasPurchased: () => false,
-  };
+  if (!ctx) {
+    throw new Error('useAudio must be used within AudioProvider');
+  }
   return ctx;
 }
