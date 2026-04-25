@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthenticatedClient } from '@/lib/auth-utils';
 import { createServerClient } from '@/lib/supabase';
+import { TRACKS } from '@/lib/data';
 
 // POST /api/tracks — Upload a new track
 export async function POST(request: NextRequest) {
@@ -70,8 +71,6 @@ export async function POST(request: NextRequest) {
 }
 
 // GET /api/tracks — List tracks (public)
-import { TRACKS } from '@/lib/data';
-
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const artistId = searchParams.get('artist_id');
