@@ -3,9 +3,9 @@
 import { createContext, useContext, useState, useRef, useEffect, ReactNode, useCallback } from 'react';
 
 // ─── DEBUG LOGGING ────────────────────────────────────────────────────────────
-const DEBUG = false;
+const DEBUG = true; // TEMP: Enable for track switch debugging
 function log(event: string, data?: any) {
-  if (DEBUG || typeof window !== 'undefined') {
+  if (typeof window !== 'undefined') {
     const tag = '%c[AUDIO]';
     const style = 'background:#FF6B2B;color:white;padding:2px 6px;border-radius:3px';
     if (data !== undefined) {
@@ -44,6 +44,8 @@ export interface Track {
 interface AudioContext {
   currentTrack: Track | null;
   isPlaying: boolean;
+  isLoading: boolean;
+  error: string | null;
   volume: number;
   progress: number;
   duration: number;
@@ -57,6 +59,7 @@ interface AudioContext {
   playPrev: () => void;
   setVolume: (v: number) => void;
   seek: (p: number) => void;
+  clearError: () => void;
   queue: Track[];
   setQueue: (tracks: Track[]) => void;
   currentIndex: number;
@@ -71,6 +74,8 @@ const AudioCtx = createContext<AudioContext | null>(null);
 export function AudioProvider({ children }: { children: ReactNode }) {
   const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [volume, setVolumeState] = useState(80);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -312,13 +317,10 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     }
   }, [volume]);
 
-  // Update audio source when track changes (fallback for manual play)
-  useEffect(() => {
-    if (audioRef.current && currentTrack?.audio_url) {
-      audioRef.current.src = currentTrack.audio_url;
-      audioRef.current.load();
-    }
-  }, [currentTrack]);
+  // REMOVED: Auto-source update useEffect that was causing double-play issues
+  // playTrack now handles src assignment directly within the click event path
+  // This prevents race conditions where useEffect would trigger load()
+  // immediately after playTrack had already set things up
 
   // ─── MEDIA SESSION ─────────────────────────────────────────────────────────
   useEffect(() => {
@@ -346,27 +348,156 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     }
   }, [currentTrack?.id, currentTrack?.title, currentTrack?.artist, currentTrack?.album, currentTrack?.image]);
 
-  // ─── PLAYBACK CONTROLS ─────────────────────────────────────────────────────
-  const playTrack = useCallback((track: Track) => {
-    log('playTrack called', track.id);
+  // ─── SAFE AUDIO RESET ──────────────────────────────────────────────────────
+  const resetAudioState = useCallback(() => {
+    if (!audioRef.current) return;
+    
+    log('resetAudioState');
+    const audio = audioRef.current;
+    
+    // Clear any temporary handlers that might be stuck
+    audio.oncanplay = null;
+    audio.onerror = null;
+    audio.onloadeddata = null;
+    
+    // Pause current playback
     try {
+      audio.pause();
+    } catch (e) {
+      // Ignore pause errors
+    }
+    
+    // Clear error state
+    setError(null);
+  }, []);
+
+  // ─── PLAY TRACK (FIXED FOR STUCK STATE) ────────────────────────────────────
+  const playTrack = useCallback((track: Track) => {
+    log('playTrack called', { trackId: track.id, title: track.title, audioUrl: track.audio_url });
+    
+    try {
+      if (!audioRef.current) {
+        logError('playTrack', 'No audio element');
+        setError('Audio player not initialized');
+        return;
+      }
+      
+      const audio = audioRef.current;
+      
+      // STEP 1: Reset everything first
+      resetAudioState();
+      setIsLoading(true);
+      setError(null);
+      
+      // STEP 2: Update track state
       setCurrentTrack(track);
       const idx = queue.findIndex(t => t.id === track.id);
       if (idx >= 0) setCurrentIndex(idx);
       setProgress(0);
-
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.src = track.audio_url || '';
-        audioRef.current.load();
-        audioRef.current.play().catch((err: any) => {
-          logError('playTrack.play().catch', err, { trackId: track.id });
-        });
+      setDuration(0);
+      
+      // STEP 3: Validate audio URL
+      if (!track.audio_url) {
+        logError('playTrack', 'No audio_url for track', { trackId: track.id });
+        setIsLoading(false);
+        setError('No audio source available');
+        return;
       }
+      
+      // STEP 4: Clear src first to force unload
+      audio.src = '';
+      
+      // STEP 5: Set new src and attach one-time handlers
+      let playAttempted = false;
+      
+      audio.oncanplay = () => {
+        log('oncanplay fired', { 
+          trackId: track.id, 
+          readyState: audio.readyState,
+          networkState: audio.networkState,
+          duration: audio.duration 
+        });
+        setDuration(audio.duration || 0);
+        
+        if (!playAttempted) {
+          playAttempted = true;
+          log('Attempting play inside click path', { trackId: track.id });
+          
+          const playPromise = audio.play();
+          if (playPromise) {
+            playPromise
+              .then(() => {
+                log('Play succeeded', { trackId: track.id });
+                setIsLoading(false);
+                setIsPlaying(true);
+              })
+              .catch((err: any) => {
+                logError('Play failed', err, { 
+                  trackId: track.id,
+                  name: err?.name,
+                  message: err?.message 
+                });
+                setIsLoading(false);
+                setIsPlaying(false);
+                
+                // Safari/Chrome specific handling
+                if (err?.name === 'NotAllowedError') {
+                  setError('Click play again to start audio');
+                } else if (err?.name === 'AbortError') {
+                  // Play was aborted - new track clicked before old one loaded
+                  log('Play aborted (new track clicked)', { trackId: track.id });
+                } else {
+                  setError('Failed to play: ' + (err?.message || 'Unknown error'));
+                }
+              });
+          }
+        }
+      };
+      
+      audio.onerror = () => {
+        const errCode = audio.error?.code;
+        const errMsg = audio.error?.message || 'Unknown';
+        logError('Audio error event', { code: errCode, message: errMsg }, { 
+          trackId: track.id,
+          src: track.audio_url 
+        });
+        setIsLoading(false);
+        setIsPlaying(false);
+        
+        const errorMessages: Record<number, string> = {
+          1: 'Audio loading aborted',
+          2: 'Network error - check connection',
+          3: 'Audio decode error - file may be corrupted',
+          4: 'Audio format not supported'
+        };
+        setError(errorMessages[errCode || 0] || `Audio error: ${errMsg}`);
+      };
+      
+      audio.onloadeddata = () => {
+        log('loadeddata fired', { trackId: track.id, duration: audio.duration });
+        if (audio.duration && !isNaN(audio.duration)) {
+          setDuration(audio.duration);
+        }
+      };
+      
+      // STEP 6: Set src and call load()
+      audio.src = track.audio_url;
+      audio.load();
+      
+      log('Audio src set and load() called', { 
+        trackId: track.id,
+        src: audio.src,
+        readyState: audio.readyState,
+        networkState: audio.networkState
+      });
+      
     } catch (err) {
-      logError('playTrack', err, { trackId: track.id });
+      logError('playTrack exception', err, { trackId: track.id });
+      setIsLoading(false);
+      setIsPlaying(false);
+      setError(err instanceof Error ? err.message : 'Unknown error');
     }
-  }, [queue]);
+  }, [queue, resetAudioState]);
 
   const loadTrack = useCallback((track: Track) => {
     log('loadTrack called', track.id);
@@ -379,7 +510,6 @@ export function AudioProvider({ children }: { children: ReactNode }) {
       if (audioRef.current && track.audio_url) {
         audioRef.current.src = track.audio_url;
         audioRef.current.load();
-        audioRef.current.play().catch(() => {});
       }
     } catch (err) {
       logError('loadTrack', err, { trackId: track.id });
@@ -389,76 +519,99 @@ export function AudioProvider({ children }: { children: ReactNode }) {
   const togglePlay = useCallback(() => {
     try {
       if (!audioRef.current) return;
+      
       if (isPlaying) {
         audioRef.current.pause();
-      } else {
-        audioRef.current.play().catch((err: any) => {
-          logError('togglePlay.play().catch', err);
-        });
+        setIsPlaying(false);
+      } else if (currentTrack?.audio_url) {
+        setIsLoading(true);
+        audioRef.current.play()
+          .then(() => {
+            setIsPlaying(true);
+            setIsLoading(false);
+          })
+          .catch((err: any) => {
+            logError('togglePlay.play().catch', err);
+            setIsPlaying(false);
+            setIsLoading(false);
+          });
       }
     } catch (err) {
       logError('togglePlay', err);
     }
-  }, [isPlaying]);
+  }, [isPlaying, currentTrack]);
 
   const pause = useCallback(() => {
     try {
       audioRef.current?.pause();
+      setIsPlaying(false);
     } catch (err) {
       logError('pause', err);
     }
   }, []);
 
+  const clearError = useCallback(() => {
+    setError(null);
+  }, []);
+
+  // ─── PLAY NEXT (FIXED) ─────────────────────────────────────────────────────
   const playNext = useCallback(() => {
     try {
       const currentQueue = queueRef.current;
-      if (currentQueue.length === 0) return;
+      if (currentQueue.length === 0) {
+        log('playNext: empty queue');
+        return;
+      }
+      
       const currentIdx = currentIndexRef.current;
       const nextIdx = (currentIdx + 1) % currentQueue.length;
       const track = currentQueue[nextIdx];
+      
       if (track) {
-        log('playNext', track.id);
-        setCurrentIndex(nextIdx);
-        setCurrentTrack(track);
-        setProgress(0);
-        if (audioRef.current && track.audio_url) {
-          audioRef.current.src = track.audio_url;
-          audioRef.current.load();
-          audioRef.current.play().catch(() => {});
-        }
+        log('playNext switching', { 
+          from: currentTrackRef.current?.id, 
+          to: track.id,
+          nextIdx 
+        });
+        playTrack(track);
       }
     } catch (err) {
       logError('playNext', err);
     }
-  }, []);
+  }, [playTrack]);
 
+  // ─── PLAY PREV (FIXED) ───────────────────────────────────────────────────────
   const playPrev = useCallback(() => {
     try {
       if (audioRef.current && audioRef.current.currentTime > 3) {
+        // Just restart current track if > 3s in
         audioRef.current.currentTime = 0;
         setProgress(0);
         return;
       }
+      
       const currentQueue = queueRef.current;
-      if (currentQueue.length === 0) return;
+      if (currentQueue.length === 0) {
+        log('playPrev: empty queue');
+        return;
+      }
+      
       const currentIdx = currentIndexRef.current;
       const prevIdx = (currentIdx - 1 + currentQueue.length) % currentQueue.length;
       const track = currentQueue[prevIdx];
+      
       if (track) {
-        log('playPrev', track.id);
-        setCurrentIndex(prevIdx);
-        setCurrentTrack(track);
-        setProgress(0);
-        if (audioRef.current && track.audio_url) {
-          audioRef.current.src = track.audio_url;
-          audioRef.current.load();
-          audioRef.current.play().catch(() => {});
-        }
+        log('playPrev switching', { 
+          from: currentTrackRef.current?.id, 
+          to: track.id,
+          prevIdx 
+        });
+        playTrack(track);
       }
     } catch (err) {
       logError('playPrev', err);
     }
-  }, []);
+  }, [playTrack]);
 
   const setVolume = useCallback((v: number) => {
     try {
@@ -518,9 +671,9 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 
   return (
     <AudioCtx.Provider value={{
-      currentTrack, isPlaying, volume, progress, duration, mode, setMode,
+      currentTrack, isPlaying, isLoading, error, volume, progress, duration, mode, setMode,
       playTrack, loadTrack, togglePlay, pause, playNext, playPrev,
-      setVolume, seek, queue, setQueue, currentIndex, purchasedTracks,
+      setVolume, seek, clearError, queue, setQueue, currentIndex, purchasedTracks,
       addPurchased, hasPurchased,
     }}>
       {children}
@@ -532,10 +685,10 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 export function useAudio() {
   const ctx = useContext(AudioCtx);
   if (!ctx) return {
-    currentTrack: null, isPlaying: false, volume: 80, progress: 0, duration: 0,
+    currentTrack: null, isPlaying: false, isLoading: false, error: null, volume: 80, progress: 0, duration: 0,
     mode: 'track' as const, setMode: () => {},
     playTrack: () => {}, loadTrack: () => {}, togglePlay: () => {}, pause: () => {},
-    playNext: () => {}, playPrev: () => {}, setVolume: () => {}, seek: () => {},
+    playNext: () => {}, playPrev: () => {}, setVolume: () => {}, seek: () => {}, clearError: () => {},
     queue: [], setQueue: () => {}, currentIndex: -1, purchasedTracks: new Set<string>(),
     addPurchased: () => {}, hasPurchased: () => false,
   };

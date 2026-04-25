@@ -18,7 +18,7 @@ function formatTime(seconds: number) {
 }
 
 export function GlobalPlayer() {
-  const { currentTrack, isPlaying, togglePlay, playNext, playPrev, setVolume, seek, progress, duration, mode } = useAudio()
+  const { currentTrack, isPlaying, isLoading, error, togglePlay, playNext, playPrev, setVolume, seek, progress, duration, mode } = useAudio()
   const pathname = usePathname()
   const hideOnTapRoute = pathname.startsWith('/tap')
   const [volume, setVolumeState] = useState(80)
@@ -93,6 +93,16 @@ export function GlobalPlayer() {
                 <p className={`font-medium truncate ${isPlaying ? 'text-[var(--pf-orange)]' : ''}`}>
                   {currentTrack.title}
                 </p>
+                {isLoading && (
+                  <span className="shrink-0 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide bg-yellow-500/20 text-yellow-400">
+                    loading
+                  </span>
+                )}
+                {error && (
+                  <span className="shrink-0 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide bg-red-500/20 text-red-400" title={error}>
+                    error
+                  </span>
+                )}
                 {mode !== 'track' && (
                   <span className={`shrink-0 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide ${
                     mode === 'radio' ? 'bg-red-500/20 text-red-400' : 'bg-[var(--pf-orange)]/20 text-[var(--pf-orange)]'
@@ -108,6 +118,9 @@ export function GlobalPlayer() {
               >
                 {currentTrack.artist}
               </Link>
+              {error && (
+                <p className="text-xs text-red-400 truncate">{error}</p>
+              )}
             </div>
 
             {/* Controls */}
