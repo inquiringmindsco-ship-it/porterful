@@ -128,6 +128,28 @@ On Porterful, he's not competing with the algorithm. He's building something rea
       { src: '/artist-images/atm-trap/avatar.jpg', alt: 'ATM Trap' },
     ],
   },
+  {
+    id: 'rob-soule',
+    name: 'Rob Soule',
+    slug: 'rob-soule',
+    genre: 'Hip-Hop / R&B / Blues',
+    location: 'St. Louis, MO',
+    bio: `Rob Soule is a St. Louis hip-hop and R&B artist blending blues into a soulful sound. His music captures the raw energy of the Lou while weaving in the emotional depth of R&B and the timeless roots of blues.`,
+    shortBio: 'St. Louis hip-hop and R&B artist blending blues into a soulful sound.',
+    verified: true,
+    likeness_verified: false,
+    image: '/artist-images/rob-soule/avatar.jpg',
+    coverGradient: 'from-blue-600 to-purple-600',
+    followers: 0,
+    supporters: null,
+    earnings: null,
+    products: 1,
+    trackCount: 0,
+    social: {},
+    coverSlides: [
+      { src: '/artist-images/rob-soule/avatar.jpg', alt: 'Rob Soule' },
+    ],
+  },
 ]
 
 export const PUBLIC_ARTIST_SLUGS = ARTISTS.map((artist) => artist.slug)

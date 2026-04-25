@@ -183,8 +183,8 @@ function SuccessContent() {
                   <p className="font-medium">Check your email</p>
                   <p className="text-sm text-[var(--pf-text-secondary)]">
                     {customerEmail
-                      ? `We&apos;ve sent your receipt and order details to ${customerEmail}.`
-                      : 'We&apos;ve sent your receipt and order details to your email address.'}
+                      ? `We've sent your receipt and order details to ${customerEmail}.`
+                      : 'We've sent your receipt and order details to your email address.'}
                   </p>
                 </div>
               </div>

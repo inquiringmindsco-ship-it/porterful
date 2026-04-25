@@ -229,52 +229,18 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     };
 
     // ─── EVENT: canplay ─────────────────────────────────────────────────────
+    // Do NOT auto-play here. Playback is initiated explicitly by playTrack
+    // (and by playNext/playPrev/ended/togglePlay). Auto-playing from canplay
+    // races with those callers and causes a double-tap / double-play bug.
     const handleCanPlay = () => {
       try {
         if (!audioRef.current) return;
         const current = currentTrackRef.current;
-        if (!current || !current.audio_url) return;
-
+        if (!current) return;
         log('canplay', current.id);
-
-        // Skip auto-play if playTrack already initiated playback
-        // This prevents double-play race condition
-        if (playInitiatedRef.current) {
-          log('canplay skipped — playTrack already handled playback');
-          playInitiatedRef.current = false; // Reset for next track
-          return;
+        if (mode === 'radio' && isPlayingRef.current) {
+          startPreviewTimer(audioRef.current.duration);
         }
-
-        // Normalize URLs for comparison
-        const expectedAudioUrl = current.audio_url.startsWith('http')
-          ? current.audio_url
-          : `${window.location.origin}${current.audio_url}`;
-
-        const currentSrc = audioRef.current.src;
-        const currentSrcNormalized = currentSrc.startsWith('http')
-          ? currentSrc
-          : `${window.location.origin}${currentSrc}`;
-
-        const srcMatches =
-          currentSrcNormalized === expectedAudioUrl
-          || currentSrcNormalized.endsWith(current.audio_url)
-          || (current.audio_url.split('/').pop() &&
-              currentSrcNormalized.endsWith(current.audio_url.split('/').pop()!));
-
-        if (!srcMatches) {
-          log('canplay blocked — src mismatch', {
-            currentSrc: audioRef.current.src,
-            expected: expectedAudioUrl,
-            trackId: current.id,
-          });
-          return;
-        }
-
-        clearPreviewTimer();
-        audioRef.current.play().catch((err: any) => {
-          logError('play().catch', err, { trackId: current.id });
-        });
-        startPreviewTimer(audioRef.current.duration);
       } catch (err) {
         logError('canplay', err);
       }
