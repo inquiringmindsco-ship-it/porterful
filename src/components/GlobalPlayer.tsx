@@ -102,17 +102,10 @@ export function GlobalPlayer() {
                 <p className={`font-medium truncate ${isPlaying ? 'text-[var(--accent)]' : ''}`}>
                   {currentTrack.title}
                 </p>
-                {mode !== 'track' && (
-                  <span className={`shrink-0 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide ${
-                    mode === 'radio' ? 'bg-red-500/20 text-red-400' : 'bg-[var(--pf-orange)]/20 text-[var(--pf-orange)]'
-                  }`}>
-                    {mode}
-                  </span>
-                )}
               </div>
               <Link
                 href={artistHref}
-                className="text-sm text-[var(--pf-text-muted)] truncate hover:text-[var(--pf-orange)] transition-colors"
+                className="text-sm text-[var(--pf-text-muted)] truncate hover:text-[var(--accent)] transition-colors"
                 onClick={(e) => e.stopPropagation()}
               >
                 {currentTrack.artist}
@@ -130,7 +123,7 @@ export function GlobalPlayer() {
               </button>
               <button 
                 onClick={togglePlay}
-                className="w-10 h-10 rounded-full bg-[var(--pf-orange)] flex items-center justify-center hover:bg-[var(--pf-orange)]/80 transition-colors"
+                className="w-10 h-10 rounded-full bg-[var(--accent)] flex items-center justify-center hover:bg-[var(--accent-hover)] transition-colors"
                 aria-label={isPlaying ? 'Pause' : 'Play'}
               >
                 {isPlaying ? <Pause size={20} className="text-white" /> : <Play size={20} className="text-white ml-0.5" />}
