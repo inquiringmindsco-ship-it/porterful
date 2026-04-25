@@ -69,6 +69,9 @@ interface AudioContextType {
   
   // Queue management
   setQueue: (tracks: Track[]) => void;
+  
+  // Purchase check (stub)
+  hasPurchased: (trackId: string) => boolean;
 }
 
 const AudioCtx = createContext<AudioContextType | null>(null);
@@ -368,6 +371,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
       seekTo,
       setVolume,
       setQueue,
+      hasPurchased: () => false,
     }}>
       {children}
     </AudioCtx.Provider>
