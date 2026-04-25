@@ -26,21 +26,26 @@ export async function POST(request: NextRequest) {
       quantity: item.quantity || 1,
     }))
 
+    // Build metadata from first item (for music purchases)
+    const firstItem = items[0]
+    const metadata: Record<string, string> = {
+      item_type: firstItem?.type || 'track',
+      item_id: firstItem?.id || '',
+      item_name: firstItem?.name || '',
+      item_artist: firstItem?.artist || '',
+    }
+
+    // Include audio_url if it's a track
+    if (firstItem?.type === 'track' && firstItem?.audio_url) {
+      metadata.audio_url = firstItem.audio_url
+    }
+
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       line_items: lineItems,
       success_url: successUrl?.replace('{CHECKOUT_SESSION_ID}', '{CHECKOUT_SESSION_ID}') || `${request.nextUrl.origin}/checkout/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: cancelUrl || `${request.nextUrl.origin}`,
-      payment_intent_data: {
-        metadata: {
-          item_type: items[0]?.type || 'track',
-          item_id: items[0]?.id || '',
-        },
-      },
-      metadata: {
-        item_type: items[0]?.type || 'track',
-        item_id: items[0]?.id || '',
-      },
+      metadata,
     })
 
     return NextResponse.json({ url: session.url })

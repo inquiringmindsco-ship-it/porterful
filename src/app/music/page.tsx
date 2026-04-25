@@ -13,19 +13,20 @@ const VALID_SLUGS = ['od-porter', 'gune', 'atm-trap']
 const PUBLIC_ARTISTS = ARTISTS.filter(a => VALID_SLUGS.includes(a.slug))
 import { FEATURED_PRODUCTS } from '@/lib/products';
 
-// O D Porter's tracks only
-const OD_TRACKS = TRACKS.filter(t => t.artist === 'O D Porter').sort((a, b) => {
-  // Ambiguous first, then others
-  if (a.album === 'Ambiguous' && b.album !== 'Ambiguous') return -1;
-  if (a.album !== 'Ambiguous' && b.album === 'Ambiguous') return 1;
-  return 0;
+// All public tracks (O D Porter + collaborators)
+const ALL_TRACKS = TRACKS.filter(t => 
+  ['O D Porter', 'Gune', 'ATM Trap', 'Jai Jai'].includes(t.artist)
+).sort((a, b) => {
+  // Sort by artist priority
+  const artistOrder: Record<string, number> = { 'O D Porter': 0, 'Gune': 1, 'ATM Trap': 2, 'Jai Jai': 3 };
+  return (artistOrder[a.artist] || 99) - (artistOrder[b.artist] || 99);
 }) as unknown as Track[];
 
 // Top tracks by order
-const TOP_TRACKS = [...OD_TRACKS];
+const TOP_TRACKS = [...ALL_TRACKS];
 
 // For display purposes we use the raw data type (duration is string)
-type DisplayTrack = typeof OD_TRACKS[number];
+type DisplayTrack = typeof ALL_TRACKS[number];
 
 function formatDuration(seconds: number): string {
   const mins = Math.floor(seconds / 60);
@@ -130,10 +131,10 @@ export default function MusicPage() {
   const heroTrack = TOP_TRACKS[heroTrackIndex] || TOP_TRACKS[0];
   const isHeroActive = currentTrack?.id === heroTrack?.id;
 
-  // Get unique albums from OD_TRACKS
+  // Get unique albums from ALL_TRACKS
   const uniqueAlbums = useMemo(() => {
     const albumMap = new Map<string, { name: string; image: string; count: number }>();
-    OD_TRACKS.forEach(t => {
+    ALL_TRACKS.forEach(t => {
       if (!albumMap.has(t.album || 'Unknown')) {
         albumMap.set(t.album || 'Unknown', { name: t.album || 'Unknown', image: t.image || '', count: 0 });
       }
@@ -144,7 +145,7 @@ export default function MusicPage() {
 
   // Filter tracks based on search, album filter, and selected album card
   const filteredTracks = useMemo(() => {
-    let tracks = OD_TRACKS;
+    let tracks = ALL_TRACKS;
 
     // Album card filter (takes precedence)
     if (selectedAlbum) {
@@ -203,7 +204,7 @@ export default function MusicPage() {
                   <Verified size={18} className="text-[var(--pf-orange)]" />
                 )}
               </Link>
-              <p className="text-[var(--pf-text-secondary)]">St. Louis, MO · {OD_TRACKS.length} tracks</p>
+              <p className="text-[var(--pf-text-secondary)]">St. Louis, MO · {ALL_TRACKS.length} tracks</p>
             </div>
           </div>
 
@@ -423,7 +424,7 @@ export default function MusicPage() {
             ) : (
               <div>
                 <p className="text-sm uppercase tracking-widest text-[var(--pf-orange)] mb-1">All Tracks</p>
-                <h3 className="text-2xl font-bold">{OD_TRACKS.length} tracks</h3>
+                <h3 className="text-2xl font-bold">{ALL_TRACKS.length} tracks</h3>
               </div>
             )}
           </div>
