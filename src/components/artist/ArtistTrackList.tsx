@@ -16,7 +16,7 @@ function formatPlays(n: number): string {
 }
 
 export function ArtistTrackList({ tracks }: ArtistTrackListProps) {
-  const { currentTrack, isPlaying, playTrack, togglePlay, setMode } = useAudio()
+  const { currentTrack, isPlaying, playTrack, togglePlay, setMode, setQueue } = useAudio()
   const router = useRouter()
   const [purchasing, setPurchasing] = useState<string | null>(null)
 
@@ -24,10 +24,18 @@ export function ArtistTrackList({ tracks }: ArtistTrackListProps) {
     if (currentTrack?.id === track.id) {
       togglePlay()
     } else {
+      // Queue the rendered list so auto-advance stays within the same artist
+      // section the user tapped on (singles row stays in singles, an album
+      // section stays in that album).
       setMode('artist')
+      const idx = tracks.findIndex((t) => t.id === track.id)
+      if (idx >= 0) {
+        const reordered = [...tracks.slice(idx), ...tracks.slice(0, idx)]
+        setQueue(reordered)
+      }
       playTrack(track)
     }
-  }, [currentTrack, playTrack, togglePlay, setMode])
+  }, [currentTrack, playTrack, togglePlay, setMode, setQueue, tracks])
 
   const handleBuy = useCallback(async (e: React.MouseEvent, track: Track) => {
     e.stopPropagation()
@@ -112,13 +120,13 @@ export function ArtistTrackList({ tracks }: ArtistTrackListProps) {
                     {track.duration}
                   </span>
 
-                  {/* Buy button */}
+                  {/* Buy — neutral price chip per UX spec (calm commerce) */}
                   <button
                     onClick={(e) => handleBuy(e, track)}
                     disabled={purchasing === track.id}
                     title={purchasing === track.id ? 'Processing purchase...' : `Buy "${track.title}" — $${track.price || 1}`}
                     aria-label={purchasing === track.id ? 'Processing purchase' : `Buy for $${track.price || 1}`}
-                    className="flex items-center gap-1 px-2 sm:px-3 py-1.5 bg-[var(--pf-orange)] hover:bg-[var(--pf-orange-dark)] disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs sm:text-sm font-semibold rounded-lg transition-colors flex-shrink-0"
+                    className="flex items-center gap-1 px-2 sm:px-3 py-1.5 bg-[var(--pf-bg)] border border-[var(--pf-border)] hover:border-[var(--pf-text-muted)] disabled:opacity-50 disabled:cursor-not-allowed text-[var(--pf-text)] text-xs sm:text-sm font-semibold rounded-lg transition-colors flex-shrink-0"
                   >
                     {purchasing === track.id ? (
                       <Loader2 size={11} className="animate-spin" />
@@ -134,8 +142,8 @@ export function ArtistTrackList({ tracks }: ArtistTrackListProps) {
                     aria-label={currentTrack?.id === track.id && isPlaying ? `Pause` : `Play`}
                     className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all flex-shrink-0 ${
                       isActive
-                        ? 'bg-[var(--pf-orange)] text-white'
-                        : 'bg-[var(--pf-bg)] border border-[var(--pf-border)] text-[var(--pf-text-muted)] hover:bg-[var(--pf-orange)] hover:text-white hover:border-[var(--pf-orange)]'
+                        ? 'bg-[var(--pf-orange)] text-[var(--pf-text)]'
+                        : 'bg-[var(--pf-bg)] border border-[var(--pf-border)] text-[var(--pf-text-secondary)] hover:bg-[var(--pf-orange)] hover:text-[var(--pf-text)] hover:border-[var(--pf-orange)]'
                     }`}
                   >
                     {isActive && isPlaying ? <Pause size={13} /> : <Play size={13} className="ml-0.5" />}
