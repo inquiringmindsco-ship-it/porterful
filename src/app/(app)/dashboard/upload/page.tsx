@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
 
 export default function DashboardUploadAliasPage() {
-  redirect('/dashboard/upload')
+  redirect('/dashboard/dashboard/upload')
 }
