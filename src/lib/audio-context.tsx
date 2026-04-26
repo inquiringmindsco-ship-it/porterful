@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useRef, useEffect, ReactNode, useCallback } from 'react';
+import { getTrackArtwork } from '@/lib/artwork';
 
 // ─── DEBUG LOGGING ────────────────────────────────────────────────────────────
 const DEBUG = false;
@@ -288,18 +289,18 @@ export function AudioProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    const artworkUrl = currentTrack.image || currentTrack.cover_url || '';
+    // Same fallback chain as the player UI / track rows so the lock-screen
+    // image always matches what the user sees in the app.
+    const artworkUrl = getTrackArtwork(currentTrack);
     ms.metadata = new MediaMetadata({
       title: currentTrack.title || '',
       artist: currentTrack.artist || '',
       album: currentTrack.album || '',
-      artwork: artworkUrl
-        ? [
-            { src: artworkUrl, sizes: '512x512', type: 'image/jpeg' },
-            { src: artworkUrl, sizes: '256x256', type: 'image/jpeg' },
-            { src: artworkUrl, sizes: '128x128', type: 'image/jpeg' },
-          ]
-        : [],
+      artwork: [
+        { src: artworkUrl, sizes: '512x512', type: 'image/jpeg' },
+        { src: artworkUrl, sizes: '256x256', type: 'image/jpeg' },
+        { src: artworkUrl, sizes: '128x128', type: 'image/jpeg' },
+      ],
     });
 
     try {

@@ -10,6 +10,7 @@ import {
 } from 'lucide-react'
 import { useAudio } from '@/lib/audio-context'
 import { getArtistSlugByName } from '@/lib/artists'
+import { getTrackArtwork } from '@/lib/artwork'
 
 function formatTime(seconds: number) {
   const mins = Math.floor(seconds / 60)
@@ -79,7 +80,7 @@ export function GlobalPlayer() {
               onClick={() => setExpanded(true)}
             >
               <Image 
-                src={currentTrack.image || '/album-art/default.jpg'} 
+                src={getTrackArtwork(currentTrack)}
                 alt={currentTrack.title}
                 fill
                 sizes="48px"
@@ -200,7 +201,7 @@ export function GlobalPlayer() {
           <div className="flex-1 flex items-center justify-center p-8">
             <div className="w-full max-w-sm aspect-square rounded-2xl overflow-hidden shadow-2xl relative">
               <Image 
-                src={currentTrack.image || '/album-art/default.jpg'} 
+                src={getTrackArtwork(currentTrack)}
                 alt={currentTrack.title}
                 fill
                 sizes="(max-width: 768px) 100vw, 400px"
@@ -349,7 +350,7 @@ export function GlobalPlayer() {
             <div className="text-center">
               <div className="w-64 h-64 mx-auto rounded-full overflow-hidden shadow-2xl relative">
                 <Image 
-                  src={currentTrack.image || '/album-art/default.jpg'} 
+                  src={getTrackArtwork(currentTrack)}
                   alt={currentTrack.title}
                   fill
                   sizes="256px"

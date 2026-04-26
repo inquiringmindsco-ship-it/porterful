@@ -17,6 +17,7 @@ import {
 import { useAudio, Track } from '@/lib/audio-context'
 import { TRACKS } from '@/lib/data'
 import { ARTISTS } from '@/lib/artists'
+import { getTrackArtwork } from '@/lib/artwork'
 
 // Public artists with confirmed music/catalog
 const VALID_SLUGS = ['od-porter', 'gune', 'atm-trap']
@@ -83,9 +84,7 @@ function TrackRow({
 
       {/* Cover */}
       <div className="relative w-10 h-10 rounded-md overflow-hidden bg-[var(--pf-surface)] shrink-0">
-        {track.image && (
-          <Image src={track.image} alt={track.title} fill sizes="40px" className="object-cover" />
-        )}
+        <Image src={getTrackArtwork(track)} alt={track.title} fill sizes="40px" className="object-cover" />
       </div>
 
       {/* Title + album */}
@@ -207,9 +206,9 @@ export default function MusicPage() {
               className="relative w-20 h-20 sm:w-28 sm:h-28 rounded-xl overflow-hidden flex-shrink-0 bg-[var(--pf-surface)]"
               aria-label={`Open ${heroArtist?.name ?? 'artist'} page`}
             >
-              {heroTrack?.image && (
+              {heroTrack && (
                 <Image
-                  src={heroTrack.image}
+                  src={getTrackArtwork(heroTrack)}
                   alt={heroTrack.title}
                   fill
                   sizes="(max-width: 640px) 80px, 112px"
