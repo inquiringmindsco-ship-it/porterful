@@ -6,6 +6,13 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Accent system
+ * --pf-accent / --pf-accent-rgb are the runtime user-configurable accent.
+ * The legacy --pf-orange* tokens alias to the accent so every existing
+ * `var(--pf-orange)` reference automatically follows the user's choice
+ * without touching ~700 call sites. Default = Porterful Orange.
+ */
 :root {
   /* Dark theme (default) */
   --pf-bg: #111111;
@@ -18,11 +25,23 @@
   --pf-text: #ffffff;
   --pf-text-secondary: #d0d0d0;
   --pf-text-muted: #9a9a9a;
-  --pf-orange: #f97316;      /* Porterful vibrant orange — distinct from Likeness gold */
-  --pf-orange-dark: #ea580c;
-  --pf-orange-light: #fb923c;
-  --pf-pink: #ec4899;       /* Porterful hot pink */
-  --pf-purple: #a855f7;     /* Porterful vivid purple */
+
+  /* Accent — runtime configurable. Default = Porterful Orange. */
+  --pf-accent: #f97316;
+  --pf-accent-rgb: 249 115 22;
+  --pf-accent-hover: color-mix(in srgb, var(--pf-accent), black 8%);
+  --pf-accent-soft: rgb(var(--pf-accent-rgb) / 0.1);
+  --pf-accent-border: rgb(var(--pf-accent-rgb) / 0.4);
+  --pf-accent-text: var(--pf-accent);
+
+  /* Legacy orange aliases — every existing var(--pf-orange) reference
+     resolves through --pf-accent so the accent system controls them. */
+  --pf-orange: var(--pf-accent);
+  --pf-orange-dark: var(--pf-accent-hover);
+  --pf-orange-light: var(--pf-accent);
+
+  --pf-pink: #ec4899;       /* Brand secondary — used in brand gradients only */
+  --pf-purple: #a855f7;     /* Brand secondary — used in brand gradients only */
   --background: #111111;
   --foreground: #ffffff;
 }
@@ -39,13 +58,9 @@
   --pf-text: #111111;
   --pf-text-secondary: #555555;
   --pf-text-muted: #777777;
-  --pf-orange: #f97316;
-  --pf-orange-dark: #ea580c;
-  --pf-orange-light: #fb923c;
-  --pf-pink: #ec4899;
-  --pf-purple: #a855f7;
   --background: #ffffff;
   --foreground: #111111;
+  /* accent vars inherit from :root unless AccentProvider overrides them */
 }
 
 /* Dark theme — Porterful dark mode */
@@ -60,11 +75,6 @@
   --pf-text: #ffffff;
   --pf-text-secondary: #d0d0d0;
   --pf-text-muted: #9a9a9a;
-  --pf-orange: #f97316;
-  --pf-orange-dark: #ea580c;
-  --pf-orange-light: #fb923c;
-  --pf-pink: #ec4899;
-  --pf-purple: #a855f7;
   --background: #111111;
   --foreground: #ffffff;
 }
@@ -81,11 +91,6 @@
   --pf-text: #1b1b1b;
   --pf-text-secondary: #5d5d5d;
   --pf-text-muted: #7a7a7a;
-  --pf-orange: #f97316;
-  --pf-orange-dark: #ea580c;
-  --pf-orange-light: #fb923c;
-  --pf-pink: #ec4899;
-  --pf-purple: #a855f7;
   --background: #fcfbf7;
   --foreground: #1b1b1b;
 }

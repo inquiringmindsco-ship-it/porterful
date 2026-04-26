@@ -5,9 +5,11 @@ import Link from 'next/link';
 import { useSupabase } from '@/app/providers';
 import { useRouter } from 'next/navigation';
 import { User, Code, CreditCard, Bell } from 'lucide-react';
+import { useAccent } from '@/lib/accent-context';
 
 export default function SettingsPage() {
   const { supabase, user } = useSupabase();
+  const { accent, presets, setAccent, resetAccent } = useAccent();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'profile' | 'referrals' | 'payouts' | 'notifications'>('profile');
   const [loading, setLoading] = useState(true);
@@ -28,6 +30,7 @@ export default function SettingsPage() {
     totalReferrals: 0,
     totalEarnings: 0,
   });
+  const activeAccent = presets.find((preset) => preset.hex === accent) ?? presets[0];
 
   useEffect(() => {
     if (!user) {
@@ -181,85 +184,152 @@ export default function SettingsPage() {
           {/* Content */}
           <div className="lg:col-span-3">
             {activeTab === 'profile' && (
-              <div className="bg-[var(--pf-surface)] rounded-xl p-6 border border-[var(--pf-border)]">
-                <h2 className="text-xl font-bold mb-6">Profile Information</h2>
-
-                {/* Avatar */}
-                <div className="flex items-center gap-6 mb-8">
-                  <div className="w-24 h-24 rounded-full bg-[var(--pf-orange)]/20 flex items-center justify-center text-4xl overflow-hidden">
-                    {profile.avatar_url ? (
-                      <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
-                    ) : (
-                      profile.name?.charAt(0) || '?'
-                    )}
+              <div className="space-y-6">
+                <div className="bg-[var(--pf-surface)] rounded-xl p-6 border border-[var(--pf-border)]">
+                  <div className="flex flex-col gap-2 mb-6 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <h2 className="text-xl font-bold">Accent Color</h2>
+                      <p className="text-[var(--pf-text-muted)] text-sm mt-1">
+                        Choose the Porterful accent used across your app interface.
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="inline-flex items-center gap-2 rounded-full border border-[var(--pf-border)] bg-[var(--pf-bg)] px-3 py-1.5 text-xs font-medium text-[var(--pf-text-muted)]">
+                        <span
+                          className="h-3 w-3 rounded-full border border-[var(--pf-border)]"
+                          style={{ backgroundColor: activeAccent.hex }}
+                        />
+                        {activeAccent.name}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={resetAccent}
+                        className="rounded-lg border border-[var(--pf-border)] px-3 py-2 text-sm font-medium text-[var(--pf-text-secondary)] transition-colors hover:border-[var(--pf-orange)] hover:text-[var(--pf-text)]"
+                      >
+                        Reset
+                      </button>
+                    </div>
                   </div>
-                  <div>
-                    <button className="bg-[var(--pf-orange)] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[var(--pf-orange-light)] transition-colors">
-                      Upload Photo
-                    </button>
-                    <p className="text-gray-500 text-sm mt-2">JPG, PNG. Max 5MB.</p>
+
+                  <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                    {presets.map((preset) => {
+                      const isActive = preset.hex === accent
+                      return (
+                        <button
+                          key={preset.id}
+                          type="button"
+                          onClick={() => setAccent(preset.hex)}
+                          aria-pressed={isActive}
+                          className={`flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition-all focus:outline-none focus:ring-2 focus:ring-[var(--pf-orange)] ${
+                            isActive
+                              ? 'border-[var(--pf-orange)] bg-[var(--pf-orange)]/10'
+                              : 'border-[var(--pf-border)] bg-[var(--pf-bg)] hover:border-[var(--pf-orange)]/50'
+                          }`}
+                        >
+                          <span
+                            className="h-10 w-10 shrink-0 rounded-lg border border-white/10 shadow-sm"
+                            style={{ backgroundColor: preset.hex }}
+                            aria-hidden="true"
+                          />
+                          <span className="min-w-0">
+                            <span className="block text-sm font-semibold text-[var(--pf-text)]">
+                              {preset.name}
+                            </span>
+                            <span className="block text-xs text-[var(--pf-text-muted)]">
+                              {preset.hex.toUpperCase()}
+                            </span>
+                          </span>
+                          {isActive && (
+                            <span className="ml-auto rounded-full bg-[var(--pf-orange)] px-2.5 py-1 text-[11px] font-semibold text-[#111111]">
+                              Active
+                            </span>
+                          )}
+                        </button>
+                      )
+                    })}
                   </div>
                 </div>
 
-                {/* Form */}
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Name</label>
-                    <input
-                      type="text"
-                      value={profile.name}
-                      onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-                      className="w-full bg-[var(--pf-bg)] border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-[#ff6b00] transition-colors"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Email</label>
-                    <input
-                      type="email"
-                      value={profile.email}
-                      disabled
-                      className="w-full bg-[var(--pf-bg)] border border-gray-700 rounded-lg px-4 py-3 text-gray-500 cursor-not-allowed"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Location</label>
-                    <input
-                      type="text"
-                      value={profile.location}
-                      onChange={(e) => setProfile({ ...profile, location: e.target.value })}
-                      className="w-full bg-[var(--pf-bg)] border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-[#ff6b00] transition-colors"
-                      placeholder="City, State"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Website</label>
-                    <input
-                      type="url"
-                      value={profile.website}
-                      onChange={(e) => setProfile({ ...profile, website: e.target.value })}
-                      className="w-full bg-[var(--pf-bg)] border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-[#ff6b00] transition-colors"
-                      placeholder="https://yoursite.com"
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium mb-2">Bio</label>
-                    <textarea
-                      value={profile.bio}
-                      onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
-                      rows={3}
-                      className="w-full bg-[var(--pf-bg)] border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-[#ff6b00] transition-colors resize-none"
-                      placeholder="Tell your fans about yourself..."
-                    />
-                  </div>
-                </div>
+                <div className="bg-[var(--pf-surface)] rounded-xl p-6 border border-[var(--pf-border)]">
+                  <h2 className="text-xl font-bold mb-6">Profile Information</h2>
 
-                <button
-                  onClick={saveProfile}
-                  disabled={saving}
-                  className="mt-6 bg-[var(--pf-orange)] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[var(--pf-orange-light)] transition-colors disabled:opacity-50"
-                >
-                  {saving ? 'Saving...' : 'Save Changes'}
-                </button>
+                  {/* Avatar */}
+                  <div className="flex items-center gap-6 mb-8">
+                    <div className="w-24 h-24 rounded-full bg-[var(--pf-orange)]/20 flex items-center justify-center text-4xl overflow-hidden">
+                      {profile.avatar_url ? (
+                        <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        profile.name?.charAt(0) || '?'
+                      )}
+                    </div>
+                    <div>
+                      <button className="bg-[var(--pf-orange)] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[var(--pf-orange-light)] transition-colors">
+                        Upload Photo
+                      </button>
+                      <p className="text-gray-500 text-sm mt-2">JPG, PNG. Max 5MB.</p>
+                    </div>
+                  </div>
+
+                  {/* Form */}
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Name</label>
+                      <input
+                        type="text"
+                        value={profile.name}
+                        onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+                        className="w-full bg-[var(--pf-bg)] border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-[#ff6b00] transition-colors"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Email</label>
+                      <input
+                        type="email"
+                        value={profile.email}
+                        disabled
+                        className="w-full bg-[var(--pf-bg)] border border-gray-700 rounded-lg px-4 py-3 text-gray-500 cursor-not-allowed"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Location</label>
+                      <input
+                        type="text"
+                        value={profile.location}
+                        onChange={(e) => setProfile({ ...profile, location: e.target.value })}
+                        className="w-full bg-[var(--pf-bg)] border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-[#ff6b00] transition-colors"
+                        placeholder="City, State"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Website</label>
+                      <input
+                        type="url"
+                        value={profile.website}
+                        onChange={(e) => setProfile({ ...profile, website: e.target.value })}
+                        className="w-full bg-[var(--pf-bg)] border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-[#ff6b00] transition-colors"
+                        placeholder="https://yoursite.com"
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium mb-2">Bio</label>
+                      <textarea
+                        value={profile.bio}
+                        onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
+                        rows={3}
+                        className="w-full bg-[var(--pf-bg)] border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-[#ff6b00] transition-colors resize-none"
+                        placeholder="Tell your fans about yourself..."
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={saveProfile}
+                    disabled={saving}
+                    className="mt-6 bg-[var(--pf-orange)] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[var(--pf-orange-light)] transition-colors disabled:opacity-50"
+                  >
+                    {saving ? 'Saving...' : 'Save Changes'}
+                  </button>
+                </div>
               </div>
             )}
 

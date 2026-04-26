@@ -7,6 +7,7 @@ import { ThemeProvider } from '@/lib/theme-context'
 import { WalletProvider } from '@/lib/wallet-context'
 import { PayoutProvider } from '@/lib/payout-context'
 import { CartProvider } from '@/lib/cart-context'
+import { AccentProvider } from '@/lib/accent-context'
 import { ToastProvider } from '@/components/Toast'
 import { createBrowserSupabaseClient } from '@/lib/create-browser-client'
 import { initSentry, captureAuthError } from '@/lib/sentry'
@@ -141,17 +142,19 @@ export function Providers({
   return (
     <SupabaseContext.Provider value={{ supabase, user, session, loading }}>
       <ThemeProvider>
-        <AudioProvider>
-          <CartProvider>
-            <WalletProvider>
-              <PayoutProvider>
-                <ToastProvider>
-                  {children}
-                </ToastProvider>
-              </PayoutProvider>
-            </WalletProvider>
-          </CartProvider>
-        </AudioProvider>
+        <AccentProvider>
+          <AudioProvider>
+            <CartProvider>
+              <WalletProvider>
+                <PayoutProvider>
+                  <ToastProvider>
+                    {children}
+                  </ToastProvider>
+                </PayoutProvider>
+              </WalletProvider>
+            </CartProvider>
+          </AudioProvider>
+        </AccentProvider>
       </ThemeProvider>
     </SupabaseContext.Provider>
   )
