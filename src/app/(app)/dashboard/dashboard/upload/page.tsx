@@ -164,13 +164,6 @@ export default function UploadPage() {
           </div>
         </div>
 
-        <div className="mb-6 p-4 rounded-xl border border-[var(--pf-border)] bg-[var(--pf-surface)] flex items-start gap-3">
-          <Check className="w-4 h-4 text-[var(--pf-text-secondary)] shrink-0 mt-0.5" />
-          <p className="text-sm text-[var(--pf-text-muted)]">
-            Your track will appear in your Porterful catalog after upload.
-          </p>
-        </div>
-
         {error && (
           <div className="mb-6 p-4 rounded-lg border border-[var(--pf-border)] bg-[var(--pf-surface)] flex items-center gap-2 text-[var(--pf-text-secondary)]">
             <AlertCircle size={18} />

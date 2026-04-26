@@ -289,7 +289,6 @@ export default function EditArtistPage() {
                 </div>
               </div>
               <div>
-                <p className="text-sm font-medium">Profile Photo</p>
                 <p className="text-xs text-[var(--pf-text-muted)]">Recommended: 400×400px, max 5MB</p>
                 <button
                   type="button"

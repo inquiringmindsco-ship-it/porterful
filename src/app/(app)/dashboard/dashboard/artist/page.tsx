@@ -127,47 +127,32 @@ export default function ArtistDashboardPage() {
             <h1 className="text-2xl font-bold">My Catalog</h1>
             <p className="text-sm text-[var(--pf-text-secondary)]">Music and products</p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-2">
             <Link href="/dashboard/upload" className="pf-btn pf-btn-primary flex items-center gap-2">
-              <Icon.Upload /> Upload
-            </Link>
-            <Link href="/dashboard/catalog" className="pf-btn pf-btn-secondary flex items-center gap-2">
-              <Icon.Package /> Catalog
+              <Icon.Upload /> Upload Track
             </Link>
             <Link href="/dashboard/artist/edit" className="pf-btn pf-btn-secondary flex items-center gap-2">
               <Icon.Edit /> Edit Profile
             </Link>
+            <Link href="/store" className="pf-btn pf-btn-secondary flex items-center gap-2">
+              <Icon.Package /> View Store
+            </Link>
           </div>
         </div>
 
-        {/* Quick Stats — from REAL DB */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
-          <div className="pf-card p-4">
-            <div className="flex items-center gap-3">
-              <div className="text-[var(--pf-text-secondary)]"><Icon.Music /></div>
-              <div>
-                <p className="text-2xl font-bold">{dbTracks.length}</p>
-                <p className="text-sm text-[var(--pf-text-muted)]">Tracks</p>
-              </div>
-            </div>
+        {/* Summary row — compact, single row, no big stat cards */}
+        <div className="rounded-xl border border-[var(--pf-border)] bg-[var(--pf-surface)] divide-x divide-[var(--pf-border)] grid grid-cols-3 mb-8 overflow-hidden">
+          <div className="px-4 py-3">
+            <p className="text-xl font-bold">{dbTracks.length}</p>
+            <p className="text-xs text-[var(--pf-text-muted)]">Tracks</p>
           </div>
-          <div className="pf-card p-4">
-            <div className="flex items-center gap-3">
-              <div className="text-[var(--pf-text-secondary)]"><Icon.Package /></div>
-              <div>
-                <p className="text-2xl font-bold">{dbProducts.length}</p>
-                <p className="text-sm text-[var(--pf-text-muted)]">Products</p>
-              </div>
-            </div>
+          <div className="px-4 py-3">
+            <p className="text-xl font-bold">{dbProducts.length}</p>
+            <p className="text-xs text-[var(--pf-text-muted)]">Products</p>
           </div>
-          <div className="pf-card p-4 col-span-2 md:col-span-1">
-            <div className="flex items-center gap-3">
-              <div className="text-[var(--pf-text-secondary)]"><Icon.Star /></div>
-              <div>
-                <p className="text-2xl font-bold">{dbProducts.filter((p: any) => p.status === 'live').length}</p>
-                <p className="text-sm text-[var(--pf-text-muted)]">Live Products</p>
-              </div>
-            </div>
+          <div className="px-4 py-3">
+            <p className="text-xl font-bold">{dbProducts.filter((p: any) => p.status === 'live').length}</p>
+            <p className="text-xs text-[var(--pf-text-muted)]">Live Products</p>
           </div>
         </div>
 
