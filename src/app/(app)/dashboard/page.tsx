@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import { createServerComponentSupabaseClient } from '@/lib/supabase-auth'
 import { createServerClient } from '@/lib/supabase'
-import DashboardClient from './dashboard/DashboardClient'
+import PorterfulDashboard from './PorterfulDashboard'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -53,7 +53,7 @@ export default async function DashboardRoot() {
   }
 
   return (
-    <DashboardClient
+    <PorterfulDashboard
       serverProfileId={user.id}
       initialProfile={profile}
     />
