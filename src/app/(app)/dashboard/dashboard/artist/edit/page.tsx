@@ -206,7 +206,7 @@ export default function EditArtistPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
-            <Link href="/dashboard/artist" className="p-2 hover:bg-[var(--pf-surface)] rounded-lg transition-colors">
+            <Link href="/dashboard/dashboard/artist" className="p-2 hover:bg-[var(--pf-surface)] rounded-lg transition-colors">
               <ArrowLeft size={20} />
             </Link>
             <div>
@@ -414,7 +414,7 @@ export default function EditArtistPage() {
 
           {/* Save Button */}
           <div className="flex justify-end gap-3">
-            <Link href="/dashboard/artist" className="pf-btn pf-btn-secondary">
+            <Link href="/dashboard/dashboard/artist" className="pf-btn pf-btn-secondary">
               Cancel
             </Link>
             <button
