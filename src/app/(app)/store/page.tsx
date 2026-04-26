@@ -8,7 +8,6 @@ import {
   ArrowRight,
   Clock,
   Search,
-  ShoppingBag,
   Sparkles,
   Tag,
 } from 'lucide-react'
@@ -86,11 +85,11 @@ function StoreProductCard({
   }
 
   return (
-    <article className="pf-card overflow-hidden border border-[var(--pf-border)] transition-colors hover:border-[var(--pf-orange)]/40">
-      <div className="relative aspect-square bg-gradient-to-br from-[var(--pf-orange)]/10 to-purple-500/10">
+    <article className="pf-card overflow-hidden border border-[var(--pf-border)] transition-colors hover:border-[var(--pf-text-muted)]">
+      <div className="relative aspect-square bg-[var(--pf-surface)]">
         <Image src={product.image} alt={product.name} fill className="object-cover" />
         {!purchasable && (
-          <div className="absolute left-3 top-3 rounded-full bg-black/70 px-2 py-1 text-xs font-medium text-white backdrop-blur">
+          <div className="absolute left-3 top-3 rounded-full bg-[var(--pf-bg)]/80 border border-[var(--pf-border)] px-2 py-1 text-xs font-medium text-[var(--pf-text)] backdrop-blur">
             Coming Soon
           </div>
         )}
@@ -102,8 +101,8 @@ function StoreProductCard({
             {product.category}
           </p>
           <div className="flex items-start justify-between gap-3">
-            <h2 className="font-bold leading-tight">{product.name}</h2>
-            <span className="shrink-0 font-bold text-[var(--pf-orange)]">${product.price.toFixed(2)}</span>
+            <h2 className="font-bold leading-tight text-[var(--pf-text)]">{product.name}</h2>
+            <span className="shrink-0 font-bold text-[var(--pf-text)]">${product.price.toFixed(2)}</span>
           </div>
           <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-[var(--pf-text-secondary)]">
             {product.description}
@@ -121,7 +120,7 @@ function StoreProductCard({
             type="button"
             onClick={handleBuy}
             disabled={loading}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--pf-orange)] px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[var(--pf-orange-dark)] disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--pf-orange)] px-4 py-3 text-sm font-semibold text-[var(--pf-text)] transition-colors hover:bg-[var(--pf-orange)]/90 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {loading ? (
               <>
@@ -206,19 +205,13 @@ export default function StorePage() {
     <main className="min-h-screen bg-[var(--pf-bg)] pt-20 pb-16">
       <div className="pf-container max-w-6xl">
         <div className="mb-8">
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[var(--pf-border)] bg-[var(--pf-surface)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--pf-text-muted)]">
-            <ShoppingBag size={12} />
-            Porterful Store
-          </div>
-          <h1 className="text-4xl font-black tracking-tight sm:text-5xl">
+          <h1 className="text-3xl font-black tracking-tight sm:text-4xl">
             Shop Porterful
           </h1>
-          <p className="mt-3 max-w-2xl text-base text-[var(--pf-text-secondary)]">
-            Music merch and access pieces connected to real artists.
+          <p className="mt-2 max-w-2xl text-sm sm:text-base text-[var(--pf-text-secondary)]">
+            Merch and goods from real artists.
           </p>
         </div>
-
-
 
         <div className="mb-6 grid gap-4 lg:grid-cols-[1fr_auto] lg:items-center">
           <div className="relative">
@@ -226,8 +219,8 @@ export default function StorePage() {
             <input
               value={searchTerm}
               onChange={(event) => setSearchTerm(event.target.value)}
-              placeholder="Search products..."
-              className="w-full rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] py-3 pl-11 pr-4 text-sm text-[var(--pf-text)] outline-none transition-colors placeholder:text-[var(--pf-text-muted)] focus:border-[var(--pf-orange)]/40"
+              placeholder="Search products…"
+              className="w-full rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] py-3 pl-11 pr-4 text-sm text-[var(--pf-text)] outline-none transition-colors placeholder:text-[var(--pf-text-muted)] focus:border-[var(--pf-orange)]/50"
             />
           </div>
 
@@ -239,8 +232,8 @@ export default function StorePage() {
                 onClick={() => setActiveCategory(category)}
                 className={`whitespace-nowrap rounded-full border px-3 py-2 text-sm font-medium transition-colors ${
                   activeCategory === category
-                    ? 'border-[var(--pf-orange)] bg-[var(--pf-orange)] text-white'
-                    : 'border-[var(--pf-border)] bg-[var(--pf-surface)] text-[var(--pf-text-secondary)] hover:text-white'
+                    ? 'border-[var(--pf-orange)] bg-[var(--pf-orange)] text-[var(--pf-text)]'
+                    : 'border-[var(--pf-border)] bg-[var(--pf-surface)] text-[var(--pf-text-secondary)] hover:text-[var(--pf-text)]'
                 }`}
               >
                 {category}
@@ -261,8 +254,8 @@ export default function StorePage() {
 
         {filteredProducts.length === 0 && (
           <div className="rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-10 text-center">
-            <Sparkles className="mx-auto mb-3 text-[var(--pf-orange)]" size={28} />
-            <p className="text-lg font-semibold">No products found</p>
+            <Sparkles className="mx-auto mb-3 text-[var(--pf-text-muted)]" size={24} />
+            <p className="text-base font-semibold">No products found</p>
             <p className="mt-2 text-sm text-[var(--pf-text-secondary)]">Try a different search term or clear the category filter.</p>
           </div>
         )}
