@@ -124,8 +124,20 @@ function TrackRow({
   )
 }
 
+// Up to 3 tracks from the same artist play first (the tapped track + up to 2
+// more from that artist), then the rest of the catalog. Auto-advance follows
+// this queue order via the audio context.
+const ARTIST_RUN = 3
+
+function buildArtistQueue(tracks: Track[], seed: Track): Track[] {
+  const sameArtist = tracks.filter((t) => t.artist === seed.artist && t.id !== seed.id)
+  const otherArtists = tracks.filter((t) => t.artist !== seed.artist)
+  const head = [seed, ...sameArtist.slice(0, ARTIST_RUN - 1)]
+  return [...head, ...otherArtists]
+}
+
 export default function MusicPage() {
-  const { currentTrack, isPlaying, playTrack, togglePlay } = useAudio()
+  const { currentTrack, isPlaying, playTrack, togglePlay, setQueue } = useAudio()
   const [searchQuery, setSearchQuery] = useState('')
   const [albumFilter, setAlbumFilter] = useState<string>('all')
   const [selectedAlbum, setSelectedAlbum] = useState<string | null>(null)
@@ -135,15 +147,24 @@ export default function MusicPage() {
   const isHeroActive = currentTrack?.id === heroTrack?.id
   const heroArtist = ARTISTS.find((a) => a.name === heroTrack?.artist) ?? ARTISTS.find((a) => a.id === 'od-porter')
 
+  const startTrack = useCallback(
+    (track: Track) => {
+      // Build a queue that gives the tapped artist first run, then the rest.
+      setQueue(buildArtistQueue(ALL_TRACKS, track))
+      playTrack(track)
+    },
+    [playTrack, setQueue]
+  )
+
   const handlePlayTrack = useCallback(
     (track: Track) => {
       if (currentTrack?.id === track.id) {
         togglePlay()
       } else {
-        playTrack(track)
+        startTrack(track)
       }
     },
-    [currentTrack, playTrack, togglePlay]
+    [currentTrack, togglePlay, startTrack]
   )
 
   const uniqueAlbums = useMemo(() => {
@@ -213,7 +234,7 @@ export default function MusicPage() {
             </div>
 
             <button
-              onClick={() => (currentTrack ? togglePlay() : playTrack(heroTrack!))}
+              onClick={() => (currentTrack ? togglePlay() : startTrack(heroTrack!))}
               className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[var(--pf-orange)] hover:bg-[var(--pf-orange)]/90 flex items-center justify-center flex-shrink-0 transition-colors shadow-lg"
               aria-label={isHeroActive && isPlaying ? 'Pause featured track' : 'Play featured track'}
             >

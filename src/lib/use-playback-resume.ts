@@ -26,10 +26,10 @@ export function usePlaybackResume() {
         audio_url: state.audioUrl || '',
       })
       
-      // Seek to saved position after a short delay
+      // Seek to saved position (seconds) after a short delay
       setTimeout(() => {
         if (state.currentTime > 0) {
-          seek((state.currentTime / (state.duration || 1)) * 100)
+          seek(state.currentTime)
         }
       }, 500)
       

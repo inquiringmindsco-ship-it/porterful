@@ -63,10 +63,10 @@ function SuccessContent() {
       // Restore volume
       audio.setVolume(snapshot.volume);
       
-      // Seek to saved position
+      // Seek to saved position (seconds)
       if (snapshot.currentTime > 0) {
         setTimeout(() => {
-          audio.seek((snapshot.currentTime / (audio.duration || 1)) * 100);
+          audio.seek(snapshot.currentTime);
         }, 100);
       }
       

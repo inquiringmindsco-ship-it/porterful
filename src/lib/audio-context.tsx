@@ -87,10 +87,11 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     audio.preload = 'auto';
 
     // ─── EVENT: timeupdate ───────────────────────────────────────────────────
+    // progress is exposed as currentTime in seconds. Consumers compute the
+    // percent for the bar via (progress / duration) * 100.
     const handleTimeUpdate = () => {
-      if (!audioRef.current || !audio.duration) return;
-      const pct = (audioRef.current.currentTime / audio.duration) * 100;
-      setProgress(isNaN(pct) ? 0 : pct);
+      if (!audioRef.current) return;
+      setProgress(audioRef.current.currentTime || 0);
     };
 
     // ─── EVENT: loadedmetadata ────────────────────────────────────────────────
@@ -256,10 +257,12 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     if (audioRef.current) audioRef.current.volume = v / 100;
   }, []);
 
-  const seek = useCallback((p: number) => {
+  // seek takes seconds (matches the audio element's currentTime).
+  const seek = useCallback((seconds: number) => {
     if (!audioRef.current || !duration) return;
-    audioRef.current.currentTime = (p / 100) * duration;
-    setProgress(p);
+    const clamped = Math.max(0, Math.min(seconds, duration));
+    audioRef.current.currentTime = clamped;
+    setProgress(clamped);
   }, [duration]);
 
   const hasPurchased = useCallback((trackId: string) => purchasedTracks.has(trackId), [purchasedTracks]);
