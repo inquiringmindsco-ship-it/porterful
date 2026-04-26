@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import { Providers } from '@/app/providers'
 import { Navbar } from '@/components/Navbar'
+import { MobileBottomNav } from '@/components/MobileBottomNav'
 import { AudioErrorBoundary } from '@/components/AudioErrorBoundary'
 import { GlobalPlayer } from '@/components/GlobalPlayer'
 import { getServerUser } from '@/lib/supabase-auth'
@@ -42,6 +43,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <AudioErrorBoundary>
             <GlobalPlayer />
           </AudioErrorBoundary>
+          <MobileBottomNav />
         </Providers>
       </body>
     </html>

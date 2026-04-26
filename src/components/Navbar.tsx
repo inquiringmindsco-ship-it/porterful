@@ -203,35 +203,31 @@ export function Navbar() {
       >
         <div className="flex flex-col h-full pt-20 px-6">
 
-          {/* Mobile Nav Links */}
-          <div className="space-y-1">
-            {navLinks.map(link => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setMobileOpen(false)}
-                className={`block py-4 text-lg font-medium border-b border-[var(--pf-border)] transition-colors ${
-                  isActiveLink(link.href)
-                    ? 'text-[var(--pf-text)]'
-                    : 'text-[var(--pf-text-secondary)] hover:text-[var(--pf-text)]'
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
-            <Link
-              href="/cart"
-              onClick={() => setMobileOpen(false)}
-              className="block py-4 text-lg font-medium text-[var(--pf-text-secondary)] hover:text-[var(--pf-text)] border-b border-[var(--pf-border)] flex items-center justify-between transition-colors"
-            >
-              Cart
-              {cartCount > 0 && (
-                <span className="bg-[var(--pf-surface)] border border-[var(--pf-border)] text-[var(--pf-text)] text-sm font-bold px-2 py-0.5 rounded-full">
-                  {cartCount}
-                </span>
-              )}
-            </Link>
-          </div>
+          {/* Mobile Nav — only items NOT covered by the persistent bottom nav
+              (Music / Artists / Store / Dashboard live there). */}
+          {(() => {
+            const bottomNavHrefs = new Set(['/music', '/artists', '/store', '/dashboard'])
+            const drawerLinks = navLinks.filter(l => !bottomNavHrefs.has(l.href))
+            if (drawerLinks.length === 0) return null
+            return (
+              <div className="space-y-1">
+                {drawerLinks.map(link => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setMobileOpen(false)}
+                    className={`block py-4 text-lg font-medium border-b border-[var(--pf-border)] transition-colors ${
+                      isActiveLink(link.href)
+                        ? 'text-[var(--pf-text)]'
+                        : 'text-[var(--pf-text-secondary)] hover:text-[var(--pf-text)]'
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </div>
+            )
+          })()}
 
           {/* Divider */}
           <div className="border-t border-[var(--pf-border)] my-4" />
@@ -271,7 +267,7 @@ export function Navbar() {
       {/* Overlay */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-[99] md:hidden"
+          className="fixed inset-0 bg-[var(--pf-bg)]/60 z-[99] md:hidden"
           onClick={() => setMobileOpen(false)}
         />
       )}
