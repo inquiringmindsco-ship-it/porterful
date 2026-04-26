@@ -6,7 +6,6 @@ import { usePathname } from 'next/navigation'
 function isLikenessSurface(pathname: string | null) {
   if (!pathname) return false
   return (
-    pathname === '/dashboard' ||
     pathname.startsWith('/dashboard/likeness') ||
     pathname.startsWith('/dashboard/access') ||
     pathname.startsWith('/dashboard/payout') ||

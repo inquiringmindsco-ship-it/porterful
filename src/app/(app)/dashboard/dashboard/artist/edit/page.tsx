@@ -44,36 +44,34 @@ export default function EditArtistPage() {
       }
 
       try {
-        const res = await fetch(`/api/artists/${user.id}`)
-        const data = await res.json()
-        
-        if (data.profile) {
-          setName(data.profile.full_name || data.profile.name || '')
-          setBio(data.profile.bio || '')
-          setGenre(data.profile.genre || '')
-          setLocation(data.profile.location || '')
-          setWebsite(data.profile.website || '')
-          setYoutubeUrl(data.profile.youtube_url || '')
-          setInstagramUrl(data.profile.instagram_url || '')
-          setTwitterUrl(data.profile.twitter_url || '')
-          setAvatarUrl(data.profile.avatar_url || '')
-          setCoverUrl(data.profile.cover_url || '')
-          if (data.profile.avatar_url) setAvatarPreview(data.profile.avatar_url)
-          if (data.profile.cover_url) setCoverPreview(data.profile.cover_url)
-        } else {
-          // Try fetching via supabase directly for the name at minimum
-          const { data: profile } = await supabase!
+        const [{ data: profile }, { data: artist }] = await Promise.all([
+          supabase!
             .from('profiles')
             .select('*')
             .eq('id', user.id)
-            .single()
-          if (profile) {
-            setName(profile.full_name || profile.name || '')
-            setAvatarUrl(profile.avatar_url || '')
-            if (profile.avatar_url) setAvatarPreview(profile.avatar_url)
-            setCoverUrl(profile.cover_url || '')
-            if (profile.cover_url) setCoverPreview(profile.cover_url)
-          }
+            .maybeSingle(),
+          supabase!
+            .from('artists')
+            .select('*')
+            .eq('id', user.id)
+            .maybeSingle(),
+        ])
+
+        const source = artist || profile
+
+        if (source) {
+          setName(source.full_name || source.name || '')
+          setBio(source.bio || '')
+          setGenre(source.genre || '')
+          setLocation(source.location || '')
+          setWebsite(source.website || source.website_url || '')
+          setYoutubeUrl(source.youtube_url || '')
+          setInstagramUrl(source.instagram_url || '')
+          setTwitterUrl(source.twitter_url || '')
+          setAvatarUrl(source.avatar_url || '')
+          setCoverUrl(source.cover_url || '')
+          if (source.avatar_url) setAvatarPreview(source.avatar_url)
+          if (source.cover_url) setCoverPreview(source.cover_url)
         }
       } catch (err) {
         console.error('Failed to load profile:', err)
@@ -206,7 +204,7 @@ export default function EditArtistPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
-            <Link href="/dashboard/dashboard/artist" className="p-2 hover:bg-[var(--pf-surface)] rounded-lg transition-colors">
+            <Link href="/dashboard/artist" className="p-2 hover:bg-[var(--pf-surface)] rounded-lg transition-colors">
               <ArrowLeft size={20} />
             </Link>
             <div>
@@ -414,7 +412,7 @@ export default function EditArtistPage() {
 
           {/* Save Button */}
           <div className="flex justify-end gap-3">
-            <Link href="/dashboard/dashboard/artist" className="pf-btn pf-btn-secondary">
+            <Link href="/dashboard/artist" className="pf-btn pf-btn-secondary">
               Cancel
             </Link>
             <button

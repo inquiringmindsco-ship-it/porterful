@@ -48,7 +48,6 @@ export function Navbar() {
   }
 
   const isLikenessSurface =
-    pathname === '/dashboard' ||
     pathname.startsWith('/dashboard/likeness') ||
     pathname.startsWith('/dashboard/access') ||
     pathname.startsWith('/dashboard/payout') ||

@@ -107,7 +107,7 @@ export default function UploadPage() {
       if (!res.ok || data.error) throw new Error(data.error || 'Failed to save track')
 
       setSuccess(true)
-      setTimeout(() => router.push('/dashboard/dashboard/artist'), 1500)
+      setTimeout(() => router.push('/dashboard/artist'), 1500)
     } catch (err: any) {
       setError(err.message)
     } finally {
@@ -147,7 +147,7 @@ export default function UploadPage() {
       <div className="pf-container max-w-2xl">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
-          <Link href="/dashboard/dashboard/artist" className="p-2 hover:bg-[var(--pf-surface)] rounded-lg transition-colors">
+          <Link href="/dashboard/artist" className="p-2 hover:bg-[var(--pf-surface)] rounded-lg transition-colors">
             <ArrowLeft size={20} />
           </Link>
           <div>
@@ -297,7 +297,7 @@ export default function UploadPage() {
 
           {/* Submit */}
           <div className="flex justify-end gap-3">
-            <Link href="/dashboard/dashboard/artist" className="pf-btn pf-btn-secondary">
+            <Link href="/dashboard/artist" className="pf-btn pf-btn-secondary">
               Cancel
             </Link>
             <button
