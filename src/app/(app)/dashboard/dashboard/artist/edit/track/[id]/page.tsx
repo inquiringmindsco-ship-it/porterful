@@ -119,8 +119,8 @@ export default function EditTrackPage() {
           description: description.trim() || null,
           proud_to_pay_min: Math.max(0, parseFloat(proudToPayMin) || 0) || 1.00,
           is_active: isActive,
+          featured: featured,
           cover_url: coverUrl.trim() || null,
-          // NOTE: featured disabled until migration 016 runs in production
         }),
       })
 
@@ -133,8 +133,7 @@ export default function EditTrackPage() {
       // Update local track state
       setTrack(data.track)
       setIsActive(data.track.is_active)
-      // NOTE: featured disabled until migration 016 runs
-      // setFeatured(data.track.featured)
+      setFeatured(data.track.featured)
       setCoverUrl(data.track.cover_url || '')
       setSuccessMessage('Track saved successfully')
       setTimeout(() => setSuccessMessage(''), 2000)
@@ -316,7 +315,6 @@ export default function EditTrackPage() {
               </button>
             </div>
 
-            {/* NOTE: Featured toggle disabled - migration 016 not run yet
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-medium">{featured ? 'Featured' : 'Not Featured'}</p>
@@ -331,7 +329,6 @@ export default function EditTrackPage() {
                 />
               </button>
             </div>
-            */}
           </div>
 
           {/* Stats */}

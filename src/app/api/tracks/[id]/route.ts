@@ -80,10 +80,9 @@ export async function PATCH(
       updates.is_active = Boolean(body.is_active);
     }
 
-    // NOTE: featured column disabled until migration 016 runs
-    // if (body.featured !== undefined) {
-    //   updates.featured = Boolean(body.featured);
-    // }
+    if (body.featured !== undefined) {
+      updates.featured = Boolean(body.featured);
+    }
 
     // Require at least one field to update
     if (Object.keys(updates).length === 0) {
