@@ -218,8 +218,8 @@ export default function ArtistDashboardPage() {
                       <span className={`px-2 py-1 rounded text-xs border ${track.is_active ? 'border-green-500/30 bg-green-500/10 text-green-400' : 'border-[var(--pf-border)] bg-[var(--pf-surface)] text-[var(--pf-text-muted)]'}`}>
                         {track.is_active ? 'Live' : 'Draft'}
                       </span>
-                      <Link 
-                        href={`/dashboard/artist/edit/track/${track.id}`}
+                      <Link
+                        href={`/dashboard/dashboard/artist/edit/track/${track.id}`}
                         className="pf-btn pf-btn-secondary text-[var(--pf-text-secondary)]"
                         title="Edit track"
                       >
