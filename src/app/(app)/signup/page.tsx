@@ -59,6 +59,17 @@ export default function SignupPage() {
     if (roleParam && ROLES[roleParam as keyof typeof ROLES]) {
       setRole(roleParam)
     }
+    // Pre-fill email from URL param (for artist invites)
+    const emailParam = searchParams.get('email')
+    if (emailParam && emailParam.includes('@')) {
+      setEmail(emailParam)
+    }
+    // Store artist slug for claim flow
+    const artistSlug = searchParams.get('artist')
+    if (artistSlug) {
+      // Store in session/state for later use
+      sessionStorage.setItem('invite_artist_slug', artistSlug)
+    }
   }, [searchParams])
 
   const validateStep = () => {
@@ -103,11 +114,23 @@ export default function SignupPage() {
     setError('')
 
     try {
+      // Get invite artist slug from sessionStorage if present
+      const inviteArtistSlug = sessionStorage.getItem('invite_artist_slug')
+      
       // Create account via API (skips email confirmation)
       const res = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, name, role, youtube, website, industry }),
+        body: JSON.stringify({ 
+          email, 
+          password, 
+          name, 
+          role, 
+          youtube, 
+          website, 
+          industry,
+          ...(inviteArtistSlug && { invite_artist_slug: inviteArtistSlug })
+        }),
       })
 
       const data = await res.json()

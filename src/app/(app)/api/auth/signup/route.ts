@@ -4,7 +4,7 @@ import { cookies } from 'next/headers'
 
 export async function POST(request: Request) {
   try {
-    const { email, password, name, role, youtube, website, industry } = await request.json()
+    const { email, password, name, role, youtube, website, industry, invite_artist_slug } = await request.json()
 
     if (!email || !password || !name || !role) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
@@ -127,18 +127,49 @@ export async function POST(request: Request) {
 
     // If artist, create artist record
     if (role === 'artist') {
-      const slug = name.toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-|-$/g, '') + '-' + Math.random().toString(36).substr(2, 4)
+      // Check if this is an invite claim with existing slug
+      let artistSlug: string
       
-      await supabase.from('artists').insert({
-        id: userId,
-        name: name,
-        slug: slug,
-        bio: '',
-        location: '',
-        ...(youtube ? { social_links: { youtube } } : {}),
-      })
+      if (invite_artist_slug) {
+        // Check if the invited slug already exists (should link to existing)
+        const { data: existingArtist } = await supabase
+          .from('artists')
+          .select('id, slug')
+          .eq('slug', invite_artist_slug)
+          .maybeSingle()
+        
+        if (existingArtist) {
+          // This is a claim flow - the artist record exists but needs user_id
+          // Update the existing artist record to point to this user
+          await supabase.from('artists').update({ id: userId }).eq('slug', invite_artist_slug)
+          artistSlug = invite_artist_slug
+        } else {
+          // Slug doesn't exist yet, use it as new
+          artistSlug = invite_artist_slug
+          await supabase.from('artists').insert({
+            id: userId,
+            name: name,
+            slug: artistSlug,
+            bio: '',
+            location: '',
+            ...(youtube ? { social_links: { youtube } } : {}),
+          })
+        }
+      } else {
+        // Normal signup - generate slug from name
+        artistSlug = name.toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-|-$/g, '') + '-' + Math.random().toString(36).substr(2, 4)
+        
+        await supabase.from('artists').insert({
+          id: userId,
+          name: name,
+          slug: artistSlug,
+          bio: '',
+          location: '',
+          ...(youtube ? { social_links: { youtube } } : {}),
+        })
+      }
     }
 
     // If business/brand, update with website and industry
