@@ -22,7 +22,13 @@ export function Footer() {
     <footer className="border-t border-[var(--pf-border)] bg-[var(--pf-bg-secondary)] py-8 mt-12">
       <div className="max-w-6xl mx-auto px-6 flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
         <div>
-          <h3 className="font-bold text-lg text-[var(--pf-text)]">Porterful</h3>
+          <div className="h-8 flex items-center">
+            <img
+              src="/brand/porterful_official_brand_mark_option_1.png"
+              alt="Porterful"
+              className="h-7 w-auto object-contain"
+            />
+          </div>
           <p className="text-[var(--pf-text-secondary)] text-sm mt-1">
             Music. Directly from the artists.
           </p>

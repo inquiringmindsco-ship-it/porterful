@@ -33,7 +33,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="icon" type="image/svg+xml" href="/icon.svg?v=2" />
+        <link rel="icon" type="image/png" href="/brand/porterful_official_app_icon_option_1.png" />
+        <link rel="apple-touch-icon" href="/brand/porterful_official_app_icon_option_1.png" />
         <script
           dangerouslySetInnerHTML={{
             __html: getThemeBootstrapScript(),

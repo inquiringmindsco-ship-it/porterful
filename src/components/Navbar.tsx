@@ -53,8 +53,6 @@ export function Navbar() {
     { href: '/store', label: 'Store' },
     { href: '/apply', label: 'Apply' },
   ]
-  const brandLabel = 'Porterful'
-  const brandLetter = 'P'
   const dashboardHref = '/dashboard/artist'
   const dashboardLabel = 'My Dashboard'
   const isActiveLink = (href: string) => pathname === href || pathname.startsWith(`${href}/`)
@@ -81,12 +79,13 @@ export function Navbar() {
 
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2 group">
-              <div className="w-9 h-9 rounded-lg flex items-center justify-center border border-[var(--pf-border)] bg-[var(--pf-surface)] shadow-sm transition-transform group-hover:scale-105">
-                <span className="text-[var(--pf-text)] font-bold text-sm">{brandLetter}</span>
+              <div className="h-9 w-auto flex items-center transition-transform group-hover:scale-105">
+                <img
+                  src="/brand/porterful_official_brand_mark_option_1.png"
+                  alt="Porterful"
+                  className="h-8 w-auto object-contain"
+                />
               </div>
-              <span className="hidden text-lg font-semibold tracking-tight text-[var(--pf-text)] sm:block">
-                {brandLabel}
-              </span>
             </Link>
 
             {/* Desktop Nav */}
