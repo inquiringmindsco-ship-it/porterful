@@ -561,3 +561,25 @@ details .details-chevron {
 .animate-ken-burns {
   animation: ken-burns 8s ease-in-out infinite;
 }
+
+/* Porterful Recolorable Logo — for app/user interface use only
+ * Use this to display the Porterful "P" icon that adapts to user's accent color.
+ * Do NOT use for homepage wordmark — use the official brand mark PNG there.
+ */
+.porterful-color-logo {
+  width: 40px;
+  height: 40px;
+  background-color: var(--pf-accent, #C6A75E);
+  -webkit-mask: url('/brand/porterful/porterful_official_p_recolorable_mask_black.png') center / contain no-repeat;
+  mask: url('/brand/porterful/porterful_official_p_recolorable_mask_black.png') center / contain no-repeat;
+}
+
+.porterful-color-logo-sm {
+  width: 24px;
+  height: 24px;
+}
+
+.porterful-color-logo-lg {
+  width: 56px;
+  height: 56px;
+}
