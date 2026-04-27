@@ -54,7 +54,7 @@ export const TRACKS = [
   { id: 'fff-07', title: 'Trust', artist: 'O D Porter', album: 'From Feast to Famine', duration: '4:12', price: 1, plays: 64000, image: ALBUM_ART.FromFeastToFamine, audio_url: audio('FromFeastToFamine', '07 Trust.mp3') },
   { id: 'fff-08', title: 'Funeral', artist: 'O D Porter', album: 'From Feast to Famine', duration: '5:23', price: 1, plays: 42000, image: ALBUM_ART.FromFeastToFamine, audio_url: audio('FromFeastToFamine', '08 Funeral.mp3') },
   { id: 'fff-09', title: 'Unchained Melodies', artist: 'O D Porter', album: 'From Feast to Famine', duration: '3:56', price: 1, plays: 83000, image: ALBUM_ART.FromFeastToFamine, audio_url: audio('FromFeastToFamine', '09 Unchained Melodies.mp3') },
-  { id: 'fff-10', title: 'Change Up (Outro)', artist: 'O D Porter', album: 'From Feast to Famine', duration: '2:18', price: 1, plays: 29000, image: ALBUM_ART.FromFeastToFamine, audio_url: audio('FromFeastToFamine', '10 Change Up (Outro).mp3') },
+  { id: 'fff-10', title: 'Change Up', artist: 'O D Porter', album: 'From Feast to Famine', duration: '2:51', price: 1, plays: 29000, image: ALBUM_ART.FromFeastToFamine, audio_url: audio('FromFeastToFamine', '10 Change Up (Outro).mp3') },
 
   // GOD IS GOOD - 9 tracks
   { id: 'gig-01', title: 'God is Good (Intro)', artist: 'O D Porter', album: 'God Is Good', duration: '2:30', price: 1, plays: 92000, image: ALBUM_ART.GodIsGood, audio_url: audio('GodIsGood', '01 God is Good (Intro).mp3') },
@@ -69,14 +69,14 @@ export const TRACKS = [
   { id: 'gig-10', title: 'Shadows', artist: 'O D Porter', album: 'God Is Good', duration: '4:01', price: 1, plays: 38000, image: ALBUM_ART.GodIsGood, audio_url: audio('GodIsGood', '11 Shadows .mp3') },
 
   // ONE DAY - 19 tracks
-  { id: 'od-01', title: 'The Intro', artist: 'O D Porter', album: 'One Day', duration: '1:45', price: 1, plays: 54000, image: ALBUM_ART.OneDay, audio_url: audio('OneDay', 'O D Music - One Day - 01 The Intro.mp3') },
+  { id: 'od-01', title: 'Intro', artist: 'O D Porter', album: 'One Day', duration: '1:32', price: 1, plays: 54000, image: ALBUM_ART.OneDay, audio_url: audio('OneDay', 'O D Music - One Day - 01 The Intro.mp3') },
   { id: 'od-02', title: "Push'N", artist: 'O D Porter', album: 'One Day', duration: '3:12', price: 1, plays: 67000, image: ALBUM_ART.OneDay, audio_url: audio('OneDay', "O D Music - One Day - 02 Push'N.mp3") },
   { id: 'od-03', title: 'Real Definition', artist: 'O D Porter', album: 'One Day', duration: '2:58', price: 1, plays: 89000, image: ALBUM_ART.OneDay, audio_url: audio('OneDay', 'O D Music - One Day - 03 Real Definition.mp3') },
   { id: 'od-04', title: 'Band Flow', artist: 'O D Porter', album: 'One Day', duration: '3:05', price: 1, plays: 45000, image: ALBUM_ART.OneDay, audio_url: audio('OneDay', "O D Music - One Day - 04 Band Flow.mp3") },
   { id: 'od-05', title: 'MFCCH', artist: 'O D Porter', album: 'One Day', duration: '4:01', price: 1, plays: 38000, image: ALBUM_ART.OneDay, audio_url: audio('OneDay', 'O D Music - One Day - 05 MFCCH.mp3') },
   { id: 'od-06', title: 'Best Wishes', artist: 'O D Porter', album: 'One Day', duration: '3:45', price: 1, plays: 52000, image: ALBUM_ART.OneDay, audio_url: audio('OneDay', 'O D Music - One Day - 06 Best Wishes.mp3') },
   { id: 'od-07', title: 'One Day', artist: 'O D Porter', album: 'One Day', duration: '3:28', price: 1, plays: 125000, image: ALBUM_ART.OneDay, audio_url: audio('OneDay', 'O D Music - One Day - 07 One Day.mp3') },
-  { id: 'od-08', title: 'Back At It', artist: 'O D Porter', album: 'One Day', duration: '3:15', price: 1, plays: 71000, image: ALBUM_ART.OneDay, audio_url: audio('OneDay', 'O D Music - One Day - 08 Back At It.mp3') },
+  { id: 'od-08', title: 'Back At It SD 480p', artist: 'O D Porter', album: 'One Day', duration: '4:19', price: 1, plays: 71000, image: ALBUM_ART.OneDay, audio_url: audio('OneDay', 'O D Music - One Day - 08 Back At It.mp3') },
   { id: 'od-09', title: 'Same House', artist: 'O D Porter', album: 'One Day', duration: '4:22', price: 1, plays: 58000, image: ALBUM_ART.OneDay, audio_url: audio('OneDay', 'O D Music - One Day - 09 Same House.mp3') },
   { id: 'od-10', title: 'Sunshine', artist: 'O D Porter', album: 'One Day', duration: '3:01', price: 1, plays: 84000, image: ALBUM_ART.OneDay, audio_url: audio('OneDay', 'O D Music - One Day - 10 Sunshine.mp3') },
   { id: 'od-11', title: 'Calling For Me', artist: 'O D Porter', album: 'One Day', duration: '3:45', price: 1, plays: 61000, image: ALBUM_ART.OneDay, audio_url: audio('OneDay', 'O D Music - One Day - 11 Calling For Me.mp3') },
@@ -101,21 +101,21 @@ export const TRACKS = [
   { id: 'stl-09', title: 'On Errthang', artist: 'Jay Jay', album: 'Streets Thought I Left', duration: '3:33', price: 1, plays: 71000, image: ALBUM_ART.StreetsThoughtILeft, audio_url: audio('StreetsThoughtILef', 'Jai Jai - On Errthang.mp3') },
   { id: 'stl-10', title: '18 Facts Of Life', artist: 'Jay Jay', album: 'Streets Thought I Left', duration: '3:45', price: 1, plays: 55000, image: ALBUM_ART.StreetsThoughtILeft, audio_url: audio('StreetsThoughtILef', '18 18 Facts Of Life.mp3') },
 
-  // ROXANNITY - 16 tracks (track 9 is We The Shh)
-  { id: 'rox-01', title: 'Roxanity (Intro)', artist: 'O D Porter', album: 'Roxanity', duration: '3:23', price: 1, plays: 54000, image: ALBUM_ART.Roxanity, audio_url: audio('Roxanity', '01 Roxanity (Intro).mp3') },
+  // ROXANITY - 16 tracks (track 9 is We The Shh Now)
+  { id: 'rox-01', title: 'Roxanne', artist: 'O D Porter', album: 'Roxanity', duration: '3:23', price: 1, plays: 54000, image: ALBUM_ART.Roxanity, audio_url: audio('Roxanity', '01 Roxanity (Intro).mp3') },
   { id: 'rox-02', title: 'Decomposure', artist: 'O D Porter', album: 'Roxanity', duration: '2:17', price: 1, plays: 42000, image: ALBUM_ART.Roxanity, audio_url: audio('Roxanity', '02 Decomposure.mp3') },
   { id: 'rox-03', title: 'Freak Like Me', artist: 'O D Porter', album: 'Roxanity', duration: '3:40', price: 1, plays: 78000, image: ALBUM_ART.Roxanity, audio_url: audio('Roxanity', '03 Freak Like Me.mp3') },
   { id: 'rox-04', title: 'Spoken Word', artist: 'O D Porter', album: 'Roxanity', duration: '3:56', price: 1, plays: 51000, image: ALBUM_ART.Roxanity, audio_url: audio('Roxanity', '04 Spoken Word.mp3') },
-  { id: 'rox-05', title: 'Heart & Soul', artist: 'O D Porter', album: 'Roxanity', duration: '2:31', price: 1, plays: 65000, image: ALBUM_ART.Roxanity, audio_url: audio('Roxanity', '05 Heart & Soul.mp3') },
+  { id: 'rox-05', title: 'Love For Music', artist: 'O D Porter', album: 'Roxanity', duration: '2:32', price: 1, plays: 65000, image: ALBUM_ART.Roxanity, audio_url: audio('Roxanity', '05 Heart & Soul.mp3') },
   { id: 'rox-06', title: 'No More', artist: 'O D Porter', album: 'Roxanity', duration: '1:29', price: 1, plays: 89000, image: ALBUM_ART.Roxanity, audio_url: audio('Roxanity', '06 No More.mp3') },
-  { id: 'rox-07', title: 'Gotta Get It', artist: 'O D Porter', album: 'Roxanity', duration: '2:33', price: 1, plays: 47000, image: ALBUM_ART.Roxanity, audio_url: audio('Roxanity', '07 Gotta Get It.mp3') },
+  { id: 'rox-07', title: 'I Gotta Get It', artist: 'O D Porter', album: 'Roxanity', duration: '2:33', price: 1, plays: 47000, image: ALBUM_ART.Roxanity, audio_url: audio('Roxanity', '07 Gotta Get It.mp3') },
   { id: 'rox-08', title: 'Job', artist: 'O D Porter', album: 'Roxanity', duration: '2:14', price: 1, plays: 32000, image: ALBUM_ART.Roxanity, audio_url: audio('Roxanity', '08 Job.mp3') },
-  { id: 'rox-09', title: 'We The Shh', artist: 'O D Porter', album: 'Roxanity', duration: '3:14', price: 1, plays: 62000, image: ALBUM_ART.Roxanity, audio_url: audio('Roxanity', '09 We The Shh.mp3') },
+  { id: 'rox-09', title: 'We The Shh Now', artist: 'O D Porter', album: 'Roxanity', duration: '3:14', price: 1, plays: 62000, image: ALBUM_ART.Roxanity, audio_url: audio('Roxanity', '09 We The Shh.mp3') },
   { id: 'rox-10', title: 'Pure Lust', artist: 'O D Porter', album: 'Roxanity', duration: '3:29', price: 1, plays: 58000, image: ALBUM_ART.Roxanity, audio_url: audio('Roxanity', '10 Pure Lust.mp3') },
-  { id: 'rox-11', title: 'Red Pill or The Blue', artist: 'O D Porter', album: 'Roxanity', duration: '3:06', price: 1, plays: 41000, image: ALBUM_ART.Roxanity, audio_url: audio('Roxanity', '11 Red Pill or The Blue.mp3') },
+  { id: 'rox-11', title: 'Red Pill', artist: 'O D Porter', album: 'Roxanity', duration: '3:06', price: 1, plays: 41000, image: ALBUM_ART.Roxanity, audio_url: audio('Roxanity', '11 Red Pill or The Blue.mp3') },
   { id: 'rox-12', title: 'Nightmare', artist: 'O D Porter', album: 'Roxanity', duration: '3:15', price: 1, plays: 38000, image: ALBUM_ART.Roxanity, audio_url: audio('Roxanity', '12 Nightmare.mp3') },
   { id: 'rox-13', title: 'Only One In Love', artist: 'O D Porter', album: 'Roxanity', duration: '3:04', price: 1, plays: 52000, image: ALBUM_ART.Roxanity, audio_url: audio('Roxanity', '13 Only One In Love.mp3') },
-  { id: 'rox-14', title: 'STOP', artist: 'O D Porter', album: 'Roxanity', duration: '4:05', price: 1, plays: 44000, image: ALBUM_ART.Roxanity, audio_url: audio('Roxanity', '14 STOP.mp3') },
+  { id: 'rox-14', title: 'Stop', artist: 'O D Porter', album: 'Roxanity', duration: '4:05', price: 1, plays: 44000, image: ALBUM_ART.Roxanity, audio_url: audio('Roxanity', '14 STOP.mp3') },
   { id: 'rox-15', title: 'Rose', artist: 'O D Porter', album: 'Roxanity', duration: '2:30', price: 1, plays: 36000, image: ALBUM_ART.Roxanity, audio_url: audio('Roxanity', '15 Rose.mp3') },
   { id: 'rox-16', title: 'Testimony', artist: 'O D Porter', album: 'Roxanity', duration: '2:30', price: 1, plays: 36000, image: ALBUM_ART.Roxanity, audio_url: audio('Roxanity', '16 Testimony.mp3') },
 
