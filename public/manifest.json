@@ -4,8 +4,8 @@
   "description": "Where Artists Own Everything. Stream music, support artists, sell merch. 80% goes to artists.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0a0a0a",
-  "theme_color": "#f97316",
+  "background_color": "#0F0F0F",
+  "theme_color": "#0F0F0F",
   "orientation": "portrait-primary",
   "scope": "/",
   "icons": [

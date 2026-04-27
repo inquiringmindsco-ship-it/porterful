@@ -21,6 +21,10 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
+  // Neutral dark for the iOS/Android browser chrome + PWA standalone
+  // top bar so it doesn't lock to brand orange and follow accent
+  // changes inside the app.
+  themeColor: '#0F0F0F',
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
