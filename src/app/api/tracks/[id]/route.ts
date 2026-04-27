@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthenticatedClient } from '@/lib/auth-utils';
+import { createClient } from '@supabase/supabase-js';
 
 // PATCH /api/tracks/[id] — Update a track
 export async function PATCH(
@@ -12,6 +13,13 @@ export async function PATCH(
     if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     const { supabase, user } = auth;
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    // Create admin client to bypass RLS for update (ownership already verified)
+    const supabaseAdmin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      { auth: { persistSession: false } }
+    );
 
     // Get user's profile to check artist role
     const { data: profile } = await supabase
@@ -77,8 +85,8 @@ export async function PATCH(
       return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 });
     }
 
-    // Update track - don't use .single() to avoid "cannot coerce" error
-    const { data, error } = await supabase
+    // Update track using admin client to bypass RLS
+    const { data, error } = await supabaseAdmin
       .from('tracks')
       .update(updates)
       .eq('id', id)
