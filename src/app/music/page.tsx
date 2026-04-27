@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import {
@@ -15,23 +15,42 @@ import {
   SlidersHorizontal,
 } from 'lucide-react'
 import { useAudio, Track } from '@/lib/audio-context'
-import { TRACKS } from '@/lib/data'
+import { TRACKS as STATIC_TRACKS } from '@/lib/data'
 import { ARTISTS } from '@/lib/artists'
 import { getTrackArtwork } from '@/lib/artwork'
+import { createBrowserSupabaseClient } from '@/lib/create-browser-client'
 
 // Public artists with confirmed music/catalog
 const VALID_SLUGS = ['od-porter', 'gune', 'atm-trap']
 const PUBLIC_ARTISTS = ARTISTS.filter((a) => VALID_SLUGS.includes(a.slug))
 
-// All public tracks
-const ALL_TRACKS = TRACKS.filter((t) =>
-  ['O D Porter', 'Gune', 'ATM Trap', 'Jai Jai'].includes(t.artist)
+// Static tracks for fallback (legacy catalog)
+const LEGACY_TRACKS = STATIC_TRACKS.filter((t) =>
+  ['O D Porter', 'Gune', 'ATM Trap', 'Jai Jai', 'Jay Jay'].includes(t.artist)
 ).sort((a, b) => {
-  const order: Record<string, number> = { 'O D Porter': 0, 'Gune': 1, 'ATM Trap': 2, 'Jai Jai': 3 }
+  const order: Record<string, number> = { 'O D Porter': 0, 'Gune': 1, 'ATM Trap': 2, 'Jai Jai': 3, 'Jay Jay': 3 }
   return (order[a.artist] || 99) - (order[b.artist] || 99)
 }) as unknown as Track[]
 
-type DisplayTrack = (typeof ALL_TRACKS)[number]
+// Merge DB tracks with static fallback, preferring DB tracks by stable id
+function mergeTracks(dbTracks: Track[], staticTracks: Track[]): Track[] {
+  const dbMap = new Map(dbTracks.map(t => [t.id, t]))
+  const merged = new Map<string, Track>()
+  
+  // Add DB tracks first (preferred)
+  dbTracks.forEach(t => merged.set(t.id, t))
+  
+  // Add static tracks only if not already in DB
+  staticTracks.forEach(t => {
+    if (!merged.has(t.id)) {
+      merged.set(t.id, t)
+    }
+  })
+  
+  return Array.from(merged.values())
+}
+
+type DisplayTrack = Track
 
 function TrackRow({
   track,
@@ -96,7 +115,7 @@ function TrackRow({
         >
           {track.title}
         </p>
-        <p className="text-xs text-[var(--pf-text-secondary)] truncate">{track.album}</p>
+        <p className="text-xs text-[var(--pf-text-secondary)] truncate">{track.album || 'Single'}</p>
       </div>
 
       {/* Duration */}
@@ -140,9 +159,54 @@ export default function MusicPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [albumFilter, setAlbumFilter] = useState<string>('all')
   const [selectedAlbum, setSelectedAlbum] = useState<string | null>(null)
+  const [dbTracks, setDbTracks] = useState<Track[]>([])
+  const [loading, setLoading] = useState(true)
 
-  // Featured track is the first track when none is playing, else the playing one
-  const heroTrack = currentTrack ?? ALL_TRACKS[0]
+  // Fetch DB tracks on mount (only active tracks for public)
+  useEffect(() => {
+    async function loadTracks() {
+      const supabase = createBrowserSupabaseClient()
+      const { data } = await supabase
+        .from('tracks')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+      
+      if (data) {
+        // Map DB tracks to Track format
+        const mapped: Track[] = data.map((t: any) => ({
+          id: t.id,
+          title: t.title,
+          artist: t.artist_name || 'Unknown',
+          album: t.album,
+          duration: t.duration,
+          audio_url: t.audio_url,
+          cover_url: t.cover_url,
+          image: t.cover_url,
+          plays: t.play_count || 0,
+          price: t.proud_to_pay_min || 1,
+        }))
+        setDbTracks(mapped)
+      }
+      setLoading(false)
+    }
+    loadTracks()
+  }, [])
+
+  // Merge DB tracks with static fallback
+  const ALL_TRACKS = useMemo(() => {
+    return mergeTracks(dbTracks, LEGACY_TRACKS)
+  }, [dbTracks])
+
+  // Featured track: prefer featured DB track, fallback to first track
+  const heroTrack = useMemo(() => {
+    // First, try to find a featured DB track
+    const featuredDb = dbTracks.find(t => (t as any).featured)
+    if (featuredDb) return featuredDb
+    // Otherwise use current or first available
+    return currentTrack ?? ALL_TRACKS[0]
+  }, [dbTracks, ALL_TRACKS, currentTrack])
+
   const isHeroActive = currentTrack?.id === heroTrack?.id
   const heroArtist = ARTISTS.find((a) => a.name === heroTrack?.artist) ?? ARTISTS.find((a) => a.id === 'od-porter')
 
@@ -152,7 +216,7 @@ export default function MusicPage() {
       setQueue(buildArtistQueue(ALL_TRACKS, track))
       playTrack(track)
     },
-    [playTrack, setQueue]
+    [playTrack, setQueue, ALL_TRACKS]
   )
 
   const handlePlayTrack = useCallback(
@@ -176,7 +240,7 @@ export default function MusicPage() {
       map.get(key)!.count++
     })
     return Array.from(map.values())
-  }, [])
+  }, [ALL_TRACKS])
 
   const filteredTracks = useMemo(() => {
     let tracks = ALL_TRACKS
@@ -187,7 +251,7 @@ export default function MusicPage() {
       tracks = tracks.filter((t) => t.title.toLowerCase().includes(q))
     }
     return tracks
-  }, [searchQuery, albumFilter, selectedAlbum])
+  }, [searchQuery, albumFilter, selectedAlbum, ALL_TRACKS])
 
   const clearAlbumFilter = () => {
     setSelectedAlbum(null)
@@ -257,7 +321,7 @@ export default function MusicPage() {
 
           <div className="flex gap-3 overflow-x-auto -mx-5 sm:-mx-6 px-5 sm:px-6 scrollbar-hide pb-1">
             {PUBLIC_ARTISTS.map((artist) => {
-              const trackCount = TRACKS.filter((t) => t.artist === artist.name || t.artist === artist.id).length
+              const trackCount = ALL_TRACKS.filter((t) => t.artist === artist.name || t.artist === artist.id).length
               return (
                 <Link
                   key={artist.id}
@@ -409,37 +473,34 @@ export default function MusicPage() {
           </div>
         </div>
 
-        {filteredTracks.length > 0 ? (
-          <div className="space-y-0.5">
-            {filteredTracks.map((track, i) => (
+        {/* Loading state */}
+        {loading && (
+          <div className="text-center py-8 text-[var(--pf-text-muted)] text-sm">
+            Loading tracks…
+          </div>
+        )}
+
+        {/* Empty state */}
+        {!loading && filteredTracks.length === 0 && (
+          <div className="text-center py-8 text-[var(--pf-text-muted)] text-sm">
+            {searchQuery ? 'No tracks match your search' : 'No tracks available'}
+          </div>
+        )}
+
+        {/* Track list */}
+        {!loading && filteredTracks.length > 0 && (
+          <div className="space-y-1">
+            {filteredTracks.map((track, idx) => (
               <TrackRow
                 key={track.id}
                 track={track}
-                index={i}
+                index={idx}
                 isActive={currentTrack?.id === track.id}
-                isPlaying={isPlaying && currentTrack?.id === track.id}
+                isPlaying={isPlaying}
                 onPlay={() => handlePlayTrack(track)}
-                onTogglePlay={togglePlay}
+                onTogglePlay={() => handlePlayTrack(track)}
               />
             ))}
-          </div>
-        ) : (
-          <div className="pf-empty">
-            <div className="pf-empty-icon">
-              <Music2 size={20} />
-            </div>
-            <p className="pf-empty-title">No tracks found</p>
-            <p className="pf-empty-desc">Try adjusting your search or filters.</p>
-            <button
-              onClick={() => {
-                setSearchQuery('')
-                setAlbumFilter('all')
-                setSelectedAlbum(null)
-              }}
-              className="mt-4 text-sm font-medium px-4 py-2 rounded-lg bg-[var(--pf-surface)] border border-[var(--pf-border)] hover:border-[var(--pf-text-muted)] transition-colors"
-            >
-              Clear filters
-            </button>
           </div>
         )}
       </section>

@@ -43,6 +43,7 @@ export default function EditTrackPage() {
   const [proudToPayMin, setProudToPayMin] = useState('1.00')
   const [isActive, setIsActive] = useState(true)
   const [featured, setFeatured] = useState(false)
+  const [coverUrl, setCoverUrl] = useState('')
 
   // Load track data
   useEffect(() => {
@@ -92,6 +93,7 @@ export default function EditTrackPage() {
       setProudToPayMin((trackData.proud_to_pay_min ?? trackData.price ?? 1).toFixed(2))
       setIsActive(trackData.is_active ?? true)
       setFeatured(trackData.featured ?? false)
+      setCoverUrl(trackData.cover_url || '')
       setLoading(false)
     }
 
@@ -115,9 +117,10 @@ export default function EditTrackPage() {
         body: JSON.stringify({
           title: title.trim(),
           description: description.trim() || null,
-          proud_to_pay_min: Math.max(0, proudToPayMin) || 1.00,
+          proud_to_pay_min: Math.max(0, parseFloat(proudToPayMin) || 0) || 1.00,
           is_active: isActive,
           featured: featured,
+          cover_url: coverUrl.trim() || null,
         }),
       })
 
@@ -131,6 +134,7 @@ export default function EditTrackPage() {
       setTrack(data.track)
       setIsActive(data.track.is_active)
       setFeatured(data.track.featured)
+      setCoverUrl(data.track.cover_url || '')
       setSuccessMessage('Track saved successfully')
       setTimeout(() => setSuccessMessage(''), 2000)
     } catch (err: any) {
@@ -263,13 +267,25 @@ export default function EditTrackPage() {
             </div>
 
             <div>
+              <label className="block text-sm font-medium mb-2">Album Art URL</label>
+              <input
+                type="url"
+                value={coverUrl}
+                onChange={(e) => setCoverUrl(e.target.value)}
+                className="pf-input"
+                placeholder="https://example.com/album-art.jpg"
+              />
+              <p className="text-xs text-[var(--pf-text-muted)] mt-1">Leave blank to use default artwork</p>
+            </div>
+
+            <div>
               <label className="block text-sm font-medium mb-2">Proud to Pay Minimum (USD)</label>
               <div className="flex items-center gap-2">
                 <span className="text-lg text-[var(--pf-text)]">$</span>
                 <input
                   type="number"
                   value={proudToPayMin}
-                  onChange={(e) => setProudToPayMin(parseFloat(e.target.value) || 0)}
+                  onChange={(e) => setProudToPayMin(e.target.value)}
                   className="pf-input flex-1"
                   min="0"
                   step="0.01"
