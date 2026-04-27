@@ -263,12 +263,12 @@ export default function EditTrackPage() {
             <div>
               <label className="block text-sm font-medium mb-2">Proud to Pay Minimum (USD)</label>
               <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--pf-text-muted)]">$</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--pf-text-muted)] pointer-events-none">$</span>
                 <input
                   type="number"
                   value={proudToPayMin}
                   onChange={(e) => setProudToPayMin(parseFloat(e.target.value) || 0)}
-                  className="pf-input pl-8"
+                  className="pf-input pl-7"
                   min="0"
                   step="0.01"
                 />
