@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from 'react'
 import { usePathname } from 'next/navigation'
 import { useSupabase } from '@/app/providers'
 import { useCart } from '@/lib/cart-context'
-import { Menu, X, ChevronDown, User, LogOut, ShoppingCart } from 'lucide-react'
+import { Menu, X, ChevronDown, User, LogOut, ShoppingCart, Settings } from 'lucide-react'
 
 export function Navbar() {
   const { user, supabase, loading } = useSupabase()
@@ -47,12 +47,15 @@ export function Navbar() {
     }
   }
 
-  const navLinks = [
+  const baseNavLinks = [
     { href: '/music', label: 'Music' },
     { href: '/artists', label: 'Artists' },
     { href: '/store', label: 'Store' },
-    { href: '/apply', label: 'Apply' },
   ]
+  
+  const navLinks = showUser 
+    ? baseNavLinks 
+    : [...baseNavLinks, { href: '/apply', label: 'Apply' }]
   const dashboardHref = '/dashboard/artist'
   const dashboardLabel = 'My Dashboard'
   const isActiveLink = (href: string) => pathname === href || pathname.startsWith(`${href}/`)
@@ -152,6 +155,10 @@ export function Navbar() {
                           <User size={16} />
                           <span>{dashboardLabel}</span>
                         </Link>
+                        <Link href="/settings/settings" className="flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--pf-text-secondary)] hover:bg-[var(--pf-surface-hover)] hover:text-[var(--pf-text)] transition-colors" onClick={() => setProfileOpen(false)}>
+                          <Settings size={16} />
+                          <span>Settings</span>
+                        </Link>
                       </div>
                       <div className="border-t border-[var(--pf-border)] py-2">
                         <button
@@ -238,6 +245,10 @@ export function Navbar() {
               <Link href={dashboardHref} onClick={() => setMobileOpen(false)} className="flex items-center gap-3 py-3 text-[var(--pf-text-secondary)] hover:text-[var(--pf-text)] transition-colors">
                 <User size={20} />
                 <span>{dashboardLabel}</span>
+              </Link>
+              <Link href="/settings/settings" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 py-3 text-[var(--pf-text-secondary)] hover:text-[var(--pf-text)] transition-colors">
+                <Settings size={20} />
+                <span>Settings</span>
               </Link>
               <button
                 onClick={() => { handleSignOut(); setMobileOpen(false); }}

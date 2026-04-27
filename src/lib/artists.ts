@@ -152,7 +152,9 @@ On Porterful, he's not competing with the algorithm. He's building something rea
   },
 ]
 
-export const PUBLIC_ARTIST_SLUGS = ARTISTS.map((artist) => artist.slug)
+export const PUBLIC_ARTIST_SLUGS = ARTISTS
+  .filter((artist) => artist.trackCount && artist.trackCount > 0)
+  .map((artist) => artist.slug)
 export const PUBLIC_ARTIST_NAMES = ARTISTS.map((artist) => artist.name)
 
 export function isPublicArtistSlug(value?: string | null) {

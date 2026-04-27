@@ -32,7 +32,7 @@ export default function ThresholdsPage() {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
-          <Link href="/settings" className="p-2 rounded-lg hover:bg-[var(--pf-surface)] transition-colors">
+          <Link href="/settings/settings" className="p-2 rounded-lg hover:bg-[var(--pf-surface)] transition-colors">
             <ArrowLeft size={24} />
           </Link>
           <div>

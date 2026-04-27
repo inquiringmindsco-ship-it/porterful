@@ -251,7 +251,7 @@ export default function PayoutPage() {
             Payouts are processed via Stripe direct deposit. Connect your Stripe account in settings to enable withdrawals.
           </p>
           <Link 
-            href="/settings"
+            href="/settings/settings"
             className="text-sm text-[var(--pf-orange)] hover:underline"
           >
             Go to Settings →
