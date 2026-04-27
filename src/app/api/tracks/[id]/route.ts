@@ -77,20 +77,23 @@ export async function PATCH(
       return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 });
     }
 
-    // Update track
+    // Update track - don't use .single() to avoid "cannot coerce" error
     const { data, error } = await supabase
       .from('tracks')
       .update(updates)
       .eq('id', id)
-      .select()
-      .single();
+      .select();
 
     if (error) {
-      console.error('[tracks:patch] Update error:', error.message);
+      console.error('[tracks:patch] Update error:', error.message, error.details);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true, track: data });
+    if (!data || data.length === 0) {
+      return NextResponse.json({ error: 'Track not found after update' }, { status: 404 });
+    }
+
+    return NextResponse.json({ success: true, track: data[0] });
   } catch (err: any) {
     console.error('[tracks:patch] Exception:', err);
     return NextResponse.json({ error: err.message || 'Failed to update track' }, { status: 500 });
