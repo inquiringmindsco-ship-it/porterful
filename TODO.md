@@ -1,35 +1,31 @@
-# Porterful Site Improvements - Batch 1 (2026-04-27)
-
-## Summary
-Completed requested site improvements. All changes saved, NOT committed or deployed.
+# Porterful Site Improvements - Batch 1 (April 27, 2026)
 
 ## Changes Made
 
-### 1. Rob Soule Artist Data - VERIFIED
-**Location:** `src/lib/artists.ts`
-- Genre: Already correctly set to 'Hip-Hop / R&B / Blues'
-- Bio: Already correctly describes him as "a St. Louis hip-hop and R&B artist blending blues into a soulful sound"
-- **Action:** Added sample social links (instagram, twitter, youtube, tiktok) to demonstrate social button functionality
+### 1. Rob Soule Artist Data ✓
+- **File:** `src/lib/artists.ts`
+- **Status:** Already correct
+- Genre: 'Hip-Hop / R&B / Blues'
+- Bio: "Rob Soule is a St. Louis hip-hop and R&B artist blending blues into a soulful sound. His music captures the raw energy of the Lou while weaving in the emotional depth of R&B and the timeless roots of blues."
 
-### 2. Social Media Buttons - ALREADY IMPLEMENTED
-**Location:** `src/components/artist/ArtistHero.tsx`
-- Instagram icon (with link)
-- Twitter/X icon (with link)
-- YouTube icon (with link)
-- TikTok icon (with link)
-- Icons appear in profile header, below artist name/genre
-- Only shows when social fields are populated
+### 2. Social Media Buttons on Artist Profile ✓
+- **File:** `src/components/artist/ArtistHero.tsx`
+- **Status:** Implemented
+- Added Instagram, Twitter/X, YouTube, and TikTok icons (SVG) next to artist name
+- Social buttons appear only if artist has those fields filled in
+- Icons are 16px with circular button styling (8x8 touch targets)
+- Opens links in new tab with proper accessibility labels
 
-### 3. Featured Singles Order - ALREADY CORRECT
-**Location:** `src/components/artist/ArtistTabs.tsx`
-- Singles section already appears BEFORE Albums section
-- Current order: Featured Tracks → Singles → Albums & Projects
+### 3. Featured Singles Before Albums ✓
+- **File:** `src/components/artist/ArtistTabs.tsx`
+- **Status:** Already correct
+- Singles section appears BEFORE Albums & Projects section
+- Order: Featured Tracks → Singles → Albums & Projects
 
-## Status
-✅ All requested changes verified/implemented
-❌ Not committed
-❌ Not deployed
+## Notes
+- All changes are saved but NOT committed or deployed
+- Social icons implemented as inline SVGs for performance
+- Artist data structure supports: instagram, twitter, youtube, tiktok, website
 
-## Next Steps
-- Commit when ready: `git add . && git commit -m "Site improvements batch 1"`
-- Deploy when ready: `git push origin main`
+---
+**Next:** Deploy when ready
