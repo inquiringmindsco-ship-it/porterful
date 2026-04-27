@@ -18,6 +18,7 @@ interface Track {
   cover_url: string | null
   audio_url: string
   is_active: boolean
+  featured: boolean
   created_at: string
   updated_at?: string
   play_count: number
@@ -41,6 +42,7 @@ export default function EditTrackPage() {
   const [description, setDescription] = useState('')
   const [proudToPayMin, setProudToPayMin] = useState(1)
   const [isActive, setIsActive] = useState(true)
+  const [featured, setFeatured] = useState(false)
 
   // Load track data
   useEffect(() => {
@@ -89,6 +91,7 @@ export default function EditTrackPage() {
       setDescription(trackData.description || '')
       setProudToPayMin(trackData.proud_to_pay_min ?? trackData.price ?? 1)
       setIsActive(trackData.is_active ?? true)
+      setFeatured(trackData.featured ?? false)
       setLoading(false)
     }
 
@@ -114,6 +117,7 @@ export default function EditTrackPage() {
           description: description.trim() || null,
           proud_to_pay_min: Math.max(0, proudToPayMin) || 1.00,
           is_active: isActive,
+          featured: featured,
         }),
       })
 
@@ -289,6 +293,21 @@ export default function EditTrackPage() {
               >
                 <span
                   className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform ${isActive ? 'translate-x-6' : 'translate-x-0'}`}
+                />
+              </button>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium">{featured ? 'Featured' : 'Not Featured'}</p>
+                <p className="text-xs text-[var(--pf-text-muted)]">{featured ? 'Shown on artist profile' : 'Standard track'}</p>
+              </div>
+              <button
+                onClick={() => setFeatured(!featured)}
+                className={`relative w-12 h-6 rounded-full transition-colors ${featured ? 'bg-[var(--pf-orange)]' : 'bg-[var(--pf-surface-hover)]'}`}
+              >
+                <span
+                  className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform ${featured ? 'translate-x-6' : 'translate-x-0'}`}
                 />
               </button>
             </div>

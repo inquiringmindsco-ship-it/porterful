@@ -80,6 +80,10 @@ export async function PATCH(
       updates.is_active = Boolean(body.is_active);
     }
 
+    if (body.featured !== undefined) {
+      updates.featured = Boolean(body.featured);
+    }
+
     // Require at least one field to update
     if (Object.keys(updates).length === 0) {
       return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 });

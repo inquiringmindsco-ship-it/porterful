@@ -79,7 +79,6 @@ export default function ArtistDashboardPage() {
         .from('tracks')
         .select('*')
         .eq('artist_id', user!.id)
-        .eq('is_active', true)
         .order('created_at', { ascending: false })
       setDbTracks(data || [])
     }
@@ -216,8 +215,13 @@ export default function ArtistDashboardPage() {
                     </div>
                     <div className="flex items-center gap-2">
                       <span className={`px-2 py-1 rounded text-xs border ${track.is_active ? 'border-green-500/30 bg-green-500/10 text-green-400' : 'border-[var(--pf-border)] bg-[var(--pf-surface)] text-[var(--pf-text-muted)]'}`}>
-                        {track.is_active ? 'Live' : 'Draft'}
+                        {track.is_active ? 'Live' : 'Hidden'}
                       </span>
+                      {track.featured && (
+                        <span className="px-2 py-1 rounded text-xs border border-[var(--pf-orange)]/30 bg-[var(--pf-orange)]/10 text-[var(--pf-orange)]">
+                          Featured
+                        </span>
+                      )}
                       <Link
                         href={`/dashboard/dashboard/artist/edit/track/${track.id}`}
                         className="pf-btn pf-btn-secondary text-[var(--pf-text-secondary)]"
