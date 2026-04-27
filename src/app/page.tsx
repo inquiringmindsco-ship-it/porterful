@@ -53,7 +53,7 @@ export default function HomePage() {
 
   return (
     <>
-      <main ref={revealScopeRef} className="min-h-screen bg-[var(--pf-bg)] pt-16 md:pt-20 overflow-x-hidden">
+      <main ref={revealScopeRef} className="min-h-screen bg-[var(--pf-bg)] pt-16 md:pt-20 overflow-x-hidden pb-24">
         <section className="relative overflow-hidden border-b border-[var(--pf-border)] bg-gradient-to-b from-[var(--pf-orange)]/10 via-[var(--pf-bg)] to-[var(--pf-bg)]">
           <div className="pf-container py-10 md:py-16">
             <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
