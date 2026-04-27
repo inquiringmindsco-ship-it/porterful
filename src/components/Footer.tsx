@@ -22,12 +22,16 @@ export function Footer() {
     <footer className="border-t border-[var(--pf-border)] bg-[var(--pf-bg-secondary)] py-8 mt-12">
       <div className="max-w-6xl mx-auto px-6 flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
         <div>
-          <div className="h-8 flex items-center">
-            <img
-              src="/brand/porterful_official_brand_mark_option_1.png"
-              alt="Porterful"
-              className="h-7 w-auto object-contain"
+          <div className="flex items-center gap-2">
+            <div
+              className="w-7 h-7"
+              style={{
+                backgroundColor: 'var(--pf-accent, #f97316)',
+                WebkitMask: 'url(/brand/porterful/porterful_official_p_recolorable_mask_black.png) center / contain no-repeat',
+                mask: 'url(/brand/porterful/porterful_official_p_recolorable_mask_black.png) center / contain no-repeat',
+              }}
             />
+            <span className="text-lg font-semibold text-[var(--pf-text)]">Porterful</span>
           </div>
           <p className="text-[var(--pf-text-secondary)] text-sm mt-1">
             Music. Directly from the artists.

@@ -79,13 +79,15 @@ export function Navbar() {
 
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2 group">
-              <div className="h-9 w-auto flex items-center transition-transform group-hover:scale-105">
-                <img
-                  src="/brand/porterful_official_brand_mark_option_1.png"
-                  alt="Porterful"
-                  className="h-8 w-auto object-contain"
-                />
-              </div>
+              <div 
+                className="w-8 h-8 transition-transform group-hover:scale-105"
+                style={{
+                  backgroundColor: 'var(--pf-accent, #f97316)',
+                  WebkitMask: 'url(/brand/porterful/porterful_official_p_recolorable_mask_black.png) center / contain no-repeat',
+                  mask: 'url(/brand/porterful/porterful_official_p_recolorable_mask_black.png) center / contain no-repeat',
+                }}
+              />
+              <span className="text-lg font-semibold tracking-tight text-[var(--pf-text)]">Porterful</span>
             </Link>
 
             {/* Desktop Nav */}
