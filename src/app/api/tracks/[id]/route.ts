@@ -72,10 +72,6 @@ export async function PATCH(
       updates.is_active = Boolean(body.is_active);
     }
 
-    if (body.is_published !== undefined) {
-      updates.is_published = Boolean(body.is_published);
-    }
-
     // Require at least one field to update
     if (Object.keys(updates).length === 0) {
       return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 });
@@ -142,7 +138,7 @@ export async function DELETE(
     // Soft delete: set is_active = false
     const { data, error } = await supabase
       .from('tracks')
-      .update({ is_active: false, is_published: false })
+      .update({ is_active: false })
       .eq('id', id)
       .select()
       .single();

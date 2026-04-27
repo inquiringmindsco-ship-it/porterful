@@ -18,7 +18,6 @@ interface Track {
   cover_url: string | null
   audio_url: string
   is_active: boolean
-  is_published?: boolean
   created_at: string
   updated_at?: string
   play_count: number
@@ -42,7 +41,6 @@ export default function EditTrackPage() {
   const [description, setDescription] = useState('')
   const [proudToPayMin, setProudToPayMin] = useState(1)
   const [isActive, setIsActive] = useState(true)
-  const [isPublished, setIsPublished] = useState(true)
 
   // Load track data
   useEffect(() => {
@@ -91,7 +89,6 @@ export default function EditTrackPage() {
       setDescription(trackData.description || '')
       setProudToPayMin(trackData.proud_to_pay_min ?? trackData.price ?? 1)
       setIsActive(trackData.is_active ?? true)
-      setIsPublished(trackData.is_published ?? true)
       setLoading(false)
     }
 
@@ -115,9 +112,8 @@ export default function EditTrackPage() {
         body: JSON.stringify({
           title: title.trim(),
           description: description.trim() || null,
-          proud_to_pay_min: Math.max(0, proudToPayMin),
+          proud_to_pay_min: Math.max(0, proudToPayMin) || 1.00,
           is_active: isActive,
-          is_published: isPublished,
         }),
       })
 
@@ -262,18 +258,19 @@ export default function EditTrackPage() {
 
             <div>
               <label className="block text-sm font-medium mb-2">Proud to Pay Minimum (USD)</label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--pf-text-muted)] pointer-events-none">$</span>
+              <div className="flex items-center gap-2">
+                <span className="text-lg text-[var(--pf-text)]">$</span>
                 <input
                   type="number"
                   value={proudToPayMin}
                   onChange={(e) => setProudToPayMin(parseFloat(e.target.value) || 0)}
-                  className="pf-input pl-7"
+                  className="pf-input flex-1"
                   min="0"
                   step="0.01"
+                  placeholder="1.00"
                 />
               </div>
-              <p className="text-xs text-[var(--pf-text-muted)] mt-1">Set to 0 for free downloads</p>
+              <p className="text-xs text-[var(--pf-text-muted)] mt-1">Set to 0 for free downloads. Defaults to $1.00.</p>
             </div>
           </div>
 
@@ -283,23 +280,8 @@ export default function EditTrackPage() {
 
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium">Published</p>
-                <p className="text-xs text-[var(--pf-text-muted)]">Visible to listeners</p>
-              </div>
-              <button
-                onClick={() => setIsPublished(!isPublished)}
-                className={`relative w-12 h-6 rounded-full transition-colors ${isPublished ? 'bg-[var(--pf-orange)]' : 'bg-[var(--pf-surface-hover)]'}`}
-              >
-                <span
-                  className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform ${isPublished ? 'translate-x-6' : 'translate-x-0'}`}
-                />
-              </button>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">Active</p>
-                <p className="text-xs text-[var(--pf-text-muted)]">Can be played/streamed</p>
+                <p className="font-medium">{isActive ? 'Live' : 'Hidden'}</p>
+                <p className="text-xs text-[var(--pf-text-muted)]">{isActive ? 'Visible and playable' : 'Hidden from listeners'}</p>
               </div>
               <button
                 onClick={() => setIsActive(!isActive)}
