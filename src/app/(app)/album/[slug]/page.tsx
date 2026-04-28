@@ -3,7 +3,8 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { TRACKS, ALBUMS } from '@/lib/data'
-import { formatDuration } from '@/lib/duration-formatter'
+import { formatDuration, canonicalAlbum } from '@/lib/duration-formatter'
+import { sortTracksByAlbumOrder } from '@/lib/track-dedupe'
 
 export const dynamic = 'force-dynamic'
 
@@ -56,9 +57,11 @@ export default async function AlbumPage({ params }: PageProps) {
     notFound()
   }
   
-  const albumTracks = TRACKS.filter(t => t.album === album.name)
+  // Get tracks for this album and sort by track_number
+  const albumTracks = sortTracksByAlbumOrder(TRACKS.filter(t => t.album === album.name))
   const totalDuration = albumTracks.reduce((acc, t) => {
-    const [mins, secs] = (t.duration || '0:00').split(':').map(Number)
+    const durationStr = String(t.duration || '0:00')
+    const [mins, secs] = durationStr.split(':').map(Number)
     return acc + mins * 60 + secs
   }, 0)
   
@@ -142,9 +145,9 @@ export default async function AlbumPage({ params }: PageProps) {
               key={track.id}
               className="group flex items-center gap-4 p-4 rounded-xl bg-[var(--pf-surface)] border border-[var(--pf-border)] hover:border-[var(--pf-orange)] transition-colors"
             >
-              {/* Track Number */}
+              {/* Track Number - uses track_number if available, otherwise index+1 */}
               <span className="w-8 text-center text-[var(--pf-text-muted)] group-hover:hidden">
-                {index + 1}
+                {(track as any).track_number ?? index + 1}
               </span>
               <span className="w-8 text-center hidden group-hover:block">
                 <PlayIcon />

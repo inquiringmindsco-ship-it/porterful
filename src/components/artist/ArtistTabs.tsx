@@ -8,6 +8,8 @@ import type { Track } from '@/lib/audio-context'
 import type { Product } from '@/lib/products'
 import { ArtistTrackList } from '@/components/artist/ArtistTrackList'
 import { FeaturedTrackCard } from '@/components/artist/FeaturedTrackCard'
+import { sortTracksByAlbumOrder, getTrackDedupeKey } from '@/lib/track-dedupe'
+import { canonicalAlbum } from '@/lib/duration-formatter'
 
 type TabKey = 'music' | 'store' | 'about'
 
@@ -54,31 +56,10 @@ function buildAlbumGroups(tracks: Track[]): Array<{ name: string; image: string;
     map.get(key)!.tracks.push(t)
   })
   
-  // Sort tracks within each album by track_number, then by extracted ID number, then by title
+  // Use shared sorting helper for consistent ordering
   const result = Array.from(map.values())
   result.forEach((album) => {
-    album.tracks.sort((a, b) => {
-      // Priority 1: DB track_number if available
-      const aDbNum = (a as any).track_number
-      const bDbNum = (b as any).track_number
-      if (aDbNum != null && bDbNum != null) {
-        return aDbNum - bDbNum
-      }
-      if (aDbNum != null) return -1
-      if (bDbNum != null) return 1
-      
-      // Priority 2: Extract from track ID (e.g., 'rox-09' -> 9)
-      const aIdNum = getTrackNumberFromId(a)
-      const bIdNum = getTrackNumberFromId(b)
-      if (aIdNum != null && bIdNum != null) {
-        return aIdNum - bIdNum
-      }
-      if (aIdNum != null) return -1
-      if (bIdNum != null) return 1
-      
-      // Fallback to title
-      return a.title.localeCompare(b.title)
-    })
+    album.tracks = sortTracksByAlbumOrder(album.tracks)
   })
   
   return result

@@ -19,7 +19,7 @@ import { TRACKS as STATIC_TRACKS } from '@/lib/data'
 import { ARTISTS } from '@/lib/artists'
 import { getTrackArtwork } from '@/lib/artwork'
 import { createBrowserSupabaseClient } from '@/lib/create-browser-client'
-import { mergeCanonicalTracks, dedupeQueueTracks } from '@/lib/track-dedupe'
+import { mergeCanonicalTracks, dedupeQueueTracks, sortTracksByAlbumOrder } from '@/lib/track-dedupe'
 import { formatDuration, canonicalAlbum } from '@/lib/duration-formatter'
 
 // Public artists with confirmed music/catalog
