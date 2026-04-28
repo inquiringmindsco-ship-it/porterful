@@ -49,11 +49,12 @@ function getTrackNumberFromId(track: Track): number | null {
 function buildAlbumGroups(tracks: Track[]): Array<{ name: string; image: string; tracks: Track[] }> {
   const map = new Map<string, { name: string; image: string; tracks: Track[] }>()
   tracks.forEach((t) => {
-    const key = t.album || 'Unknown'
-    if (!map.has(key)) {
-      map.set(key, { name: key, image: t.image || '', tracks: [] })
+    // Use canonical album name to prevent duplicates (Roxannity -> Roxanity)
+    const canonicalName = canonicalAlbum(t.album) || 'Unknown'
+    if (!map.has(canonicalName)) {
+      map.set(canonicalName, { name: canonicalName, image: t.image || '', tracks: [] })
     }
-    map.get(key)!.tracks.push(t)
+    map.get(canonicalName)!.tracks.push(t)
   })
   
   // Use shared sorting helper for consistent ordering
@@ -155,6 +156,14 @@ export function ArtistTabs({
             </section>
           )}
 
+          {/* Featured Singles */}
+          {singles.length > 0 && (
+            <section>
+              <h2 className="text-base font-semibold mb-3">Featured Singles</h2>
+              <ArtistTrackList tracks={singles} />
+            </section>
+          )}
+
           {/* Albums / Projects */}
           {albumGroups.length > 0 && (
             <section>
@@ -217,14 +226,6 @@ export function ArtistTabs({
                   )
                 })}
               </div>
-            </section>
-          )}
-
-          {/* Featured Singles */}
-          {singles.length > 0 && (
-            <section>
-              <h2 className="text-base font-semibold mb-3">Featured Singles</h2>
-              <ArtistTrackList tracks={singles} />
             </section>
           )}
         </div>
