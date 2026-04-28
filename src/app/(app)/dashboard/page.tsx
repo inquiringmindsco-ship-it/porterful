@@ -52,6 +52,11 @@ export default async function DashboardRoot() {
     profile = createdProfile
   }
 
+  // Role-aware redirect: artists to their specific dashboard
+  if (profile?.role === 'artist') {
+    redirect('/dashboard/artist')
+  }
+
   return (
     <PorterfulDashboard
       serverProfileId={user.id}
