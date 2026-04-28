@@ -36,7 +36,8 @@ export default function ApplyFormPage() {
     cover_image_url: '',
     avatar_url: '',
     agree_terms: false,
-    agree_exclusive: false,
+    agree_rights: false,
+    music_license_type: 'non_exclusive' as 'non_exclusive' | 'porterful_exclusive',
     add_likeness: false,
   })
 
@@ -82,7 +83,7 @@ export default function ApplyFormPage() {
                   <path d="M20 6L9 17l-5-5"/>
                 </svg>
               </div>
-              <h1 className="text-3xl font-bold mb-3">You’re Approved!</h1>
+              <h1 className="text-3xl font-bold mb-3">You're Approved!</h1>
               <p className="text-[var(--pf-text-secondary)] mb-4">
                 {submitMessage || 'Your artist page has been created. Head to your dashboard to set up tracks, pricing, and your profile.'}
               </p>
@@ -486,6 +487,12 @@ export default function ApplyFormPage() {
                   ].filter(Boolean).join(' · ') || <span className="text-[var(--pf-text-muted)]">None</span>,
                 },
                 {
+                  label: 'License Type',
+                  value: form.music_license_type === 'porterful_exclusive' 
+                    ? <span className="text-yellow-400">Porterful Exclusive</span> 
+                    : <span className="text-green-400">Non-Exclusive</span>,
+                },
+                {
                   label: 'Images',
                   value: [
                     form.avatar_url ? 'Avatar ✓' : 'No avatar',
@@ -520,7 +527,11 @@ export default function ApplyFormPage() {
               </div>
             )}
 
-            <div className="space-y-4">
+            {/* TERMS & RIGHTS AGREEMENT */}
+            <div className="space-y-4 mb-6">
+              <h3 className="text-sm font-medium text-[var(--pf-text)] uppercase tracking-wider">Legal Agreements</h3>
+              
+              {/* Terms of Service */}
               <label className="flex items-start gap-3 cursor-pointer">
                 <input
                   type="checkbox"
@@ -536,61 +547,119 @@ export default function ApplyFormPage() {
                 </span>
               </label>
 
+              {/* Rights Confirmation */}
               <label className="flex items-start gap-3 cursor-pointer">
                 <input
                   type="checkbox"
                   className="mt-1 w-5 h-5 rounded border-[var(--pf-border)] bg-[var(--pf-bg-secondary)] accent-[var(--pf-orange)]"
-                  checked={form.agree_exclusive}
-                  onChange={e => setForm({ ...form, agree_exclusive: e.target.checked })}
+                  checked={form.agree_rights}
+                  onChange={e => setForm({ ...form, agree_rights: e.target.checked })}
                 />
                 <span className="text-sm text-[var(--pf-text-secondary)]">
-                  My music on Porterful will be exclusive to this platform.
+                  I confirm that I own or control the rights necessary to upload, sell, stream, and promote this music on Porterful.
                 </span>
               </label>
+            </div>
 
-              {/* LIKENESS UPSELL */}
-              <div className="mt-6 rounded-2xl bg-gradient-to-br from-[#111111] to-[#1a1a1a] border border-[#333333] p-5">
-                <div className="flex items-start gap-4 mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-[#c6a85a]/20 flex items-center justify-center shrink-0">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="#c6a85a" opacity="0.3"/>
-                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#c6a85a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      <path d="M9 12l2 2 4-4" stroke="#c6a85a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-white font-bold text-lg">Protect Your Likeness</span>
-                      <span className="px-2 py-0.5 rounded-full bg-[#c6a85a]/20 text-[#c6a85a] text-xs font-medium">$9/yr</span>
-                    </div>
-                    <p className="text-sm text-[#aaaaaa] leading-relaxed">
-                      AI is using artist voices and faces without permission. Before you go live with your brand, register your likeness — get your verification badge and prove it's yours.
-                    </p>
-                  </div>
-                </div>
-                <div className="flex flex-wrap gap-3 mb-4">
-                  {['Voice + face registration', 'Legal certificate (PDF)', 'C&D letter templates', 'Evidence vault', 'Verified badge'].map(f => (
-                    <div key={f} className="flex items-center gap-1.5 text-xs text-[#cccccc]">
-                      <span className="text-[#c6a85a]">✓</span> {f}
-                    </div>
-                  ))}
-                </div>
-                <p className="text-xs text-[#888888] mb-4">
-                  Porterful rate $9/yr — regular price $12. Secure your likeness before your profile goes live.
-                </p>
-                <label className="flex items-center gap-3 cursor-pointer p-3 rounded-xl border border-[#333333] hover:border-[#c6a85a]/50 transition-colors">
+            {/* MUSIC LICENSE TYPE SELECTION */}
+            <div className="bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-xl p-5 mb-6">
+              <h3 className="text-sm font-medium text-[var(--pf-text)] uppercase tracking-wider mb-4">Platform License Type</h3>
+              
+              <div className="space-y-3">
+                {/* Non-Exclusive (Default) */}
+                <label className={`flex items-start gap-3 cursor-pointer p-3 rounded-lg border transition-colors ${
+                  form.music_license_type === 'non_exclusive' 
+                    ? 'border-[var(--pf-orange)] bg-[var(--pf-orange)]/5' 
+                    : 'border-[var(--pf-border)] hover:border-[var(--pf-orange)]/40'
+                }`}>
                   <input
-                    type="checkbox"
-                    className="w-5 h-5 rounded border-[#444] bg-[#222] accent-[#c6a85a]"
-                    checked={form.add_likeness}
-                    onChange={e => setForm({ ...form, add_likeness: e.target.checked })}
+                    type="radio"
+                    name="music_license_type"
+                    value="non_exclusive"
+                    className="mt-1 w-4 h-4 accent-[var(--pf-orange)]"
+                    checked={form.music_license_type === 'non_exclusive'}
+                    onChange={e => setForm({ ...form, music_license_type: e.target.value as 'non_exclusive' | 'porterful_exclusive' })}
                   />
                   <div>
-                    <span className="text-sm text-white font-medium">Add Likeness™ protection</span>
-                    <span className="text-xs text-[#888] ml-2">$9/year · Optional</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-sm text-[var(--pf-text)]">Non-Exclusive</span>
+                      <span className="px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 text-xs">Recommended</span>
+                    </div>
+                    <p className="text-xs text-[var(--pf-text-secondary)] mt-1">
+                      I may also distribute, sell, stream, or promote this music on other platforms (Spotify, Apple Music, Bandcamp, etc.)
+                    </p>
+                  </div>
+                </label>
+
+                {/* Porterful Exclusive */}
+                <label className={`flex items-start gap-3 cursor-pointer p-3 rounded-lg border transition-colors ${
+                  form.music_license_type === 'porterful_exclusive' 
+                    ? 'border-[var(--pf-orange)] bg-[var(--pf-orange)]/5' 
+                    : 'border-[var(--pf-border)] hover:border-[var(--pf-orange)]/40'
+                }`}>
+                  <input
+                    type="radio"
+                    name="music_license_type"
+                    value="porterful_exclusive"
+                    className="mt-1 w-4 h-4 accent-[var(--pf-orange)]"
+                    checked={form.music_license_type === 'porterful_exclusive'}
+                    onChange={e => setForm({ ...form, music_license_type: e.target.value as 'non_exclusive' | 'porterful_exclusive' })}
+                  />
+                  <div>
+                    <span className="font-medium text-sm text-[var(--pf-text)]">Porterful Exclusive</span>
+                    <p className="text-xs text-[var(--pf-text-secondary)] mt-1">
+                      I agree this music will be available exclusively through Porterful under the terms stated in Porterful's Terms of Service
+                    </p>
+                    <p className="text-xs text-yellow-400/80 mt-1">
+                      ⚠️ Exclusive content cannot be distributed elsewhere
+                    </p>
                   </div>
                 </label>
               </div>
+            </div>
+
+            {/* LIKENESS UPSELL */}
+            <div className="mt-6 rounded-2xl bg-gradient-to-br from-[#111111] to-[#1a1a1a] border border-[#333333] p-5">
+              <div className="flex items-start gap-4 mb-4">
+                <div className="w-12 h-12 rounded-xl bg-[#c6a85a]/20 flex items-center justify-center shrink-0">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="#c6a85a" opacity="0.3"/>
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#c6a85a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M9 12l2 2 4-4" stroke="#c6a85a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-white font-bold text-lg">Protect Your Likeness</span>
+                    <span className="px-2 py-0.5 rounded-full bg-[#c6a85a]/20 text-[#c6a85a] text-xs font-medium">$9/yr</span>
+                  </div>
+                  <p className="text-sm text-[#aaaaaa] leading-relaxed">
+                    AI is using artist voices and faces without permission. Before you go live with your brand, register your likeness — get your verification badge and prove it's yours.
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-3 mb-4">
+                {['Voice + face registration', 'Legal certificate (PDF)', 'C&D letter templates', 'Evidence vault', 'Verified badge'].map(f => (
+                  <div key={f} className="flex items-center gap-1.5 text-xs text-[#cccccc]">
+                    <span className="text-[#c6a85a]">✓</span> {f}
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-[#888888] mb-4">
+                Porterful rate $9/yr — regular price $12. Secure your likeness before your profile goes live.
+              </p>
+              <label className="flex items-center gap-3 cursor-pointer p-3 rounded-xl border border-[#333333] hover:border-[#c6a85a]/50 transition-colors">
+                <input
+                  type="checkbox"
+                  className="w-5 h-5 rounded border-[#444] bg-[#222] accent-[#c6a85a]"
+                  checked={form.add_likeness}
+                  onChange={e => setForm({ ...form, add_likeness: e.target.checked })}
+                />
+                <div>
+                  <span className="text-sm text-white font-medium">Add Likeness™ protection</span>
+                  <span className="text-xs text-[#888] ml-2">$9/year · Optional</span>
+                </div>
+              </label>
             </div>
           </div>
         )}
@@ -618,7 +687,7 @@ export default function ApplyFormPage() {
           ) : (
             <button
               onClick={handleSubmit}
-              disabled={!form.agree_terms || !form.agree_exclusive || submitting}
+              disabled={!form.agree_terms || !form.agree_rights || !form.music_license_type || submitting}
               className="flex-1 py-3.5 bg-[var(--pf-orange)] text-white font-bold rounded-xl hover:bg-[var(--pf-orange-dark)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {submitting ? 'Submitting...' : 'Submit Application'}

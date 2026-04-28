@@ -109,6 +109,9 @@ export async function POST(req: Request) {
       ? 'All threshold requirements met.'
       : 'Missing: ' + approval.missing.join(', ')
 
+    // Get license type from request (new field)
+    const { agree_rights, music_license_type } = body
+
     // Insert application
     const { data, error } = await supabase
       .from('artist_applications')
@@ -131,6 +134,8 @@ export async function POST(req: Request) {
         cover_image_url: cover_image_url || null,
         status: newStatus,
         auto_approve_reason: reason,
+        agree_rights: agree_rights === true,
+        music_license_type: music_license_type === 'porterful_exclusive' ? 'porterful_exclusive' : 'non_exclusive',
       })
       .select()
       .single()
