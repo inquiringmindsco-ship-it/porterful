@@ -228,6 +228,7 @@ export function ArtistTabs({
               </div>
             </section>
           )}
+
         </div>
       )}
 

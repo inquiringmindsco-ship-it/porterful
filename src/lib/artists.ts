@@ -134,7 +134,7 @@ On Porterful, he's not competing with the algorithm. He's building something rea
     slug: 'rob-soule',
     genre: 'Hip-Hop / R&B / Blues',
     location: 'St. Louis, MO',
-    bio: `Rob Soule is a St. Louis hip-hop and R&B artist blending blues into a soulful sound.`,
+    bio: `Rob Soule is a St. Louis hip-hop and R&B artist blending blues into a soulful sound. From the heart of the city, Rob brings together smooth R&B melodies, hard-hitting hip-hop beats, and the raw emotional truth of blues to create something uniquely STL.`,
     shortBio: 'St. Louis hip-hop and R&B artist blending blues into a soulful sound.',
     verified: true,
     likeness_verified: false,
