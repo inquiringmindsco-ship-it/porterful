@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(arrayBuffer);
 
     const { error: uploadError } = await supabaseAdmin.storage
-      .from('porterful-assets')
+      .from('music')
       .upload(path, buffer, {
         contentType: file.type,
         upsert: false,
@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
 
     // Get public URL
     const { data: urlData } = supabaseAdmin.storage
-      .from('porterful-assets')
+      .from('music')
       .getPublicUrl(path);
 
     return NextResponse.json({ url: urlData.publicUrl, path });
