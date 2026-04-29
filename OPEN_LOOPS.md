@@ -1,6 +1,6 @@
 # OPEN_LOOPS.md — Porterful Ecosystem
 
-**Last updated: 2026-04-29 17:58 CDT**
+**Last updated: 2026-04-29 18:28 CDT**
 
 ---
 
@@ -35,6 +35,14 @@
 - **Issue:** `/dashboard/dashboard/artist` duplicate route exists
 - **Fix:** Remove or redirect legacy route
 - **Assigned:** Sentinel (awaiting Od's go-ahead)
+
+### 🟡 Deck Mode / Visualizer / EQ Foundation
+- **Status:** DOCUMENTED — foundation in progress
+- **Issue:** Porterful needs a real audio-reactive deck stage on top of the existing GlobalPlayer/audio-context system
+- **Scope:** Audio graph exposure, analyser-backed bars/circular/waveform modes, artwork fallback, browser fullscreen deck mode, and future EQ/loudness normalization backlogs
+- **Dock Mode concept:** Sideways phone + Bluetooth, tablet counter display, car-style music screen, retired phone dock, merch booth / event display
+- **Guardrails:** No fake waveform data, no heavy WebGL default on mobile, respect prefers-reduced-motion, keep playback stable before expanding EQ or experimental visuals
+- **Backlog:** EQ v1 presets, 10-band EQ, and loudness normalization / EBU R128 / ffmpeg-normalize workflow
 
 ---
 

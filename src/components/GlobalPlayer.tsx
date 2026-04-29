@@ -6,7 +6,7 @@ import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import {
   Play, Pause, SkipBack, SkipForward, Volume2, VolumeX,
-  ChevronUp, ChevronDown, X, Maximize2
+  ChevronDown
 } from 'lucide-react'
 import { useAudio } from '@/lib/audio-context'
 import { getArtistSlugByName } from '@/lib/artists'
@@ -25,7 +25,6 @@ export function GlobalPlayer() {
   const [volume, setVolumeState] = useState(80)
   const [isMuted, setIsMuted] = useState(false)
   const [expanded, setExpanded] = useState(false)
-  const [showVisualizer, setShowVisualizer] = useState(false)
   const [mounted, setMounted] = useState(false)
   const progressRef = useRef<HTMLDivElement>(null)
   const touchStartRef = useRef<{ x: number; y: number } | null>(null)
@@ -164,14 +163,6 @@ export function GlobalPlayer() {
               </button>
             </div>
 
-            {/* Visualizer Button */}
-            <button 
-              onClick={() => setShowVisualizer(true)}
-              className="p-2 rounded-full hover:bg-[var(--pf-bg)] transition-colors hidden sm:block"
-              aria-label="Open visualizer"
-            >
-              <Maximize2 size={18} />
-            </button>
           </div>
 
           {/* Progress Bar - Clickable & Keyboard Accessible */}
@@ -242,9 +233,6 @@ export function GlobalPlayer() {
               <ChevronDown size={24} />
             </button>
             <span className="font-medium">Now Playing</span>
-            <button onClick={() => setShowVisualizer(true)} className="p-2">
-              <Maximize2 size={20} />
-            </button>
           </div>
 
           {/* Album Art */}
@@ -367,75 +355,6 @@ export function GlobalPlayer() {
         </div>
       )}
 
-      {/* Visualizer Modal */}
-      {showVisualizer && (
-        <div className="fixed inset-0 bg-[var(--pf-bg)] z-[70] flex flex-col">
-          {/* Track Info at top */}
-          <div className="p-6 bg-gradient-to-b from-[var(--pf-bg)]/80 to-transparent">
-            <div className="flex items-start justify-between">
-              <div className="flex-1 min-w-0">
-                <h2 className="text-2xl font-bold text-[var(--pf-text)] truncate">{currentTrack.title}</h2>
-                <Link
-                  href={artistHref}
-                  className="text-lg text-[var(--pf-text-secondary)] truncate hover:text-[var(--pf-text)] transition-colors block"
-                  onClick={() => setShowVisualizer(false)}
-                >
-                  {currentTrack.artist}
-                </Link>
-                {currentTrack.album && (
-                  <p className="text-sm text-[var(--pf-text-muted)] truncate">{currentTrack.album}</p>
-                )}
-              </div>
-              <button
-                onClick={() => setShowVisualizer(false)}
-                className="p-3 rounded-full bg-[var(--pf-surface)] hover:bg-[var(--pf-border)]"
-              >
-                <X size={24} className="text-[var(--pf-text)]" />
-              </button>
-            </div>
-          </div>
-
-          {/* Visualizer Area */}
-          <div className="flex-1 flex items-center justify-center">
-            <div className="text-center">
-              <div className="w-64 h-64 mx-auto rounded-full overflow-hidden shadow-2xl relative">
-                <Image 
-                  src={getTrackArtwork(currentTrack)}
-                  alt={currentTrack.title}
-                  fill
-                  sizes="256px"
-                  className={`object-cover ${isPlaying ? 'animate-spin' : ''}`}
-                  style={{ animationDuration: '3s' }}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Play Controls */}
-          <div className="p-6 bg-gradient-to-t from-[var(--pf-bg)]/80 to-transparent">
-            <div className="flex items-center justify-center gap-6">
-              <button
-                onClick={playPrev}
-                className="p-3 rounded-full bg-[var(--pf-surface)] hover:bg-[var(--pf-border)]"
-              >
-                <SkipBack size={24} className="text-[var(--pf-text)]" />
-              </button>
-              <button
-                onClick={togglePlay}
-                className="w-14 h-14 rounded-full bg-[var(--pf-orange)] flex items-center justify-center"
-              >
-                {isPlaying ? <Pause size={24} className="text-[var(--pf-text)]" /> : <Play size={24} className="text-[var(--pf-text)] ml-0.5" />}
-              </button>
-              <button
-                onClick={playNext}
-                className="p-3 rounded-full bg-[var(--pf-surface)] hover:bg-[var(--pf-border)]"
-              >
-                <SkipForward size={24} className="text-[var(--pf-text)]" />
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   )
 }
