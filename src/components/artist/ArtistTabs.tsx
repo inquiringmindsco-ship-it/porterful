@@ -52,7 +52,11 @@ function buildAlbumGroups(tracks: Track[]): Array<{ name: string; image: string;
     // Use canonical album name to prevent duplicates (Roxannity -> Roxanity)
     const canonicalName = canonicalAlbum(t.album) || 'Unknown'
     if (!map.has(canonicalName)) {
-      map.set(canonicalName, { name: canonicalName, image: t.image || '', tracks: [] })
+      // Use Porterful P logo for Singles album, otherwise use track image
+      const albumImage = canonicalName === 'Singles' 
+        ? '/brand/porterful.png' 
+        : (t.image || '')
+      map.set(canonicalName, { name: canonicalName, image: albumImage, tracks: [] })
     }
     map.get(canonicalName)!.tracks.push(t)
   })
