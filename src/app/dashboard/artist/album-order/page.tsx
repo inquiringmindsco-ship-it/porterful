@@ -37,7 +37,7 @@ export default function AlbumOrderPage() {
     const { data: artist } = await supabase
       .from('artists')
       .select('id, name')
-      .eq('user_id', user.id)
+      .eq('id', user.id)
       .single()
 
     if (!artist) {
@@ -132,7 +132,7 @@ export default function AlbumOrderPage() {
     const { data: artist } = await supabase
       .from('artists')
       .select('id')
-      .eq('user_id', user.id)
+      .eq('id', user.id)
       .single()
 
     if (!artist) {
