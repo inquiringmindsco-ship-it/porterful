@@ -43,74 +43,82 @@ export default function TrackEditPage() {
       return
     }
 
-    const { data: track, error } = await supabase
-      .from('tracks')
-      .select('title, playback_mode, preview_duration_seconds, unlock_required, is_active, artist_id')
-      .eq('id', trackId)
-      .single()
+    try {
+      const res = await fetch(`/api/tracks/${trackId}`, {
+        credentials: 'include',
+      })
 
-    if (error || !track) {
+      const data = await res.json()
+
+      if (res.status === 401) {
+        router.push('/login')
+        return
+      }
+
+      if (res.status === 403) {
+        setMessage(data.error || 'You do not own this track')
+        setLoading(false)
+        return
+      }
+
+      if (!res.ok || !data.track) {
+        setMessage(data.error || 'Track not found')
+        setLoading(false)
+        return
+      }
+
+      const track = data.track
+
+      setForm({
+        title: track.title || '',
+        playback_mode: track.playback_mode || 'full',
+        preview_duration_seconds: track.preview_duration_seconds || 60,
+        unlock_required: track.unlock_required || false,
+        is_active: track.is_active !== false,
+      })
+      setLoading(false)
+    } catch (err) {
+      console.error('Failed to load track:', err)
       setMessage('Track not found')
       setLoading(false)
-      return
     }
-
-    // Canonical Porterful ownership: auth.users.id === profiles.id === artists.id === tracks.artist_id
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('id, email, role')
-      .eq('id', user.id)
-      .maybeSingle()
-
-    const { data: artistRow } = await supabase
-      .from('artists')
-      .select('id, slug')
-      .eq('id', track.artist_id)
-      .maybeSingle()
-
-    const isOwner =
-      track.artist_id === user.id ||
-      profile?.id === user.id ||
-      artistRow?.id === user.id
-
-    if (!isOwner) {
-      setMessage('You do not own this track')
-      setLoading(false)
-      return
-    }
-
-    setForm({
-      title: track.title || '',
-      playback_mode: track.playback_mode || 'full',
-      preview_duration_seconds: track.preview_duration_seconds || 60,
-      unlock_required: track.unlock_required || false,
-      is_active: track.is_active !== false,
-    })
-    setLoading(false)
   }
 
   async function saveTrack() {
     setSaving(true)
     setMessage('')
 
-    const { error } = await supabase
-      .from('tracks')
-      .update({
-        title: form.title,
-        playback_mode: form.playback_mode,
-        preview_duration_seconds: form.preview_duration_seconds,
-        unlock_required: form.unlock_required,
-        is_active: form.is_active,
-        updated_at: new Date().toISOString(),
+    try {
+      const res = await fetch(`/api/tracks/${trackId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: form.title,
+          playback_mode: form.playback_mode,
+          preview_duration_seconds: form.preview_duration_seconds,
+          unlock_required: form.unlock_required,
+          is_active: form.is_active,
+        }),
+        credentials: 'include',
       })
-      .eq('id', trackId)
 
-    if (error) {
-      setMessage('Error saving: ' + error.message)
-    } else {
+      const data = await res.json()
+
+      if (res.status === 401) {
+        router.push('/login')
+        return
+      }
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Error saving track')
+      }
+
       setMessage('Track updated successfully!')
+    } catch (err: any) {
+      setMessage('Error saving: ' + err.message)
+    } finally {
+      setSaving(false)
     }
-    setSaving(false)
   }
 
   if (loading) {

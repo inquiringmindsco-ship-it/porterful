@@ -89,6 +89,10 @@ export function GlobalPlayer() {
     }
   }
 
+  const handleExpandedTouchCancel = () => {
+    touchStartRef.current = null
+  }
+
   return (
     <>
       {/* Mini Player */}
@@ -227,8 +231,10 @@ export function GlobalPlayer() {
       {expanded && (
         <div
           className="fixed inset-0 bg-[var(--pf-bg)] z-[60] flex flex-col overflow-hidden"
+          style={{ touchAction: 'pan-y' }}
           onTouchStart={handleExpandedTouchStart}
           onTouchEnd={handleExpandedTouchEnd}
+          onTouchCancel={handleExpandedTouchCancel}
         >
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-[var(--pf-border)] shrink-0">

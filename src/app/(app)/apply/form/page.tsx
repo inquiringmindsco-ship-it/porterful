@@ -43,7 +43,7 @@ export default function ApplyFormPage() {
 
   const handleSubmit = async () => {
     if (!user) {
-      router.push('/signup?role=artist')
+      router.push('/login?next=/apply/form&role=artist')
       return
     }
 

@@ -1,6 +1,110 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getAuthenticatedClient } from '@/lib/auth-utils';
-import { createClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
+import { getAuthenticatedClient } from '@/lib/auth-utils'
+import { getArtistAccessContext, trackBelongsToArtist } from '@/lib/artist-identity'
+
+function createSupabaseAdmin() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+  if (!supabaseUrl || !serviceRoleKey) {
+    throw new Error('Missing Supabase admin configuration')
+  }
+
+  return createClient(supabaseUrl, serviceRoleKey, {
+    auth: { persistSession: false },
+  })
+}
+
+async function requireTrackOwnership(trackId: string, userId: string) {
+  const supabaseAdmin = createSupabaseAdmin()
+  const context = await getArtistAccessContext(supabaseAdmin, userId)
+
+  const { data: track, error } = await supabaseAdmin
+    .from('tracks')
+    .select('*')
+    .eq('id', trackId)
+    .maybeSingle()
+
+  if (error) {
+    throw error
+  }
+
+  return { supabaseAdmin, context, track }
+}
+
+function buildTrackUpdates(body: Record<string, any>) {
+  const updates: Record<string, any> = {}
+
+  if (body.title !== undefined) {
+    const title = String(body.title || '').trim()
+    if (!title) {
+      return { error: 'Title is required' as const }
+    }
+    updates.title = title
+  }
+
+  if (body.description !== undefined) {
+    updates.description = String(body.description || '').trim() || null
+  }
+
+  if (body.proud_to_pay_min !== undefined || body.price !== undefined) {
+    const price = body.proud_to_pay_min ?? body.price
+    const numericPrice = Number(price)
+    updates.proud_to_pay_min = Number.isFinite(numericPrice) ? Math.max(0, numericPrice) : 1
+  }
+
+  if (body.album !== undefined) {
+    updates.album = String(body.album || '').trim() || null
+  }
+
+  if (body.cover_url !== undefined) {
+    updates.cover_url = String(body.cover_url || '').trim() || null
+  }
+
+  if (body.is_active !== undefined) {
+    updates.is_active = Boolean(body.is_active)
+  }
+
+  if (body.featured !== undefined) {
+    updates.featured = Boolean(body.featured)
+  }
+
+  if (body.track_number !== undefined) {
+    if (body.track_number === null || body.track_number === '') {
+      updates.track_number = null
+    } else {
+      const trackNumber = Number.parseInt(String(body.track_number), 10)
+      updates.track_number = Number.isNaN(trackNumber) ? null : trackNumber
+    }
+  }
+
+  if (body.playback_mode !== undefined) {
+    if (!['full', 'preview', 'locked'].includes(body.playback_mode)) {
+      return { error: 'Invalid playback mode' as const }
+    }
+    updates.playback_mode = body.playback_mode
+  }
+
+  if (body.preview_duration_seconds !== undefined) {
+    const previewDuration = Number.parseInt(String(body.preview_duration_seconds), 10)
+    if (Number.isNaN(previewDuration)) {
+      return { error: 'Invalid preview duration' as const }
+    }
+    updates.preview_duration_seconds = Math.max(5, Math.min(300, previewDuration))
+  }
+
+  if (body.unlock_required !== undefined) {
+    updates.unlock_required = Boolean(body.unlock_required)
+  }
+
+  if (Object.keys(updates).length === 0) {
+    return { error: 'No valid fields to update' as const }
+  }
+
+  updates.updated_at = new Date().toISOString()
+  return { updates }
+}
 
 // PATCH /api/tracks/[id] — Update a track
 export async function PATCH(
@@ -8,114 +112,53 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
-    const auth = await getAuthenticatedClient();
-    if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    const { supabase, user } = auth;
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const { id } = await params
+    const auth = await getAuthenticatedClient()
+    if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const { user } = auth
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    // Create admin client to bypass RLS for update (ownership already verified)
-    const supabaseAdmin = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      { auth: { persistSession: false } }
-    );
+    const { supabaseAdmin, context, track } = await requireTrackOwnership(id, user.id)
 
-    // Get user's profile to check artist role
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('id, role')
-      .eq('id', user.id)
-      .single();
-
-    if (!profile || profile.role !== 'artist') {
-      return NextResponse.json({ error: 'Only artists can edit tracks' }, { status: 403 });
+    if (!context.isArtist) {
+      return NextResponse.json({ error: 'Only artists can edit tracks' }, { status: 403 })
     }
 
-    // Verify track exists and belongs to this artist
-    const { data: existingTrack } = await supabase
-      .from('tracks')
-      .select('id, artist_id')
-      .eq('id', id)
-      .single();
-
-    if (!existingTrack) {
-      return NextResponse.json({ error: 'Track not found' }, { status: 404 });
+    if (!track) {
+      return NextResponse.json({ error: 'Track not found' }, { status: 404 })
     }
 
-    if (existingTrack.artist_id !== profile.id) {
-      return NextResponse.json({ error: 'You can only edit your own tracks' }, { status: 403 });
+    if (!trackBelongsToArtist(track.artist_id, context)) {
+      return NextResponse.json({ error: 'You can only edit your own tracks' }, { status: 403 })
     }
 
-    // Parse update body
-    const body = await request.json();
-    const updates: Record<string, any> = {};
+    const body = await request.json()
+    const result = buildTrackUpdates(body)
 
-    // Validate and set allowed fields
-    if (body.title !== undefined) {
-      if (!body.title?.trim()) {
-        return NextResponse.json({ error: 'Title is required' }, { status: 400 });
-      }
-      updates.title = body.title.trim();
+    if ('error' in result) {
+      return NextResponse.json({ error: result.error }, { status: 400 })
     }
 
-    if (body.description !== undefined) {
-      updates.description = body.description?.trim() || null;
-    }
-
-    if (body.proud_to_pay_min !== undefined || body.price !== undefined) {
-      const price = body.proud_to_pay_min ?? body.price;
-      updates.proud_to_pay_min = typeof price === 'number' ? Math.max(0, price) : 1;
-    }
-
-    if (body.album !== undefined) {
-      updates.album = body.album?.trim() || null;
-    }
-
-    if (body.cover_url !== undefined) {
-      updates.cover_url = body.cover_url?.trim() || null;
-    }
-
-    if (body.is_active !== undefined) {
-      updates.is_active = Boolean(body.is_active);
-    }
-
-    if (body.featured !== undefined) {
-      updates.featured = Boolean(body.featured);
-    }
-
-    if (body.track_number !== undefined) {
-      updates.track_number = body.track_number === null ? null : parseInt(body.track_number, 10);
-      if (isNaN(updates.track_number)) {
-        updates.track_number = null;
-      }
-    }
-
-    // Require at least one field to update
-    if (Object.keys(updates).length === 0) {
-      return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 });
-    }
-
-    // Update track using admin client to bypass RLS
     const { data, error } = await supabaseAdmin
       .from('tracks')
-      .update(updates)
+      .update(result.updates)
       .eq('id', id)
-      .select();
+      .select('*')
+      .maybeSingle()
 
     if (error) {
-      console.error('[tracks:patch] Update error:', error.message, error.details);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      console.error('[tracks:patch] Update error:', error.message, error.details)
+      return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    if (!data || data.length === 0) {
-      return NextResponse.json({ error: 'Track not found after update' }, { status: 404 });
+    if (!data) {
+      return NextResponse.json({ error: 'Track not found after update' }, { status: 404 })
     }
 
-    return NextResponse.json({ success: true, track: data[0] });
+    return NextResponse.json({ success: true, track: data })
   } catch (err: any) {
-    console.error('[tracks:patch] Exception:', err);
-    return NextResponse.json({ error: err.message || 'Failed to update track' }, { status: 500 });
+    console.error('[tracks:patch] Exception:', err)
+    return NextResponse.json({ error: err.message || 'Failed to update track' }, { status: 500 })
   }
 }
 
@@ -125,55 +168,46 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
-    const auth = await getAuthenticatedClient();
-    if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    const { supabase, user } = auth;
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const { id } = await params
+    const auth = await getAuthenticatedClient()
+    if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const { user } = auth
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    // Get user's profile to check artist role
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('id, role')
-      .eq('id', user.id)
-      .single();
+    const { supabaseAdmin, context, track } = await requireTrackOwnership(id, user.id)
 
-    if (!profile || profile.role !== 'artist') {
-      return NextResponse.json({ error: 'Only artists can delete tracks' }, { status: 403 });
+    if (!context.isArtist) {
+      return NextResponse.json({ error: 'Only artists can delete tracks' }, { status: 403 })
     }
 
-    // Verify track exists and belongs to this artist
-    const { data: existingTrack } = await supabase
+    if (!track) {
+      return NextResponse.json({ error: 'Track not found' }, { status: 404 })
+    }
+
+    if (!trackBelongsToArtist(track.artist_id, context)) {
+      return NextResponse.json({ error: 'You can only delete your own tracks' }, { status: 403 })
+    }
+
+    const { data, error } = await supabaseAdmin
       .from('tracks')
-      .select('id, artist_id')
+      .update({ is_active: false, updated_at: new Date().toISOString() })
       .eq('id', id)
-      .single();
-
-    if (!existingTrack) {
-      return NextResponse.json({ error: 'Track not found' }, { status: 404 });
-    }
-
-    if (existingTrack.artist_id !== profile.id) {
-      return NextResponse.json({ error: 'You can only delete your own tracks' }, { status: 403 });
-    }
-
-    // Soft delete: set is_active = false
-    const { data, error } = await supabase
-      .from('tracks')
-      .update({ is_active: false })
-      .eq('id', id)
-      .select()
-      .single();
+      .select('*')
+      .maybeSingle()
 
     if (error) {
-      console.error('[tracks:delete] Delete error:', error.message);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      console.error('[tracks:delete] Delete error:', error.message)
+      return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    return NextResponse.json({ success: true, track: data, message: 'Track archived' });
+    if (!data) {
+      return NextResponse.json({ error: 'Track not found after delete' }, { status: 404 })
+    }
+
+    return NextResponse.json({ success: true, track: data, message: 'Track archived' })
   } catch (err: any) {
-    console.error('[tracks:delete] Exception:', err);
-    return NextResponse.json({ error: err.message || 'Failed to delete track' }, { status: 500 });
+    console.error('[tracks:delete] Exception:', err)
+    return NextResponse.json({ error: err.message || 'Failed to delete track' }, { status: 500 })
   }
 }
 
@@ -183,40 +217,29 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
-    const auth = await getAuthenticatedClient();
-    if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    const { supabase, user } = auth;
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const { id } = await params
+    const auth = await getAuthenticatedClient()
+    if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const { user } = auth
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const { data: track, error } = await supabase
-      .from('tracks')
-      .select('*')
-      .eq('id', id)
-      .single();
+    const { context, track, supabaseAdmin } = await requireTrackOwnership(id, user.id)
 
-    if (error || !track) {
-      return NextResponse.json({ error: 'Track not found' }, { status: 404 });
+    if (!context.isArtist) {
+      return NextResponse.json({ error: 'Not authorized' }, { status: 403 })
     }
 
-    // Verify ownership (only artist can view their own track details)
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('id, role')
-      .eq('id', user.id)
-      .single();
-
-    if (!profile || (profile.role !== 'artist' && track.artist_id !== profile.id)) {
-      return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
+    if (!track) {
+      return NextResponse.json({ error: 'Track not found' }, { status: 404 })
     }
 
-    if (track.artist_id !== profile.id) {
-      return NextResponse.json({ error: 'You can only view your own tracks' }, { status: 403 });
+    if (!trackBelongsToArtist(track.artist_id, context)) {
+      return NextResponse.json({ error: 'You can only view your own tracks' }, { status: 403 })
     }
 
-    return NextResponse.json({ success: true, track });
+    return NextResponse.json({ success: true, track })
   } catch (err: any) {
-    console.error('[tracks:get] Exception:', err);
-    return NextResponse.json({ error: err.message || 'Failed to fetch track' }, { status: 500 });
+    console.error('[tracks:get] Exception:', err)
+    return NextResponse.json({ error: err.message || 'Failed to fetch track' }, { status: 500 })
   }
 }

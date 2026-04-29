@@ -1,6 +1,6 @@
 # OPEN_LOOPS.md — Porterful Ecosystem
 
-**Last updated: 2026-04-29 16:15 CDT**
+**Last updated: 2026-04-29 17:58 CDT**
 
 ---
 
@@ -46,12 +46,26 @@
 
 ---
 
+## Priority Feature Backlog (Documented, Awaiting Go-Ahead)
+
+### 🎵 Lyric Visual Mode™ — Player Evolution
+- **Status:** DOCUMENTED — P1 Priority
+- **Spec:** `LYRIC_VISUAL_MODE_SPEC.md`
+- **Concept:** Full-screen/expanded player evolves into premium artist visual stage — three mutually exclusive modes per track: Artwork Mode, Lyrics Mode, Lyric Visual Mode
+- **Blocked by:** Mobile player bug fixes (swipe collapse, mini player visibility, progress bar touch)
+- **DO NOT BUILD until:** current mobile player bugs are resolved + Od gives explicit go-ahead
+- **Key positioning:** "Every track can become a visual performance, not just an audio file"
+- **Competitive moat:** Spotify has Canvas (short loop) — Porterful has full lyric video + visualizer; Apple Music has lyrics — Porterful has artist-uploaded visuals + synced scroll; YouTube Music has videos — Porterful has music-first, artist-controlled stage
+
+---
+
 ## Ready to Resume (when Od gives go-ahead)
 
 1. Add "Edit Public View" / "Reorder Albums" button to artist dashboard
 2. Add Playback Access helper text and tooltips
 3. Clean up duplicate dashboard routes
 4. Porterful rights declaration gate (when Od finishes testing)
+5. **Lyric Visual Mode™ implementation** (post-mobile-player-bug-fix)
 
 ---
 

@@ -73,37 +73,40 @@ export default function EditTrackPage() {
         return
       }
 
-      // Load track
-      const { data: trackData, error: trackError } = await supabase!
-        .from('tracks')
-        .select('*')
-        .eq('id', trackId)
-        .single()
+      const res = await fetch(`/api/tracks/${trackId}`, {
+        credentials: 'include',
+      })
 
-      if (trackError || !trackData) {
-        setError('Track not found')
+      const data = await res.json()
+
+      if (res.status === 401) {
+        router.push('/login')
+        return
+      }
+
+      if (res.status === 403) {
+        setError(data.error || 'You can only edit your own tracks')
         setLoading(false)
         return
       }
 
-      // Verify ownership
-      if (trackData.artist_id !== user.id) {
-        setError('You can only edit your own tracks')
+      if (!res.ok || !data.track) {
+        setError(data.error || 'Track not found')
         setLoading(false)
         return
       }
 
-      setTrack(trackData)
+      setTrack(data.track)
       // Initialize form state
-      setTitle(trackData.title || '')
-      setDescription(trackData.description || '')
-      setProudToPayMin((trackData.proud_to_pay_min ?? trackData.price ?? 1).toFixed(2))
-      setIsActive(trackData.is_active ?? true)
-      setFeatured(trackData.featured ?? false)
-      setCoverUrl(trackData.cover_url || '')
-      setTrackNumber(trackData.track_number ?? '')
-      setPlaybackMode(trackData.playback_mode || 'full')
-      setPreviewDuration(trackData.preview_duration_seconds || 60)
+      setTitle(data.track.title || '')
+      setDescription(data.track.description || '')
+      setProudToPayMin((data.track.proud_to_pay_min ?? data.track.price ?? 1).toFixed(2))
+      setIsActive(data.track.is_active ?? true)
+      setFeatured(data.track.featured ?? false)
+      setCoverUrl(data.track.cover_url || '')
+      setTrackNumber(data.track.track_number ?? '')
+      setPlaybackMode(data.track.playback_mode || 'full')
+      setPreviewDuration(data.track.preview_duration_seconds || 60)
       setLoading(false)
     }
 
@@ -135,9 +138,15 @@ export default function EditTrackPage() {
           playback_mode: playbackMode,
           preview_duration_seconds: playbackMode === 'preview' ? Math.max(5, Math.min(300, previewDuration || 60)) : 60,
         }),
+        credentials: 'include',
       })
 
       const data = await res.json()
+
+      if (res.status === 401) {
+        router.push('/login')
+        return
+      }
 
       if (!res.ok) {
         throw new Error(data.error || 'Failed to save track')
@@ -168,9 +177,15 @@ export default function EditTrackPage() {
     try {
       const res = await fetch(`/api/tracks/${trackId}`, {
         method: 'DELETE',
+        credentials: 'include',
       })
 
       const data = await res.json()
+
+      if (res.status === 401) {
+        router.push('/login')
+        return
+      }
 
       if (!res.ok) {
         throw new Error(data.error || 'Failed to archive track')

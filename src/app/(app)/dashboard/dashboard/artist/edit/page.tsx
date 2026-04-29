@@ -9,6 +9,7 @@ import {
   Upload, Save, ArrowLeft, X, Camera, Image as ImageIcon, 
   Music, Globe, Youtube, Twitter, Instagram, Check, AlertCircle
 } from 'lucide-react'
+import { getArtistAccessContext } from '@/lib/artist-identity'
 
 export default function EditArtistPage() {
   const router = useRouter()
@@ -44,18 +45,7 @@ export default function EditArtistPage() {
       }
 
       try {
-        const [{ data: profile }, { data: artist }] = await Promise.all([
-          supabase!
-            .from('profiles')
-            .select('*')
-            .eq('id', user.id)
-            .maybeSingle(),
-          supabase!
-            .from('artists')
-            .select('*')
-            .eq('id', user.id)
-            .maybeSingle(),
-        ])
+        const { profile, artist } = await getArtistAccessContext(supabase, user.id)
 
         const source = artist || profile
 

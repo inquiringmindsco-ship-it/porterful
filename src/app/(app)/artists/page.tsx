@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, Check, MapPin, Music } from 'lucide-react'
 import { useSupabase } from '@/app/providers'
+import { getArtistAccessContext } from '@/lib/artist-identity'
 
 const PUBLIC_ARTISTS = [
   {
@@ -64,20 +65,15 @@ export default function ArtistsPage() {
         return
       }
 
-      const [{ data: profile }, { data: artist }] = await Promise.all([
-        supabase.from('profiles').select('id, role').eq('id', user.id).maybeSingle(),
-        supabase.from('artists').select('id, slug').eq('id', user.id).maybeSingle(),
-      ])
+      const { artist, isArtist } = await getArtistAccessContext(supabase, user.id)
 
       if (!active) return
 
-      const isArtistAccount = Boolean(artist) || profile?.role === 'artist'
-
-      if (isArtistAccount && artist) {
+      if (isArtist && artist) {
         setCtaHref('/dashboard/artist')
         setCtaLabel('Manage My Artist Profile')
         setCtaDescription('Go to your artist dashboard')
-      } else if (profile?.role === 'artist') {
+      } else if (isArtist) {
         setCtaHref('/dashboard/artist/edit')
         setCtaLabel('Continue Setup')
         setCtaDescription('Finish your Porterful artist setup')
