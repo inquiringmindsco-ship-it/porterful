@@ -174,7 +174,7 @@ export function ArtistTabs({
             </section>
           )}
 
-          {/* Featured Singles - MOVED: Now appears before Albums */}
+          {/* Featured Singles - Moved BEFORE Albums */}
           {singles.length > 0 && (
             <section>
               <h2 className="text-base font-semibold mb-3">Featured Singles</h2>
@@ -182,7 +182,7 @@ export function ArtistTabs({
             </section>
           )}
 
-          {/* Albums / Projects - MOVED: Now appears after Singles */}
+          {/* Albums / Projects */}
           {albumGroups.length > 0 && (
             <section>
               <h2 className="text-base font-semibold mb-3">Albums &amp; Projects</h2>

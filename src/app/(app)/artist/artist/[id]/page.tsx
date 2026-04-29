@@ -403,36 +403,6 @@ export default function ArtistProfilePage({ params }: { params: { id: string } }
               </Link>
             </div>
 
-            {/* Social links */}
-            {(artistData.social?.instagram || artistData.social?.twitter || artistData.social?.youtube || artistData.social?.tiktok || artistData.social?.website) && (
-              <div className="flex flex-wrap gap-2 pb-2">
-                {artistData.social?.youtube && (
-                  <a href={`https://youtube.com/${artistData.social.youtube.replace('@', '')}`} target="_blank" rel="noopener" className="p-2 bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-xl hover:border-red-500 transition-colors">
-                    <Youtube size={16} className="text-red-500" />
-                  </a>
-                )}
-                {artistData.social?.instagram && (
-                  <a href={`https://instagram.com/${artistData.social.instagram.replace('@', '')}`} target="_blank" rel="noopener" className="p-2 bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-xl hover:border-pink-500 transition-colors">
-                    <Instagram size={16} className="text-pink-400" />
-                  </a>
-                )}
-                {artistData.social?.twitter && (
-                  <a href={`https://twitter.com/${artistData.social.twitter.replace('@', '')}`} target="_blank" rel="noopener" className="p-2 bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-xl hover:border-blue-500 transition-colors">
-                    <Twitter size={16} className="text-blue-400" />
-                  </a>
-                )}
-                {artistData.social?.tiktok && (
-                  <a href={`https://tiktok.com/@${artistData.social.tiktok.replace('@', '')}`} target="_blank" rel="noopener" className="p-2 bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-xl hover:border-pink-600 transition-colors">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="text-pink-500"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.73a8.26 8.26 0 0 0 4.83 1.54V6.78a4.85 4.85 0 0 1-1-.09z"/></svg>
-                  </a>
-                )}
-                {artistData.social?.website && (
-                  <a href={artistData.social?.website} target="_blank" rel="noopener" className="p-2 bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-xl hover:border-[var(--pf-orange)] transition-colors">
-                    <Globe size={16} />
-                  </a>
-                )}
-              </div>
-            )}
           </div>
         </div>
 
