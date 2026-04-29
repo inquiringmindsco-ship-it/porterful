@@ -102,6 +102,7 @@ export function mergeCanonicalTracks(
       image: dbTrack.cover_url || dbTrack.image,
       plays: (dbTrack as any).plays || (dbTrack as any).play_count || 0,
       price: (dbTrack as any).price || (dbTrack as any).proud_to_pay_min || 1,
+      track_number: (dbTrack as any).track_number,
     })
   })
 

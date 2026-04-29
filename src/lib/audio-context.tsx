@@ -23,6 +23,7 @@ export interface Track {
   image?: string;
   plays?: number;
   price?: number;
+  track_number?: number;
 }
 
 // ─── CONTEXT TYPE ─────────────────────────────────────────────────────────────
