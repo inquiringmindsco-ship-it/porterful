@@ -11,6 +11,7 @@ interface TrackEditForm {
   preview_duration_seconds: number
   unlock_required: boolean
   is_active: boolean
+  proud_to_pay_min: number
 }
 
 export default function TrackEditPage() {
@@ -28,6 +29,7 @@ export default function TrackEditPage() {
     preview_duration_seconds: 60,
     unlock_required: false,
     is_active: true,
+    proud_to_pay_min: 1.00,
   })
 
   useEffect(() => {
@@ -75,6 +77,7 @@ export default function TrackEditPage() {
         preview_duration_seconds: track.preview_duration_seconds || 60,
         unlock_required: track.unlock_required || false,
         is_active: track.is_active !== false,
+        proud_to_pay_min: track.proud_to_pay_min || track.price || 1.00,
       })
       setLoading(false)
     } catch (err) {
@@ -98,6 +101,7 @@ export default function TrackEditPage() {
           preview_duration_seconds: form.preview_duration_seconds,
           unlock_required: form.unlock_required,
           is_active: form.is_active,
+          proud_to_pay_min: form.proud_to_pay_min,
         }),
         credentials: 'include',
       })
@@ -234,6 +238,23 @@ export default function TrackEditPage() {
                 </div>
               </label>
             </div>
+          </div>
+
+          {/* Price */}
+          <div>
+            <label className="block text-sm font-medium mb-2">Price (USD)</label>
+            <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--pf-text-muted)]">$</span>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={form.proud_to_pay_min}
+                onChange={(e) => setForm({ ...form, proud_to_pay_min: parseFloat(e.target.value) || 0 })}
+                className="w-full pl-8 pr-4 py-3 bg-[var(--pf-bg-secondary)] border border-[var(--pf-border)] rounded-xl text-white"
+              />
+            </div>
+            <p className="text-xs text-[var(--pf-text-muted)] mt-1">Set to 0 for free download</p>
           </div>
 
           {/* Visibility */}
