@@ -217,9 +217,9 @@ export function mergeCanonicalTracks(
       return
     }
 
-    // When both are equally playable, prefer static/CDN over DB rows.
+    // When both are equally playable, prefer DB (live/editable) over static.
     if (current.source !== candidate.source) {
-      if (candidate.source === 'static') {
+      if (candidate.source === 'db') {
         merged.set(key, candidate)
       }
       return
