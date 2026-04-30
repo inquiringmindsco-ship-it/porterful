@@ -24,7 +24,11 @@ export interface Track {
   image?: string;
   plays?: number;
   price?: number;
+  proud_to_pay_min?: number;
   track_number?: number;
+  playback_mode?: 'full' | 'preview' | 'locked';
+  preview_duration_seconds?: number;
+  unlock_required?: boolean;
 }
 
 // ─── CONTEXT TYPE ─────────────────────────────────────────────────────────────
