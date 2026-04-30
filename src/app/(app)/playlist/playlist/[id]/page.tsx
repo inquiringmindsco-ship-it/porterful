@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { useAudio } from '@/lib/audio-context'
+import { TRACKS } from '@/lib/data'
 
 interface PlaylistTrack {
   id: string
@@ -13,6 +14,7 @@ interface PlaylistTrack {
   album?: string
   duration: string
   image: string
+  audioUrl?: string
 }
 
 interface Playlist {
@@ -24,6 +26,30 @@ interface Playlist {
   plays: number
   earnings: number
   isPublic: boolean
+}
+
+function resolvePlaylistTrack(track: PlaylistTrack): PlaylistTrack {
+  const existingAudioUrl = track.audioUrl || (track as any).audio_url
+  if (existingAudioUrl) {
+    return {
+      ...track,
+      audioUrl: existingAudioUrl,
+    }
+  }
+
+  const catalogTrack = TRACKS.find((candidate) => candidate.id === track.id)
+    ?? TRACKS.find((candidate) => candidate.title === track.title && candidate.artist === track.artist)
+
+  if (!catalogTrack?.audio_url) return track
+
+  return {
+    ...track,
+    audioUrl: catalogTrack.audio_url,
+  }
+}
+
+function resolvePlaylistTracks(tracks: PlaylistTrack[]): PlaylistTrack[] {
+  return tracks.map(resolvePlaylistTrack)
 }
 
 const Icon = {
@@ -62,19 +88,27 @@ export default function PlaylistDetailPage() {
     if (saved) {
       const playlists: Playlist[] = JSON.parse(saved)
       const found = playlists.find(p => p.id === id)
-      setPlaylist(found || null)
+      setPlaylist(found ? {
+        ...found,
+        tracks: resolvePlaylistTracks(found.tracks),
+      } : null)
     }
     setLoading(false)
   }, [params.id])
 
   const playPlaylist = () => {
-    if (!playlist || playlist.tracks.length === 0) return
-    setQueue(playlist.tracks.map(t => ({
+    if (!playlist) return
+    const playableTracks = resolvePlaylistTracks(playlist.tracks).filter((track) => track.audioUrl)
+    if (playableTracks.length === 0) return
+
+    setQueue(playableTracks.map(t => ({
       ...t,
+      audio_url: t.audioUrl,
       duration: typeof t.duration === 'string' ? 180 : t.duration || 180,
     })))
     playTrack({
-      ...playlist.tracks[0],
+      ...playableTracks[0],
+      audio_url: playableTracks[0].audioUrl || '',
       duration: 180,
     } as any)
   }
@@ -139,12 +173,15 @@ export default function PlaylistDetailPage() {
         ) : (
           <div className="space-y-2">
             {playlist.tracks.map((track, index) => (
-              <div 
+              <div
                 key={track.id}
                 className="flex items-center gap-4 p-4 bg-[var(--pf-surface)] rounded-xl hover:bg-[var(--pf-border)] transition-colors cursor-pointer"
                 onClick={() => {
-                  setQueue(playlist.tracks.map(t => ({ ...t, duration: 180 })))
-                  playTrack({ ...track, duration: 180 } as any)
+                  const playableTracks = resolvePlaylistTracks(playlist.tracks).filter((item) => item.audioUrl)
+                  const resolvedTrack = resolvePlaylistTrack(track)
+                  if (!resolvedTrack.audioUrl) return
+                  setQueue(playableTracks.map(t => ({ ...t, audio_url: t.audioUrl, duration: 180 })))
+                  playTrack({ ...resolvedTrack, audio_url: resolvedTrack.audioUrl, duration: 180 } as any)
                 }}
               >
                 <span className="w-8 text-center text-[var(--pf-text-secondary)]">{index + 1}</span>

@@ -1,4 +1,4 @@
-import { Track } from '@/lib/audio-context'
+import type { Track } from '@/lib/audio-context'
 import { canonicalAlbum, canonicalTitle } from '@/lib/duration-formatter'
 
 // Canonical dedupe key: normalized artist + canonical album + canonical title
@@ -21,23 +21,43 @@ export function getTrackDedupeKey(track: { artist: string; album?: string | null
   return `${artist}|${album}|${title}`
 }
 
-// Check if a track has a verified CDN audio URL
-function hasVerifiedAudio(track: Track): boolean {
-  if (!track.audio_url) return false
-  // Check for Supabase CDN URLs
-  return track.audio_url.includes('supabase.co/storage/v1/object/audio/albums/') ||
-         track.audio_url.includes('supabase.co/storage/v1/object/audio/artists/')
+const CANONICAL_ALBUM_ORDER = [
+  'Ambiguous',
+  'From Feast to Famine',
+  'God Is Good',
+  'One Day',
+  'Streets Thought I Left',
+  'Roxanity',
+  'Artgasm',
+  'Levi',
+  'Singles',
+]
+
+function getAlbumSortRank(album: string | null | undefined): number {
+  const canonical = canonicalAlbum(album) || ''
+  const rank = CANONICAL_ALBUM_ORDER.indexOf(canonical)
+  return rank >= 0 ? rank : CANONICAL_ALBUM_ORDER.length
+}
+
+// Check whether a track has a playable audio URL.
+// We intentionally keep this lightweight so we do not block on network checks.
+export function hasPlayableAudio(track: Pick<Track, 'audio_url'> | null | undefined): track is Track & { audio_url: string } {
+  const audioUrl = track?.audio_url?.trim()
+  return !!audioUrl && audioUrl !== 'null' && audioUrl !== 'undefined'
+}
+
+export function filterPlayableTracks<T extends Track>(tracks: T[]): T[] {
+  return tracks.filter((track) => hasPlayableAudio(track))
 }
 
 // Shared sorting helper for consistent track ordering
-// Priority: 1) album (canonical), 2) track_number ascending, 3) title
+// Priority: 1) canonical album release order, 2) track_number ascending, 3) title
 export function sortTracksByAlbumOrder(tracks: Track[]): Track[] {
   return [...tracks].sort((a, b) => {
-    // First: sort by canonical album
-    const albumA = canonicalAlbum(a.album) || 'ZZZ'
-    const albumB = canonicalAlbum(b.album) || 'ZZZ'
-    if (albumA !== albumB) {
-      return albumA.localeCompare(albumB)
+    const albumRankA = getAlbumSortRank(a.album)
+    const albumRankB = getAlbumSortRank(b.album)
+    if (albumRankA !== albumRankB) {
+      return albumRankA - albumRankB
     }
     
     // Second: sort by track_number if available
@@ -50,7 +70,9 @@ export function sortTracksByAlbumOrder(tracks: Track[]): Track[] {
     if (trackNumB !== null) return 1
     
     // Third: sort by title
-    return a.title.localeCompare(b.title)
+    const titleCompare = a.title.localeCompare(b.title)
+    if (titleCompare !== 0) return titleCompare
+    return a.artist.localeCompare(b.artist)
   })
 }
 
@@ -124,7 +146,7 @@ export function mergeCanonicalTracks(
     merged.set(key, staticTrack)
   })
 
-  return Array.from(merged.values())
+  return sortTracksByAlbumOrder(Array.from(merged.values()))
 }
 
 // Deduplicate queue tracks to prevent repeats

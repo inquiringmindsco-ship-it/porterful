@@ -45,7 +45,7 @@ export function mergeArtistData(dbArtist: any | null, staticArtist: ArtistData |
       shortBio: dbArtist.bio?.slice(0, 100) || '',
       verified: true,
       likeness_verified: false,
-      image: dbArtist.avatar_url || dbArtist.image || '/artist-images/default-avatar.jpg',
+      image: dbArtist.avatar_url || '/artist-images/default-avatar.jpg',
       coverGradient: 'from-gray-700 to-gray-900',
       followers: 0,
       supporters: null,

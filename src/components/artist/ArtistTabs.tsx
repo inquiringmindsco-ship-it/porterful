@@ -8,7 +8,7 @@ import type { Track } from '@/lib/audio-context'
 import type { Product } from '@/lib/products'
 import { ArtistTrackList } from '@/components/artist/ArtistTrackList'
 import { FeaturedTrackCard } from '@/components/artist/FeaturedTrackCard'
-import { sortTracksByAlbumOrder, getTrackDedupeKey } from '@/lib/track-dedupe'
+import { sortTracksByAlbumOrder, getTrackDedupeKey, dedupeQueueTracks } from '@/lib/track-dedupe'
 import { canonicalAlbum } from '@/lib/duration-formatter'
 
 type TabKey = 'music' | 'store' | 'about'
@@ -114,7 +114,7 @@ export function ArtistTabs({
 
   const cappedFeatured = featuredTracks.slice(0, 3)
   const featuredQueue = useMemo(
-    () => [...cappedFeatured, ...singles, ...albumTracks],
+    () => dedupeQueueTracks([...cappedFeatured, ...singles, ...albumTracks]),
     [cappedFeatured, singles, albumTracks]
   )
 

@@ -8,6 +8,7 @@
 import { useEffect, useCallback } from 'react'
 import { useAudio } from '@/lib/audio-context'
 import { getCheckoutState, clearCheckoutState, shouldResumePlayback } from '@/lib/checkout-state'
+import { TRACKS } from '@/lib/data'
 
 export function usePlaybackResume() {
   const { playTrack, setVolume, currentTrack, seek } = useAudio()
@@ -18,12 +19,27 @@ export function usePlaybackResume() {
 
     // Only resume if we have a track ID and user was playing
     if (state.trackId && shouldResumePlayback()) {
+      const catalogTrack = TRACKS.find((track) => (
+        track.id === state.trackId
+        || (track.title === state.trackTitle && track.artist === state.artistName)
+      ))
+      const legacyAudioUrl = (state as any).audio_url
+      const audioUrl = state.audioUrl?.trim()
+        || (typeof legacyAudioUrl === 'string' ? legacyAudioUrl.trim() : '')
+        || catalogTrack?.audio_url
+        || ''
+
+      if (!audioUrl) {
+        clearCheckoutState()
+        return false
+      }
+
       // Resume the track
       playTrack({
         id: state.trackId,
         title: state.trackTitle,
         artist: state.artistName,
-        audio_url: state.audioUrl || '',
+        audio_url: audioUrl,
       })
       
       // Seek to saved position (seconds) after a short delay

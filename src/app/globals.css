@@ -160,6 +160,14 @@ body {
   padding-bottom: env(safe-area-inset-bottom, 0);
 }
 
+.pt-safe {
+  padding-top: max(env(safe-area-inset-top, 0px), 1rem);
+}
+
+.pb-safe {
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 1rem);
+}
+
 /* Extra bottom room for pages with fixed player/nav overlays */
 @media (max-width: 767px) {
   .mobile-page-safe {

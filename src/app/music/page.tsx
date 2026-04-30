@@ -180,7 +180,9 @@ export default function MusicPage() {
   // Merge DB tracks with static fallback using canonical dedupe
   // Inactive DB tracks block matching static from public display
   const ALL_TRACKS = useMemo(() => {
-    return mergeCanonicalTracks(dbTracks as any[], LEGACY_TRACKS, { includeInactive: false })
+    return sortTracksByAlbumOrder(
+      mergeCanonicalTracks(dbTracks as any[], LEGACY_TRACKS, { includeInactive: false })
+    )
   }, [dbTracks])
 
   // Featured track: prefer featured DB track, fallback to first track

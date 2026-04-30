@@ -95,6 +95,7 @@ interface PlaylistTrack {
   album?: string
   duration: string
   image: string
+  audioUrl?: string
 }
 
 interface Playlist {
@@ -106,6 +107,30 @@ interface Playlist {
   plays: number
   earnings: number
   isPublic: boolean
+}
+
+function resolvePlaylistTrack(track: PlaylistTrack): PlaylistTrack {
+  const existingAudioUrl = track.audioUrl || (track as any).audio_url
+  if (existingAudioUrl) {
+    return {
+      ...track,
+      audioUrl: existingAudioUrl,
+    }
+  }
+
+  const catalogTrack = PUBLIC_TRACKS.find((candidate) => candidate.id === track.id)
+    ?? PUBLIC_TRACKS.find((candidate) => candidate.title === track.title && candidate.artist === track.artist)
+
+  if (!catalogTrack?.audio_url) return track
+
+  return {
+    ...track,
+    audioUrl: catalogTrack.audio_url,
+  }
+}
+
+function resolvePlaylistTracks(tracks: PlaylistTrack[]): PlaylistTrack[] {
+  return tracks.map(resolvePlaylistTrack)
 }
 
 export default function PlaylistPage() {
@@ -125,7 +150,7 @@ export default function PlaylistPage() {
       const parsed = JSON.parse(saved) as Playlist[]
       setPlaylists(parsed.map((playlist) => ({
         ...playlist,
-        tracks: playlist.tracks.filter((track) => isPublicTrackArtist(track.artist)),
+        tracks: resolvePlaylistTracks(playlist.tracks.filter((track) => isPublicTrackArtist(track.artist))),
       })))
     }
   }, [])
@@ -168,6 +193,7 @@ export default function PlaylistPage() {
       album: track.album,
       duration: track.duration,
       image: track.image,
+      audioUrl: track.audio_url,
     }
     if (activePlaylist.tracks.find(t => t.id === track.id)) return
     const updated = {
@@ -190,13 +216,17 @@ export default function PlaylistPage() {
   }
 
   const playPlaylist = (playlist: Playlist) => {
-    if (playlist.tracks.length === 0) return
-    setQueue(playlist.tracks.map(t => ({
+    const playableTracks = resolvePlaylistTracks(playlist.tracks).filter((track) => track.audioUrl)
+    if (playableTracks.length === 0) return
+
+    setQueue(playableTracks.map(t => ({
       ...t,
+      audio_url: t.audioUrl,
       duration: typeof t.duration === 'string' ? 180 : t.duration || 180,
     })))
     playTrack({
-      ...playlist.tracks[0],
+      ...playableTracks[0],
+      audio_url: playableTracks[0].audioUrl || '',
       duration: 180,
     } as any)
   }

@@ -1,12 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useSupabase } from '@/app/providers'
 import { useRouter } from 'next/navigation'
 
 export default function ApplyFormPage() {
-  const { user } = useSupabase()
+  const { user, supabase } = useSupabase()
   const router = useRouter()
   const [step, setStep] = useState(1)
   const [submitting, setSubmitting] = useState(false)
@@ -16,6 +16,34 @@ export default function ApplyFormPage() {
   const [submitError, setSubmitError] = useState('')
   const [submitMessage, setSubmitMessage] = useState('')
   const [applicationId, setApplicationId] = useState<string | null>(null)
+  const [checkingArtist, setCheckingArtist] = useState(true)
+
+  // Redirect existing artists away from apply form
+  useEffect(() => {
+    async function checkExistingArtist() {
+      if (!user || !supabase) {
+        setCheckingArtist(false)
+        return
+      }
+
+      const [{ data: artist }, { data: profile }] = await Promise.all([
+        supabase.from('artists').select('id, slug').eq('id', user.id).maybeSingle(),
+        supabase.from('profiles').select('role').eq('id', user.id).maybeSingle(),
+      ])
+
+      const isArtist = artist || profile?.role === 'artist'
+
+      if (isArtist) {
+        // Existing artist — redirect to dashboard
+        router.replace('/dashboard/artist')
+        return
+      }
+
+      setCheckingArtist(false)
+    }
+
+    void checkExistingArtist()
+  }, [user, supabase, router])
 
   const [form, setForm] = useState({
     stage_name: '',
@@ -70,6 +98,17 @@ export default function ApplyFormPage() {
     } finally {
       setSubmitting(false)
     }
+  }
+
+  if (checkingArtist) {
+    return (
+      <div className="min-h-screen bg-[var(--pf-bg)] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-10 h-10 border-2 border-[var(--pf-orange)] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-[var(--pf-text-secondary)]">Checking your account...</p>
+        </div>
+      </div>
+    )
   }
 
   if (submitted) {

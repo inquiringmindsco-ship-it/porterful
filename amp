@@ -1,122 +1,290 @@
- ⚠ Compiled with warnings
+Failed to compile.
 
- ⚠ Compiled with warnings
+Failed to compile.
 
-./node_modules/@prisma/instrumentation/node_modules/@opentelemetry/instrumentation/build/esm/platform/node/instrumentation.js
-Critical dependency: the request of a dependency is an expression
+./src/app/(app)/apply/form/page.tsx
+Error: 
+  [31mx[0m the name `checkingArtist` is defined multiple times
+    ,-[[36;1;4m/Users/sentinel/Documents/porterful/src/app/(app)/apply/form/page.tsx[0m:16:1]
+ [2m16[0m |   const [submitError, setSubmitError] = useState('')
+ [2m17[0m |   const [submitMessage, setSubmitMessage] = useState('')
+ [2m18[0m |   const [applicationId, setApplicationId] = useState<string | null>(null)
+ [2m19[0m |   const [checkingArtist, setCheckingArtist] = useState(true)
+    : [31;1m         ^^^^^^^|^^^^^^[0m
+    :                 [31;1m`-- [31;1mprevious definition of `checkingArtist` here[0m[0m
+ [2m20[0m | 
+ [2m21[0m |   // Redirect existing artists away from apply form
+ [2m22[0m |   useEffect(() => {
+ [2m23[0m |     async function checkExistingArtist() {
+ [2m24[0m |       if (!user || !supabase) {
+ [2m25[0m |         setCheckingArtist(false)
+ [2m26[0m |         return
+ [2m27[0m |       }
+ [2m28[0m | 
+ [2m29[0m |       const [{ data: artist }, { data: profile }] = await Promise.all([
+ [2m30[0m |         supabase.from('artists').select('id, slug').eq('id', user.id).maybeSingle(),
+ [2m31[0m |         supabase.from('profiles').select('role').eq('id', user.id).maybeSingle(),
+ [2m32[0m |       ])
+ [2m33[0m | 
+ [2m34[0m |       const isArtist = artist || profile?.role === 'artist'
+ [2m35[0m | 
+ [2m36[0m |       if (isArtist) {
+ [2m37[0m |         // Existing artist — redirect to dashboard
+ [2m38[0m |         router.replace('/dashboard/artist')
+ [2m39[0m |         return
+ [2m40[0m |       }
+ [2m41[0m | 
+ [2m42[0m |       setCheckingArtist(false)
+ [2m43[0m |     }
+ [2m44[0m | 
+ [2m45[0m |     void checkExistingArtist()
+ [2m46[0m |   }, [user, supabase, router])
+ [2m47[0m | 
+ [2m48[0m |   const [form, setForm] = useState({
+ [2m49[0m |     stage_name: '',
+ [2m50[0m |     genre: '',
+ [2m51[0m |     city: '',
+ [2m52[0m |     bio: '',
+ [2m53[0m |     email: '',
+ [2m54[0m |     phone: '',
+ [2m55[0m |     instagram: '',
+ [2m56[0m |     twitter: '',
+ [2m57[0m |     youtube: '',
+ [2m58[0m |     tiktok: '',
+ [2m59[0m |     soundcloud: '',
+ [2m60[0m |     spotify: '',
+ [2m61[0m |     apple_music: '',
+ [2m62[0m |     has_cover_image: false,
+ [2m63[0m |     has_avatar: false,
+ [2m64[0m |     cover_image_url: '',
+ [2m65[0m |     avatar_url: '',
+ [2m66[0m |     agree_terms: false,
+ [2m67[0m |     agree_rights: false,
+ [2m68[0m |     music_license_type: 'non_exclusive' as 'non_exclusive' | 'porterful_exclusive',
+ [2m69[0m |     add_likeness: false,
+ [2m70[0m |   })
+ [2m71[0m | 
+ [2m72[0m |   const [checkingArtist, setCheckingArtist] = useState(true)
+    : [33;1m         ^^^^^^^|^^^^^^[0m
+    :                 [33;1m`-- [33;1m`checkingArtist` redefined here[0m[0m
+ [2m73[0m | 
+ [2m74[0m |   // Redirect existing artists away from apply form
+ [2m75[0m |   useEffect(() => {
+    `----
+
+  [31mx[0m the name `setCheckingArtist` is defined multiple times
+    ,-[[36;1;4m/Users/sentinel/Documents/porterful/src/app/(app)/apply/form/page.tsx[0m:16:1]
+ [2m16[0m |   const [submitError, setSubmitError] = useState('')
+ [2m17[0m |   const [submitMessage, setSubmitMessage] = useState('')
+ [2m18[0m |   const [applicationId, setApplicationId] = useState<string | null>(null)
+ [2m19[0m |   const [checkingArtist, setCheckingArtist] = useState(true)
+    : [31;1m                         ^^^^^^^^|^^^^^^^^[0m
+    :                                  [31;1m`-- [31;1mprevious definition of `setCheckingArtist` here[0m[0m
+ [2m20[0m | 
+ [2m21[0m |   // Redirect existing artists away from apply form
+ [2m22[0m |   useEffect(() => {
+ [2m23[0m |     async function checkExistingArtist() {
+ [2m24[0m |       if (!user || !supabase) {
+ [2m25[0m |         setCheckingArtist(false)
+ [2m26[0m |         return
+ [2m27[0m |       }
+ [2m28[0m | 
+ [2m29[0m |       const [{ data: artist }, { data: profile }] = await Promise.all([
+ [2m30[0m |         supabase.from('artists').select('id, slug').eq('id./src/app/(app)/apply/form/page.tsx
+Error: 
+  [31mx[0m the name `checkingArtist` is defined multiple times
+    ,-[[36;1;4m/Users/sentinel/Documents/porterful/src/app/(app)/apply/form/page.tsx[0m:16:1]
+ [2m16[0m |   const [submitError, setSubmitError] = useState('')
+ [2m17[0m |   const [submitMessage, setSubmitMessage] = useState('')
+ [2m18[0m |   const [applicationId, setApplicationId] = useState<string | null>(null)
+ [2m19[0m |   const [checkingArtist, setCheckingArtist] = useState(true)
+    : [31;1m         ^^^^^^^|^^^^^^[0m
+    :                 [31;1m`-- [31;1mprevious definition of `checkingArtist` here[0m[0m
+ [2m20[0m | 
+ [2m21[0m |   // Redirect existing artists away from apply form
+ [2m22[0m |   useEffect(() => {
+ [2m23[0m |     async function checkExistingArtist() {
+ [2m24[0m |       if (!user || !supabase) {
+ [2m25[0m |         setCheckingArtist(false)
+ [2m26[0m |         return
+ [2m27[0m |       }
+ [2m28[0m | 
+ [2m29[0m |       const [{ data: artist }, { data: profile }] = await Promise.all([
+ [2m30[0m |         supabase.from('artists').select('id, slug').eq('id', user.id).maybeSingle(),
+ [2m31[0m |         supabase.from('profiles').select('role').eq('id', user.id).maybeSingle(),
+ [2m32[0m |       ])
+ [2m33[0m | 
+ [2m34[0m |       const isArtist = artist || profile?.role === 'artist'
+ [2m35[0m | 
+ [2m36[0m |       if (isArtist) {
+ [2m37[0m |         // Existing artist — redirect to dashboard
+ [2m38[0m |         router.replace('/dashboard/artist')
+ [2m39[0m |         return
+ [2m40[0m |       }
+ [2m41[0m | 
+ [2m42[0m |       setCheckingArtist(false)
+ [2m43[0m |     }
+ [2m44[0m | 
+ [2m45[0m |     void checkExistingArtist()
+ [2m46[0m |   }, [user, supabase, router])
+ [2m47[0m | 
+ [2m48[0m |   const [form, setForm] = useState({
+ [2m49[0m |     stage_name: '',
+ [2m50[0m |     genre: '',
+ [2m51[0m |     city: '',
+ [2m52[0m |     bio: '',
+ [2m53[0m |     email: '',
+ [2m54[0m |     phone: '',
+ [2m55[0m |     instagram: '',
+ [2m56[0m |     twitter: '',
+ [2m57[0m |     youtube: '',
+ [2m58[0m |     tiktok: '',
+ [2m59[0m |     soundcloud: '',
+ [2m60[0m |     spotify: '',
+ [2m61[0m |     apple_music: '',
+ [2m62[0m |     has_cover_image: false,
+ [2m63[0m |     has_avatar: false,
+ [2m64[0m |     cover_image_url: '',
+ [2m65[0m |     avatar_url: '',
+ [2m66[0m |     agree_terms: false,
+ [2m67[0m |     agree_rights: false,
+ [2m68[0m |     music_license_type: 'non_exclusive' as 'non_exclusive' | 'porterful_exclusive',
+ [2m69[0m |     add_likeness: false,
+ [2m70[0m |   })
+ [2m71[0m | 
+ [2m72[0m |   const [checkingArtist, setCheckingArtist] = useState(true)
+    : [33;1m         ^^^^^^^|^^^^^^[0m
+    :                 [33;1m`-- [33;1m`checkingArtist` redefined here[0m[0m
+ [2m73[0m | 
+ [2m74[0m |   // Redirect existing artists away from apply form
+ [2m75[0m |   useEffect(() => {
+    `----
+
+  [31mx[0m the name `setCheckingArtist` is defined multiple times
+    ,-[[36;1;4m/Users/sentinel/Documents/porterful/src/app/(app)/apply/form/page.tsx[0m:16:1]
+ [2m16[0m |   const [submitError, setSubmitError] = useState('')
+ [2m17[0m |   const [submitMessage, setSubmitMessage] = useState('')
+ [2m18[0m |   const [applicationId, setApplicationId] = useState<string | null>(null)
+ [2m19[0m |   const [checkingArtist, setCheckingArtist] = useState(true)
+    : [31;1m                         ^^^^^^^^|^^^^^^^^[0m
+    :                                  [31;1m`-- [31;1mprevious definition of `setCheckingArtist` here[0m[0m
+ [2m20[0m | 
+ [2m21[0m |   // Redirect existing artists away from apply form
+ [2m22[0m |   useEffect(() => {
+ [2m23[0m |     async function checkExistingArtist() {
+ [2m24[0m |       if (!user || !supabase) {
+ [2m25[0m |         setCheckingArtist(false)
+ [2m26[0m |         return
+ [2m27[0m |       }
+ [2m28[0m | 
+ [2m29[0m |       const [{ data: artist }, { data: profile }] = await Promise.all([
+ [2m30[0m |         supabase.from('artists').select('id, slug').eq('id', user.id).maybeSingle(),
+ [2m31[0m |         supabase.from('profiles').select('role').eq('id', user.id).maybeSingle(),
+ [2m32[0m |       ])
+ [2m33[0m | 
+ [2m34[0m |       const isArtist = artist || profile?.role === 'artist'
+ [2m35[0m | 
+ [2m36[0m |       if (isArtist) {
+ [2m37[0m |         // Existing artist — redirect to dashboard
+ [2m38[0m |         router.replace('/dashboard/artist')
+ [2m39[0m |         return
+ [2m40[0m |       }
+ [2m41[0m | 
+ [2m42[0m |       setCheckingArtist(false)
+ [2m43[0m |     }
+ [2m44[0m | 
+ [2m45[0m |     void checkExistingArtist()
+ [2m46[0m |   }, [user, supabase, router])
+ [2m47[0m | 
+ [2m48[0m |   const [form, setForm] = useState({
+ [2m49[0m |     stage_name: '',
+ [2m50[0m |     genre: '',
+ [2m51[0m |     city: '',
+ [2m52[0m |     bio: '',
+ [2m53[0m |     email: '',
+ [2m54[0m |     phone: '',
+ [2m55[0m |     instagram: '',
+ [2m56[0m |     twitter: '',
+ [2m57[0m |     youtube: '',
+ [2m58[0m |     tiktok: '',
+ [2m59[0m |     soundcloud: '',
+ [2m60[0m |     spotify: '',
+ [2m61[0m |     apple_music: '',
+ [2m62[0m |     has_cover_image: false,
+ [2m63[0m |     has_avatar: false,
+ [2m64[0m |     cover_image_url: '',
+ [2m65[0m |     avatar_url: '',
+ [2m66[0m |     agree_terms: false,
+ [2m67[0m |     agree_rights: false,
+ [2m68[0m |     music_license_type: 'non_exclusive' as 'non_exclusive' | 'porterful_exclusive',
+ [2m69[0m |     add_likeness: false,
+ [2m70[0m |   })
+ [2m71[0m | 
+ [2m72[0m |   const [checkingArtist, setCheckingArtist] = useState(true)
+    : [33;1m                         ^^^^^^^^|^^^^^^^^[0m
+    :                                  [33;1m`-- [33;1m`setCheckingArtist` redefined here[0m[0m
+ [2m73[0m | 
+ [2m74[0m |   // Redirect existing artists away from apply form
+ [2m75[0m |   useEffect(() => {
+    `----
 
 Import trace for requested module:
-./node_modules/@prisma/instrumentation/node_modules/@opentelemetry/instrumentation/build/esm/platform/node/instrumentation.js
-./node_modules/@prisma/instrumentation/node_modules/@opentelemetry/instrumentation/build/esm/platform/node/index.js
-./node_modules/@prisma/instrumentation/node_modules/@opentelemetry/instrumentation/build/esm/platform/index.js
-./node_modules/@prisma/instrumentation/node_modules/@opentelemetry/instrumentation/build/esm/index.js
-./node_modules/@prisma/instrumentation/dist/index.js
-./node_modules/@sentry/node/build/cjs/integrations/tracing/prisma.js
-./node_modules/@sentry/node/build/cjs/index.js
-./node_modules/@sentry/nextjs/build/cjs/index.server.js
-./src/lib/sentry.ts
-./src/app/providers.tsx
+./src/app/(app)/apply/form/page.tsx
 
-./node_modules/@fastify/otel/node_modules/@opentelemetry/instrumentation/build/esm/platform/node/instrumentation.js
-Critical dependency: the request of a dependency is an expression
-
-Import trace for requested module:
-./node_modules/@fastify/otel/node_modules/@opentelemetry/instrumentation/build/esm/platform/node/instrumentation.js
-./node_modules/@fastify/otel/node_modules/@opentelemetry/instrumentation/build/esm/platform/node/index.js
-./node_modules/@fastify/otel/node_modules/@opentelemetry/instrumentation/build/esm/platform/index.js
-./node_modules/@fastify/otel/node_modules/@opentelemetry/instrumentation/build/esm/index.js
-./node_modules/@fastify/otel/index.js
-./node_modules/@sentry/node/build/cjs/integrations/tracing/fastify/index.js
-./node_modules/@sentry/node/build/cjs/index.js
-./node_modules/@sentry/nextjs/build/cjs/index.server.js
-./src/lib/sentry.ts
-./src/app/auth/callback/route.ts
-
-./node_modules/require-in-the-middle/index.js
-Critical dependency: require function is used in a way in which dependencies cannot be statically extracted
-
-Import trace for requested module:
-./node_modules/require-in-the-middle/index.js
-./node_modules/@opentelemetry/instrumentation/build/esm/platform/node/instrumentation.js
-./node_modules/@opentelemetry/instrumentation/build/esm/platform/node/index.js
-./node_modules/@opentelemetry/instrumentation/build/esm/platform/index.js
-./node_modules/@opentelemetry/instrumentation/build/esm/index.js
-./node_modules/@sentry/node/build/cjs/integrations/tracing/express.js
-./node_modules/@sentry/node/build/cjs/index.js
-./node_modules/@sentry/nextjs/build/cjs/index.server.js
-./src/lib/sentry.ts
-./src/app/auth/callback/route.ts
-
-./node_modules/@prisma/instrumentation/node_modules/@opentelemetry/instrumentation/build/esm/platform/node/instrumentation.js
-Critical dependency: the request of a dependency is an expression
-
-Import trace for requested module:
-./node_modules/@prisma/instrumentation/node_modules/@opentelemetry/instrumentation/build/esm/platform/node/instrumentation.js
-./node_modules/@prisma/instrumentation/node_modules/@opentelemetry/instrumentation/build/esm/platform/node/index.js
-./node_modules/@prisma/instrumentation/node_modules/@opentelemetry/instrumentation/build/esm/platform/index.js
-./node_modules/@prisma/instrumentation/node_modules/@opentelemetry/instrumentation/build/esm/index.js
-./node_modules/@prisma/instrumentation/dist/index.js
-./node_modules/@sentry/node/build/cjs/integrations/tracing/prisma.js
-./node_modules/@sentry/node/build/cjs/index.js
-./node_modules/@sentry/nextjs/build/cjs/index.server.js
-./src/lib/sentry.ts
-./src/app/providers.tsx
-
-./node_modules/@fastify/otel/node_modules/@opentelemetry/instrumentation/build/esm/platform/node/instrumentation.js
-Critical dependency: the request of a dependency is an expression
+', user.id).maybeSingle(),
+ [2m31[0m |         supabase.from('profiles').select('role').eq('id', user.id).maybeSingle(),
+ [2m32[0m |       ])
+ [2m33[0m | 
+ [2m34[0m |       const isArtist = artist || profile?.role === 'artist'
+ [2m35[0m | 
+ [2m36[0m |       if (isArtist) {
+ [2m37[0m |         // Existing artist — redirect to dashboard
+ [2m38[0m |         router.replace('/dashboard/artist')
+ [2m39[0m |         return
+ [2m40[0m |       }
+ [2m41[0m | 
+ [2m42[0m |       setCheckingArtist(false)
+ [2m43[0m |     }
+ [2m44[0m | 
+ [2m45[0m |     void checkExistingArtist()
+ [2m46[0m |   }, [user, supabase, router])
+ [2m47[0m | 
+ [2m48[0m |   const [form, setForm] = useState({
+ [2m49[0m |     stage_name: '',
+ [2m50[0m |     genre: '',
+ [2m51[0m |     city: '',
+ [2m52[0m |     bio: '',
+ [2m53[0m |     email: '',
+ [2m54[0m |     phone: '',
+ [2m55[0m |     instagram: '',
+ [2m56[0m |     twitter: '',
+ [2m57[0m |     youtube: '',
+ [2m58[0m |     tiktok: '',
+ [2m59[0m |     soundcloud: '',
+ [2m60[0m |     spotify: '',
+ [2m61[0m |     apple_music: '',
+ [2m62[0m |     has_cover_image: false,
+ [2m63[0m |     has_avatar: false,
+ [2m64[0m |     cover_image_url: '',
+ [2m65[0m |     avatar_url: '',
+ [2m66[0m |     agree_terms: false,
+ [2m67[0m |     agree_rights: false,
+ [2m68[0m |     music_license_type: 'non_exclusive' as 'non_exclusive' | 'porterful_exclusive',
+ [2m69[0m |     add_likeness: false,
+ [2m70[0m |   })
+ [2m71[0m | 
+ [2m72[0m |   const [checkingArtist, setCheckingArtist] = useState(true)
+    : [33;1m                         ^^^^^^^^|^^^^^^^^[0m
+    :                                  [33;1m`-- [33;1m`setCheckingArtist` redefined here[0m[0m
+ [2m73[0m | 
+ [2m74[0m |   // Redirect existing artists away from apply form
+ [2m75[0m |   useEffect(() => {
+    `----
 
 Import trace for requested module:
-./node_modules/@fastify/otel/node_modules/@opentelemetry/instrumentation/build/esm/platform/node/instrumentation.js
-./node_modules/@fastify/otel/node_modules/@opentelemetry/instrumentation/build/esm/platform/node/index.js
-./node_modules/@fastify/otel/node_modules/@opentelemetry/instrumentation/build/esm/platform/index.js
-./node_modules/@fastify/otel/node_modules/@opentelemetry/instrumentation/build/esm/index.js
-./node_modules/@fastify/otel/index.js
-./node_modules/@sentry/node/build/cjs/integrations/tracing/fastify/index.js
-./node_modules/@sentry/node/build/cjs/index.js
-./node_modules/@sentry/nextjs/build/cjs/index.server.js
-./src/lib/sentry.ts
-./src/app/auth/callback/route.ts
+./src/app/(app)/apply/form/page.tsx
 
-./node_modules/require-in-the-middle/index.js
-Critical dependency: require function is used in a way in which dependencies cannot be statically extracted
 
-Import trace for requested module:
-./node_modules/require-in-the-middle/index.js
-./node_modules/@opentelemetry/instrumentation/build/esm/platform/node/instrumentation.js
-./node_modules/@opentelemetry/instrumentation/build/esm/platform/node/index.js
-./node_modules/@opentelemetry/instrumentation/build/esm/platform/index.js
-./node_modules/@opentelemetry/instrumentation/build/esm/index.js
-./node_modules/@sentry/node/build/cjs/integrations/tracing/express.js
-./node_modules/@sentry/node/build/cjs/index.js
-./node_modules/@sentry/nextjs/build/cjs/index.server.js
-./src/lib/sentry.ts
-./src/app/auth/callback/route.ts
 
-[LikenessVerify] Error: B [Error]: Dynamic server usage: Route /api/likeness/verify couldn't be rendered statically because it used `request.url`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
-    at V (/Users/sentinel/Documents/porterful/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:21778)
-    at Object.get (/Users/sentinel/Documents/porterful/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:29465)
-    at u (/Users/sentinel/Documents/porterful/.next/server/app/(app)/api/likeness/verify/route.js:1:644)
-    at /Users/sentinel/Documents/porterful/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:38417
-    at /Users/sentinel/Documents/porterful/node_modules/next/dist/server/lib/trace/tracer.js:140:36
-    at NoopContextManager.with (/Users/sentinel/Documents/porterful/node_modules/@opentelemetry/api/build/src/context/NoopContextManager.js:14:19)
-    at ContextAPI.with (/Users/sentinel/Documents/porterful/node_modules/@opentelemetry/api/build/src/api/context.js:51:46)
-    at NoopTracer.startActiveSpan (/Users/sentinel/Documents/porterful/node_modules/@opentelemetry/api/build/src/trace/NoopTracer.js:54:31)
-    at ProxyTracer.startActiveSpan (/Users/sentinel/Documents/porterful/node_modules/@opentelemetry/api/build/src/trace/ProxyTracer.js:27:24)
-    at /Users/sentinel/Documents/porterful/node_modules/next/dist/server/lib/trace/tracer.js:122:103 {
-  description: "Route /api/likeness/verify couldn't be rendered statically because it used `request.url`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
-  digest: 'DYNAMIC_SERVER_USAGE'
-}
-[LikenessVerify] Error: B [Error]: Dynamic server usage: Route /api/likeness/verify couldn't be rendered statically because it used `request.url`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
-    at V (/Users/sentinel/Documents/porterful/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:21778)
-    at Object.get (/Users/sentinel/Documents/porterful/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:29465)
-    at u (/Users/sentinel/Documents/porterful/.next/server/app/(app)/api/likeness/verify/route.js:1:644)
-    at /Users/sentinel/Documents/porterful/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:38417
-    at /Users/sentinel/Documents/porterful/node_modules/next/dist/server/lib/trace/tracer.js:140:36
-    at NoopContextManager.with (/Users/sentinel/Documents/porterful/node_modules/@opentelemetry/api/build/src/context/NoopContextManager.js:14:19)
-    at ContextAPI.with (/Users/sentinel/Documents/porterful/node_modules/@opentelemetry/api/build/src/api/context.js:51:46)
-    at NoopTracer.startActiveSpan (/Users/sentinel/Documents/porterful/node_modules/@opentelemetry/api/build/src/trace/NoopTracer.js:54:31)
-    at ProxyTracer.startActiveSpan (/Users/sentinel/Documents/porterful/node_modules/@opentelemetry/api/build/src/trace/ProxyTracer.js:27:24)
-    at /Users/sentinel/Documents/porterful/node_modules/next/dist/server/lib/trace/tracer.js:122:103 {
-  description: "Route /api/likeness/verify couldn't be rendered statically because it used `request.url`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
-  digest: 'DYNAMIC_SERVER_USAGE'
-}
+> Build failed because of webpack errors
+> Build failed because of webpack errors

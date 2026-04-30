@@ -227,10 +227,10 @@ export function Navbar() {
         }`}
       >
         <div
-          className="flex flex-col h-full pt-20 px-6 overflow-y-auto"
+          className="flex flex-col h-full pt-safe px-6 overflow-y-auto"
           onClick={() => setMobileOpen(false)}
         >
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-6 pt-4">
             <div>
               <p className="text-xs uppercase tracking-[0.2em] text-[var(--pf-text-muted)]">Menu</p>
               <p className="text-sm font-medium text-[var(--pf-text)]">Porterful</p>

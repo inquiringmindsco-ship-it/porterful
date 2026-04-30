@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAuthenticatedClient } from '@/lib/auth-utils';
 import { createServerClient } from '@/lib/supabase';
 import { TRACKS } from '@/lib/data';
+import { dedupeQueueTracks, sortTracksByAlbumOrder } from '@/lib/track-dedupe';
 
 // POST /api/tracks — Upload a new track
 export async function POST(request: NextRequest) {
@@ -116,7 +117,9 @@ export async function GET(request: NextRequest) {
     }
   });
 
-  return NextResponse.json({ tracks: merged });
+  const canonicalTracks = dedupeQueueTracks(sortTracksByAlbumOrder(merged as any));
+
+  return NextResponse.json({ tracks: canonicalTracks });
 }
 // Cache bust: 1777083644
 // Deploy trigger: Fri Apr 24 21:47:41 CDT 2026

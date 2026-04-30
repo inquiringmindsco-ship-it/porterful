@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useRef, useEffect, ReactNode, useCallback } from 'react';
 import { getTrackArtwork } from '@/lib/artwork';
+import { dedupeQueueTracks, filterPlayableTracks, hasPlayableAudio } from '@/lib/track-dedupe';
 
 // ─── DEBUG LOGGING ────────────────────────────────────────────────────────────
 const DEBUG = false;
@@ -27,7 +28,7 @@ export interface Track {
 }
 
 // ─── CONTEXT TYPE ─────────────────────────────────────────────────────────────
-interface AudioContext {
+interface AudioContextValue {
   currentTrack: Track | null;
   isPlaying: boolean;
   volume: number;
@@ -49,7 +50,7 @@ interface AudioContext {
   hasPurchased: (trackId: string) => boolean;
 }
 
-const AudioCtx = createContext<AudioContext | null>(null);
+const AudioCtx = createContext<AudioContextValue | null>(null);
 
 // ─── AUDIO PROVIDER ───────────────────────────────────────────────────────────
 export function AudioProvider({ children }: { children: ReactNode }) {
@@ -58,95 +59,102 @@ export function AudioProvider({ children }: { children: ReactNode }) {
   const [volume, setVolumeState] = useState(80);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [queue, setQueue] = useState<Track[]>([]);
+  const [queueState, setQueueState] = useState<Track[]>([]);
   const [currentIndex, setCurrentIndex] = useState(-1);
   const [mode, setMode] = useState<'track' | 'radio' | 'artist'>('track');
-  const [purchasedTracks] = useState<Set<string>>(new Set()); // Stub for now
+  const [purchasedTracks] = useState<Set<string>>(new Set());
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const queueRef = useRef<Track[]>([]);
   const currentIndexRef = useRef(-1);
   const currentTrackRef = useRef<Track | null>(null);
+  const playTrackRef = useRef<(track: Track) => void>(() => {});
+
+  const setQueue = useCallback((tracks: Track[]) => {
+    const normalizedQueue = dedupeQueueTracks(filterPlayableTracks(tracks));
+    queueRef.current = normalizedQueue;
+    setQueueState(normalizedQueue);
+  }, []);
+
+  const findPlayableTrack = useCallback((startIndex: number, direction: 1 | -1) => {
+    const currentQueue = queueRef.current;
+    if (currentQueue.length === 0) return null;
+
+    const baseIndex = direction === 1 ? startIndex : (startIndex >= 0 ? startIndex : 0);
+
+    for (let offset = 1; offset <= currentQueue.length; offset += 1) {
+      const nextIndex = direction === 1
+        ? (baseIndex + offset) % currentQueue.length
+        : (baseIndex - offset + currentQueue.length) % currentQueue.length;
+      const candidate = currentQueue[nextIndex];
+      if (candidate && hasPlayableAudio(candidate)) {
+        return { track: candidate, index: nextIndex };
+      }
+    }
+
+    return null;
+  }, []);
 
   // Keep refs in sync
   useEffect(() => {
-    queueRef.current = queue;
+    queueRef.current = queueState;
     currentIndexRef.current = currentIndex;
-  }, [queue, currentIndex]);
+  }, [queueState, currentIndex]);
 
   useEffect(() => {
     currentTrackRef.current = currentTrack;
   }, [currentTrack]);
 
-  // Create audio element on mount - NO ANIMATIONS, NO FADES
+  // Create audio element on mount
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
     log('Creating Audio element');
     const audio = new Audio();
     audioRef.current = audio;
-    audio.volume = volume / 100;
+    audio.volume = 0.8;
     audio.preload = 'auto';
 
-    // ─── EVENT: timeupdate ───────────────────────────────────────────────────
-    // progress is exposed as currentTime in seconds. Consumers compute the
-    // percent for the bar via (progress / duration) * 100.
     const handleTimeUpdate = () => {
       if (!audioRef.current) return;
       const currentTime = audioRef.current.currentTime || 0;
       setProgress(currentTime);
-      
-      // Check for preview mode - stop at preview duration
+
       const track = currentTrackRef.current;
       if (track && (track as any).playback_mode === 'preview') {
         const previewDuration = (track as any).preview_duration_seconds || 60;
         if (currentTime >= previewDuration) {
           log('Preview ended for track:', track.title);
-          // Pause at preview end
           audioRef.current.pause();
           setIsPlaying(false);
-          // Optionally show preview ended state or auto-advance
         }
       }
     };
 
-    // ─── EVENT: loadedmetadata ────────────────────────────────────────────────
     const handleLoadedMetadata = () => {
       if (audioRef.current) {
         setDuration(audioRef.current.duration);
       }
     };
 
-    // ─── EVENT: error ───────────────────────────────────────────────────────
     const handleAudioError = () => {
       console.error('[AUDIO] Error:', audio.error);
       setIsPlaying(false);
     };
 
-    // ─── EVENT: ended ───────────────────────────────────────────────────────
     const handleEnded = () => {
       log('Track ended');
-      const currentQueue = queueRef.current;
-      const currentIdx = currentIndexRef.current;
-      
-      if (currentQueue.length > 0) {
-        const nextIdx = (currentIdx + 1) % currentQueue.length;
-        const nextTrack = currentQueue[nextIdx];
-        if (nextTrack) {
-          // Call playTrack to use the same logic as manual click
-          // Defer to avoid state update during event handler
-          setTimeout(() => playTrack(nextTrack), 0);
-        }
+      const nextPlayable = findPlayableTrack(currentIndexRef.current, 1);
+      if (nextPlayable) {
+        setTimeout(() => playTrackRef.current(nextPlayable.track), 0);
+      } else {
+        setIsPlaying(false);
       }
     };
 
-    // ─── EVENT: play ────────────────────────────────────────────────────────
     const handlePlay = () => setIsPlaying(true);
-
-    // ─── EVENT: pause ───────────────────────────────────────────────────────
     const handlePause = () => setIsPlaying(false);
 
-    // Attach listeners
     audio.addEventListener('timeupdate', handleTimeUpdate);
     audio.addEventListener('loadedmetadata', handleLoadedMetadata);
     audio.addEventListener('error', handleAudioError);
@@ -161,9 +169,11 @@ export function AudioProvider({ children }: { children: ReactNode }) {
       audio.removeEventListener('ended', handleEnded);
       audio.removeEventListener('play', handlePlay);
       audio.removeEventListener('pause', handlePause);
+      audio.pause();
+      audio.src = '';
       audioRef.current = null;
     };
-  }, []);
+  }, [findPlayableTrack]);
 
   // Update volume
   useEffect(() => {
@@ -175,33 +185,26 @@ export function AudioProvider({ children }: { children: ReactNode }) {
   // ─── PLAY TRACK ────────────────────────────────────────────────────────────
   const playTrack = useCallback((track: Track) => {
     log('playTrack', track.id);
-    
+
     if (!audioRef.current) return;
-    
-    const audio = audioRef.current;
-    
-    // Reset audio element completely
-    audio.pause();
-    audio.currentTime = 0;
-    
-    // Update state
-    setCurrentTrack(track);
-    const idx = queue.findIndex(t => t.id === track.id);
-    if (idx >= 0) setCurrentIndex(idx);
-    setProgress(0);
-    setDuration(0);
-    
-    // Validate audio URL
-    if (!track.audio_url) {
-      console.error('[AUDIO] No audio_url for track', track.id);
+    if (!hasPlayableAudio(track)) {
+      console.error('[AUDIO] No playable audio_url for track', track.id);
       return;
     }
-    
-    // Set src and load
-    audio.src = track.audio_url;
+
+    const audio = audioRef.current;
+    audio.pause();
+    audio.currentTime = 0;
+
+    setCurrentTrack(track);
+    const idx = queueRef.current.findIndex((queuedTrack) => queuedTrack.id === track.id);
+    setCurrentIndex(idx >= 0 ? idx : -1);
+    setProgress(0);
+    setDuration(0);
+
+    audio.src = track.audio_url.trim();
     audio.load();
-    
-    // Play immediately - no fade, no delay
+
     const playPromise = audio.play();
     if (playPromise) {
       playPromise.catch((err) => {
@@ -209,25 +212,34 @@ export function AudioProvider({ children }: { children: ReactNode }) {
         setIsPlaying(false);
       });
     }
-  }, [queue]);
+  }, []);
+
+  useEffect(() => {
+    playTrackRef.current = playTrack;
+  }, [playTrack]);
 
   const loadTrack = useCallback((track: Track) => {
+    if (!hasPlayableAudio(track)) {
+      console.error('[AUDIO] No playable audio_url for track', track.id);
+      return;
+    }
+
     setCurrentTrack(track);
-    const idx = queue.findIndex(t => t.id === track.id);
-    if (idx >= 0) setCurrentIndex(idx);
-    
-    if (audioRef.current && track.audio_url) {
-      audioRef.current.src = track.audio_url;
+    const idx = queueRef.current.findIndex((queuedTrack) => queuedTrack.id === track.id);
+    setCurrentIndex(idx >= 0 ? idx : -1);
+
+    if (audioRef.current) {
+      audioRef.current.src = track.audio_url.trim();
       audioRef.current.load();
     }
-  }, [queue]);
+  }, []);
 
   const togglePlay = useCallback(() => {
     if (!audioRef.current) return;
-    
+
     if (isPlaying) {
       audioRef.current.pause();
-    } else if (currentTrack?.audio_url) {
+    } else if (hasPlayableAudio(currentTrack)) {
       audioRef.current.play().catch(() => {});
     }
   }, [isPlaying, currentTrack]);
@@ -237,17 +249,15 @@ export function AudioProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const playNext = useCallback(() => {
-    const currentQueue = queueRef.current;
-    if (currentQueue.length === 0) return;
-    
-    const currentIdx = currentIndexRef.current;
-    const nextIdx = (currentIdx + 1) % currentQueue.length;
-    const track = currentQueue[nextIdx];
-    
-    if (track) {
-      playTrack(track);
+    const nextPlayable = findPlayableTrack(currentIndexRef.current, 1);
+    if (nextPlayable) {
+      playTrack(nextPlayable.track);
+      return;
     }
-  }, [playTrack]);
+
+    audioRef.current?.pause();
+    setIsPlaying(false);
+  }, [findPlayableTrack, playTrack]);
 
   const playPrev = useCallback(() => {
     if (audioRef.current && audioRef.current.currentTime > 3) {
@@ -255,25 +265,18 @@ export function AudioProvider({ children }: { children: ReactNode }) {
       setProgress(0);
       return;
     }
-    
-    const currentQueue = queueRef.current;
-    if (currentQueue.length === 0) return;
-    
-    const currentIdx = currentIndexRef.current;
-    const prevIdx = (currentIdx - 1 + currentQueue.length) % currentQueue.length;
-    const track = currentQueue[prevIdx];
-    
-    if (track) {
-      playTrack(track);
+
+    const prevPlayable = findPlayableTrack(currentIndexRef.current, -1);
+    if (prevPlayable) {
+      playTrack(prevPlayable.track);
     }
-  }, [playTrack]);
+  }, [findPlayableTrack, playTrack]);
 
   const setVolume = useCallback((v: number) => {
     setVolumeState(v);
     if (audioRef.current) audioRef.current.volume = v / 100;
   }, []);
 
-  // seek takes seconds (matches the audio element's currentTime).
   const seek = useCallback((seconds: number) => {
     if (!audioRef.current || !duration) return;
     const clamped = Math.max(0, Math.min(seconds, duration));
@@ -281,20 +284,37 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     setProgress(clamped);
   }, [duration]);
 
-  const hasPurchased = useCallback((trackId: string) => purchasedTracks.has(trackId), [purchasedTracks]);
+  const hasPurchased = useCallback(
+    (trackId: string) => purchasedTracks.has(trackId),
+    [purchasedTracks]
+  );
 
-  // Initialize queue
+  // Keep currentIndex aligned with the active queue/current track.
   useEffect(() => {
-    if (queue.length > 0 && currentIndex === -1) {
-      setCurrentIndex(0);
-      if (!currentTrack) setCurrentTrack(queue[0]);
+    if (queueState.length === 0) {
+      if (currentIndex !== -1) {
+        setCurrentIndex(-1);
+      }
+      return;
     }
-  }, [queue, currentIndex, currentTrack]);
+
+    if (!currentTrack) {
+      if (currentIndex !== 0) {
+        setCurrentIndex(0);
+      }
+      if (queueState[0]) {
+        setCurrentTrack(queueState[0]);
+      }
+      return;
+    }
+
+    const nextIndex = queueState.findIndex((track) => track.id === currentTrack.id);
+    if (nextIndex !== currentIndex) {
+      setCurrentIndex(nextIndex);
+    }
+  }, [queueState, currentIndex, currentTrack]);
 
   // ─── MEDIA SESSION (iOS / Android lock screen) ───────────────────────────
-  // Sets the native lock-screen / control-center metadata so it shows the
-  // actual track + artist instead of "Porterful". Re-registers when the
-  // current track or the queue-aware nav callbacks change.
   useEffect(() => {
     if (typeof navigator === 'undefined' || !('mediaSession' in navigator)) return;
     const ms = navigator.mediaSession;
@@ -304,8 +324,6 @@ export function AudioProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    // Same fallback chain as the player UI / track rows so the lock-screen
-    // image always matches what the user sees in the app.
     const artworkUrl = getTrackArtwork(currentTrack);
     ms.metadata = new MediaMetadata({
       title: currentTrack.title || '',
@@ -322,16 +340,10 @@ export function AudioProvider({ children }: { children: ReactNode }) {
       ms.setActionHandler('play', () => {
         audioRef.current?.play().catch(() => {});
       });
-      ms.setActionHandler('pause', () => {
-        audioRef.current?.pause();
-      });
-      ms.setActionHandler('previoustrack', () => {
-        playPrev();
-      });
-      ms.setActionHandler('nexttrack', () => {
-        playNext();
-      });
-      ms.setActionHandler('seekto', (details: MediaSessionActionDetails) => {
+      ms.setActionHandler('pause', () => audioRef.current?.pause());
+      ms.setActionHandler('previoustrack', () => playPrev());
+      ms.setActionHandler('nexttrack', () => playNext());
+      ms.setActionHandler('seekto', (details: any) => {
         if (audioRef.current && typeof details.seekTime === 'number') {
           audioRef.current.currentTime = details.seekTime;
         }
@@ -341,7 +353,6 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     }
   }, [currentTrack, playPrev, playNext]);
 
-  // Reflect playback state so the lock-screen play/pause icon stays in sync.
   useEffect(() => {
     if (typeof navigator === 'undefined' || !('mediaSession' in navigator)) return;
     navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
@@ -349,9 +360,25 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 
   return (
     <AudioCtx.Provider value={{
-      currentTrack, isPlaying, volume, progress, duration, mode, setMode,
-      playTrack, loadTrack, togglePlay, pause, playNext, playPrev,
-      setVolume, seek, queue, setQueue, currentIndex, hasPurchased,
+      currentTrack,
+      isPlaying,
+      volume,
+      progress,
+      duration,
+      mode,
+      setMode,
+      playTrack,
+      loadTrack,
+      togglePlay,
+      pause,
+      playNext,
+      playPrev,
+      setVolume,
+      seek,
+      queue: queueState,
+      setQueue,
+      currentIndex,
+      hasPurchased,
     }}>
       {children}
     </AudioCtx.Provider>
@@ -362,11 +389,25 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 export function useAudio() {
   const ctx = useContext(AudioCtx);
   if (!ctx) return {
-    currentTrack: null, isPlaying: false, volume: 80, progress: 0, duration: 0,
-    mode: 'track' as const, setMode: () => {},
-    playTrack: () => {}, loadTrack: () => {}, togglePlay: () => {}, pause: () => {},
-    playNext: () => {}, playPrev: () => {}, setVolume: () => {}, seek: () => {},
-    queue: [], setQueue: () => {}, currentIndex: -1, hasPurchased: () => false,
+    currentTrack: null,
+    isPlaying: false,
+    volume: 80,
+    progress: 0,
+    duration: 0,
+    mode: 'track' as const,
+    setMode: () => {},
+    playTrack: () => {},
+    loadTrack: () => {},
+    togglePlay: () => {},
+    pause: () => {},
+    playNext: () => {},
+    playPrev: () => {},
+    setVolume: () => {},
+    seek: () => {},
+    queue: [],
+    setQueue: () => {},
+    currentIndex: -1,
+    hasPurchased: () => false,
   };
   return ctx;
 }

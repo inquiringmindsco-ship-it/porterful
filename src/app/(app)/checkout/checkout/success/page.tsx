@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Check, Download, Mail, Music, ArrowRight, Play, Loader2 } from 'lucide-react';
 import { useAudio } from '@/lib/audio-context';
+import { TRACKS } from '@/lib/data'
 import { loadPlaybackSnapshot, clearPlaybackSnapshot } from '@/lib/playback-persistence';
 
 interface PurchasedTrack {
@@ -12,6 +13,8 @@ interface PurchasedTrack {
   name: string;
   artist: string;
   audioUrl: string;
+  image?: string;
+  album?: string | null;
   downloadUrl?: string;
   storagePath?: string;
 }
@@ -21,6 +24,28 @@ interface OrderDetails {
   customerEmail: string;
   paymentStatus: string;
   tracks: PurchasedTrack[];
+}
+
+function resolvePurchasedTrack(track: PurchasedTrack): PurchasedTrack {
+  const existingAudioUrl = track.audioUrl || (track as any).audio_url;
+  if (existingAudioUrl?.trim()) {
+    return {
+      ...track,
+      audioUrl: existingAudioUrl,
+    };
+  }
+
+  const catalogTrack = TRACKS.find((candidate) => (
+    candidate.id === track.id
+    || (candidate.title === track.name && candidate.artist === track.artist)
+  ))
+
+  if (!catalogTrack?.audio_url) return track;
+
+  return {
+    ...track,
+    audioUrl: catalogTrack.audio_url,
+  };
 }
 
 function SuccessContent() {
@@ -39,25 +64,48 @@ function SuccessContent() {
   useEffect(() => {
     const snapshot = loadPlaybackSnapshot();
     if (snapshot?.currentTrack && !restoredPlayback) {
+      const resolvedQueue = snapshot.queue.map((track) => resolvePurchasedTrack({
+        id: track.id,
+        name: track.title,
+        artist: track.artist,
+        audioUrl: track.audioUrl,
+        image: track.image,
+      })).filter((track) => track.audioUrl?.trim());
+
+      const resolvedCurrentTrack = resolvePurchasedTrack({
+        id: snapshot.currentTrack.id,
+        name: snapshot.currentTrack.title,
+        artist: snapshot.currentTrack.artist,
+        audioUrl: snapshot.currentTrack.audioUrl,
+        image: snapshot.currentTrack.image,
+        album: snapshot.currentTrack.album,
+      });
+
+      if (!resolvedCurrentTrack.audioUrl?.trim()) {
+        clearPlaybackSnapshot();
+        setRestoredPlayback(true);
+        return;
+      }
+
       // Restore queue first
-      if (snapshot.queue.length > 0) {
-        audio.setQueue(snapshot.queue.map(t => ({
+      if (resolvedQueue.length > 0) {
+        audio.setQueue(resolvedQueue.map(t => ({
           id: t.id,
-          title: t.title,
+          title: t.name,
           artist: t.artist,
-          audio_url: t.audioUrl,
+          audio_url: t.audioUrl || '',
           image: t.image,
         })));
       }
       
       // Restore current track without auto-playing
       audio.loadTrack({
-        id: snapshot.currentTrack.id,
-        title: snapshot.currentTrack.title,
-        artist: snapshot.currentTrack.artist,
-        audio_url: snapshot.currentTrack.audioUrl,
-        image: snapshot.currentTrack.image,
-        album: snapshot.currentTrack.album,
+        id: resolvedCurrentTrack.id,
+        title: resolvedCurrentTrack.name,
+        artist: resolvedCurrentTrack.artist,
+        audio_url: resolvedCurrentTrack.audioUrl || '',
+        image: resolvedCurrentTrack.image,
+        album: resolvedCurrentTrack.album,
       });
       
       // Restore volume
