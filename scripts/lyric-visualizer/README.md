@@ -113,7 +113,7 @@ Standard LRC format with millisecond precision.
 - Animated transitions between lines
 - Waveform visualization
 - Gradient/particle backgrounds
-- **Kenwood Dreams** template (warm nostalgic glow, audio-reactive — deferred from v0.1)
+- **Ocean Deck** template (warm nostalgic glow, audio-reactive — deferred from v0.1)
 
 ### v0.3+ (Future)
 - Auto lyric timing from audio (deferred; local-only review required)

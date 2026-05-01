@@ -10,7 +10,7 @@
 
 ## 1. Overview
 
-Full-screen music visualizer for Porterful. Multiple visual modes, classic Kenwood/Winamp aesthetic, mobile-safe fallbacks.
+Full-screen music visualizer for Porterful. Multiple visual modes, classic stereo deck / Winamp aesthetic, mobile-safe fallbacks.
 
 **Not:** a second audio engine. Not a replacement for the existing player. Not autoplaying without user gesture.
 

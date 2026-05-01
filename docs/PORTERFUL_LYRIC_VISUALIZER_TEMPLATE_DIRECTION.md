@@ -117,7 +117,7 @@ For v0.1, only build templates that can be rendered safely with **static cover a
 
 ### Defer advanced motion (post-v0.1)
 
-- **Kenwood Dreams** — warm nostalgic wood-panel glow, dolphin animation, spectrum analyzer (requires canvas audio-reactive scene)
+- **Ocean Deck** — warm nostalgic wood-panel glow, dolphin animation, spectrum analyzer (requires canvas audio-reactive scene)
 - **Streetlight** — lamp flicker
 - **Gold Room** — particles / light sweep
 - **Pain & Healing** — split-screen choreography

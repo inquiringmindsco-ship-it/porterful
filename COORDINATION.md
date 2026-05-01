@@ -10,7 +10,7 @@
 
 ### ChatGPT — Product Designer & UX Strategist
 - Defines user-facing features and experience flow
-- Writes aesthetic direction ("Kenwood feel", "Winamp nostalgia")
+- Writes aesthetic direction ("Ocean Deck feel", "Winamp nostalgia")
 - Specifies control layouts, presets, interaction patterns
 - Provides visual references and analogies
 - **Does NOT write production code**
@@ -40,7 +40,7 @@
 ### User (Od) — Decision Maker
 - Approves or rejects spec scope
 - Sets priority order
-- Provides aesthetic direction ("I want Kenwood vibes")
+- Provides aesthetic direction ("I want Ocean Deck vibes")
 - Accepts or rejects completed work
 - **Can override any role's decision**
 
@@ -49,7 +49,7 @@
 ## Workflow
 
 ### 1. User Has Idea
-User describes feature in natural language. Example: "I want a Kenwood-style visualizer and EQ."
+User describes feature in natural language. Example: "I want an Ocean Deck-style visualizer and EQ."
 
 ### 2. ChatGPT Designs
 - Writes user-facing spec (UX flow, controls, modes)
