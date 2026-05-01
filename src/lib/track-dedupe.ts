@@ -220,7 +220,15 @@ export function mergeCanonicalTracks(
     // When both are equally playable, prefer DB (live/editable) over static.
     if (current.source !== candidate.source) {
       if (candidate.source === 'db') {
-        merged.set(key, candidate)
+        // DB wins but may be missing static-only fields (duration, etc.)
+        // Merge static fallback into DB track so we don't lose data.
+        const mergedTrack: Track = {
+          ...candidate.track,
+          duration: candidate.track.duration || current.track.duration,
+          image: candidate.track.image || current.track.image,
+          cover_url: candidate.track.cover_url || current.track.cover_url,
+        }
+        merged.set(key, { ...candidate, track: mergedTrack })
       }
       return
     }
