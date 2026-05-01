@@ -629,7 +629,7 @@ export default function ArtistProfilePage({ params }: { params: { id: string } }
                   <Star size={16} className="text-[var(--pf-orange)]" /> Founder's Mission
                 </h3>
                 <blockquote className="border-l-4 border-[var(--pf-orange)] pl-4 italic text-[var(--pf-text-secondary)]">
-                  "I built Porterful because I was tired of watching artists get pennies while platforms got rich. Every purchase here puts real money in artists' pockets — 80% goes directly to them."
+                  "I built Porterful because I was tired of watching artists get pennies while platforms got rich. Every purchase here puts real money in artists' pockets — earnings go directly to them."
                 </blockquote>
               </div>
             )}

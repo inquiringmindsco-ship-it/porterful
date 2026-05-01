@@ -276,7 +276,7 @@ export default function TrendingPage() {
               <div className="w-12 h-12 mx-auto mb-4 rounded-xl bg-purple-500/20 flex items-center justify-center">
                 <ShoppingCart className="text-purple-400" size={24} />
               </div>
-              <h3 className="font-semibold mb-2">80% to Artists</h3>
+              <h3 className="font-semibold mb-2">earnings to Artists</h3>
               <p className="text-sm text-[var(--pf-text-secondary)]">
                 The majority of every sale goes directly to creators.
               </p>

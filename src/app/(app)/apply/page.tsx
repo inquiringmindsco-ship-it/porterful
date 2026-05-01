@@ -6,7 +6,7 @@ import { ArrowRight, Check, Music, DollarSign, Users, Zap, Headphones, Globe, Sh
 const BENEFITS = [
   {
     icon: DollarSign,
-    title: '80% on every sale',
+    title: "Artist-first earnings",
     desc: 'More than any other platform. Your music, your price, your cut.',
   },
   {
@@ -27,14 +27,14 @@ const BENEFITS = [
 ]
 
 const REVENUE_MODEL = [
-  { label: 'Track sale', artistGets: '80%', porterful: '10%', superfan: '10%' },
-  { label: 'Album sale', artistGets: '80%', porterful: '10%', superfan: '10%' },
-  { label: 'Merch sale', artistGets: '67%', porterful: '10%', superfan: '10%' },
-  { label: 'Book sale', artistGets: '80%', porterful: '10%', superfan: '10%' },
+  { label: 'Track sale', artistGets: 'majority', porterful: 'platform', superfan: 'referral' },
+  { label: 'Album sale', artistGets: 'majority', porterful: 'platform', superfan: 'referral' },
+  { label: 'Merch sale', artistGets: 'majority', porterful: 'platform', superfan: 'referral' },
+  { label: 'Book sale', artistGets: 'majority', porterful: 'platform', superfan: 'referral' },
 ]
 
 const PLATFORM_STATS = [
-  { value: '80%', label: 'Artist revenue share' },
+  { value: 'Artist-first', label: 'Revenue share' },
   { value: '100+', label: 'Tracks available' },
   { value: '3–8%', label: 'Superfan commission' },
   { value: '$0', label: 'To join' },
@@ -63,7 +63,7 @@ export default function ApplyPage() {
           </h1>
 
           <p className="text-xl text-[var(--pf-text-secondary)] max-w-2xl mx-auto mb-10">
-            Porterful is not a platform that takes from artists. It is a platform that artists own. Keep 80% on every sale. Build with your fans. No label. No middleman.
+            Porterful is not a platform that takes from artists. It is a platform that artists own. Keep artist-first earnings on every sale. Build with your fans. No label. No middleman.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">

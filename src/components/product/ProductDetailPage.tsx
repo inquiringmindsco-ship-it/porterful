@@ -193,7 +193,7 @@ export function ProductDetailPage() {
               </div>
               <div className="text-center">
                 <Heart size={18} className="mx-auto text-[var(--pf-orange)] mb-1" />
-                <p className="text-xs text-[var(--pf-text-muted)]">80% to Artist</p>
+                <p className="text-xs text-[var(--pf-text-muted)]">earnings to Artist</p>
               </div>
               <div className="text-center">
                 <Truck size={18} className="mx-auto text-blue-400 mb-1" />

@@ -130,7 +130,7 @@ export default function MoralPolicyPage() {
             </p>
             <p>
               <strong className="text-white">We're building a different path.</strong> Porterful exists to 
-              give artists a fair shot. Direct support from fans. 80% of every sale goes to the artist. 
+              give artists a fair shot. Direct support from fans. the majority of every sale goes to the artist. 
               No middleman. No exploitation.
             </p>
           </div>

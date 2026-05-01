@@ -13,7 +13,7 @@ const BENEFITS = [
   {
     icon: Heart,
     title: 'Direct to Artists',
-    description: '80% of every dollar goes straight to the artists you love.',
+    description: 'the majority of every dollar goes directly to the artists you love.',
   },
   {
     icon: Zap,
@@ -126,7 +126,7 @@ export default function ProudToPayPage() {
           <div className="grid md:grid-cols-3 gap-6">
             <div className="text-center">
               <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-3">
-                <span className="text-2xl font-bold text-green-400">80%</span>
+                <span className="text-2xl font-bold text-green-400">majority</span>
               </div>
               <h3 className="font-bold mb-1">To Artists</h3>
               <p className="text-sm text-[var(--pf-text-secondary)]">Direct to the creator</p>

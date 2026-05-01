@@ -261,7 +261,7 @@ export default function ChallengePage() {
               <div className="bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-2xl p-8">
                 <div className="text-4xl font-bold text-[var(--pf-orange)] mb-2">2,000</div>
                 <p className="text-[var(--pf-text-secondary)] mb-3">track sales at $5</p>
-                <div className="text-sm text-[var(--pf-text-muted)]">2,000 × $5 × 80% = $8K from tracks</div>
+                <div className="text-sm text-[var(--pf-text-muted)]">2,000 × $5 × majority share = $8K from tracks</div>
                 <div className="text-sm text-[var(--pf-text-muted)]">+ merch on top = easy $10K</div>
               </div>
               <div className="bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-2xl p-8">
@@ -320,7 +320,7 @@ export default function ChallengePage() {
               Your Fans Are Ready.<br />Are You?
             </h2>
             <p className="text-xl text-white/80 mb-12 max-w-xl mx-auto">
-              Free to join. 80% on every sale. The $10K bonus is waiting.
+              Free to join. artist-first earnings on every sale. The $10K bonus is waiting.
             </p>
             <Link href="/signup?role=artist" className="inline-flex items-center gap-3 bg-white text-[var(--pf-orange)] font-bold text-lg px-12 py-5 rounded-2xl hover:bg-white/90 transition-colors shadow-2xl">
               <Zap size={24} />

@@ -43,7 +43,7 @@ function getInviteEmailTemplate(artistName: string, claimUrl: string): string {
       <p>Here's what you'll get:</p>
       <ul style="color: #a0a0a8; line-height: 1.8; padding-left: 20px;">
         <li>Your own artist page at <span class="highlight">porterful.com/artist/${artistName.toLowerCase().replace(/\s+/g, '-')}</span></li>
-        <li>Keep 80% of every sale</li>
+        <li>Keep the majority of every sale</li>
         <li>Direct fan support with Proud to Pay</li>
         <li>Full control over your music and profile</li>
       </ul>

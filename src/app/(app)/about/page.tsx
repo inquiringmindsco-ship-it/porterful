@@ -8,7 +8,7 @@ const PUBLIC_ARTIST_COUNT = ARTISTS.filter((a) => a.trackCount && a.trackCount >
 
 export const metadata: Metadata = {
   title: 'About Porterful - The Artist Economy Platform',
-  description: 'Porterful is where independent artists earn 80% on every sale. No label. No middleman. Music, merch, marketplace — built for creators who deserve a retirement plan.',
+  description: 'Porterful is where independent artists earn artist-first earnings on every sale. No label. No middleman. Music, merch, marketplace — built for creators who deserve a retirement plan.',
   keywords: [
     'independent artist platform',
     'artist economy',
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     title: 'About Porterful - The Artist Economy',
-    description: 'Where artists own everything. Music, merch, marketplace — 80% goes to artists.',
+    description: 'Where artists own everything. Music, merch, marketplace — earnings go directly to artists.',
     images: ['/og-image.png'],
   },
 }
@@ -43,7 +43,7 @@ export default function AboutPage() {
               <span className="block text-[var(--pf-orange)]">Everything</span>
             </h1>
             <p className="text-xl text-[var(--pf-text-secondary)] max-w-3xl mx-auto">
-              Porterful is a music and merchandise platform where artists keep 80% of every sale.
+              Porterful is a music and merchandise platform where artists keep the majority of every sale.
               No label. No middleman. Just artists and fans, directly connected.
             </p>
           </div>
@@ -127,7 +127,7 @@ export default function AboutPage() {
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">✓</span>
-                  <span className="text-[var(--pf-text)]"><strong>80%</strong> goes to artists on every sale</span>
+                  <span className="text-[var(--pf-text)]"><strong>Artist-first</strong> — earnings go directly to artists on every sale</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">✓</span>
@@ -161,7 +161,7 @@ export default function AboutPage() {
                 He wrote his story down and kept going when momentum dropped. Loss in the family derailed his momentum and he still didn't quit.
               </p>
               <p className="text-[var(--pf-text-secondary)] mb-4">
-                Porterful is his answer. Infrastructure that keeps money in the community. A retirement plan for artists who never had one. On this platform, artists keep 80% of every sale. Direct to fan. No middleman.
+                Porterful is his answer. Infrastructure that keeps money in the community. A retirement plan for artists who never had one. On this platform, artists keep the majority of every sale. Direct to fan. No middleman.
               </p>
               <p className="text-[var(--pf-orange)] font-semibold text-lg">
                 This isn't just a platform — it's the plan.
@@ -178,8 +178,8 @@ export default function AboutPage() {
           <div className="bg-[var(--pf-surface)] rounded-2xl p-8 border border-[var(--pf-border)]">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="text-center">
-                <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg">
-                  80%
+                <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+                  Majority
                 </div>
                 <div className="font-bold text-lg text-[var(--pf-text)]">Artist</div>
                 <div className="text-sm text-[var(--pf-text-muted)]">Direct earnings on every sale</div>

@@ -131,7 +131,7 @@ export default function UnlockPage() {
             </div>
             <div className="flex items-center gap-3">
               <Check size={20} className="text-green-400 shrink-0" />
-              <span className="text-[var(--pf-text)]"><strong>80% to artists</strong> — your money goes further here</span>
+              <span className="text-[var(--pf-text)]"><strong>earnings to artists</strong> — your money goes further here</span>
             </div>
           </div>
 

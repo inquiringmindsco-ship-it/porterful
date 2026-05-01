@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   
   return {
     title: `${album.album} by ${album.artist} | Porterful`,
-    description: `${album.album} by ${album.artist}. ${trackCount} tracks. Stream or buy on Porterful. 80% goes to artists.`,
+    description: `${album.album} by ${album.artist}. ${trackCount} tracks. Stream or buy on Porterful. earnings go directly to artists.`,
     openGraph: {
       title: `${album.album} by ${album.artist}`,
       description: `${trackCount} tracks. Stream or buy on Porterful.`,
@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     twitter: {
       card: 'summary_large_image',
       title: `${album.album} by ${album.artist}`,
-      description: `${trackCount} tracks. 80% goes to artists.`,
+      description: `${trackCount} tracks. earnings go directly to artists.`,
       images: [album.image],
     },
   }

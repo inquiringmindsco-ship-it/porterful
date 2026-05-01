@@ -13,7 +13,7 @@ const DEMO_TYPES = [
     tagline: 'Sell your music & merch directly to fans',
     features: [
       { icon: Upload, text: 'Upload tracks, set your prices' },
-      { icon: DollarSign, text: 'Keep 80% of every sale' },
+      { icon: DollarSign, text: 'Keep the majority of every sale' },
       { icon: Mail, text: 'Notify fans when you drop' },
       { icon: BarChart3, text: 'See plays, sales & earnings' },
     ],

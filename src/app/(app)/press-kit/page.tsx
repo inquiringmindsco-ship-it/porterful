@@ -31,7 +31,7 @@ export default function PressKitPage() {
             </div>
             <div>
               <p className="text-sm text-[var(--pf-text-muted)] uppercase tracking-wider mb-1">Revenue Split</p>
-              <p className="text-2xl font-bold">80%</p>
+              <p className="text-2xl font-bold">Artist-first</p>
               <p className="text-sm text-[var(--pf-text-secondary)]">To artists on merch</p>
             </div>
           </div>

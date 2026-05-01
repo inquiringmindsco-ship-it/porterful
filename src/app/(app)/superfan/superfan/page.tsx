@@ -65,7 +65,7 @@ export default function SuperfanPage() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-[var(--pf-text-secondary)]">Artist keeps:</span>
-                    <span className="font-semibold">80%</span>
+                    <span className="font-semibold">Artist-first</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-[var(--pf-text-secondary)]">Processing:</span>
