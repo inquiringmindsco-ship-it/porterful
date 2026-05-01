@@ -10,7 +10,7 @@
 - ✅ **Three output formats** — 16:9 (YouTube), 9:16 (Shorts/Reels/TikTok), 1:1 (Instagram)
 - ✅ **Frame-by-frame rendering** — each frame shows the correct lyric at the right time
 - ✅ **No cloud services** — 100% local processing
-- ✅ **No AI** — no transcription, no generation, no external APIs
+- ✅ **No cloud AI** — no cloud transcription, no generation, no external APIs
 - ✅ **No FFmpeg drawtext** — works with Homebrew FFmpeg (uses Pillow for text rendering)
 
 ## Requirements
@@ -113,8 +113,8 @@ Standard LRC format with millisecond precision.
 - Gradient/particle backgrounds
 
 ### v0.3+ (Future)
-- Auto lyric timing from audio
-- AI-generated visuals
+- Auto lyric timing from audio (deferred; local-only review required)
+- AI-generated visuals (deferred; local-only review required)
 - Production dashboard integration
 
 ## File Structure
