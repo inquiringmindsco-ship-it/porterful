@@ -2,6 +2,8 @@
 
 **Local-only lyric video generator with synced lyrics support.**
 
+Now includes **Visualizer Studio** — a browser-based creator UI at `http://127.0.0.1:8765`.
+
 ## Features
 
 - ✅ **Audio plays in the rendered MP4** — full song audio preserved

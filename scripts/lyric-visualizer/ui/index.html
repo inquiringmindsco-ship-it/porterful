@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Porterful Visualizer Studio</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Header -->
+    <header class="studio-header">
+      <div class="brand">Porterful Visualizer Studio</div>
+      <div class="badge">Local Only</div>
+    </header>
+
+    <!-- Start Screen -->
+    <section id="screen-start" class="screen active">
+      <div class="hero">
+        <h1>Make a lyric video.</h1>
+        <p>Turn your song into something people want to post.</p>
+        <button id="btn-start" class="btn-primary">Start a new video</button>
+      </div>
+      <div id="recent-jobs" class="recent-jobs hidden">
+        <h2>Recent work</h2>
+        <div id="recent-list" class="job-list"></div>
+      </div>
+    </section>
+
+    <!-- Create Form Screen -->
+    <section id="screen-create" class="screen">
+      <div class="form-header">
+        <button id="btn-back-start" class="btn-back">← Back</button>
+        <h2>Create a new video</h2>
+      </div>
+
+      <div class="form-grid">
+        <!-- Left: Inputs -->
+        <div class="form-inputs">
+          <!-- Song -->
+          <div class="field">
+            <label>Your song</label>
+            <select id="audio-select">
+              <option value="">Choose a song file...</option>
+            </select>
+            <p class="hint">Copy MP3, WAV, or M4A files into <code>scripts/lyric-visualizer/input/</code></p>
+          </div>
+
+          <!-- Cover -->
+          <div class="field">
+            <label>Your cover art</label>
+            <select id="cover-select">
+              <option value="">Choose a cover image...</option>
+            </select>
+            <p class="hint">Copy JPG or PNG files into <code>scripts/lyric-visualizer/input/</code></p>
+          </div>
+
+          <!-- Artist -->
+          <div class="field">
+            <label>Artist name</label>
+            <input type="text" id="artist-input" placeholder="e.g. O D Porter">
+          </div>
+
+          <!-- Title -->
+          <div class="field">
+            <label>Track title</label>
+            <input type="text" id="title-input" placeholder="e.g. Heart of a Lion">
+          </div>
+
+          <!-- Lyrics -->
+          <div class="field">
+            <label>Lyrics</label>
+            <div class="lyrics-tabs">
+              <button class="tab active" data-kind="text">Paste text</button>
+              <button class="tab" data-kind="srt">SRT file</button>
+              <button class="tab" data-kind="lrc">LRC file</button>
+            </div>
+            <textarea id="lyrics-text" rows="6" placeholder="Paste your lyrics here.&#10;One line per line.&#10;Leave a blank line between verses."></textarea>
+            <select id="lyrics-file-select" class="hidden">
+              <option value="">Choose a lyrics file...</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Right: Summary -->
+        <div class="form-summary">
+          <div class="summary-card">
+            <h3>Your video</h3>
+            <div id="template-preview" class="template-preview">
+              <p class="empty">Pick a template to preview</p>
+            </div>
+            <div id="format-display" class="format-display">
+              <p class="empty">Pick a format</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Template Picker -->
+      <div class="section">
+        <h3>Pick a look</h3>
+        <div id="template-grid" class="template-grid"></div>
+      </div>
+
+      <!-- Format Selector -->
+      <div class="section">
+        <h3>Where will you post this?</h3>
+        <div id="format-selector" class="format-selector">
+          <button class="format-btn" data-format="9:16">
+            <span class="format-icon">📱</span>
+            <span class="format-label">Reels, TikTok, Shorts</span>
+            <span class="format-sub">9:16 · Tall video</span>
+          </button>
+          <button class="format-btn" data-format="1:1">
+            <span class="format-icon">🖼️</span>
+            <span class="format-label">Instagram, X</span>
+            <span class="format-sub">1:1 · Square</span>
+          </button>
+          <button class="format-btn" data-format="16:9">
+            <span class="format-icon">▶️</span>
+            <span class="format-label">YouTube</span>
+            <span class="format-sub">16:9 · Wide</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Rights + Generate -->
+      <div class="section generate-section">
+        <label class="rights-check">
+          <input type="checkbox" id="rights-checkbox">
+          <span>I own or am authorized to use this song, cover art, and lyrics.</span>
+        </label>
+        <button id="btn-generate" class="btn-primary" disabled>Make my video</button>
+        <p id="generate-error" class="error-text"></p>
+      </div>
+    </section>
+
+    <!-- Job Status Screen -->
+    <section id="screen-status" class="screen">
+      <div class="status-panel">
+        <h2 id="status-title">Making your video.</h2>
+        <div id="status-pill" class="status-pill queued">Queued</div>
+        <div id="progress-bar" class="progress-bar">
+          <div class="progress-fill" style="width: 0%"></div>
+        </div>
+        <p id="status-detail">Waiting to start...</p>
+        <div id="job-meta" class="job-meta hidden">
+          <p><strong>Artist:</strong> <span id="job-artist"></span></p>
+          <p><strong>Track:</strong> <span id="job-title"></span></p>
+          <p><strong>Template:</strong> <span id="job-template"></span></p>
+          <p><strong>Format:</strong> <span id="job-format"></span></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Output Screen -->
+    <section id="screen-output" class="screen">
+      <div class="output-panel">
+        <h2>Your video is ready.</h2>
+        <div id="output-preview" class="output-preview">
+          <img id="output-thumb" src="" alt="Video thumbnail" class="hidden">
+          <p id="output-fallback">Video preview loading...</p>
+        </div>
+        <div class="output-actions">
+          <a id="output-link" href="#" class="btn-primary" download>Download video</a>
+          <button id="btn-open-folder" class="btn-secondary">Open folder</button>
+          <button id="btn-make-another" class="btn-secondary">Make another</button>
+        </div>
+        <div class="output-meta">
+          <p><strong>Output path:</strong> <code id="output-path"></code></p>
+          <p><strong>Generated:</strong> <span id="output-time"></span></p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

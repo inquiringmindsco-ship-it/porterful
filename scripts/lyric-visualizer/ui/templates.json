@@ -1,0 +1,39 @@
+{
+  "templates": [
+    {
+      "id": "classic-lyric",
+      "name": "Classic Lyric",
+      "description": "Clean and timeless. Lets the song lead.",
+      "vibe": "Timeless",
+      "formats": ["9:16", "1:1", "16:9"]
+    },
+    {
+      "id": "cover-pulse",
+      "name": "Cover Pulse",
+      "description": "Your cover art, moving with the beat.",
+      "vibe": "Release-day",
+      "formats": ["9:16", "1:1", "16:9"]
+    },
+    {
+      "id": "minimal-wave",
+      "name": "Minimal Wave",
+      "description": "One lyric. One line. No noise.",
+      "vibe": "Editorial",
+      "formats": ["9:16", "1:1", "16:9"]
+    },
+    {
+      "id": "release-promo",
+      "name": "Release Promo",
+      "description": "A 15-second teaser with a countdown.",
+      "vibe": "Promo",
+      "formats": ["9:16", "1:1", "16:9"]
+    },
+    {
+      "id": "support-this-artist",
+      "name": "Support This Artist",
+      "description": "Your lyric, plus a tip / stream / follow button built in.",
+      "vibe": "Fan-funded",
+      "formats": ["9:16", "1:1", "16:9"]
+    }
+  ]
+}

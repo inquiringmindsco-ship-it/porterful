@@ -1,3 +1,8 @@
+# Ignore UI job outputs and logs
+ui/jobs/*
+!ui/jobs/.gitkeep
+ui/*.log
+
 # Ignore input media files (audio, images, lyrics)
 input/*.mp3
 input/*.wav
