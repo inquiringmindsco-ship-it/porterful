@@ -1,0 +1,22 @@
+{
+  "version": "0.1",
+  "artist": "O D Porter",
+  "title": "Test Track",
+  "audio": "input/audio.mp3",
+  "cover": "input/cover.jpg",
+  "lyrics": "input/lyrics.txt",
+  "lyricsFormat": "txt",
+  "outputFormat": "9x16",
+  "outputFile": "output/generated-videos/od-porter-test-track-9x16.mp4",
+  "template": "classic-lyric",
+  "settings": {
+    "fontSize": 48,
+    "fontColor": "#FFFFFF",
+    "fontFamily": "Inter",
+    "backgroundOverlay": "rgba(0,0,0,0.6)",
+    "textPosition": "center",
+    "lineSpacing": 1.5,
+    "fadeInDuration": 0.5,
+    "fadeOutDuration": 0.5
+  }
+}

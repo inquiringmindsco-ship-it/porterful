@@ -1,0 +1,27 @@
+# Ignore input media files (audio, images, lyrics)
+input/*.mp3
+input/*.wav
+input/*.flac
+input/*.m4a
+input/*.jpg
+input/*.png
+input/*.webp
+input/*.txt
+input/*.srt
+input/*.lrc
+
+# Ignore output generated files
+output/generated-videos/*.mp4
+output/generated-videos/*.jpg
+output/generated-videos/*.png
+output/generated-videos/*.json
+output/generated-videos/*.frame.jpg
+
+# Ignore temp files
+*.frame.jpg
+generate.log
+
+# Ignore config files with paths (may contain local paths)
+# Keep example-config.json as reference
+test-*.json
+input/config.json
