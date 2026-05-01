@@ -3,7 +3,11 @@ input/*.mp3
 input/*.wav
 input/*.flac
 input/*.m4a
+input/*.aac
+input/*.ogg
+input/*.mov
 input/*.jpg
+input/*.jpeg
 input/*.png
 input/*.webp
 input/*.txt
@@ -12,7 +16,9 @@ input/*.lrc
 
 # Ignore output generated files
 output/generated-videos/*.mp4
+output/generated-videos/*.mov
 output/generated-videos/*.jpg
+output/generated-videos/*.jpeg
 output/generated-videos/*.png
 output/generated-videos/*.json
 output/generated-videos/*.frame.jpg
@@ -24,4 +30,5 @@ generate.log
 # Ignore config files with paths (may contain local paths)
 # Keep example-config.json as reference
 test-*.json
+real-track-config.json
 input/config.json
