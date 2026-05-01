@@ -193,7 +193,7 @@ export default function SettingsPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[var(--pf-bg)] text-white flex items-center justify-center">
-        <p className="text-[var(--pf-text-muted)]">Loading...</p>
+        <p className="text-[var(--pf-text-muted)]">Loading your settings…</p>
       </div>
     );
   }
@@ -449,8 +449,8 @@ export default function SettingsPage() {
                     <div className="text-gray-500">Total Referrals</div>
                   </div>
                   <div className="bg-[var(--pf-surface)] rounded-xl p-6 border border-[var(--pf-border)] text-center">
-                    <div className="text-3xl font-bold text-green-400">${referralStats.totalEarnings.toFixed(2)}</div>
-                    <div className="text-gray-500">Total Earned</div>
+                    <div className="text-lg font-semibold text-[var(--pf-text-secondary)]">Not connected yet</div>
+                    <div className="text-gray-500 text-xs mt-2">Referral earnings will appear here once tracking and payout reporting are connected.</div>
                   </div>
                 </div>
 

@@ -204,13 +204,13 @@ export function GlobalPlayer() {
             {/* Preview ended message */}
             {(currentTrack as any).playback_mode === 'preview' && !isPlaying && progress >= ((currentTrack as any).preview_duration_seconds || 60) - 1 && (
               <div className="mt-2 text-center">
-                <p className="text-sm text-yellow-400">Preview ended — unlock full track</p>
-                <button 
+                <p className="text-sm text-yellow-400">Preview ended — full-track unlock coming soon</p>
+                <button
                   className="mt-1 text-xs bg-[var(--pf-surface)] hover:bg-[var(--pf-orange)]/20 border border-[var(--pf-border)] px-3 py-1 rounded transition-colors disabled:opacity-50"
                   disabled
-                  title="Unlock feature coming soon"
+                  title="Full-track unlock is coming soon"
                 >
-                  Unlock Full Track
+                  Unlock coming soon
                 </button>
               </div>
             )}

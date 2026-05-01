@@ -16,6 +16,10 @@ export function Footer() {
     // { href: '/store', label: 'Store' }, // Hidden: store has no real products yet
     { href: '/artists', label: 'Artists' },
     { href: '/contact', label: 'Contact' },
+    { href: '/terms', label: 'Terms' },
+    { href: '/privacy', label: 'Privacy' },
+    { href: '/refund', label: 'Refunds' },
+    { href: '/dmca', label: 'Copyright' },
   ]
 
   return (

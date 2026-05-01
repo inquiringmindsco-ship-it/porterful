@@ -217,7 +217,7 @@ export default function EditTrackPage() {
         <div className="pf-container max-w-2xl">
           <div className="pf-card p-8 text-center">
             <AlertCircle size={48} className="mx-auto mb-4 text-[var(--pf-text-muted)]" />
-            <h2 className="text-xl font-bold mb-2">Error</h2>
+            <h2 className="text-xl font-bold mb-2">We couldn&apos;t load this track</h2>
             <p className="text-[var(--pf-text-muted)] mb-4">{error}</p>
             <Link href="/dashboard/artist" className="pf-btn pf-btn-primary">
               Back to Catalog

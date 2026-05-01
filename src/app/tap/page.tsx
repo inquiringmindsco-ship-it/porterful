@@ -72,7 +72,7 @@ export default async function TapPage({ searchParams }: TapPageProps) {
           body: 'If a profile is missing or inactive, the system falls back to this generic entry page instead of erroring.',
         },
       ]}
-      disclaimer="Documentation and registration only. No ownership enforcement, legal protection, or identity insurance is claimed here."
+      disclaimer={"Tap-In helps fans reach your official Porterful page.\nIt does not prove legal ownership of a name, song, or likeness.\nUse it as a connection layer, not a legal claim."}
     />
   )
 }

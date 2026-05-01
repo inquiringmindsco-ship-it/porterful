@@ -11,7 +11,7 @@ function LoadingSignup() {
     <div className="min-h-screen pt-20 pb-12 px-4 flex items-center justify-center">
       <div className="text-center">
         <div className="w-8 h-8 border-2 border-[var(--pf-orange)] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-        <p className="text-[var(--pf-text-muted)]">Loading...</p>
+        <p className="text-[var(--pf-text-muted)]">Loading your account…</p>
       </div>
     </div>
   )

@@ -133,7 +133,7 @@ export default async function TapSlugPage({ params, searchParams }: TapSlugPageP
           body: 'Incoming ref, product, and campaign values stay attached as the tap moves into the next step.',
         },
       ]}
-      disclaimer="Documentation and registration only. No legal ownership, protection, or insurance is promised here."
+      disclaimer={"Tap-In helps fans reach your official Porterful page.\nIt does not prove legal ownership of a name, song, or likeness.\nUse it as a connection layer, not a legal claim."}
     />
   )
 }

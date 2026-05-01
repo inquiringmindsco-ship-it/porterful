@@ -334,7 +334,7 @@ export function TapExperience({
           ))}
         </section>
 
-        <footer className="mt-8 border-t border-white/10 pt-5 text-xs leading-relaxed text-white/45">
+        <footer className="mt-8 border-t border-white/10 pt-5 text-xs leading-relaxed text-white/45 whitespace-pre-line">
           {disclaimer}
         </footer>
       </main>

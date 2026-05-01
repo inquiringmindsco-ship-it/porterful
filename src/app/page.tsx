@@ -64,7 +64,7 @@ export default function HomePage() {
                 Music, merch, and support — directly from the artists.
               </h1>
               <p className="mt-5 text-lg text-[var(--pf-text-secondary)] max-w-xl">
-                Stream tracks, buy albums, shop artist apparel. 80% of every purchase goes straight to the people making the music.
+                Stream tracks, buy albums, shop artist apparel. Built for artist-first sales, transparent earnings, and direct fan support.
               </p>
               
               <div className="mt-8 flex flex-wrap gap-3">
@@ -79,7 +79,7 @@ export default function HomePage() {
                   href="/login" 
                   className="pf-btn pf-btn-secondary inline-flex items-center justify-center gap-2 px-6 py-3 text-base"
                 >
-                  Join Free
+                  Create your account
                 </Link>
               </div>
               
@@ -190,7 +190,7 @@ export default function HomePage() {
                 </div>
                 <h3 className="text-lg font-semibold">Support</h3>
                 <p className="mt-2 text-sm text-[var(--pf-text-secondary)]">
-                  80% of every purchase goes directly to artists.
+                  Artist-first earnings. Direct support, no middlemen.
                 </p>
                 <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-[var(--pf-accent)] group-hover:underline">
                   Meet artists <ArrowRight size={14} />
