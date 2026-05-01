@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
-import { ArrowRight, Pause, Play, Headphones, Heart, ShoppingBag } from 'lucide-react'
+import { ArrowRight, Pause, Play, Headphones, Heart } from 'lucide-react'
 import { Footer } from '@/components/Footer'
 import { useAudio, type Track } from '@/lib/audio-context'
 import { TRACKS } from '@/lib/data'
@@ -169,6 +169,7 @@ export default function HomePage() {
                 </span>
               </Link>
               
+              {/* Shop card hidden — store has no real products yet
               <Link href="/store" className="group rounded-xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-6 transition hover:border-[var(--pf-accent)]">
                 <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--pf-accent)]/10 text-[var(--pf-accent)]">
                   <ShoppingBag size={20} />
@@ -181,6 +182,7 @@ export default function HomePage() {
                   Visit store <ArrowRight size={14} />
                 </span>
               </Link>
+              */}
               
               <Link href="/artists" className="group rounded-xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-6 transition hover:border-[var(--pf-accent)]">
                 <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--pf-accent)]/10 text-[var(--pf-accent)]">
