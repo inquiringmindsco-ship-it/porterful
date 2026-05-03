@@ -24,7 +24,13 @@ function buildArtistIdSet(userId: string, profile: any | null, artistById: any |
 
 export async function getArtistAccessContext(supabase: any, userId: string): Promise<ArtistAccessContext> {
   const [profileResult, artistByIdResult] = await Promise.all([
-    supabase.from('profiles').select('id, role, email, name, full_name').eq('id', userId).maybeSingle() as QueryResult<any>,
+    supabase
+      .from('profiles')
+      .select(
+        'id, role, email, username, full_name, avatar_url, cover_url, location, website, lk_id, referral_code, referred_by, onboarding_completed, user_level, revenue_total, next_unlock, archetype, archetype_scores, created_at, updated_at',
+      )
+      .eq('id', userId)
+      .maybeSingle() as QueryResult<any>,
     supabase.from('artists').select('*').eq('id', userId).maybeSingle() as QueryResult<any>,
   ])
 

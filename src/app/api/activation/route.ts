@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { createServerClient } from '@supabase/ssr'
 import { normalizeActivationCode, getActivationCodeByValue, consumeActivationCode, isActivationCode, isDiscountCode } from '@/lib/activation'
+import { ensureProfile } from '@/lib/server/ensure-profile'
 
 function getServiceSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -69,59 +70,21 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    const now = new Date().toISOString()
     const userEmail = user.email?.toLowerCase() || null
 
-    const { data: existingProfile } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('id', user.id)
-      .maybeSingle()
-
-    if (!existingProfile) {
-      const { error: insertError } = await supabase.from('profiles').insert({
-        id: user.id,
-        email: userEmail || '',
-        name: user.user_metadata?.name || user.email?.split('@')[0] || 'Porterful User',
-        paid_cash: true,
-        cash_paid_at: now,
-        activation_code_id: activationCode.id,
-      })
-      if (insertError) {
-        return NextResponse.json({ error: insertError.message }, { status: 500 })
-      }
-    } else {
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({
-          paid_cash: true,
-          cash_paid_at: now,
-          activation_code_id: activationCode.id,
-        })
-        .eq('id', user.id)
-
-      if (updateError) {
-        return NextResponse.json({ error: updateError.message }, { status: 500 })
-      }
+    const { profile, error: profileError } = await ensureProfile(supabase, user)
+    if (profileError || !profile) {
+      return NextResponse.json({ error: profileError?.message || 'Unable to prepare your account.' }, { status: 500 })
     }
 
     const { data: consumed, error: consumeError } = await consumeActivationCode(supabase, codeValue, {
-      redeemedByProfileId: user.id,
+      redeemedByProfileId: profile.id,
       redeemedEmail: userEmail,
     })
 
     if (consumeError || !consumed) {
       return NextResponse.json({ error: 'This code could not be activated.' }, { status: 409 })
     }
-
-    await supabase
-      .from('profiles')
-      .update({
-        paid_cash: true,
-        cash_paid_at: now,
-        activation_code_id: consumed.id,
-      })
-      .eq('id', user.id)
 
     return NextResponse.json({
       success: true,

@@ -209,17 +209,6 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'This code could not be activated.' }, { status: 409 })
       }
 
-      if (profileId) {
-        await supabase
-          .from('profiles')
-          .update({
-            paid_cash: true,
-            cash_paid_at: new Date().toISOString(),
-            activation_code_id: consumed.id,
-          })
-          .eq('id', profileId)
-      }
-
       return NextResponse.json({
         cash: true,
         noCharge: true,

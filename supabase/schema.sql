@@ -10,17 +10,20 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE TABLE profiles (
   id UUID REFERENCES auth.users ON DELETE CASCADE PRIMARY KEY,
   email TEXT NOT NULL,
-  name TEXT,
+  full_name TEXT,
+  username TEXT,
   avatar_url TEXT,
   role TEXT DEFAULT 'supporter' CHECK (role IN ('supporter', 'superfan', 'artist', 'business', 'brand', 'admin')),
   referral_code TEXT UNIQUE DEFAULT 'PF-' || UPPER(SUBSTRING(MD5(RANDOM()::TEXT) FROM 1 FOR 8)),
   referred_by UUID REFERENCES profiles(id),
-  paid_cash BOOLEAN DEFAULT FALSE,
-  cash_paid_at TIMESTAMPTZ,
-  activation_code_id UUID,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Unique index for usernames (partial — allows nulls during backfill)
+CREATE UNIQUE INDEX IF NOT EXISTS profiles_username_key
+  ON profiles (username)
+  WHERE username IS NOT NULL;
 
 -- ============================================
 -- TAP PROFILES
@@ -402,20 +405,64 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Create profile on user signup
+-- Create profile on user signup. Writes full_name + username; never touches
+-- the deprecated `name` column. See migration 019 for the canonical body.
 CREATE OR REPLACE FUNCTION handle_new_user()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  meta          jsonb := COALESCE(NEW.raw_user_meta_data, '{}'::jsonb);
+  v_email       text  := lower(COALESCE(NEW.email, ''));
+  v_email_local text  := split_part(v_email, '@', 1);
+  v_full_name   text;
+  v_avatar_url  text;
+  base_username text;
+  v_username    text;
+  attempts      int := 0;
 BEGIN
-  INSERT INTO profiles (id, email, name, referral_code)
-  VALUES (
-    NEW.id,
-    NEW.email,
-    COALESCE(NEW.raw_user_meta_data->>'name', split_part(NEW.email, '@', 1)),
-    generate_referral_code()
+  v_full_name := COALESCE(
+    NULLIF(meta->>'full_name', ''),
+    NULLIF(meta->>'name', ''),
+    NULLIF(v_email_local, ''),
+    'Porterful User'
   );
+
+  v_avatar_url := COALESCE(
+    NULLIF(meta->>'avatar_url', ''),
+    NULLIF(meta->>'picture', '')
+  );
+
+  base_username := lower(COALESCE(
+    NULLIF(regexp_replace(v_full_name,   '[^a-zA-Z0-9_]+', '', 'g'), ''),
+    NULLIF(regexp_replace(v_email_local, '[^a-zA-Z0-9_]+', '', 'g'), ''),
+    'user_' || substr(NEW.id::text, 1, 8)
+  ));
+
+  v_username := base_username;
+  WHILE EXISTS (SELECT 1 FROM public.profiles WHERE username = v_username) AND attempts < 5 LOOP
+    v_username := base_username || '_' || substr(NEW.id::text, 1, 4 + attempts);
+    attempts := attempts + 1;
+  END LOOP;
+
+  INSERT INTO public.profiles (id, email, full_name, username, avatar_url, role)
+  VALUES (NEW.id, v_email, v_full_name, v_username, v_avatar_url, 'supporter')
+  ON CONFLICT (id) DO UPDATE SET
+    email      = COALESCE(public.profiles.email,      EXCLUDED.email),
+    full_name  = COALESCE(public.profiles.full_name,  EXCLUDED.full_name),
+    username   = COALESCE(public.profiles.username,   EXCLUDED.username),
+    avatar_url = COALESCE(public.profiles.avatar_url, EXCLUDED.avatar_url);
+    -- never overwrite role; never auto-promote to artist.
+
   RETURN NEW;
+EXCEPTION
+  WHEN OTHERS THEN
+    RAISE WARNING 'handle_new_user failed for %: %', NEW.id, SQLERRM;
+    RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
 
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users

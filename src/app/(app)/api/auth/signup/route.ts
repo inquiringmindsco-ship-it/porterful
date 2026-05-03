@@ -4,7 +4,7 @@ import { cookies } from 'next/headers'
 
 export async function POST(request: Request) {
   try {
-    const { email, password, name, role, youtube, website, industry, invite_artist_slug } = await request.json()
+    const { email, password, name, role, youtube, website, invite_artist_slug } = await request.json()
 
     if (!email || !password || !name || !role) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
@@ -30,7 +30,7 @@ export async function POST(request: Request) {
       email,
       password,
       email_confirm: true, // Skip email confirmation for smoother signup
-      user_metadata: { name, role }
+      user_metadata: { name, full_name: name, role }
     })
 
     if (signUpError) {
@@ -43,6 +43,8 @@ export async function POST(request: Request) {
     }
 
     const userId = authData.user.id
+    const normalizedEmail = email.toLowerCase()
+    const username = normalizedEmail.split('@')[0] || userId
 
     // --- Referral Logic ---
     let referredBy: string | null = null
@@ -78,8 +80,10 @@ export async function POST(request: Request) {
     // Create profile
     const { error: profileError } = await supabase.from('profiles').insert({
       id: userId,
-      email: email,
-      name: name,
+      email: normalizedEmail,
+      username,
+      full_name: name,
+      avatar_url: null,
       role: role,
       ...(referredBy ? { referred_by: referredBy } : {}),
     })
@@ -100,39 +104,6 @@ export async function POST(request: Request) {
       } catch (refErr) {
         console.warn('Referral record creation failed (non-fatal):', refErr)
       }
-    }
-
-    // If this email already redeemed a cash activation or prepaid checkout, mark the profile.
-    try {
-      const normalizedEmail = email.toLowerCase()
-      const { data: activationCode } = await supabase
-        .from('activation_codes')
-        .select('id, code_value, kind, prepaid, redeemed_email, used_at')
-        .eq('redeemed_email', normalizedEmail)
-        .eq('status', 'used')
-        .order('used_at', { ascending: false })
-        .limit(1)
-        .maybeSingle()
-
-      const { data: cashOrder } = await supabase
-        .from('orders')
-        .select('id, activation_code_id, payment_method, buyer_email, created_at')
-        .eq('buyer_email', normalizedEmail)
-        .in('payment_method', ['cash', 'code'])
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle()
-
-      const activationCodeId = activationCode?.id || cashOrder?.activation_code_id || null
-      if (activationCodeId || cashOrder) {
-        await supabase.from('profiles').update({
-          paid_cash: true,
-          cash_paid_at: new Date().toISOString(),
-          activation_code_id: activationCodeId,
-        }).eq('id', userId)
-      }
-    } catch (cashErr) {
-      console.warn('Cash activation lookup failed (non-fatal):', cashErr)
     }
 
     // If artist, create artist record
@@ -182,11 +153,10 @@ export async function POST(request: Request) {
       }
     }
 
-    // If business/brand, update with website and industry
+    // If business/brand, update with website only.
     if ((role === 'business' || role === 'brand') && website) {
       await supabase.from('profiles').update({
         website,
-        industry,
       }).eq('id', userId)
     }
 

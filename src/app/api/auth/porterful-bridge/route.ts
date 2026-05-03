@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase';
+import { ensureProfile } from '@/lib/server/ensure-profile'
 import { createHash } from 'crypto';
 
 /**
@@ -125,32 +126,14 @@ async function completeBridge(
 
     const authUserId = linkData.user.id;
 
-    // Upsert profile keyed on Supabase auth user ID (so dashboard SSR can find it)
-    const { data: existingProfile } = await adminSupabase
-      .from('profiles')
-      .select('id')
-      .eq('id', authUserId)
-      .limit(1)
-      .maybeSingle();
+    const { profile, error: profileError } = await ensureProfile(adminSupabase, linkData.user);
+    if (profileError || !profile) {
+      console.warn('[porterful-bridge] Failed to ensure profile:', profileError);
+      return NextResponse.redirect(new URL('/login?error=bridge_failed', origin));
+    }
 
-    if (existingProfile) {
-      if (lkId) {
-        await adminSupabase.from('profiles').update({ lk_id: lkId }).eq('id', authUserId);
-      }
-    } else {
-      const { error: insertErr } = await adminSupabase.from('profiles').insert({
-        id: authUserId,
-        email: email.toLowerCase(),
-        name: email.split('@')[0],
-        role: 'supporter',
-        ...(lkId ? { lk_id: lkId } : {}),
-      });
-
-      if (insertErr) {
-        // Profile may exist under a different ID from a prior bridge run — not fatal.
-        // The user will land on dashboard but the SSR profile query will miss.
-        console.warn('[porterful-bridge] Profile insert conflict (may be pre-existing):', insertErr.message);
-      }
+    if (lkId) {
+      await adminSupabase.from('profiles').update({ lk_id: lkId }).eq('id', authUserId);
     }
 
     // Credit referrer

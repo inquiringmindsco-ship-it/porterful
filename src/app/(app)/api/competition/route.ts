@@ -33,7 +33,8 @@ export async function GET() {
         *,
         profiles:artist_id (
           id,
-          name,
+          full_name,
+          username,
           avatar_url
         )
       `)
@@ -46,7 +47,8 @@ export async function GET() {
       .select(`
         *,
         profiles:artist_id (
-          name
+          full_name,
+          username
         )
       `)
       .order('claimed_at', { ascending: false })
@@ -68,14 +70,14 @@ export async function GET() {
       leaders: leaders?.map((l, i) => ({
         rank: i + 1,
         artistId: l.artist_id,
-        name: l.profiles?.name || 'Unknown',
+        name: l.profiles?.full_name || l.profiles?.username || 'Unknown',
         avatar: l.profiles?.avatar_url,
         earnings: l.total_earnings,
         tier: l.current_tier,
         isFounder: l.is_founding_artist,
       })) || [],
       recentWins: recentWins?.map(w => ({
-        artistName: w.profiles?.name || 'Unknown',
+        artistName: w.profiles?.full_name || w.profiles?.username || 'Unknown',
         milestone: w.milestone_amount,
         bonus: w.bonus_amount,
         tier: w.tier,

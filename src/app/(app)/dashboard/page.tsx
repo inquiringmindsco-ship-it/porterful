@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import { createServerComponentSupabaseClient } from '@/lib/supabase-auth'
 import { createServerClient } from '@/lib/supabase'
+import { ensureProfile } from '@/lib/server/ensure-profile'
 import PorterfulDashboard from './PorterfulDashboard'
 
 export const dynamic = 'force-dynamic'
@@ -19,41 +20,18 @@ export default async function DashboardRoot() {
 
   const inferredRole = user.user_metadata?.role === 'artist' ? 'artist' : 'supporter'
 
-  const { data: existingProfile } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .limit(1)
-    .maybeSingle()
+  const adminSb = createServerClient()
+  const { profile: ensuredProfile, error: ensureError } = await ensureProfile(adminSb, user)
 
-  let profile = existingProfile
+  if (ensureError || !ensuredProfile) {
+    // If the profile cannot be prepared, fail closed into setup instead of
+    // serving a broken dashboard state.
+    redirect('/signup?setup=1')
+  }
 
-  if (!profile) {
-    // Profile missing — auto-create to prevent /login ↔ /dashboard redirect loop.
-    // This handles race conditions from the Likeness bridge and first-time OAuth users.
-    const adminSb = createServerClient()
-    const { data: createdProfile } = await adminSb
-      .from('profiles')
-      .upsert(
-        {
-          id: user.id,
-          email: user.email?.toLowerCase() ?? '',
-          name: user.email?.split('@')[0] ?? '',
-          role: inferredRole,
-        },
-        { onConflict: 'id' }
-      )
-      .select('*')
-      .single()
+  let profile = ensuredProfile
 
-    if (!createdProfile) {
-      // Creation failed — send to signup, not /login (avoids the redirect loop)
-      redirect('/signup?setup=1')
-    }
-
-    profile = createdProfile
-  } else if (inferredRole === 'artist' && profile.role !== 'artist') {
-    const adminSb = createServerClient()
+  if (inferredRole === 'artist' && profile.role !== 'artist') {
     const { data: normalizedProfile } = await adminSb
       .from('profiles')
       .update({ role: 'artist' })
