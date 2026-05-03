@@ -12,7 +12,7 @@ import { ARTISTS } from '@/lib/artists'
 // Only artists with playable tracks
 const PUBLIC_ARTISTS = ARTISTS.filter((a) => a.trackCount && a.trackCount > 0)
 
-const featuredArtist = PUBLIC_ARTISTS.find((artist) => artist.slug === 'gune') ?? PUBLIC_ARTISTS[0]
+const featuredArtist = PUBLIC_ARTISTS.find((artist) => artist.slug === 'atm-trap') ?? PUBLIC_ARTISTS[0]
 
 const featuredTracks = TRACKS
   .filter((track) => track.artist === featuredArtist.name)
