@@ -55,6 +55,7 @@ export function mergeArtistData(dbArtist: any | null, staticArtist: ArtistData |
         instagram: dbArtist.instagram_url,
         twitter: dbArtist.twitter_url,
         youtube: dbArtist.youtube_url,
+        tiktok: dbArtist.tiktok_url,
         website: dbArtist.website_url,
       },
     }
@@ -78,6 +79,7 @@ export function mergeArtistData(dbArtist: any | null, staticArtist: ArtistData |
       ...(dbArtist.instagram_url && { instagram: dbArtist.instagram_url }),
       ...(dbArtist.twitter_url && { twitter: dbArtist.twitter_url }),
       ...(dbArtist.youtube_url && { youtube: dbArtist.youtube_url }),
+      ...(dbArtist.tiktok_url && { tiktok: dbArtist.tiktok_url }),
       ...(dbArtist.website_url && { website: dbArtist.website_url }),
     },
     // Update genre/location if DB has values

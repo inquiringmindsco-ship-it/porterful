@@ -192,14 +192,14 @@ export default function SettingsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[var(--pf-bg)] text-white flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--pf-bg)] text-[var(--pf-text)] flex items-center justify-center">
         <p className="text-[var(--pf-text-muted)]">Loading your settings…</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[var(--pf-bg)] text-white py-8 px-6 mobile-page-safe">
+    <div className="min-h-screen bg-[var(--pf-bg)] text-[var(--pf-text)] py-8 px-6 mobile-page-safe">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -348,7 +348,7 @@ export default function SettingsPage() {
                         }}
                         className="hidden"
                       />
-                      <p className="text-gray-500 text-sm mt-2">JPG, PNG. Max 5MB.</p>
+                      <p className="text-[var(--pf-text-muted)] text-sm mt-2">JPG, PNG. Max 5MB.</p>
                     </div>
                   </div>
 
@@ -360,7 +360,7 @@ export default function SettingsPage() {
                         type="text"
                         value={profile.name}
                         onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-                        className="w-full bg-[var(--pf-bg)] border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-[#ff6b00] transition-colors"
+                        className="w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 focus:outline-none focus:border-[#ff6b00] transition-colors"
                       />
                     </div>
                     <div>
@@ -369,7 +369,7 @@ export default function SettingsPage() {
                         type="email"
                         value={profile.email}
                         disabled
-                        className="w-full bg-[var(--pf-bg)] border border-gray-700 rounded-lg px-4 py-3 text-gray-500 cursor-not-allowed"
+                        className="w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 text-[var(--pf-text-muted)] cursor-not-allowed"
                       />
                     </div>
                     <div>
@@ -378,7 +378,7 @@ export default function SettingsPage() {
                         type="text"
                         value={profile.location}
                         onChange={(e) => setProfile({ ...profile, location: e.target.value })}
-                        className="w-full bg-[var(--pf-bg)] border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-[#ff6b00] transition-colors"
+                        className="w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 focus:outline-none focus:border-[#ff6b00] transition-colors"
                         placeholder="City, State"
                       />
                     </div>
@@ -388,7 +388,7 @@ export default function SettingsPage() {
                         type="url"
                         value={profile.website}
                         onChange={(e) => setProfile({ ...profile, website: e.target.value })}
-                        className="w-full bg-[var(--pf-bg)] border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-[#ff6b00] transition-colors"
+                        className="w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 focus:outline-none focus:border-[#ff6b00] transition-colors"
                         placeholder="https://yoursite.com"
                       />
                     </div>
@@ -398,7 +398,7 @@ export default function SettingsPage() {
                         value={profile.bio}
                         onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
                         rows={3}
-                        className="w-full bg-[var(--pf-bg)] border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-[#ff6b00] transition-colors resize-none"
+                        className="w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 focus:outline-none focus:border-[#ff6b00] transition-colors resize-none"
                         placeholder="Tell your fans about yourself..."
                       />
                     </div>
@@ -438,7 +438,7 @@ export default function SettingsPage() {
                       </p>
                     </>
                   ) : (
-                    <p className="text-gray-500">No referral code yet.</p>
+                    <p className="text-[var(--pf-text-muted)]">No referral code yet.</p>
                   )}
                 </div>
 
@@ -446,11 +446,11 @@ export default function SettingsPage() {
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="bg-[var(--pf-surface)] rounded-xl p-6 border border-[var(--pf-border)] text-center">
                     <div className="text-3xl font-bold text-[var(--pf-orange)]">{referralStats.totalReferrals}</div>
-                    <div className="text-gray-500">Total Referrals</div>
+                    <div className="text-[var(--pf-text-muted)]">Total Referrals</div>
                   </div>
                   <div className="bg-[var(--pf-surface)] rounded-xl p-6 border border-[var(--pf-border)] text-center">
                     <div className="text-lg font-semibold text-[var(--pf-text-secondary)]">Not connected yet</div>
-                    <div className="text-gray-500 text-xs mt-2">Referral earnings will appear here once tracking and payout reporting are connected.</div>
+                    <div className="text-[var(--pf-text-muted)] text-xs mt-2">Referral earnings will appear here once tracking and payout reporting are connected.</div>
                   </div>
                 </div>
 
@@ -463,11 +463,11 @@ export default function SettingsPage() {
                         type="text"
                         readOnly
                         value={`https://porterful.com/store?ref=${encodeURIComponent(referralCode)}`}
-                        className="flex-1 bg-[var(--pf-bg)] border border-gray-700 rounded-lg px-4 py-3"
+                        className="flex-1 bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3"
                       />
                       <button
                         onClick={() => navigator.clipboard.writeText(`https://porterful.com/store?ref=${encodeURIComponent(referralCode)}`)}
-                        className="bg-[var(--pf-surface)] text-white px-4 py-3 rounded-lg hover:bg-[var(--pf-surface-hover)] transition-colors"
+                        className="bg-[var(--pf-surface)] text-[var(--pf-text)] border border-[var(--pf-border)] px-4 py-3 rounded-lg hover:bg-[var(--pf-surface-hover)] transition-colors"
                       >
                         Copy Link
                       </button>
@@ -488,7 +488,7 @@ export default function SettingsPage() {
                     </div>
                     <div className="flex-1">
                       <p className="font-semibold">Stripe Account</p>
-                      <p className="text-gray-500 text-sm">Stripe payouts are not live yet</p>
+                      <p className="text-[var(--pf-text-muted)] text-sm">Stripe payouts are not live yet</p>
                     </div>
                     <button
                       type="button"
@@ -505,7 +505,7 @@ export default function SettingsPage() {
 
                 <div className="border-t border-[var(--pf-border)] pt-6">
                   <h3 className="font-semibold mb-4">Payout History</h3>
-                  <p className="text-gray-500 text-sm">No payouts yet. Stripe Connect is coming soon.</p>
+                  <p className="text-[var(--pf-text-muted)] text-sm">No payouts yet. Stripe Connect is coming soon.</p>
                 </div>
               </div>
             )}
@@ -524,7 +524,7 @@ export default function SettingsPage() {
                     <div key={pref.id} className="flex items-center justify-between">
                       <div>
                         <p className="font-semibold">{pref.label}</p>
-                        <p className="text-gray-500 text-sm">{pref.desc}</p>
+                        <p className="text-[var(--pf-text-muted)] text-sm">{pref.desc}</p>
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" defaultChecked className="sr-only peer" />

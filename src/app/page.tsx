@@ -8,6 +8,7 @@ import { Footer } from '@/components/Footer'
 import { useAudio, type Track } from '@/lib/audio-context'
 import { TRACKS } from '@/lib/data'
 import { ARTISTS } from '@/lib/artists'
+import { useSupabase } from '@/app/providers'
 
 // Only artists with playable tracks
 const PUBLIC_ARTISTS = ARTISTS.filter((a) => a.trackCount && a.trackCount > 0)
@@ -20,12 +21,17 @@ const featuredTracks = TRACKS
 
 export default function HomePage() {
   const { currentTrack, playTrack, togglePlay, setQueue, setMode } = useAudio()
+  const { user, loading: authLoading } = useSupabase()
   const revealScopeRef = useRef<HTMLElement | null>(null)
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  const authReady = mounted && !authLoading
+  const showUser = authReady && !!user
+  const showGuest = authReady && !user
 
   useEffect(() => {
     const scope = revealScopeRef.current
@@ -68,19 +74,32 @@ export default function HomePage() {
               </p>
               
               <div className="mt-8 flex flex-wrap gap-3">
-                <Link 
-                  href="/music" 
+                <Link
+                  href="/music"
                   className="pf-btn pf-btn-primary inline-flex items-center justify-center gap-2 px-6 py-3 text-base"
                 >
                   <Headphones size={18} />
                   Start Listening
                 </Link>
-                <Link 
-                  href="/login" 
-                  className="pf-btn pf-btn-secondary inline-flex items-center justify-center gap-2 px-6 py-3 text-base"
-                >
-                  Create your account
-                </Link>
+                {showUser && (
+                  <Link
+                    href="/dashboard/artist"
+                    className="pf-btn pf-btn-secondary inline-flex items-center justify-center gap-2 px-6 py-3 text-base"
+                  >
+                    Go to Dashboard
+                  </Link>
+                )}
+                {showGuest && (
+                  <Link
+                    href="/login"
+                    className="pf-btn pf-btn-secondary inline-flex items-center justify-center gap-2 px-6 py-3 text-base"
+                  >
+                    Create your account
+                  </Link>
+                )}
+                {!authReady && (
+                  <div className="h-12 w-44 rounded-lg bg-[var(--pf-surface)] animate-pulse" />
+                )}
               </div>
               
               <div className="mt-6 flex items-center gap-6 text-sm text-[var(--pf-text-muted)]">

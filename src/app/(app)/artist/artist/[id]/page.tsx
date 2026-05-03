@@ -11,8 +11,15 @@ import { getArtistById } from '@/lib/artists';
 import {
   Play, Pause, Share2, Music, Package, ChevronDown, ChevronUp,
   Youtube, ExternalLink, Bell, Check, Edit3, MapPin, Globe,
-  Instagram, Twitter, Star, Users, Plus, Crown, Heart
+  Star, Users, Plus, Crown, Heart
 } from 'lucide-react';
+import {
+  InstagramIcon,
+  TwitterIcon,
+  YouTubeIcon,
+  TikTokIcon,
+  normalizeSocialUrl,
+} from '@/lib/artist-social';
 
 function groupTracksByAlbum(tracks: typeof TRACKS) {
   const groups: Record<string, typeof TRACKS> = {};
@@ -52,12 +59,8 @@ export default function ArtistProfilePage({ params }: { params: { id: string } }
         const res = await fetch(`/api/artists/${params.id}`);
         const data = await res.json();
         if (data.profile) {
-          // Clean up bad DB data — prefer staticArtist data when DB is incomplete/wrong
+          // Clean up genre stored as JSON array string like ["Hip-Hop","R&B"]
           const dbGenre = data.profile.genre || ''
-          const dbBio = data.profile.bio || ''
-          const dbLocation = data.profile.location || ''
-
-          // Fix genre if stored as JSON array string like ["Hip-Hop","R&B"]
           let cleanGenre = dbGenre
           if (dbGenre.startsWith('[')) {
             try {
@@ -68,43 +71,53 @@ export default function ArtistProfilePage({ params }: { params: { id: string } }
             }
           }
 
-          // If bio or location is too short/incomplete, use staticArtist
-          const fullBio = staticArtist?.bio || ''
-          const useBio = dbBio.length < fullBio.length ? (fullBio || dbBio) : dbBio
-          const useLocation = dbLocation.length < (staticArtist?.location?.length || 0) ? (staticArtist?.location || dbLocation) : dbLocation
+          // DB-first: use DB value when present, fall back to static seed only when empty/null.
+          const dbBio = data.profile.bio
+          const dbLocation = data.profile.location
+          const dbWebsite = data.profile.website_url || data.profile.website
 
-          // Build social URLs from static data or raw DB data
-            const instagramHandle = data.profile.instagram_url || staticArtist?.social?.instagram || ''
-            const twitterHandle = data.profile.twitter_url || staticArtist?.social?.twitter || ''
-            const youtubeHandle = data.profile.youtube_url || staticArtist?.social?.youtube || ''
-            const tiktokHandle = staticArtist?.social?.tiktok || ''
+          // DB-first social handles, with static seed as fallback.
+          const instagramSource = data.profile.instagram_url || staticArtist?.social?.instagram || null
+          const twitterSource = data.profile.twitter_url || staticArtist?.social?.twitter || null
+          const youtubeSource = data.profile.youtube_url || staticArtist?.social?.youtube || null
+          const tiktokSource = data.profile.tiktok_url || staticArtist?.social?.tiktok || null
+          const websiteSource = dbWebsite || staticArtist?.social?.website || null
 
-            setArtistData({
-              name: data.profile.full_name || data.profile.name || staticArtist?.name,
-              bio: useBio,
-              shortBio: data.profile.short_bio || staticArtist?.shortBio || '',
-              genre: cleanGenre || staticArtist?.genre || '',
-              location: useLocation || staticArtist?.location || '',
-              verified: data.profile.verified || staticArtist?.verified || false,
-              avatar_url: data.profile.avatar_url || staticArtist?.image || null,
-              cover_url: data.profile.cover_url || null,
-              website: data.profile.website || staticArtist?.social?.website || null,
-              social: {
-                instagram: instagramHandle ? (instagramHandle.startsWith('http') ? instagramHandle : `https://instagram.com/${instagramHandle}`) : null,
-                twitter: twitterHandle ? (twitterHandle.startsWith('http') ? twitterHandle : `https://twitter.com/${twitterHandle}`) : null,
-                youtube: youtubeHandle ? (youtubeHandle.startsWith('http') ? youtubeHandle : `https://youtube.com/${youtubeHandle.replace('@', '')}`) : null,
-                tiktok: tiktokHandle ? `https://tiktok.com/@${tiktokHandle.replace('@', '')}` : null,
-                website: data.profile.website || staticArtist?.social?.website || null,
-              },
-              // Preserve staticArtist coverSlides if DB doesn't have them
-              coverSlides: data.profile.coverSlides || staticArtist?.coverSlides || null,
-            });
+          setArtistData({
+            name: data.profile.full_name || data.profile.name || staticArtist?.name,
+            bio: dbBio || staticArtist?.bio || '',
+            shortBio: data.profile.short_bio || staticArtist?.shortBio || '',
+            genre: cleanGenre || staticArtist?.genre || '',
+            location: dbLocation || staticArtist?.location || '',
+            verified: data.profile.verified || staticArtist?.verified || false,
+            avatar_url: data.profile.avatar_url || staticArtist?.image || null,
+            cover_url: data.profile.cover_url || null,
+            website: websiteSource,
+            social: {
+              instagram: normalizeSocialUrl('instagram', instagramSource),
+              twitter: normalizeSocialUrl('twitter', twitterSource),
+              youtube: normalizeSocialUrl('youtube', youtubeSource),
+              tiktok: normalizeSocialUrl('tiktok', tiktokSource),
+              website: normalizeSocialUrl('website', websiteSource),
+            },
+            // Preserve staticArtist coverSlides if DB doesn't have them
+            coverSlides: data.profile.coverSlides || staticArtist?.coverSlides || null,
+          });
           // Check if current user owns this profile
           if (user && data.profile.id === user.id) {
             setIsOwner(true);
           }
         } else if (staticArtist) {
-          setArtistData(staticArtist);
+          setArtistData({
+            ...staticArtist,
+            social: {
+              instagram: normalizeSocialUrl('instagram', staticArtist.social?.instagram),
+              twitter: normalizeSocialUrl('twitter', staticArtist.social?.twitter),
+              youtube: normalizeSocialUrl('youtube', staticArtist.social?.youtube),
+              tiktok: normalizeSocialUrl('tiktok', staticArtist.social?.tiktok),
+              website: normalizeSocialUrl('website', staticArtist.social?.website),
+            },
+          });
         }
       } catch (err) {
         if (staticArtist) setArtistData(staticArtist);
@@ -344,23 +357,23 @@ export default function ArtistProfilePage({ params }: { params: { id: string } }
               {/* Social media icons - inline with name */}
               <div className="flex items-center gap-1.5 mb-2">
                 {artistData.social?.instagram && (
-                  <a href={`https://instagram.com/${artistData.social.instagram.replace('@', '')}`} target="_blank" rel="noopener" className="p-1.5 rounded-lg hover:bg-[var(--pf-surface)] transition-colors" title="Instagram">
-                    <Instagram size={16} className="text-pink-400" />
+                  <a href={artistData.social.instagram} target="_blank" rel="noopener" className="p-1.5 rounded-lg hover:bg-[var(--pf-surface)] transition-colors text-[var(--pf-text-secondary)] hover:text-[var(--pf-text)]" title="Instagram">
+                    <InstagramIcon size={16} />
                   </a>
                 )}
                 {artistData.social?.twitter && (
-                  <a href={`https://twitter.com/${artistData.social.twitter.replace('@', '')}`} target="_blank" rel="noopener" className="p-1.5 rounded-lg hover:bg-[var(--pf-surface)] transition-colors" title="Twitter/X">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="text-blue-400"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                  <a href={artistData.social.twitter} target="_blank" rel="noopener" className="p-1.5 rounded-lg hover:bg-[var(--pf-surface)] transition-colors text-[var(--pf-text-secondary)] hover:text-[var(--pf-text)]" title="Twitter/X">
+                    <TwitterIcon size={16} />
                   </a>
                 )}
                 {artistData.social?.youtube && (
-                  <a href={`https://youtube.com/${artistData.social.youtube.replace('@', '')}`} target="_blank" rel="noopener" className="p-1.5 rounded-lg hover:bg-[var(--pf-surface)] transition-colors" title="YouTube">
-                    <Youtube size={16} className="text-red-500" />
+                  <a href={artistData.social.youtube} target="_blank" rel="noopener" className="p-1.5 rounded-lg hover:bg-[var(--pf-surface)] transition-colors text-[var(--pf-text-secondary)] hover:text-[var(--pf-text)]" title="YouTube">
+                    <YouTubeIcon size={16} />
                   </a>
                 )}
                 {artistData.social?.tiktok && (
-                  <a href={`https://tiktok.com/@${artistData.social.tiktok.replace('@', '')}`} target="_blank" rel="noopener" className="p-1.5 rounded-lg hover:bg-[var(--pf-surface)] transition-colors" title="TikTok">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="text-pink-500"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.73a8.26 8.26 0 0 0 4.83 1.54V6.78a4.85 4.85 0 0 1-1-.09z"/></svg>
+                  <a href={artistData.social.tiktok} target="_blank" rel="noopener" className="p-1.5 rounded-lg hover:bg-[var(--pf-surface)] transition-colors text-[var(--pf-text-secondary)] hover:text-[var(--pf-text)]" title="TikTok">
+                    <TikTokIcon size={16} />
                   </a>
                 )}
               </div>

@@ -5,14 +5,14 @@ import Link from 'next/link'
 import { ChevronLeft, Pause, Play, Verified } from 'lucide-react'
 import { useAudio, Track } from '@/lib/audio-context'
 import { LikenessBadge } from '@/components/likeness/LikenessGate'
+import {
+  SOCIAL_ICONS,
+  normalizeSocialUrl,
+  type SocialPlatform,
+  type ArtistSocialLinks,
+} from '@/lib/artist-social'
 
-interface SocialLinks {
-  instagram?: string
-  twitter?: string
-  tiktok?: string
-  youtube?: string
-  website?: string
-}
+type SocialLinks = ArtistSocialLinks
 
 interface ArtistHeroProps {
   artist: {
@@ -27,62 +27,6 @@ interface ArtistHeroProps {
   }
   firstTrack: Track | null
   queueTracks: Track[]
-}
-
-function externalUrl(platform: keyof SocialLinks, value: string): string {
-  switch (platform) {
-    case 'instagram':
-      return `https://instagram.com/${value.replace(/^@/, '')}`
-    case 'twitter':
-      return `https://twitter.com/${value.replace(/^@/, '')}`
-    case 'tiktok':
-      return `https://tiktok.com/@${value.replace(/^@/, '')}`
-    case 'youtube':
-      return value.startsWith('http') ? value : `https://youtube.com/${value}`
-    case 'website':
-      return value.startsWith('http') ? value : `https://${value}`
-  }
-}
-
-// Social icon components (inline SVGs)
-function InstagramIcon({ size = 20 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-    </svg>
-  )
-}
-
-function TwitterIcon({ size = 20 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-    </svg>
-  )
-}
-
-function YouTubeIcon({ size = 20 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-    </svg>
-  )
-}
-
-function TikTokIcon({ size = 20 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12.525.02c1.8-.1 3.5.6 4.5 2.5 1.1 1.9 1.2 4.2.7 6.4-.1.4-.3.8-.4 1.2 0 .1-.1.2-.1.2 1.9.2 3.5.8 4.6 1.7 1.1.9 1.7 2.2 1.8 3.7-.1.5-.3 1-.5 1.4-.5.9-1.2 1.7-2.1 2.2-1.5.9-3.3 1.3-5.1 1.2h-.8c-.4-.1-.8-.1-1.2-.2-1.6-.3-3.2-.9-4.5-1.7-1.3-.8-2.3-1.8-3-3.1-.6-1.1-1-2.4-1.1-3.7V8.1c.1-.4.2-.9.3-1.3.3-1.4 1-2.7 1.9-3.7C8.6 1.7 10.5.7 12.5.2h.1v5.3c-.5-.1-1.1 0-1.6.2-.4.2-.8.6-1 1-.2.4-.3.9-.2 1.3v7.9c0 .5.2 1 .5 1.4.3.4.8.6 1.3.7h.1c.5-.1 1-.4 1.3-.8.3-.4.4-.9.4-1.4V6.6c-.1-.3-.1-.7-.1-1z"/>
-    </svg>
-  )
-}
-
-const SOCIAL_ICONS = {
-  instagram: InstagramIcon,
-  twitter: TwitterIcon,
-  youtube: YouTubeIcon,
-  tiktok: TikTokIcon,
-  website: null,
 }
 
 export function ArtistHero({ artist, firstTrack, queueTracks }: ArtistHeroProps) {
@@ -102,97 +46,136 @@ export function ArtistHero({ artist, firstTrack, queueTracks }: ArtistHeroProps)
   }
 
   const socialEntries = artist.social
-    ? (Object.entries(artist.social).filter(([k, v]) => !!v && k !== 'website') as Array<[keyof SocialLinks, string]>)
+    ? (Object.entries(artist.social).filter(
+        ([k, v]) => !!v && k !== 'website' && k in SOCIAL_ICONS,
+      ) as Array<[Exclude<SocialPlatform, 'website'>, string]>)
     : []
+  const artistMeta = [artist.genre, artist.location].filter(Boolean).join(' · ')
 
   return (
-    <section className="bg-[var(--pf-bg)] border-b border-[var(--pf-border)]">
+    <section className="relative overflow-hidden border-b border-[var(--pf-border)] bg-[var(--pf-bg)]">
+      <div className="absolute inset-0 pointer-events-none">
+        {artist.image && (
+          <Image
+            src={artist.image}
+            alt=""
+            fill
+            sizes="100vw"
+            className="object-cover scale-110 blur-3xl opacity-20"
+            aria-hidden="true"
+          />
+        )}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,137,0,0.18),transparent_36%),radial-gradient(circle_at_bottom_left,rgba(255,255,255,0.08),transparent_30%),linear-gradient(180deg,rgba(0,0,0,0.12),rgba(0,0,0,0.55))]" />
+      </div>
+
       {/* Back nav */}
-      <div className="max-w-6xl mx-auto px-5 sm:px-6 pt-5">
+      <div className="relative max-w-6xl mx-auto px-5 sm:px-6 pt-5">
         <Link
           href="/artists"
-          className="inline-flex items-center gap-1.5 text-sm text-[var(--pf-text-secondary)] hover:text-[var(--pf-text)] transition-colors"
+          className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white/75 backdrop-blur-md transition-colors hover:bg-white/10 hover:text-white"
         >
           <ChevronLeft size={16} />
           Artists
         </Link>
       </div>
 
-      <div className="max-w-6xl mx-auto px-5 sm:px-6 pt-5 pb-6 sm:pt-6 sm:pb-8">
-        <div className="flex items-center gap-4 sm:gap-5">
-          {/* Avatar */}
-          <div className="relative w-24 h-24 sm:w-32 sm:h-32 rounded-2xl overflow-hidden flex-shrink-0 bg-[var(--pf-surface)] border border-[var(--pf-border)]">
-            {artist.image ? (
-              <Image
-                src={artist.image}
-                alt={artist.name}
-                fill
-                sizes="(max-width: 640px) 96px, 128px"
-                className="object-cover"
-                priority
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <span className="text-3xl font-bold text-[var(--pf-text-secondary)]">
-                  {artist.name.charAt(0).toUpperCase()}
-                </span>
-              </div>
-            )}
-          </div>
-
-          {/* Info */}
-          <div className="flex-1 min-w-0">
-            <p className="text-[11px] uppercase tracking-widest text-[var(--pf-text-secondary)] mb-1">
-              Artist
-            </p>
-            <div className="flex items-center gap-2 mb-1">
-              <h1 className="text-xl sm:text-3xl font-bold truncate">{artist.name}</h1>
-              {artist.verified && (
-                <Verified size={16} className="text-[var(--pf-text-secondary)] shrink-0" />
+      <div className="relative max-w-6xl mx-auto px-5 sm:px-6 pt-5 pb-6 sm:pt-6 sm:pb-8">
+        <div className="overflow-hidden rounded-[32px] border border-white/10 bg-[rgba(12,12,12,0.72)] shadow-[0_30px_80px_rgba(0,0,0,0.28)] backdrop-blur-xl">
+          <div className="grid gap-5 p-4 sm:p-6 lg:grid-cols-[minmax(0,220px)_1fr_auto] lg:items-center">
+            {/* Artwork */}
+            <div className="relative mx-auto aspect-square w-full max-w-[220px] overflow-hidden rounded-[28px] border border-white/10 bg-white/5 shadow-2xl">
+              {artist.image ? (
+                <Image
+                  src={artist.image}
+                  alt={artist.name}
+                  fill
+                  sizes="(max-width: 640px) 220px, 220px"
+                  className="object-cover"
+                  priority
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-white/10 to-white/5">
+                  <span className="text-5xl font-semibold text-white/70">
+                    {artist.name.charAt(0).toUpperCase()}
+                  </span>
+                </div>
               )}
-              {artist.likeness_verified && <LikenessBadge compact />}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
             </div>
-            <p className="text-sm text-[var(--pf-text-secondary)] truncate">
-              {artist.genre}
-              {artist.location && ` · ${artist.location}`}
-            </p>
 
-            {/* Social Media Icons */}
-            {socialEntries.length > 0 && (
-              <div className="flex items-center gap-2 mt-2">
-                {socialEntries.map(([platform, value]) => {
-                  const Icon = SOCIAL_ICONS[platform]
-                  if (!Icon) return null
-                  return (
-                    <a
-                      key={platform}
-                      href={externalUrl(platform, value)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-8 h-8 rounded-full bg-[var(--pf-surface)] border border-[var(--pf-border)] flex items-center justify-center text-[var(--pf-text-secondary)] hover:text-[var(--pf-text)] hover:border-[var(--pf-text-muted)] transition-colors"
-                      aria-label={`${artist.name} on ${platform}`}
-                    >
-                      <Icon size={16} />
-                    </a>
-                  )
-                })}
+            {/* Info */}
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-[0.32em] text-white/60">
+                <span>Artist profile</span>
               </div>
-            )}
-          </div>
 
-          {/* Primary action */}
-          <button
-            onClick={handlePlay}
-            disabled={!firstTrack}
-            className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[var(--pf-orange)] hover:bg-[var(--pf-orange)]/90 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center flex-shrink-0 transition-colors shadow-lg"
-            aria-label={showPause ? `Pause ${artist.name}` : `Play ${artist.name}`}
-          >
-            {showPause ? (
-              <Pause size={24} className="text-[var(--pf-text)]" />
-            ) : (
-              <Play size={24} className="text-[var(--pf-text)] ml-0.5" />
-            )}
-          </button>
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-5xl">{artist.name}</h1>
+                {artist.verified && (
+                  <Verified size={18} className="shrink-0 text-white/70" />
+                )}
+                {artist.likeness_verified && <LikenessBadge compact />}
+              </div>
+
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-white/70 sm:text-base">
+                {artistMeta || 'Artist page'}
+              </p>
+
+              <div className="mt-4 flex flex-wrap gap-2">
+                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/75">
+                  {artist.verified ? 'Verified artist' : 'Artist page'}
+                </span>
+                {artist.likeness_verified && (
+                  <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/75">
+                    Likeness verified
+                  </span>
+                )}
+                {firstTrack && (
+                  <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/75">
+                    Top track: {firstTrack.title}
+                  </span>
+                )}
+              </div>
+
+              {socialEntries.length > 0 && (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {socialEntries.map(([platform, value]) => {
+                    const Icon = SOCIAL_ICONS[platform]
+                    const href = normalizeSocialUrl(platform, value)
+                    if (!Icon || !href) return null
+                    return (
+                      <a
+                        key={platform}
+                        href={href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/70 transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white"
+                        aria-label={`${artist.name} on ${platform}`}
+                      >
+                        <Icon size={16} />
+                      </a>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Primary action */}
+            <div className="flex flex-col items-start gap-3 lg:items-end lg:justify-center">
+              <button
+                onClick={handlePlay}
+                disabled={!firstTrack}
+                className="inline-flex items-center gap-2 rounded-full bg-[var(--pf-orange)] px-6 py-3.5 text-sm font-semibold text-[var(--pf-text)] shadow-lg transition-colors hover:bg-[var(--pf-orange)]/90 disabled:cursor-not-allowed disabled:opacity-40"
+                aria-label={showPause ? `Pause ${artist.name}` : `Play ${artist.name}`}
+              >
+                {showPause ? <Pause size={18} /> : <Play size={18} className="ml-0.5" />}
+                <span>{showPause ? 'Pause' : 'Play'}</span>
+              </button>
+              <p className="max-w-[14rem] text-xs leading-5 text-white/60 lg:text-right">
+                {firstTrack ? `Starts with ${firstTrack.title}` : 'No playable tracks yet.'}
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
