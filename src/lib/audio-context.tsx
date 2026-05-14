@@ -20,6 +20,7 @@ export interface Track {
   album?: string | null;
   duration?: string | number;
   audio_url?: string;
+  is_active?: boolean;
   cover_url?: string;
   image?: string;
   plays?: number;
