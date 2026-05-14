@@ -136,11 +136,11 @@ function getAlbumSortRank(album: string | null | undefined): number {
   return rank >= 0 ? rank : CANONICAL_ALBUM_ORDER.length
 }
 
-// Check whether a track has a playable audio URL.
+// Check whether a track is both visible and has a playable audio URL.
 // We intentionally keep this lightweight so we do not block on network checks.
-export function hasPlayableAudio(track: Pick<Track, 'audio_url'> | null | undefined): track is Track & { audio_url: string } {
+export function hasPlayableAudio(track: Pick<Track, 'audio_url' | 'is_active'> | null | undefined): track is Track & { audio_url: string } {
   const audioUrl = track?.audio_url?.trim()
-  return !!audioUrl && audioUrl !== 'null' && audioUrl !== 'undefined'
+  return !!audioUrl && audioUrl !== 'null' && audioUrl !== 'undefined' && track?.is_active !== false
 }
 
 export function filterPlayableTracks<T extends Track>(tracks: T[]): T[] {

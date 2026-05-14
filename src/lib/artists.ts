@@ -1,5 +1,6 @@
 // Artist data - in production this would come from Supabase
 import { TRACKS } from './data'
+import { filterPlayableTracks } from './track-dedupe'
 
 export interface ArtistData {
   id: string
@@ -63,7 +64,7 @@ The plan: make Porterful the artist's retirement. Build it once, let it work for
     supporters: null,
     earnings: null,
     products: 12,
-    trackCount: TRACKS.filter(t => t.artist === 'O D Porter').length,
+    trackCount: filterPlayableTracks(TRACKS.filter(t => t.artist === 'O D Porter')).length,
     social: {
       instagram: 'od.porter',
       twitter: 'odporter',
@@ -95,7 +96,7 @@ On Porterful, he's not competing with the algorithm. He's building something rea
     supporters: null,
     earnings: null,
     products: 0,
-    trackCount: TRACKS.filter(t => t.artist === 'Gune').length,
+    trackCount: filterPlayableTracks(TRACKS.filter(t => t.artist === 'Gune')).length,
     social: {
       instagram: 'gunebugtheplug',
     },
@@ -134,7 +135,7 @@ On Porterful, he's not competing with the algorithm. He's building something rea
     slug: 'rob-soule',
     genre: 'Hip-Hop / R&B / Blues',
     location: 'St. Louis, MO',
-    bio: `Rob Soule is a St. Louis hip-hop and R&B artist blending blues into a soulful sound. From the heart of the city, Rob brings together smooth R&B melodies, hard-hitting hip-hop beats, and the raw emotional truth of blues to create something uniquely STL.`,
+    bio: `Rob Soule is a St. Louis hip-hop and R&B artist blending blues into a soulful sound. Rooted in the heart of the Lou, he weaves smooth R&B melodies, hard-hitting hip-hop drums, and the raw emotional truth of blues into a sound that's unmistakably STL.`,
     shortBio: 'St. Louis hip-hop and R&B artist blending blues into a soulful sound.',
     verified: true,
     likeness_verified: false,
@@ -204,7 +205,7 @@ export function getAllArtistIds(): string[] {
 export function getArtistTracks(artistId: string): typeof TRACKS {
   const artist = getArtistById(artistId)
   if (!artist) return []
-  return TRACKS.filter(t => t.artist === artist.name || t.artist === artist.id)
+  return filterPlayableTracks(TRACKS.filter(t => t.artist === artist.name || t.artist === artist.id))
 }
 
 // Get products for a specific artist (placeholder - would be from DB)

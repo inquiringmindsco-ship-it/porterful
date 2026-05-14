@@ -117,28 +117,9 @@ export function ArtistHero({ artist, firstTrack, queueTracks }: ArtistHeroProps)
                 {artist.likeness_verified && <LikenessBadge compact />}
               </div>
 
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-white/70 sm:text-base">
-                {artistMeta || 'Artist page'}
-              </p>
-
-              <div className="mt-4 flex flex-wrap gap-2">
-                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/75">
-                  {artist.verified ? 'Verified artist' : 'Artist page'}
-                </span>
-                {artist.likeness_verified && (
-                  <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/75">
-                    Likeness verified
-                  </span>
-                )}
-                {firstTrack && (
-                  <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/75">
-                    Top track: {firstTrack.title}
-                  </span>
-                )}
-              </div>
-
+              {/* Social icons right under the name */}
               {socialEntries.length > 0 && (
-                <div className="mt-4 flex flex-wrap gap-2">
+                <div className="mt-2 flex flex-wrap gap-2">
                   {socialEntries.map(([platform, value]) => {
                     const Icon = SOCIAL_ICONS[platform]
                     const href = normalizeSocialUrl(platform, value)
@@ -158,6 +139,26 @@ export function ArtistHero({ artist, firstTrack, queueTracks }: ArtistHeroProps)
                   })}
                 </div>
               )}
+
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-white/70 sm:text-base">
+                {artistMeta || 'Artist page'}
+              </p>
+
+              <div className="mt-4 flex flex-wrap gap-2">
+                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/75">
+                  {artist.verified ? 'Verified artist' : 'Artist page'}
+                </span>
+                {artist.likeness_verified && (
+                  <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/75">
+                    Likeness verified
+                  </span>
+                )}
+                {firstTrack && (
+                  <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/75">
+                    Top track: {firstTrack.title}
+                  </span>
+                )}
+              </div>
             </div>
 
             {/* Primary action */}

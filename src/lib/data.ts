@@ -158,12 +158,12 @@ export const TRACKS = [
 // Album data
 export const ALBUMS = {
   ambiguous: { id: 'ambiguous', name: 'Ambiguous', artist: 'O D Porter', year: 2024, image: ALBUM_ART.Ambiguous, tracks: 21 },
-  fromFeastToFamine: { id: 'from-feast-to-famine', name: 'From Feast to Famine', artist: 'O D Porter', year: 2023, image: ALBUM_ART.FromFeastToFamine, tracks: 10 },
+  fromFeastToFamine: { id: 'from-feast-to-famine', name: 'From Feast to Famine', artist: 'O D Porter', year: 2023, image: ALBUM_ART.FromFeastToFamine, tracks: 9 },
   godIsGood: { id: 'god-is-good', name: 'God Is Good', artist: 'O D Porter', year: 2023, image: ALBUM_ART.GodIsGood, tracks: 13 },
-  oneDay: { id: 'one-day', name: 'One Day', artist: 'O D Porter', year: 2024, image: ALBUM_ART.OneDay, tracks: 19 },
-  streetsThoughtILeft: { id: 'streets-thought-i-left', name: 'Streets Thought I Left', artist: 'O D Porter', year: 2023, image: ALBUM_ART.StreetsThoughtILeft, tracks: 9 },
-  roxannity: { id: 'roxannity', name: 'Roxanity', artist: 'O D Porter', year: 2024, image: ALBUM_ART.Roxanity, tracks: 16 },
-  artgasm: { id: 'artgasm', name: 'Artgasm', artist: 'O D Porter', year: 2024, image: ALBUM_ART.Artgasm, tracks: 2 },
+  oneDay: { id: 'one-day', name: 'One Day', artist: 'O D Porter', year: 2024, image: ALBUM_ART.OneDay, tracks: 16 },
+  streetsThoughtILeft: { id: 'streets-thought-i-left', name: 'Streets Thought I Left', artist: 'O D Porter', year: 2023, image: ALBUM_ART.StreetsThoughtILeft, tracks: 8 },
+  roxannity: { id: 'roxannity', name: 'Roxanity', artist: 'O D Porter', year: 2024, image: ALBUM_ART.Roxanity, tracks: 0 },
+  artgasm: { id: 'artgasm', name: 'Artgasm', artist: 'O D Porter', year: 2024, image: ALBUM_ART.Artgasm, tracks: 0 },
   levi: { id: 'levi', name: 'Levi', artist: 'O D Porter', year: 2024, image: ALBUM_ART.Levi, tracks: 9 },
 };
 

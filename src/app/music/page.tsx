@@ -191,7 +191,7 @@ export default function MusicPage() {
   // Featured track: prefer featured DB track, fallback to first track
   const heroTrack = useMemo(() => {
     // First, try to find a featured DB track
-    const featuredDb = dbTracks.find(t => (t as any).featured && t.audio_url)
+    const featuredDb = dbTracks.find(t => (t as any).featured && t.audio_url && t.is_active !== false)
     if (featuredDb) return featuredDb
     // Otherwise use current or first available
     return currentTrack ?? ALL_TRACKS[0]
