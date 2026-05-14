@@ -109,6 +109,10 @@ function resolveTrack(item: CheckoutInputItem, id: string, quantity: number): Ch
   const track = TRACKS.find((entry) => entry.id === id)
 
   if (track) {
+    if ((track as any)?.is_active === false || !track.audio_url?.trim() || track.audio_url === 'null' || track.audio_url === 'undefined') {
+      throw new CheckoutCatalogError(`This track is not available for purchase: ${track.title}`)
+    }
+
     return buildResolvedItem({
       kind: 'track',
       id: track.id,

@@ -10,7 +10,7 @@ import { getThemeBootstrapScript } from '@/lib/theme'
 
 export const metadata: Metadata = {
   title: {
-    default: 'Porterful',
+    default: 'Porterful — Music, Merch, and Direct Support',
     template: '%s | Porterful'
   },
   description: 'Music. Land. Mind. Law. Commerce. Credit.',

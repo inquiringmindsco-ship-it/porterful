@@ -29,16 +29,23 @@ interface Playlist {
 }
 
 function resolvePlaylistTrack(track: PlaylistTrack): PlaylistTrack {
+  const catalogTrack = TRACKS.find((candidate) => candidate.id === track.id)
+    ?? TRACKS.find((candidate) => candidate.title === track.title && candidate.artist === track.artist)
+
+  if ((catalogTrack as any)?.is_active === false) {
+    return {
+      ...track,
+      audioUrl: '',
+    }
+  }
+
   const existingAudioUrl = track.audioUrl || (track as any).audio_url
-  if (existingAudioUrl) {
+  if (existingAudioUrl?.trim()) {
     return {
       ...track,
       audioUrl: existingAudioUrl,
     }
   }
-
-  const catalogTrack = TRACKS.find((candidate) => candidate.id === track.id)
-    ?? TRACKS.find((candidate) => candidate.title === track.title && candidate.artist === track.artist)
 
   if (!catalogTrack?.audio_url) return track
 
@@ -53,7 +60,7 @@ function resolvePlaylistTracks(tracks: PlaylistTrack[]): PlaylistTrack[] {
 }
 
 function getPlayablePlaylistTracks(tracks: PlaylistTrack[]): PlaylistTrack[] {
-  return resolvePlaylistTracks(tracks).filter((track) => !!track.audioUrl)
+  return resolvePlaylistTracks(tracks).filter((track) => !!track.audioUrl?.trim())
 }
 
 const Icon = {

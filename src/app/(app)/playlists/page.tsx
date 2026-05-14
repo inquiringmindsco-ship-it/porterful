@@ -111,22 +111,32 @@ interface Playlist {
 }
 
 function resolvePlaylistTrack(track: PlaylistTrack): PlaylistTrack {
+  const catalogTrack = TRACKS.find((candidate) => candidate.id === track.id)
+    ?? TRACKS.find((candidate) => candidate.title === track.title && candidate.artist === track.artist)
+
+  if ((catalogTrack as any)?.is_active === false) {
+    return {
+      ...track,
+      audioUrl: '',
+    }
+  }
+
   const existingAudioUrl = track.audioUrl || (track as any).audio_url
-  if (existingAudioUrl) {
+  if (existingAudioUrl?.trim()) {
     return {
       ...track,
       audioUrl: existingAudioUrl,
     }
   }
 
-  const catalogTrack = PUBLIC_TRACKS.find((candidate) => candidate.id === track.id)
+  const visibleCatalogTrack = PUBLIC_TRACKS.find((candidate) => candidate.id === track.id)
     ?? PUBLIC_TRACKS.find((candidate) => candidate.title === track.title && candidate.artist === track.artist)
 
-  if (!catalogTrack?.audio_url) return track
+  if (!visibleCatalogTrack?.audio_url) return track
 
   return {
     ...track,
-    audioUrl: catalogTrack.audio_url,
+    audioUrl: visibleCatalogTrack.audio_url,
   }
 }
 
@@ -135,7 +145,7 @@ function resolvePlaylistTracks(tracks: PlaylistTrack[]): PlaylistTrack[] {
 }
 
 function getPlayablePlaylistTracks(tracks: PlaylistTrack[]): PlaylistTrack[] {
-  return resolvePlaylistTracks(tracks).filter((track) => !!track.audioUrl)
+  return resolvePlaylistTracks(tracks).filter((track) => !!track.audioUrl?.trim())
 }
 
 export default function PlaylistPage() {
