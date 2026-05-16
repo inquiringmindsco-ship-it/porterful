@@ -70,7 +70,10 @@ export default function UploadPage() {
     formData.append('folder', folder)
     const res = await fetch('/api/upload', { method: 'POST', body: formData })
     const data = await res.json()
-    if (!res.ok || data.error) throw new Error(data.error || 'Upload failed')
+    if (!res.ok || data.error) {
+      // Pass through server error messages; default to generic only if empty
+      throw new Error(data.error || 'Upload failed')
+    }
     return data.url
   }
 
@@ -109,7 +112,23 @@ export default function UploadPage() {
       setSuccess(true)
       setTimeout(() => router.push('/dashboard/artist'), 1500)
     } catch (err: any) {
-      setError(err.message)
+      const msg = err?.message || ''
+      let friendly = msg
+      if (msg.includes('session') || msg.includes('401') || msg.includes('Unauthorized')) {
+        friendly = 'Your session expired. Please log in again and retry.'
+      } else if (msg.includes('not supported') || msg.includes('Invalid audio format')) {
+        friendly = msg
+      } else if (msg.includes('too large') || msg.includes('Max')) {
+        friendly = msg
+      } else if (msg.includes('permission') || msg.includes('Storage permission')) {
+        friendly = 'Storage permission issue. Please contact support.'
+      } else if (msg.includes('not configured') || msg.includes('bucket')) {
+        friendly = 'Upload temporarily failed. Our storage provider is not configured.'
+      } else if (msg.includes('Upload failed') || msg.includes('temporarily failed')) {
+        friendly = msg
+      }
+      setError(friendly)
+      console.error('[upload] Full error:', msg, err)
     } finally {
       setSubmitting(false)
     }
