@@ -73,31 +73,11 @@ export const dynamic = 'force-dynamic'
 export const dynamicParams = true
 export const revalidate = 0
 
-// DISABLED: Static generation prevents new artists from being viewable without rebuild
-// All artist pages are now fully dynamic (force-dynamic above)
-// export async function generateStaticParams() { ... }
-
-/*
+// Return empty array — no static pages at build time
+// All artist pages are fully dynamic (fetched at request time)
 export async function generateStaticParams() {
-  const supabase = getServerSupabase()
-
-  const { data } = await supabase
-    .from('artists')
-    .select('slug, status, public_profile_enabled')
-    .in('status', ['active', 'approved'])
-    .neq('public_profile_enabled', false)
-
-  const dbSlugs = (data || [])
-    .map((artist) => artist.slug)
-    .filter(Boolean)
-
-  const staticSlugs = ARTISTS
-    .filter((artist) => artist.trackCount && artist.trackCount > 0)
-    .map((artist) => artist.slug)
-
-  return Array.from(new Set([...dbSlugs, ...staticSlugs])).map((slug) => ({ slug }))
+  return []
 }
-*/
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params
