@@ -18,6 +18,7 @@ import { useAudio, Track } from '@/lib/audio-context'
 import { TRACKS as STATIC_TRACKS } from '@/lib/data'
 import { ARTISTS, type ArtistData } from '@/lib/artists'
 import { getTrackArtwork } from '@/lib/artwork'
+import { ArtistMedia } from '@/components/artist/ArtistMedia'
 import { createBrowserSupabaseClient } from '@/lib/create-browser-client'
 import { mergeCanonicalTracks, dedupeQueueTracks, sortTracksByAlbumOrder, filterPlayableTracks } from '@/lib/track-dedupe'
 import { formatDuration, canonicalAlbum } from '@/lib/duration-formatter'
@@ -349,15 +350,15 @@ export default function MusicPage() {
                   href={`/artist/${artist.slug}`}
                   className="group flex-shrink-0 w-32 sm:w-36"
                 >
-                  <div className="relative w-32 h-32 sm:w-36 sm:h-36 rounded-xl overflow-hidden bg-[var(--pf-surface)] mb-2">
-                    <Image
-                      src={artist.image}
-                      alt={artist.name}
-                      fill
-                      sizes="(max-width: 640px) 128px, 144px"
-                      className="object-cover transition-transform duration-200 group-hover:scale-[1.03]"
-                    />
-                  </div>
+                  <ArtistMedia
+                    src={artist.image}
+                    alt={artist.name}
+                    name={artist.name}
+                    variant="card"
+                    className="w-32 h-32 sm:w-36 sm:h-36 rounded-xl bg-[var(--pf-surface)] mb-2"
+                    imageClassName="object-cover transition-transform duration-200 group-hover:scale-[1.03]"
+                    sizes="(max-width: 640px) 128px, 144px"
+                  />
                   <div className="flex items-center gap-1">
                     <p className="text-sm font-medium truncate">{artist.name}</p>
                     {artist.verified && <Verified size={12} className="text-[var(--pf-text-secondary)] shrink-0" />}

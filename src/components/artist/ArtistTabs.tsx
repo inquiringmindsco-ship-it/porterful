@@ -155,8 +155,9 @@ export function ArtistTabs({
       {active === 'music' && (
         <div className="space-y-8">
           {cappedFeatured.length === 0 && playableSingles.length === 0 && albumGroups.length === 0 && (
-            <div className="text-center py-16">
-              <p className="text-sm text-[var(--pf-text-muted)]">No tracks yet.</p>
+            <div className="text-center py-16 px-4">
+              <p className="text-sm text-[var(--pf-text-muted)] mb-1">No tracks yet.</p>
+              <p className="text-xs text-[var(--pf-text-secondary)]">Music coming soon.</p>
             </div>
           )}
 

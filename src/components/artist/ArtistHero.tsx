@@ -1,9 +1,9 @@
 'use client'
 
-import Image from 'next/image'
 import Link from 'next/link'
 import { ChevronLeft, Pause, Play, Verified } from 'lucide-react'
 import { useAudio, Track } from '@/lib/audio-context'
+import { ArtistMedia } from '@/components/artist/ArtistMedia'
 import { LikenessBadge } from '@/components/likeness/LikenessGate'
 import {
   SOCIAL_ICONS,
@@ -59,16 +59,14 @@ export function ArtistHero({ artist, firstTrack, queueTracks }: ArtistHeroProps)
   return (
     <section className="relative overflow-hidden border-b border-[var(--pf-border)] bg-[var(--pf-bg)]">
       <div className="absolute inset-0 pointer-events-none">
-        {heroImage && (
-          <Image
-            src={heroImage}
-            alt=""
-            fill
-            sizes="100vw"
-            className="object-cover scale-110 blur-3xl opacity-20"
-            aria-hidden="true"
-          />
-        )}
+        <ArtistMedia
+          src={heroImage}
+          alt=""
+          name={artist.name}
+          variant="banner"
+          className="absolute inset-0"
+          imageClassName="object-cover scale-110 blur-3xl opacity-20"
+        />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,137,0,0.18),transparent_36%),radial-gradient(circle_at_bottom_left,rgba(255,255,255,0.08),transparent_30%),linear-gradient(180deg,rgba(0,0,0,0.12),rgba(0,0,0,0.55))]" />
       </div>
 
@@ -88,22 +86,15 @@ export function ArtistHero({ artist, firstTrack, queueTracks }: ArtistHeroProps)
           <div className="grid gap-5 p-4 sm:p-6 lg:grid-cols-[minmax(0,220px)_1fr_auto] lg:items-center">
             {/* Artwork */}
             <div className="relative mx-auto aspect-square w-full max-w-[220px] overflow-hidden rounded-[28px] border border-white/10 bg-white/5 shadow-2xl">
-              {artist.image ? (
-                <Image
-                  src={artist.image}
-                  alt={artist.name}
-                  fill
-                  sizes="(max-width: 640px) 220px, 220px"
-                  className="object-cover"
-                  priority
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-white/10 to-white/5">
-                  <span className="text-5xl font-semibold text-white/70">
-                    {artist.name.charAt(0).toUpperCase()}
-                  </span>
-                </div>
-              )}
+              <ArtistMedia
+                src={artist.image}
+                alt={artist.name}
+                name={artist.name}
+                variant="card"
+                className="h-full w-full"
+                priority
+                sizes="(max-width: 640px) 220px, 220px"
+              />
               <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
             </div>
 

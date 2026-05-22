@@ -1,7 +1,7 @@
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getArtistTracks, ARTISTS } from '@/lib/artists'
-import { getArtistWithDb } from '@/lib/artist-db'
+import { getArtistWithDb, getServerArtistBySlug } from '@/lib/artist-db'
 import { ArtistHero } from '@/components/artist/ArtistHero'
 import { ArtistTabs } from '@/components/artist/ArtistTabs'
 import type { Track } from '@/lib/audio-context'
@@ -110,9 +110,20 @@ const ALBUM_LIST = [
 export default async function ArtistPage({ params }: PageProps) {
   const { slug } = await params
   const artist = await getArtistWithDb(slug)
+  const dbArtistRecord = await getServerArtistBySlug(slug)
 
   if (!artist) {
     notFound()
+  }
+
+  if (dbArtistRecord) {
+    const status = String(dbArtistRecord.status || 'active').toLowerCase()
+    const isPublicProfile = dbArtistRecord.public_profile_enabled !== false
+    const isAllowedStatus = status === 'active' || status === 'approved'
+
+    if (!isPublicProfile || !isAllowedStatus) {
+      notFound()
+    }
   }
 
   // Fetch ALL DB tracks (including inactive for canonical dedupe)
@@ -132,13 +143,13 @@ export default async function ArtistPage({ params }: PageProps) {
   // Resolve DB artist UUID by slug for album order lookup
   // Static fallback uses string slug as id, but album_order rows use auth UUID
   let artistId = artist.id
-  const { data: dbArtist } = await getServerSupabase()
+  const { data: dbArtistRow } = await getServerSupabase()
     .from('artists')
     .select('id')
     .eq('slug', slug)
     .maybeSingle()
-  if (dbArtist?.id) {
-    artistId = dbArtist.id
+  if (dbArtistRow?.id) {
+    artistId = dbArtistRow.id
   }
 
   // Fetch custom album order

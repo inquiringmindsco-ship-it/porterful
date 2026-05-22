@@ -4,12 +4,12 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSupabase } from '@/app/providers'
 import Link from 'next/link'
-import Image from 'next/image'
 import { 
-  Upload, Save, ArrowLeft, X, Camera, Image as ImageIcon, 
-  Music, Globe, Youtube, Twitter, Instagram, Check, AlertCircle
+  Upload, Save, ArrowLeft, Camera, Image as ImageIcon, 
+  Globe, Youtube, Twitter, Instagram, Check, AlertCircle
 } from 'lucide-react'
 import { getArtistAccessContext } from '@/lib/artist-identity'
+import { ArtistMedia } from '@/components/artist/ArtistMedia'
 
 export default function EditArtistPage() {
   const router = useRouter()
@@ -28,6 +28,7 @@ export default function EditArtistPage() {
   const [youtubeUrl, setYoutubeUrl] = useState('')
   const [instagramUrl, setInstagramUrl] = useState('')
   const [twitterUrl, setTwitterUrl] = useState('')
+  const [tiktokUrl, setTiktokUrl] = useState('')
   const [avatarUrl, setAvatarUrl] = useState('')
   const [coverUrl, setCoverUrl] = useState('')
   const [avatarPreview, setAvatarPreview] = useState('')
@@ -58,10 +59,11 @@ export default function EditArtistPage() {
           setYoutubeUrl(source.youtube_url || '')
           setInstagramUrl(source.instagram_url || '')
           setTwitterUrl(source.twitter_url || '')
-          setAvatarUrl(source.avatar_url || '')
-          setCoverUrl(source.cover_url || '')
-          if (source.avatar_url) setAvatarPreview(source.avatar_url)
-          if (source.cover_url) setCoverPreview(source.cover_url)
+          setTiktokUrl(source.tiktok_url || '')
+          setAvatarUrl(source.avatar_url || source.profile_image_url || '')
+          setCoverUrl(source.cover_url || source.banner_url || source.hero_image_url || '')
+          if (source.avatar_url || source.profile_image_url) setAvatarPreview(source.avatar_url || source.profile_image_url)
+          if (source.cover_url || source.banner_url || source.hero_image_url) setCoverPreview(source.cover_url || source.banner_url || source.hero_image_url)
         }
       } catch (err) {
         console.error('Failed to load profile:', err)
@@ -156,8 +158,13 @@ export default function EditArtistPage() {
           youtube_url: youtubeUrl,
           instagram_url: instagramUrl,
           twitter_url: twitterUrl,
+          x_url: twitterUrl,
+          tiktok_url: tiktokUrl,
           avatar_url: avatarUrl,
+          profile_image_url: avatarUrl,
           cover_url: coverUrl,
+          banner_url: coverUrl,
+          hero_image_url: coverUrl,
         })
       })
 
@@ -178,8 +185,9 @@ export default function EditArtistPage() {
         setYoutubeUrl(p.youtube_url || youtubeUrl)
         setInstagramUrl(p.instagram_url || instagramUrl)
         setTwitterUrl(p.twitter_url || twitterUrl)
-        setAvatarUrl(p.avatar_url || avatarUrl)
-        setCoverUrl(p.cover_url || coverUrl)
+        setTiktokUrl(p.tiktok_url || tiktokUrl)
+        setAvatarUrl(p.avatar_url || p.profile_image_url || avatarUrl)
+        setCoverUrl(p.cover_url || p.banner_url || p.hero_image_url || coverUrl)
       }
 
       setSuccess(true)
@@ -252,13 +260,19 @@ export default function EditArtistPage() {
           {/* Cover Image */}
           <div>
             <label className="block text-sm font-medium mb-2">Cover Image</label>
-            <div 
-              className="relative w-full h-40 max-h-40 rounded-xl overflow-hidden bg-[var(--pf-surface)] border border-[var(--pf-border)] cursor-pointer group shrink-0"
-              onClick={() => coverInputRef.current?.click()}
-            >
-              {coverPreview ? (
-                <Image src={coverPreview} alt="Cover" fill sizes="(max-width: 768px) 100vw, 720px" className="object-cover w-full h-full" />
-              ) : (
+          <div 
+            className="relative w-full h-40 max-h-40 rounded-xl overflow-hidden bg-[var(--pf-surface)] border border-[var(--pf-border)] cursor-pointer group shrink-0"
+            onClick={() => coverInputRef.current?.click()}
+          >
+              <ArtistMedia
+                src={coverPreview}
+                alt="Cover"
+                name={name}
+                variant="banner"
+                className="h-full w-full"
+                imageClassName="object-cover w-full h-full"
+              />
+              {!coverPreview && (
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="text-center">
                     <ImageIcon className="mx-auto mb-2 text-[var(--pf-text-muted)]" size={32} />
@@ -288,9 +302,15 @@ export default function EditArtistPage() {
                 className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden bg-[var(--pf-surface)] border border-[var(--pf-border)] cursor-pointer group shrink-0"
                 onClick={() => avatarInputRef.current?.click()}
               >
-                {avatarPreview ? (
-                  <Image src={avatarPreview} alt="Avatar" fill sizes="96px" className="object-cover w-full h-full" />
-                ) : (
+                <ArtistMedia
+                  src={avatarPreview}
+                  alt="Avatar"
+                  name={name}
+                  variant="avatar"
+                  className="h-full w-full"
+                  imageClassName="object-cover w-full h-full"
+                />
+                {!avatarPreview && (
                   <div className="absolute inset-0 flex items-center justify-center">
                     <Camera className="text-[var(--pf-text-muted)]" size={32} />
                   </div>
@@ -424,6 +444,19 @@ export default function EditArtistPage() {
                 onChange={(e) => setTwitterUrl(e.target.value)}
                 className="pf-input"
                 placeholder="https://x.com/yourusername"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                TikTok
+              </label>
+              <input
+                type="url"
+                value={tiktokUrl}
+                onChange={(e) => setTiktokUrl(e.target.value)}
+                className="pf-input"
+                placeholder="https://tiktok.com/@yourusername"
               />
             </div>
           </div>

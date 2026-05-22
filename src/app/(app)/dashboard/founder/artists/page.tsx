@@ -4,11 +4,11 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSupabase } from '@/app/providers'
 import Link from 'next/link'
-import Image from 'next/image'
 import { 
-  ArrowLeft, Eye, EyeOff, Check, X, Camera, Save, 
-  AlertCircle, Search, Filter
+  ArrowLeft, Check, Camera,
+  AlertCircle, Search
 } from 'lucide-react'
+import { ArtistMedia } from '@/components/artist/ArtistMedia'
 
 interface Artist {
   id: string
@@ -32,6 +32,7 @@ export default function FounderArtistsPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState<Record<string, boolean>>({})
   const [error, setError] = useState('')
+  const [notice, setNotice] = useState('')
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState('all') // all | public | hidden | no-pic
 
@@ -73,15 +74,9 @@ export default function FounderArtistsPage() {
   }, [authLoading, user, supabase, router])
 
   async function toggleVisibility(artist: Artist) {
-    // Block: no profile pic = cannot go public
-    if (!artist.avatar_url && !artist.public_profile_enabled) {
-      setError(`${artist.name} needs a profile picture before going public.`)
-      setTimeout(() => setError(''), 3000)
-      return
-    }
-
     setSaving({ ...saving, [artist.id]: true })
     setError('')
+    setNotice('')
 
     const newValue = !artist.public_profile_enabled
 
@@ -96,6 +91,8 @@ export default function FounderArtistsPage() {
       setArtists(artists.map(a => 
         a.id === artist.id ? { ...a, public_profile_enabled: newValue } : a
       ))
+      setNotice(`${artist.name} is now ${newValue ? 'visible' : 'hidden'}.`)
+      window.setTimeout(() => setNotice(''), 2500)
     }
 
     setSaving({ ...saving, [artist.id]: false })
@@ -110,7 +107,7 @@ export default function FounderArtistsPage() {
     switch (filter) {
       case 'public': return a.public_profile_enabled
       case 'hidden': return !a.public_profile_enabled
-      case 'no-pic': return !a.avatar_url
+      case 'no-pic': return !a.avatar_url && !a.cover_url
       default: return true
     }
   })
@@ -142,7 +139,7 @@ export default function FounderArtistsPage() {
           <div>
             <h1 className="text-2xl font-bold">Artist Management</h1>
             <p className="text-sm text-[var(--pf-text-secondary)]">
-              Control which artists are public. Require profile pics for visibility.
+              Control which artists are public. Placeholder artwork keeps empty profiles clean.
             </p>
           </div>
         </div>
@@ -155,12 +152,19 @@ export default function FounderArtistsPage() {
           </div>
         )}
 
+        {notice && (
+          <div className="mb-4 p-3 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center gap-2 text-sm text-green-300">
+            <Check size={16} />
+            {notice}
+          </div>
+        )}
+
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
           <StatCard label="Total" value={artists.length} />
           <StatCard label="Public" value={artists.filter(a => a.public_profile_enabled).length} color="green" />
           <StatCard label="Hidden" value={artists.filter(a => !a.public_profile_enabled).length} color="orange" />
-          <StatCard label="No Pic" value={artists.filter(a => !a.avatar_url).length} color="red" />
+          <StatCard label="No Pic" value={artists.filter(a => !a.avatar_url && !a.cover_url).length} color="red" />
         </div>
 
         {/* Search & Filter */}
@@ -175,7 +179,7 @@ export default function FounderArtistsPage() {
               className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-[var(--pf-border)] bg-[var(--pf-surface)] text-sm focus:outline-none focus:border-[var(--pf-orange)]"
             />
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             {(['all', 'public', 'hidden', 'no-pic'] as const).map((f) => (
               <button
                 key={f}
@@ -195,9 +199,8 @@ export default function FounderArtistsPage() {
         {/* Artist List */}
         <div className="space-y-3">
           {filteredArtists.map(artist => {
-            const hasPic = !!artist.avatar_url
+            const hasPic = !!artist.avatar_url || !!artist.cover_url
             const isPublic = artist.public_profile_enabled
-            const canGoPublic = hasPic
 
             return (
               <div 
@@ -211,19 +214,14 @@ export default function FounderArtistsPage() {
                 <div className="flex items-start gap-4">
                   {/* Avatar */}
                   <div className="relative shrink-0">
-                    {hasPic ? (
-                      <Image
-                        src={artist.avatar_url!}
-                        alt={artist.name}
-                        width={56}
-                        height={56}
-                        className="rounded-xl object-cover"
-                      />
-                    ) : (
-                      <div className="w-14 h-14 rounded-xl bg-[var(--pf-bg)] border border-[var(--pf-border)] flex items-center justify-center">
-                        <Camera size={20} className="text-[var(--pf-text-muted)]" />
-                      </div>
-                    )}
+                    <ArtistMedia
+                      src={artist.avatar_url || artist.cover_url}
+                      alt={artist.name}
+                      name={artist.name}
+                      variant="card"
+                      className="h-14 w-14 rounded-xl bg-[var(--pf-bg)] border border-[var(--pf-border)]"
+                      imageClassName="object-cover"
+                    />
                     {isPublic && (
                       <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[var(--pf-orange)] flex items-center justify-center">
                         <Check size={10} className="text-white" />
@@ -233,7 +231,7 @@ export default function FounderArtistsPage() {
 
                   {/* Info */}
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-start justify-between gap-2 flex-wrap sm:flex-nowrap">
                       <div>
                         <Link 
                           href={`/artist/${artist.slug}`}
@@ -245,26 +243,28 @@ export default function FounderArtistsPage() {
                           @{artist.slug} · {artist.artist_tier.replace(/_/g, ' ')}
                         </p>
                       </div>
-                      <button
-                        onClick={() => toggleVisibility(artist)}
-                        disabled={saving[artist.id] || (!canGoPublic && !isPublic)}
-                        className={`shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                          isPublic
-                            ? 'bg-[var(--pf-orange)]/10 text-[var(--pf-orange)] hover:bg-[var(--pf-orange)]/20'
-                            : canGoPublic
-                              ? 'bg-[var(--pf-surface)] border border-[var(--pf-border)] text-[var(--pf-text-secondary)] hover:border-[var(--pf-orange)]/40'
-                              : 'bg-[var(--pf-bg)] text-[var(--pf-text-muted)] cursor-not-allowed opacity-60'
-                        }`}
-                        title={!canGoPublic && !isPublic ? 'Needs profile picture first' : ''}
-                      >
-                        {saving[artist.id] ? (
-                          <>Saving...</>
-                        ) : isPublic ? (
-                          <><Eye size={14} /> Public</>
-                        ) : (
-                          <><EyeOff size={14} /> Hidden</>
-                        )}
-                      </button>
+                      <div className="shrink-0">
+                        <p className="text-[10px] uppercase tracking-wider text-[var(--pf-text-muted)] mb-1 text-right">Public Profile</p>
+                        <button
+                          onClick={() => toggleVisibility(artist)}
+                          disabled={saving[artist.id]}
+                          className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                            isPublic
+                              ? 'bg-[var(--pf-orange)] text-white'
+                              : 'bg-[var(--pf-surface)] border border-[var(--pf-border)] text-[var(--pf-text-secondary)]'
+                          }`}
+                          title="Toggle public profile visibility"
+                        >
+                          {saving[artist.id] ? (
+                            <span className="w-16 text-center">Saving...</span>
+                          ) : (
+                            <>
+                              <span className={`w-2 h-2 rounded-full ${isPublic ? 'bg-white' : 'bg-[var(--pf-text-muted)]'}`} />
+                              <span>{isPublic ? 'Visible' : 'Hidden'}</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
                     </div>
 
                     {/* Status badges */}
@@ -277,8 +277,8 @@ export default function FounderArtistsPage() {
                         {artist.status}
                       </span>
                       {!hasPic && (
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-red-500/10 text-red-400 flex items-center gap-1">
-                          <Camera size={10} /> No profile pic
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 flex items-center gap-1">
+                          <Camera size={10} /> Placeholder image
                         </span>
                       )}
                       {artist.location && (

@@ -1,11 +1,11 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, Check, MapPin, Music } from 'lucide-react'
 import { useSupabase } from '@/app/providers'
 import { getArtistAccessContext } from '@/lib/artist-identity'
+import { ArtistMedia } from '@/components/artist/ArtistMedia'
 
 interface ArtistFromDb {
   id: string
@@ -171,7 +171,7 @@ function ArtistCard({ artist }: { artist: ArtistFromDb }) {
     countTracks()
   }, [artist.name])
 
-  const image = artist.avatar_url || artist.cover_url || `/artist-images/${artist.slug}/avatar.jpg`
+  const image = artist.avatar_url || artist.cover_url || ''
   const shortBio = artist.bio?.slice(0, 120) || 'Artist on Porterful'
 
   return (
@@ -179,19 +179,15 @@ function ArtistCard({ artist }: { artist: ArtistFromDb }) {
       href={`/artist/${artist.slug}`}
       className="group overflow-hidden rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] transition hover:border-[var(--pf-orange)]/40"
     >
-      <div className="relative aspect-[4/5]">
-        <Image
-          src={image}
-          alt={artist.name}
-          fill
-          sizes="(max-width: 1280px) 50vw, 33vw"
-          className="object-cover transition duration-300 group-hover:scale-105"
-          onError={(e) => {
-            // Fallback to default if image fails
-            (e.target as HTMLImageElement).src = '/artist-images/default-avatar.jpg'
-          }}
-        />
-      </div>
+      <ArtistMedia
+        src={image}
+        alt={artist.name}
+        name={artist.name}
+        variant="card"
+        className="aspect-[4/5]"
+        imageClassName="object-cover transition duration-300 group-hover:scale-105"
+        sizes="(max-width: 1280px) 50vw, 33vw"
+      />
       <div className="space-y-3 p-5">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">

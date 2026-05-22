@@ -51,7 +51,7 @@ function buildDbSocial(dbArtist: any, staticArtist?: ArtistData) {
 
   return {
     instagram: firstNonEmpty(dbArtist.instagram_url, socialLinks.instagram, staticSocial.instagram),
-    twitter: firstNonEmpty(dbArtist.twitter_url, socialLinks.twitter, staticSocial.twitter),
+    twitter: firstNonEmpty(dbArtist.x_url, dbArtist.twitter_url, socialLinks.twitter, staticSocial.twitter),
     youtube: firstNonEmpty(dbArtist.youtube_url, socialLinks.youtube, staticSocial.youtube),
     tiktok: firstNonEmpty(dbArtist.tiktok_url, socialLinks.tiktok, staticSocial.tiktok),
     website: firstNonEmpty(dbArtist.website_url, dbArtist.website, socialLinks.website, staticSocial.website),
@@ -61,8 +61,8 @@ function buildDbSocial(dbArtist: any, staticArtist?: ArtistData) {
 function buildDbArtistData(dbArtist: any, staticArtist?: ArtistData): ArtistData {
   const name = firstNonEmpty(dbArtist.name, dbArtist.full_name, staticArtist?.name) || 'Unknown artist'
   const bio = firstNonEmpty(dbArtist.bio, staticArtist?.bio) || ''
-  const avatarUrl = firstNonEmpty(dbArtist.avatar_url, staticArtist?.image) || '/artist-images/default-avatar.jpg'
-  const bannerUrl = firstNonEmpty(dbArtist.banner_url, dbArtist.cover_url, staticArtist?.bannerUrl, staticArtist?.coverUrl, staticArtist?.coverSlides?.[0]?.src)
+  const avatarUrl = firstNonEmpty(dbArtist.avatar_url, dbArtist.profile_image_url, staticArtist?.image) || ''
+  const bannerUrl = firstNonEmpty(dbArtist.banner_url, dbArtist.hero_image_url, dbArtist.cover_url, staticArtist?.bannerUrl, staticArtist?.coverUrl, staticArtist?.coverSlides?.[0]?.src)
   const slug = firstNonEmpty(dbArtist.slug, staticArtist?.slug, dbArtist.id) || name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
 
   return {

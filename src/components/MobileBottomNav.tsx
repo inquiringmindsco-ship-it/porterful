@@ -2,15 +2,17 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutGrid, Music, Store, Users } from 'lucide-react'
+import { LayoutGrid, Music, Store, Users, ShieldCheck } from 'lucide-react'
 import { useAudio } from '@/lib/audio-context'
+import { useSupabase } from '@/app/providers'
+import { useEffect, useState } from 'react'
 
 // Approximate height of GlobalPlayer's mini bar (controls row + progress
 // strip + 1px top border). When the player is present we sit above it
 // so tap targets don't overlap.
 const PLAYER_OFFSET_PX = 96
 
-const ITEMS = [
+const BASE_ITEMS = [
   { href: '/music', label: 'Music', icon: Music },
   { href: '/artists', label: 'Artists', icon: Users },
   // { href: '/store', label: 'Store', icon: Store }, // Hidden: store has no real products yet
@@ -26,6 +28,29 @@ export function MobileBottomNav() {
   const pathname = usePathname() || '/'
   const { currentTrack } = useAudio()
   const hasPlayer = !!currentTrack
+  const { user, supabase } = useSupabase()
+  const [userRole, setUserRole] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!user || !supabase) return
+    let cancelled = false
+    supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+      .then(({ data }) => {
+        if (!cancelled) setUserRole(data?.role || null)
+      })
+    return () => { cancelled = true }
+  }, [user, supabase])
+
+  const isFounder = userRole === 'admin' || userRole === 'founder'
+
+  // Build items array: base + founder link if applicable
+  const items = isFounder
+    ? [...BASE_ITEMS, { href: '/dashboard/founder', label: 'Founder', icon: ShieldCheck }]
+    : BASE_ITEMS
 
   // Hide on tap routes (existing convention) so the nav doesn't bleed into
   // standalone tap-in flows.
@@ -41,7 +66,7 @@ export function MobileBottomNav() {
       }}
     >
       <ul className="flex items-stretch">
-        {ITEMS.map(({ href, label, icon: Icon }) => {
+        {items.map(({ href, label, icon: Icon }) => {
           const active = isActiveRoute(pathname, href)
           return (
             <li key={href} className="flex-1">

@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from 'react'
 import { usePathname } from 'next/navigation'
 import { useSupabase } from '@/app/providers'
 import { useCart } from '@/lib/cart-context'
-import { Menu, X, ChevronDown, User, LogOut, ShoppingCart, Settings, Shield } from 'lucide-react'
+import { Menu, X, ChevronDown, User, LogOut, ShoppingCart, Settings, Shield, ShieldCheck } from 'lucide-react'
 
 export function Navbar() {
   const { user, supabase, loading } = useSupabase()
@@ -18,11 +18,27 @@ export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [userRole, setUserRole] = useState<string | null>(null)
   const profileRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  // Fetch user role for founder nav links
+  useEffect(() => {
+    if (!user || !supabase) return
+    let cancelled = false
+    supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+      .then(({ data }) => {
+        if (!cancelled) setUserRole(data?.role || null)
+      })
+    return () => { cancelled = true }
+  }, [user, supabase])
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
@@ -79,6 +95,8 @@ export function Navbar() {
   const ready = mounted && !loading
   const showUser = ready && !!user
   const showGuest = ready && !user
+
+  const isFounder = userRole === 'admin' || userRole === 'founder'
 
   const navLinks = [
     { href: '/music', label: 'Music' },
@@ -286,6 +304,12 @@ export function Navbar() {
                 <User size={20} />
                 <span>{dashboardLabel}</span>
               </Link>
+              {isFounder && (
+                <Link href={founderHref} onClick={() => setMobileOpen(false)} className="flex items-center gap-3 py-3 text-[var(--pf-orange)] hover:text-[var(--pf-orange)] transition-colors">
+                  <ShieldCheck size={20} />
+                  <span>{founderLabel}</span>
+                </Link>
+              )}
               <Link href="/settings/settings" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 py-3 text-[var(--pf-text-secondary)] hover:text-[var(--pf-text)] transition-colors">
                 <Settings size={20} />
                 <span>Settings</span>

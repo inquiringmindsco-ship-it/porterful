@@ -52,7 +52,7 @@ export async function GET() {
         .map((artist: any) => ({
           ...artist,
           trackCount: trackCountsById.get(artist.id) || trackCountsByName.get(String(artist.name || '').toLowerCase()) || 0,
-          image: artist.avatar_url || artist.cover_url || `/artist-images/${artist.slug || artist.id}/avatar.jpg`,
+          image: artist.avatar_url || artist.cover_url || '',
         })),
     })
   } catch (error) {

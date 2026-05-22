@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Search, Music, ShoppingBag, X, TrendingUp, Users, ArrowRight } from 'lucide-react';
+import { ArtistMedia } from '@/components/artist/ArtistMedia';
 
 interface Artist {
   id: string;
@@ -191,13 +192,14 @@ export function ArtistSearch() {
                         selectedIndex === i ? 'bg-[var(--pf-bg)]' : ''
                       }`}
                     >
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--pf-orange)] to-purple-500 flex items-center justify-center text-white font-bold text-sm overflow-hidden">
-                        {artist.avatar ? (
-                          <Image src={artist.avatar} alt={artist.name} width={40} height={40} className="object-cover" />
-                        ) : (
-                          artist.name.charAt(0)
-                        )}
-                      </div>
+                      <ArtistMedia
+                        src={artist.avatar}
+                        alt={artist.name}
+                        name={artist.name}
+                        variant="avatar"
+                        className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--pf-orange)] to-purple-500 text-white font-bold text-sm"
+                        imageClassName="object-cover"
+                      />
                       <div className="flex-1 min-w-0">
                         <div className="font-medium text-[var(--pf-text)] truncate">{artist.name}</div>
                         {artist.genre && (

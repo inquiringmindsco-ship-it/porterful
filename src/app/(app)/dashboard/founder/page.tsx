@@ -6,7 +6,7 @@ import { useSupabase } from '@/app/providers'
 import Link from 'next/link'
 import { 
   Users, Music, Package, DollarSign, AlertCircle, 
-  CheckCircle, XCircle, Eye, EyeOff, Play, Pause,
+  CheckCircle, XCircle, Play, Pause,
   ChevronUp, ChevronDown, Shield, TrendingUp
 } from 'lucide-react'
 
@@ -346,7 +346,7 @@ export default function FounderDashboard() {
                   <th className="p-3">Tier</th>
                   <th className="p-3">Status</th>
                   <th className="p-3">Tracks</th>
-                  <th className="p-3">Public</th>
+                  <th className="p-3">Public Profile</th>
                   <th className="p-3">Auto-Publish</th>
                   <th className="p-3">Actions</th>
                 </tr>
@@ -381,17 +381,32 @@ export default function FounderDashboard() {
                     <td className="p-3">
                       <button
                         onClick={() => toggleArtistField(artist.id, 'public_profile_enabled', !artist.public_profile_enabled)}
-                        className={artist.public_profile_enabled ? 'text-green-400' : 'text-red-400'}
+                        className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                          artist.public_profile_enabled
+                            ? 'bg-[var(--pf-orange)] text-white'
+                            : 'bg-[var(--pf-surface)] border border-[var(--pf-border)] text-[var(--pf-text-secondary)]'
+                        }`}
+                        title="Toggle public profile visibility"
                       >
-                        {artist.public_profile_enabled ? <Eye size={16} /> : <EyeOff size={16} />}
+                        <span className={`w-2 h-2 rounded-full ${artist.public_profile_enabled ? 'bg-white' : 'bg-[var(--pf-text-muted)]'}`} />
+                        <span>{artist.public_profile_enabled ? 'Visible' : 'Hidden'}</span>
                       </button>
                     </td>
                     <td className="p-3">
                       <button
                         onClick={() => toggleArtistField(artist.id, 'auto_publish', !artist.auto_publish)}
-                        className={artist.auto_publish ? 'text-green-400' : 'text-red-400'}
+                        className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                          artist.auto_publish
+                            ? 'border-green-500/30 bg-green-500/10 text-green-300 hover:border-green-400/50'
+                            : 'border-red-500/30 bg-red-500/10 text-red-300 hover:border-red-400/50'
+                        }`}
+                        title="Toggle auto-publish"
                       >
                         {artist.auto_publish ? <CheckCircle size={16} /> : <XCircle size={16} />}
+                        <span>Auto-Publish</span>
+                        <span className="rounded-full bg-white/10 px-1.5 py-0.5 text-[10px] uppercase tracking-[0.2em]">
+                          {artist.auto_publish ? 'On' : 'Off'}
+                        </span>
                       </button>
                     </td>
                     <td className="p-3">

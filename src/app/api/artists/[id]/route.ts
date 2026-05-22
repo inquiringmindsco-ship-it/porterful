@@ -116,7 +116,23 @@ export async function PATCH(
     }
 
     const body = await request.json()
-    const { name, bio, genre, location, website, youtube_url, twitter_url, instagram_url, avatar_url, cover_url } = body
+    const {
+      name,
+      bio,
+      genre,
+      location,
+      website,
+      youtube_url,
+      twitter_url,
+      x_url,
+      instagram_url,
+      tiktok_url,
+      avatar_url,
+      profile_image_url,
+      cover_url,
+      banner_url,
+      hero_image_url,
+    } = body
 
     // Use service role for update (bypasses RLS after auth check)
     const serviceSupabase = createClient(
@@ -134,9 +150,14 @@ export async function PATCH(
     if (genre !== undefined) artistUpdates.genre = genre
     if (youtube_url !== undefined) artistUpdates.youtube_url = youtube_url
     if (twitter_url !== undefined) artistUpdates.twitter_url = twitter_url
+    if (x_url !== undefined && twitter_url === undefined) artistUpdates.twitter_url = x_url
     if (instagram_url !== undefined) artistUpdates.instagram_url = instagram_url
+    if (tiktok_url !== undefined) artistUpdates.tiktok_url = tiktok_url
     if (avatar_url !== undefined) artistUpdates.avatar_url = avatar_url
+    if (profile_image_url !== undefined && avatar_url === undefined) artistUpdates.avatar_url = profile_image_url
     if (cover_url !== undefined) artistUpdates.cover_url = cover_url
+    if (banner_url !== undefined && cover_url === undefined) artistUpdates.cover_url = banner_url
+    if (hero_image_url !== undefined && cover_url === undefined && banner_url === undefined) artistUpdates.cover_url = hero_image_url
 
     // Update artists table
     const { data: artistData, error: artistError } = await serviceSupabase
