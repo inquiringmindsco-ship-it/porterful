@@ -71,32 +71,34 @@ export default function AdminPage() {
   const filteredApps = apps.filter(a => a.status === tab)
 
   return (
-    <div className="min-h-screen bg-[var(--pf-bg)]">
+    <div className="min-h-screen bg-[var(--pf-bg)] overflow-x-hidden">
       {/* Header */}
       <div className="border-b border-[var(--pf-border)] bg-[var(--pf-bg-secondary)]">
-        <div className="pf-container py-4 flex items-center justify-between">
-          <div>
-            <Link href="/" className="text-xl font-bold text-[var(--pf-orange)]">PORTERFUL</Link>
-            <p className="text-xs text-[var(--pf-text-muted)] mt-0.5">Artist Applications</p>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="text-right">
-              <div className="text-sm font-medium">{apps.filter(a => a.status === 'pending').length} pending</div>
-              <div className="text-xs text-[var(--pf-text-muted)]">review queue</div>
+        <div className="pf-container py-4">
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <Link href="/" className="text-xl font-bold text-[var(--pf-orange)]">PORTERFUL</Link>
+                <p className="text-xs text-[var(--pf-text-muted)] mt-0.5">Artist Applications</p>
+              </div>
+              <div className="text-right">
+                <div className="text-sm font-medium">{apps.filter(a => a.status === 'pending').length} pending</div>
+                <div className="text-xs text-[var(--pf-text-muted)]">review queue</div>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Tabs */}
+      {/* Tabs - Mobile: full width scroll, Desktop: inline */}
       <div className="border-b border-[var(--pf-border)]">
-        <div className="pf-container">
-          <div className="flex gap-1">
+        <div className="pf-container overflow-x-auto">
+          <div className="flex gap-1 min-w-max">
             {(['pending', 'approved', 'rejected'] as const).map(t => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
-                className={`px-5 py-3 text-sm font-medium capitalize transition-colors ${
+                className={`px-4 sm:px-5 py-3 text-sm font-medium capitalize transition-colors whitespace-nowrap ${
                   tab === t
                     ? 'text-[var(--pf-orange)] border-b-2 border-[var(--pf-orange)]'
                     : 'text-[var(--pf-text-muted)] hover:text-white'
@@ -114,7 +116,7 @@ export default function AdminPage() {
         </div>
       </div>
 
-      <div className="pf-container py-8">
+      <div className="pf-container py-4 sm:py-8">
         {loading ? (
           <div className="text-center py-20 text-[var(--pf-text-muted)]">Loading...</div>
         ) : filteredApps.length === 0 ? (
@@ -134,7 +136,7 @@ export default function AdminPage() {
                 className="bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-xl p-5 hover:border-[var(--pf-orange)]/30 transition-colors cursor-pointer"
                 onClick={() => setSelectedApp(app)}
               >
-                <div className="flex items-center gap-4">
+                <div className="flex items-start sm:items-center gap-3 sm:gap-4">
                   {/* Avatar */}
                   <div className="w-14 h-14 rounded-xl overflow-hidden bg-[var(--pf-bg-secondary)] shrink-0">
                     {app.avatar_url ? (
@@ -148,7 +150,7 @@ export default function AdminPage() {
 
                   {/* Info */}
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-start sm:items-center gap-2 flex-wrap">
                       <h3 className="font-bold text-lg">{app.stage_name}</h3>
                       {app.genre && (
                         <span className="px-2 py-0.5 bg-[var(--pf-orange)]/10 text-[var(--pf-orange)] text-xs rounded-full">
@@ -156,7 +158,7 @@ export default function AdminPage() {
                         </span>
                       )}
                     </div>
-                    <p className="text-sm text-[var(--pf-text-muted)] truncate">
+                    <p className="text-sm text-[var(--pf-text-muted)] truncate max-w-full">
                       {app.city && `${app.city} · `}
                       {app.instagram && `IG: @${app.instagram} `}
                       {app.youtube && `· YT: ${app.youtube}`}
@@ -189,8 +191,8 @@ export default function AdminPage() {
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setSelectedApp(null)}>
           <div className="bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
             {/* Header */}
-            <div className="p-6 border-b border-[var(--pf-border)]">
-              <div className="flex items-center gap-4">
+            <div className="p-4 sm:p-6 border-b border-[var(--pf-border)]">
+              <div className="flex items-start gap-4">
                 <div className="w-16 h-16 rounded-xl overflow-hidden bg-[var(--pf-bg-secondary)] shrink-0">
                   {selectedApp.avatar_url ? (
                     <Image src={selectedApp.avatar_url} alt={selectedApp.stage_name} width={64} height={64} className="object-cover w-full h-full" />
@@ -242,9 +244,9 @@ export default function AdminPage() {
             )}
 
             {/* Social */}
-            <div className="p-6 border-b border-[var(--pf-border)]">
+            <div className="p-4 sm:p-6">
               <h3 className="text-xs uppercase tracking-wider text-[var(--pf-text-muted)] mb-3">Links</h3>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {selectedApp.instagram && (
                   <a href={`https://instagram.com/${selectedApp.instagram}`} target="_blank" className="flex items-center gap-2 px-3 py-2 bg-[var(--pf-bg-secondary)] rounded-lg text-sm hover:border-[var(--pf-orange)] border border-transparent transition-colors">
                     <span className="text-pink-400">IG</span>
@@ -291,9 +293,9 @@ export default function AdminPage() {
             </div>
 
             {/* Images */}
-            <div className="p-6 border-b border-[var(--pf-border)]">
+            <div className="p-4 sm:p-6 border-b border-[var(--pf-border)]">
               <h3 className="text-xs uppercase tracking-wider text-[var(--pf-text-muted)] mb-3">Submitted Images</h3>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {selectedApp.avatar_url ? (
                   <div>
                     <p className="text-xs text-[var(--pf-text-muted)] mb-1">Avatar</p>
@@ -323,11 +325,11 @@ export default function AdminPage() {
 
             {/* Actions */}
             {selectedApp.status === 'pending' && (
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
                 <p className="text-xs text-[var(--pf-text-muted)] mb-4 text-center">
                   Approving will create their artist profile and notify them.
                 </p>
-                <div className="flex gap-3">
+                <div className="flex flex-col sm:flex-row gap-3">
                   <button
                     onClick={() => updateStatus(selectedApp.id, 'rejected')}
                     disabled={actionLoading}
