@@ -18,26 +18,30 @@ export async function POST(request: NextRequest) {
     if (!title?.trim()) return NextResponse.json({ error: 'Title is required' }, { status: 400 });
     if (!audio_url?.trim()) return NextResponse.json({ error: 'Audio file is required' }, { status: 400 });
 
-    // Verify user is an artist
+    // Check track limit (25 for artists, unlimited for admin)
     const { data: profile } = await supabase
       .from('profiles')
       .select('id, role')
       .eq('id', user.id)
       .single();
 
-    if (!profile || profile.role !== 'artist') {
+    if (!profile || profile.role !== 'artist' && profile.role !== 'admin') {
       return NextResponse.json({ error: 'Only artists can upload tracks' }, { status: 403 });
     }
 
-    // Check 3-track limit
-    const { count } = await supabase
-      .from('tracks')
-      .select('*', { count: 'exact', head: true })
-      .eq('artist_id', profile.id)
-      .eq('is_active', true);
+    const isAdmin = profile.role === 'admin';
+    const MAX_TRACKS = isAdmin ? Infinity : 25;
 
-    if ((count || 0) >= 3) {
-      return NextResponse.json({ error: 'Maximum 3 active tracks allowed. Remove an existing track to add a new one.' }, { status: 400 });
+    if (!isAdmin) {
+      const { count } = await supabase
+        .from('tracks')
+        .select('*', { count: 'exact', head: true })
+        .eq('artist_id', profile.id)
+        .eq('is_active', true);
+
+      if ((count || 0) >= MAX_TRACKS) {
+        return NextResponse.json({ error: `Maximum ${MAX_TRACKS} active tracks allowed. Remove an existing track to add a new one.` }, { status: 400 });
+      }
     }
 
     // Insert track
