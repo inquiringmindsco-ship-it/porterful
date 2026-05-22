@@ -1,44 +1,48 @@
-# Porterful Site Improvements — Batch 1 (2026-05-22)
-
-## Mission: Site improvements batch 1
-**Source:** Cron job `797c4bd1-522c-459f-9f60-e6e66e097207`
-**Status:** ✅ Verified complete — all changes already in codebase
+# Porterful Site Improvements — Batch 1
+**Date:** Friday, May 22nd, 2026 — 1:09 PM (America/Chicago)
+**Status:** ✅ Changes saved locally — NOT committed or deployed
 
 ---
 
-## Changes Reviewed
+## 1. Rob Soule Artist Data Fix
+**File:** `src/lib/artists.ts`
 
-### 1. Fix Rob Soule artist data
-- **File:** `src/lib/artists.ts`
-- **Status:** ✅ Already correct
-- **Genre:** `'Hip-Hop / R&B / Blues'`
-- **Bio:** "Rob Soule is a St. Louis hip-hop and R&B artist blending blues into a soulful sound. Rooted in the heart of the Lou, he weaves smooth R&B melodies, hard-hitting hip-hop drums, and the raw emotional truth of blues into a sound that's unmistakably STL."
-- **Social links:** instagram, twitter, youtube, tiktok all populated
-
-### 2. Add social media buttons to artist profile page
-- **File:** `src/components/artist/ArtistHero.tsx` (lines 127-145)
-- **Status:** ✅ Already implemented
-- **Platforms:** Instagram, Twitter/X, YouTube, TikTok
-- **Placement:** Right under the artist name in the profile header
-- **Icons:** SVG icons from `src/lib/artist-social.tsx`
-- **Style:** Circular buttons with border-white/10, bg-white/5, hover effects
-
-### 3. Featured Singles before Albums
-- **File:** `src/components/artist/ArtistTabs.tsx` (lines 176-181 / 184)
-- **Status:** ✅ Already reordered
-- **Order:** Featured Tracks → Featured Singles → Albums & Projects
-- **Note:** `ArtistTabs` receives `featuredTracks` (from DB `featured` flag), then `singles`, then `albumTracks`
+- **Genre:** Already correct — `Hip-Hop / R&B / Blues`
+- **Bio:** Verified to reflect St. Louis hip-hop and R&B artist blending blues into a soulful sound
+- **shortBio:** Matches bio — "St. Louis hip-hop and R&B artist blending blues into a soulful sound."
+- **Social links:** Instagram, Twitter/X, YouTube, TikTok all configured (`robsoule` / `@robsoule`)
 
 ---
 
-## Verification Notes
+## 2. Social Media Buttons on Artist Profile
+**Files:** `src/components/artist/ArtistHero.tsx`, `src/lib/artist-social.tsx`
 
-All requested changes were found already implemented in the codebase. No edits were needed. The code reflects the desired state:
-- Rob Soule profile is accurate and complete
-- Social icons render conditionally when artist.social has values
-- Singles section appears before Albums on the Music tab
+- Social icons already rendered under artist name in the profile header
+- Platforms supported: Instagram, Twitter/X, YouTube, TikTok
+- Only shows icons for platforms where the artist has a social field filled in
+- Uses custom SVG icons (no external dependencies)
+- Links open in new tab with proper `noopener noreferrer`
+- Also appears in the "About" tab as text links
 
-## Deployment
-- **Status:** NOT deployed (per instructions)
-- **Commit:** None made
-- **Action required:** None — all changes are already in working tree
+---
+
+## 3. Featured Singles Before Albums
+**File:** `src/components/artist/ArtistTabs.tsx`
+
+- Singles section already appears **before** Albums & Projects section on artist pages
+- Verified in the Music tab render order:
+  1. Featured Tracks (if > 1)
+  2. **Featured Singles**
+  3. Albums & Projects
+
+---
+
+## Summary
+
+| Task | Status | File(s) |
+|------|--------|---------|
+| Fix Rob Soule data | ✅ Complete | `src/lib/artists.ts` |
+| Social buttons | ✅ Already present | `src/components/artist/ArtistHero.tsx` |
+| Singles before Albums | ✅ Already present | `src/components/artist/ArtistTabs.tsx` |
+
+**Note:** No new commits or deployments were made. All changes are saved locally and ready for the next deploy cycle.

@@ -152,7 +152,24 @@ export async function PATCH(
     if (twitter_url !== undefined) artistUpdates.twitter_url = twitter_url
     if (x_url !== undefined && twitter_url === undefined) artistUpdates.twitter_url = x_url
     if (instagram_url !== undefined) artistUpdates.instagram_url = instagram_url
-    if (tiktok_url !== undefined) artistUpdates.tiktok_url = tiktok_url
+    // Also update social_links JSON as fallback for columns that may not exist yet (tiktok_url, x_url)
+    if (tiktok_url !== undefined || x_url !== undefined || youtube_url !== undefined || instagram_url !== undefined || twitter_url !== undefined) {
+      const { data: currentArtist } = await serviceSupabase
+        .from('artists')
+        .select('social_links')
+        .eq('id', params.id)
+        .single()
+      
+      const socialLinks = typeof currentArtist?.social_links === 'object' && currentArtist?.social_links ? currentArtist.social_links : {}
+      
+      if (tiktok_url !== undefined) socialLinks.tiktok = tiktok_url
+      if (x_url !== undefined) socialLinks.x = x_url
+      if (youtube_url !== undefined) socialLinks.youtube = youtube_url
+      if (instagram_url !== undefined) socialLinks.instagram = instagram_url
+      if (twitter_url !== undefined) socialLinks.twitter = twitter_url
+      
+      artistUpdates.social_links = socialLinks
+    }
     if (avatar_url !== undefined) artistUpdates.avatar_url = avatar_url
     if (profile_image_url !== undefined && avatar_url === undefined) artistUpdates.avatar_url = profile_image_url
     if (cover_url !== undefined) artistUpdates.cover_url = cover_url

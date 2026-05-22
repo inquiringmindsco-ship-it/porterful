@@ -53,7 +53,12 @@ function buildDbSocial(dbArtist: any, staticArtist?: ArtistData) {
     instagram: firstNonEmpty(dbArtist.instagram_url, socialLinks.instagram, staticSocial.instagram),
     twitter: firstNonEmpty(dbArtist.x_url, dbArtist.twitter_url, socialLinks.twitter, staticSocial.twitter),
     youtube: firstNonEmpty(dbArtist.youtube_url, socialLinks.youtube, staticSocial.youtube),
-    tiktok: firstNonEmpty(dbArtist.tiktok_url, socialLinks.tiktok, staticSocial.tiktok),
+    tiktok: firstNonEmpty(
+      // tiktok_url may not exist in schema yet — read from social_links JSON as fallback
+      typeof dbArtist.tiktok_url !== 'undefined' ? dbArtist.tiktok_url : null,
+      socialLinks.tiktok,
+      staticSocial.tiktok
+    ),
     website: firstNonEmpty(dbArtist.website_url, dbArtist.website, socialLinks.website, staticSocial.website),
   }
 }
