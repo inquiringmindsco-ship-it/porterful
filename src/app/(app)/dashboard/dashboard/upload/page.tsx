@@ -26,6 +26,10 @@ export default function UploadPage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
 
+  // Quota state (preflight)
+  const [quota, setQuota] = useState<any>(null)
+  const [quotaLoading, setQuotaLoading] = useState(true)
+
   // Debug state (temporary)
   const [debugInfo, setDebugInfo] = useState<string[]>([])
 
@@ -44,7 +48,7 @@ export default function UploadPage() {
         .select('role')
         .eq('id', user.id)
         .single()
-      if (data?.role !== 'artist') {
+      if (data?.role !== 'artist' && data?.role !== 'admin' && data?.role !== 'founder') {
         router.push('/dashboard')
         return
       }
@@ -52,6 +56,25 @@ export default function UploadPage() {
     }
     checkAccess()
   }, [user, supabase, authLoading, router])
+
+  // Fetch quota on load
+  useEffect(() => {
+    if (!user || authLoading) return
+    async function fetchQuota() {
+      try {
+        const res = await fetch('/api/tracks/quota')
+        if (res.ok) {
+          const data = await res.json()
+          setQuota(data)
+        }
+      } catch (e) {
+        console.error('Failed to fetch quota:', e)
+      } finally {
+        setQuotaLoading(false)
+      }
+    }
+    fetchQuota()
+  }, [user, authLoading])
 
   const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -85,8 +108,9 @@ export default function UploadPage() {
   /**
    * Upload directly to Supabase Storage via signed URL.
    * Bypasses Vercel body limit entirely.
+   * Returns { publicUrl, path } for metadata save and orphan cleanup.
    */
-  const uploadFile = async (file: File, folder: string): Promise<string> => {
+  const uploadFile = async (file: File, folder: string): Promise<{ publicUrl: string; path: string }> => {
     const userId = user?.id || 'anonymous'
 
     // 1. Get signed upload URL from server (tiny JSON request)
@@ -127,7 +151,7 @@ export default function UploadPage() {
       throw new Error(`Storage upload failed: ${uploadRes.status} ${errText.substring(0, 200)}`)
     }
 
-    return publicUrl
+    return { publicUrl, path }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -147,20 +171,33 @@ export default function UploadPage() {
     addDebug(`START — file: ${audioFile.name}, size: ${audioFile.size} bytes (${(audioFile.size / 1024 / 1024).toFixed(2)}MB)`)
 
     try {
-      // 1. Get signed URL + upload audio directly to Supabase
+      // 1. PREFLIGHT: Check quota before uploading
+      addDebug('Step 0: Checking upload quota...')
+      const quotaRes = await safeFetch('/api/tracks/quota')
+      addDebug(`Quota check — ok: ${quotaRes.ok}, can_upload: ${quotaRes.data?.can_upload}`)
+      
+      if (!quotaRes.ok || !quotaRes.data?.can_upload) {
+        const msg = quotaRes.data?.message || 'Upload not allowed. Check your track limit.'
+        throw new Error(msg)
+      }
+
+      // 2. Get signed URL + upload audio directly to Supabase
       addDebug('Step 1: Requesting signed URL for audio...')
-      const audioUrl = await uploadFile(audioFile, 'artists/tracks')
+      const { publicUrl: audioUrl, path: audioPath } = await uploadFile(audioFile, 'artists/tracks')
       addDebug(`Step 1 DONE — audioUrl: ${audioUrl.substring(0, 60)}...`)
 
-      // 2. Upload cover art directly to Supabase (if provided)
+      // 3. Upload cover art directly to Supabase (if provided)
       let coverUrl = ''
+      let coverPath = ''
       if (coverFile) {
         addDebug('Step 2: Requesting signed URL for cover...')
-        coverUrl = await uploadFile(coverFile, 'artists/covers')
+        const coverResult = await uploadFile(coverFile, 'artists/covers')
+        coverUrl = coverResult.publicUrl
+        coverPath = coverResult.path
         addDebug(`Step 2 DONE — coverUrl: ${coverUrl.substring(0, 60)}...`)
       }
 
-      // 3. Send metadata to server (tiny JSON — well under Vercel limit)
+      // 4. Send metadata to server (tiny JSON — well under Vercel limit)
       addDebug('Step 3: Saving metadata to /api/tracks...')
       const { ok, status, data, raw } = await safeFetch('/api/tracks', {
         method: 'POST',
@@ -172,6 +209,10 @@ export default function UploadPage() {
           album: album.trim() || null,
           price: parseFloat(price) || 0,
           description: description.trim() || null,
+          storage_paths: {
+            audio: audioPath,
+            cover: coverPath || null,
+          },
         }),
       })
 
@@ -189,8 +230,21 @@ export default function UploadPage() {
       addDebug(`CATCH ERROR — ${rawMsg}`)
       console.error('[upload] Full error:', err)
 
-      // Show RAW error to user (temporary debug mode)
-      setError(`Upload failed: ${rawMsg}`)
+      // Clean error display — no fake "file too large" for quota errors
+      const isQuotaError = rawMsg.includes('Maximum') || rawMsg.includes('track limit') || rawMsg.includes('Upgrade')
+      const isAuthError = rawMsg.includes('Unauthorized') || rawMsg.includes('session')
+      const isSizeError = rawMsg.includes('413') || rawMsg.includes('Entity Too Large') || rawMsg.includes('payload')
+      
+      let displayError = rawMsg
+      if (isSizeError) {
+        displayError = 'File too large. Maximum 50MB per track.'
+      } else if (isAuthError) {
+        displayError = 'Your session expired. Please log in again.'
+      } else if (isQuotaError) {
+        displayError = rawMsg // Show real quota message
+      }
+
+      setError(displayError)
     } finally {
       setSubmitting(false)
     }
@@ -249,6 +303,24 @@ export default function UploadPage() {
           <div className="mb-6 p-4 rounded-lg border border-[var(--pf-border)] bg-[var(--pf-surface)] flex items-center gap-2 text-[var(--pf-text-secondary)]">
             <AlertCircle size={18} />
             {error}
+          </div>
+        )}
+
+        {/* Quota Info */}
+        {quota && !quotaLoading && (
+          <div className={`mb-6 p-3 rounded-lg border text-sm ${
+            quota.is_unlimited 
+              ? 'border-[var(--pf-orange)]/30 bg-[var(--pf-orange)]/5 text-[var(--pf-orange)]' 
+              : 'border-[var(--pf-border)] bg-[var(--pf-surface)] text-[var(--pf-text-muted)]'
+          }`}>
+            <div className="flex items-center justify-between">
+              <span className="font-medium">{quota.message}</span>
+              {quota.max_active_tracks && (
+                <span className="text-xs">
+                  {quota.active_tracks} / {quota.max_active_tracks} tracks
+                </span>
+              )}
+            </div>
           </div>
         )}
 
@@ -394,7 +466,7 @@ export default function UploadPage() {
             </Link>
             <button
               type="submit"
-              disabled={submitting || !audioFile}
+              disabled={submitting || !audioFile || (quota && !quota.can_upload)}
               className="pf-btn pf-btn-primary flex items-center gap-2"
             >
               {submitting ? (
