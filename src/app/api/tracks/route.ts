@@ -18,29 +18,51 @@ export async function POST(request: NextRequest) {
     if (!title?.trim()) return NextResponse.json({ error: 'Title is required' }, { status: 400 });
     if (!audio_url?.trim()) return NextResponse.json({ error: 'Audio file is required' }, { status: 400 });
 
-    // Check track limit (25 for artists, unlimited for admin)
+    // Check track limit (unlimited for admin/founder/porterful artists, tiered for others)
     const { data: profile } = await supabase
       .from('profiles')
       .select('id, role')
       .eq('id', user.id)
       .single();
 
-    if (!profile || profile.role !== 'artist' && profile.role !== 'admin') {
+    const { data: artist } = await supabase
+      .from('artists')
+      .select('artist_tier')
+      .eq('id', user.id)
+      .single();
+
+    if (!profile || (profile.role !== 'artist' && profile.role !== 'admin' && profile.role !== 'founder')) {
       return NextResponse.json({ error: 'Only artists can upload tracks' }, { status: 403 });
     }
 
-    const isAdmin = profile.role === 'admin';
-    const MAX_TRACKS = isAdmin ? Infinity : 25;
+    const tier = artist?.artist_tier || 'basic_artist';
 
-    if (!isAdmin) {
+    const isUnlimitedUploader = 
+      profile.role === 'admin' ||
+      profile.role === 'founder' ||
+      tier === 'porterful_artist' ||
+      tier === 'exclusive_porterful_artist';
+
+    const maxActiveTracks = isUnlimitedUploader 
+      ? null 
+      : (tier === 'verified_artist' || tier === 'likeness_verified_artist') 
+        ? 25 
+        : 3;
+
+    if (maxActiveTracks !== null) {
       const { count } = await supabase
         .from('tracks')
         .select('*', { count: 'exact', head: true })
         .eq('artist_id', profile.id)
         .eq('is_active', true);
 
-      if ((count || 0) >= MAX_TRACKS) {
-        return NextResponse.json({ error: `Maximum ${MAX_TRACKS} active tracks allowed. Remove an existing track to add a new one.` }, { status: 400 });
+      if ((count || 0) >= maxActiveTracks) {
+        return NextResponse.json({ 
+          error: `Maximum ${maxActiveTracks} active tracks allowed for ${tier.replace('_', ' ')} accounts. Upgrade to Porterful Artist for unlimited uploads.`,
+          max_active_tracks: maxActiveTracks,
+          can_upload: false,
+          tier
+        }, { status: 400 });
       }
     }
 
