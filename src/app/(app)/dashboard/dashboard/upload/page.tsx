@@ -26,6 +26,9 @@ export default function UploadPage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
 
+  // Debug state (temporary)
+  const [debugInfo, setDebugInfo] = useState<string[]>([])
+
   const audioInputRef = useRef<HTMLInputElement>(null)
   const coverInputRef = useRef<HTMLInputElement>(null)
 
@@ -134,18 +137,31 @@ export default function UploadPage() {
 
     setSubmitting(true)
     setError('')
+    setDebugInfo([])
+
+    const addDebug = (msg: string) => {
+      setDebugInfo(prev => [...prev, `${new Date().toLocaleTimeString()} — ${msg}`])
+      console.log('[upload]', msg)
+    }
+
+    addDebug(`START — file: ${audioFile.name}, size: ${audioFile.size} bytes (${(audioFile.size / 1024 / 1024).toFixed(2)}MB)`)
 
     try {
-      // Upload audio directly to Supabase
+      // 1. Get signed URL + upload audio directly to Supabase
+      addDebug('Step 1: Requesting signed URL for audio...')
       const audioUrl = await uploadFile(audioFile, 'artists/tracks')
+      addDebug(`Step 1 DONE — audioUrl: ${audioUrl.substring(0, 60)}...`)
 
-      // Upload cover art directly to Supabase (if provided)
+      // 2. Upload cover art directly to Supabase (if provided)
       let coverUrl = ''
       if (coverFile) {
+        addDebug('Step 2: Requesting signed URL for cover...')
         coverUrl = await uploadFile(coverFile, 'artists/covers')
+        addDebug(`Step 2 DONE — coverUrl: ${coverUrl.substring(0, 60)}...`)
       }
 
       // 3. Send metadata to server (tiny JSON — well under Vercel limit)
+      addDebug('Step 3: Saving metadata to /api/tracks...')
       const { ok, status, data, raw } = await safeFetch('/api/tracks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -159,34 +175,22 @@ export default function UploadPage() {
         }),
       })
 
+      addDebug(`Step 3 response — ok: ${ok}, status: ${status}, error: ${data?.error || 'none'}`)
+
       if (!ok || data.error) {
         throw new Error(data.error || data.message || `Save failed (HTTP ${status})`)
       }
 
+      addDebug('SUCCESS — track saved')
       setSuccess(true)
       setTimeout(() => router.push('/dashboard/artist'), 1500)
     } catch (err: any) {
-      const msg = err?.message || ''
-      let friendly = msg
+      const rawMsg = err?.message || String(err) || 'Unknown error'
+      addDebug(`CATCH ERROR — ${rawMsg}`)
+      console.error('[upload] Full error:', err)
 
-      if (msg.includes('session') || msg.includes('401') || msg.includes('Unauthorized')) {
-        friendly = 'Your session expired. Please log in again and retry.'
-      } else if (msg.includes('not supported') || msg.includes('Invalid audio format')) {
-        friendly = msg
-      } else if (msg.includes('too large') || msg.includes('Max') || msg.includes('Request Entity') || msg.includes('Entity Too Large')) {
-        friendly = 'File too large. Please try a smaller file or contact support.'
-      } else if (msg.includes('permission') || msg.includes('Storage permission') || msg.includes('403')) {
-        friendly = 'Storage permission denied. Please contact support.'
-      } else if (msg.includes('not configured') || msg.includes('bucket')) {
-        friendly = 'Upload temporarily unavailable. Storage not configured.'
-      } else if (msg.includes('Upload failed') || msg.includes('temporarily failed')) {
-        friendly = msg
-      } else if (msg.includes('Save failed')) {
-        friendly = 'Track uploaded but failed to save metadata. Please contact support.'
-      }
-
-      setError(friendly)
-      console.error('[upload] Full error:', msg, err)
+      // Show RAW error to user (temporary debug mode)
+      setError(`Upload failed: ${rawMsg}`)
     } finally {
       setSubmitting(false)
     }
@@ -245,6 +249,16 @@ export default function UploadPage() {
           <div className="mb-6 p-4 rounded-lg border border-[var(--pf-border)] bg-[var(--pf-surface)] flex items-center gap-2 text-[var(--pf-text-secondary)]">
             <AlertCircle size={18} />
             {error}
+          </div>
+        )}
+
+        {/* Debug Panel (temporary) */}
+        {debugInfo.length > 0 && (
+          <div className="mb-6 p-3 rounded-lg border border-[var(--pf-border)] bg-[var(--pf-surface)] text-xs font-mono text-[var(--pf-text-muted)] space-y-1">
+            <p className="font-semibold text-[var(--pf-text)]">Debug Log:</p>
+            {debugInfo.map((line, i) => (
+              <p key={i}>{line}</p>
+            ))}
           </div>
         )}
 
