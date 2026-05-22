@@ -91,7 +91,7 @@ function buildDbArtistData(dbArtist: any, staticArtist?: ArtistData): ArtistData
     auto_publish: typeof dbArtist.auto_publish === 'boolean'
       ? dbArtist.auto_publish
       : staticArtist?.auto_publish,
-    social: buildDbSocial(dbArtist),
+    social: buildDbSocial(dbArtist, staticArtist),
     coverSlides: staticArtist?.coverSlides,
     videos: staticArtist?.videos,
   }

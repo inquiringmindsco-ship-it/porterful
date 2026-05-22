@@ -1,19 +1,16 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { TRACKS, ALBUMS } from '@/lib/data';
-import { PRODUCTS } from '@/lib/products';
-import { isPublicTrackArtist } from '@/lib/artists';
+import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
+import { TRACKS, ALBUMS } from '@/lib/data'
+import { PRODUCTS } from '@/lib/products'
+import { isPublicTrackArtist } from '@/lib/artists'
 
-// Static artist data derived from tracks/albums
-const STATIC_ARTISTS = [
-  {
-    id: 'od-porter',
-    name: 'O D Porter',
-    slug: 'od-porter',
-    genre: 'Hip-Hop',
-    trackCount: TRACKS.filter((t: any) => t.artist === 'O D Porter').length,
-    productCount: PRODUCTS.filter((p: any) => p.artist === 'O D Porter').length,
-  }
-];
+function getServerSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { auth: { persistSession: false } }
+  )
+}
 
 // Static albums as searchable items
 const STATIC_ALBUMS = Object.entries(ALBUMS).map(([key, album]: [string, any]) => ({
@@ -24,49 +21,109 @@ const STATIC_ALBUMS = Object.entries(ALBUMS).map(([key, album]: [string, any]) =
   image: album.image,
   year: album.year,
   tracks: album.tracks,
-}));
+}))
 
 export async function GET(request: NextRequest) {
-  const searchParams = request.nextUrl.searchParams;
-  const query = searchParams.get('q');
+  const searchParams = request.nextUrl.searchParams
+  const query = searchParams.get('q')
 
   if (!query || query.trim().length < 2) {
-    return NextResponse.json({ artists: [], products: [], tracks: [], albums: [] });
+    return NextResponse.json({ artists: [], products: [], tracks: [], albums: [] })
   }
 
-  const searchTerm = query.toLowerCase().trim();
+  const searchTerm = query.toLowerCase().trim()
 
   try {
-    // Search static artists
-    const artists = STATIC_ARTISTS.filter((artist: any) => 
-      artist.name.toLowerCase().includes(searchTerm) ||
-      artist.slug.toLowerCase().includes(searchTerm)
-    );
+    const supabase = getServerSupabase()
+    const [{ data: artists }, { data: liveTracks }] = await Promise.all([
+      supabase
+        .from('artists')
+        .select('id, name, slug, genre, location, bio, avatar_url, cover_url, verified, artist_tier, status, public_profile_enabled')
+        .neq('status', 'suspended'),
+      supabase
+        .from('tracks')
+        .select('id, title, artist, album, image, cover_url, duration, price, track_number, is_active')
+        .eq('is_active', true),
+    ])
+
+    const artistTrackCounts = new Map<string, number>()
+    ;(liveTracks || []).forEach((track: any) => {
+      const artistName = String(track.artist || '').toLowerCase()
+      if (!artistName) return
+      artistTrackCounts.set(artistName, (artistTrackCounts.get(artistName) || 0) + 1)
+    })
+
+    const publicArtistNames = new Set(
+      (artists || [])
+        .filter((artist: any) => artist.public_profile_enabled !== false && ['active', 'approved'].includes(artist.status))
+        .map((artist: any) => String(artist.name || '').toLowerCase())
+        .filter(Boolean),
+    )
+
+    const liveArtistResults = (artists || [])
+      .filter((artist: any) => artist.public_profile_enabled !== false)
+      .filter((artist: any) =>
+        artist.name.toLowerCase().includes(searchTerm) ||
+        artist.slug.toLowerCase().includes(searchTerm) ||
+        String(artist.genre || '').toLowerCase().includes(searchTerm)
+      )
+      .map((artist: any) => ({
+        id: artist.id,
+        name: artist.name,
+        slug: artist.slug,
+        genre: Array.isArray(artist.genre) ? artist.genre.join(', ') : (artist.genre || ''),
+        avatar: artist.avatar_url || artist.cover_url || null,
+        trackCount: artistTrackCounts.get(String(artist.name || '').toLowerCase()) || 0,
+      }))
 
     // Search static albums
     const albums = STATIC_ALBUMS.filter((album: any) =>
       album.name.toLowerCase().includes(searchTerm) ||
       album.artist.toLowerCase().includes(searchTerm)
-    );
+    )
 
-    // Search static tracks
-    const tracks = TRACKS.filter((track: any) =>
-      isPublicTrackArtist(track.artist) && (
-        track.title.toLowerCase().includes(searchTerm) ||
-        track.artist.toLowerCase().includes(searchTerm) ||
-        (track.album && track.album.toLowerCase().includes(searchTerm))
+    // Search tracks: live DB tracks first, then static legacy catalog for fallback
+    const liveTrackResults = (liveTracks || [])
+      .filter((track: any) =>
+        (publicArtistNames.has(String(track.artist || '').toLowerCase()) || isPublicTrackArtist(track.artist)) && (
+          String(track.title || '').toLowerCase().includes(searchTerm) ||
+          String(track.artist || '').toLowerCase().includes(searchTerm) ||
+          String(track.album || '').toLowerCase().includes(searchTerm)
+        )
       )
-    ).slice(0, 10).map((track: any) => ({
-      id: track.id,
-      title: track.title,
-      artist: track.artist,
-      album: track.album,
-      image: track.image,
-      duration: track.duration,
-      price: track.price,
-    }));
+      .slice(0, 10)
+      .map((track: any) => ({
+        id: track.id,
+        title: track.title,
+        artist: track.artist,
+        album: track.album,
+        image: track.cover_url || track.image,
+        duration: track.duration,
+        price: track.price,
+      }))
 
-    // Search static products
+    const staticTrackResults = TRACKS
+      .filter((track: any) =>
+        (publicArtistNames.has(String(track.artist || '').toLowerCase()) || isPublicTrackArtist(track.artist)) && (
+          track.title.toLowerCase().includes(searchTerm) ||
+          track.artist.toLowerCase().includes(searchTerm) ||
+          (track.album && track.album.toLowerCase().includes(searchTerm))
+        )
+      )
+      .slice(0, 10)
+      .map((track: any) => ({
+        id: track.id,
+        title: track.title,
+        artist: track.artist,
+        album: track.album,
+        image: track.image,
+        duration: track.duration,
+        price: track.price,
+      }))
+
+    const tracks = [...liveTrackResults, ...staticTrackResults].slice(0, 10)
+
+    // Search static products (no canonical DB endpoint yet)
     const products = PRODUCTS.filter((product: any) =>
       product.name.toLowerCase().includes(searchTerm) ||
       product.artist.toLowerCase().includes(searchTerm) ||
@@ -78,16 +135,16 @@ export async function GET(request: NextRequest) {
       price: product.price,
       image: product.image,
       category: product.category,
-    }));
+    }))
 
     return NextResponse.json({
-      artists,
+      artists: liveArtistResults,
       albums,
       tracks,
       products,
-    });
+    })
   } catch (error) {
-    console.error('Search error:', error);
-    return NextResponse.json({ error: 'Search failed' }, { status: 500 });
+    console.error('Search error:', error)
+    return NextResponse.json({ error: 'Search failed' }, { status: 500 })
   }
 }

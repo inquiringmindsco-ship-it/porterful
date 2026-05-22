@@ -16,7 +16,7 @@ import {
 } from 'lucide-react'
 import { useAudio, Track } from '@/lib/audio-context'
 import { TRACKS as STATIC_TRACKS } from '@/lib/data'
-import { ARTISTS } from '@/lib/artists'
+import { ARTISTS, type ArtistData } from '@/lib/artists'
 import { getTrackArtwork } from '@/lib/artwork'
 import { createBrowserSupabaseClient } from '@/lib/create-browser-client'
 import { mergeCanonicalTracks, dedupeQueueTracks, sortTracksByAlbumOrder, filterPlayableTracks } from '@/lib/track-dedupe'
@@ -24,7 +24,7 @@ import { formatDuration, canonicalAlbum } from '@/lib/duration-formatter'
 
 // Public artists with confirmed music/catalog
 const VALID_SLUGS = ['od-porter', 'gune', 'atm-trap']
-const PUBLIC_ARTISTS = ARTISTS.filter((a) => VALID_SLUGS.includes(a.slug))
+const PUBLIC_ARTISTS_FALLBACK = ARTISTS.filter((a) => VALID_SLUGS.includes(a.slug))
 
 // Static tracks for fallback (legacy catalog)
 const LEGACY_TRACKS = STATIC_TRACKS.filter((t) =>
@@ -143,6 +143,7 @@ export default function MusicPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [albumFilter, setAlbumFilter] = useState<string>('all')
   const [selectedAlbum, setSelectedAlbum] = useState<string | null>(null)
+  const [publicArtists, setPublicArtists] = useState<ArtistData[]>(PUBLIC_ARTISTS_FALLBACK)
   const [dbTracks, setDbTracks] = useState<Track[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -178,6 +179,32 @@ export default function MusicPage() {
     loadTracks()
   }, [])
 
+  useEffect(() => {
+    let cancelled = false
+
+    async function loadArtists() {
+      try {
+        const res = await fetch('/api/artists')
+        if (!res.ok) return
+        const data = await res.json()
+        const artists = Array.isArray(data.artists) && data.artists.length > 0 ? data.artists : PUBLIC_ARTISTS_FALLBACK
+        if (!cancelled) {
+          setPublicArtists(artists)
+        }
+      } catch {
+        if (!cancelled) {
+          setPublicArtists(PUBLIC_ARTISTS_FALLBACK)
+        }
+      }
+    }
+
+    loadArtists()
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
   // Merge DB tracks with static fallback using canonical dedupe
   // Inactive DB tracks block matching static from public display
   const ALL_TRACKS = useMemo(() => {
@@ -198,7 +225,7 @@ export default function MusicPage() {
   }, [dbTracks, ALL_TRACKS, currentTrack])
 
   const isHeroActive = currentTrack?.id === heroTrack?.id
-  const heroArtist = ARTISTS.find((a) => a.name === heroTrack?.artist) ?? ARTISTS.find((a) => a.id === 'od-porter')
+  const heroArtist = publicArtists.find((a) => a.name === heroTrack?.artist) ?? publicArtists[0] ?? PUBLIC_ARTISTS_FALLBACK[0]
 
   const startTrack = useCallback(
     (track: Track) => {
@@ -314,8 +341,8 @@ export default function MusicPage() {
           </div>
 
           <div className="flex gap-3 overflow-x-auto -mx-5 sm:-mx-6 px-5 sm:px-6 scrollbar-hide pb-1">
-            {PUBLIC_ARTISTS.map((artist) => {
-              const trackCount = ALL_TRACKS.filter((t) => t.artist === artist.name || t.artist === artist.id).length
+            {publicArtists.map((artist) => {
+              const trackCount = artist.trackCount ?? ALL_TRACKS.filter((t) => t.artist === artist.name || t.artist === artist.id).length
               return (
                 <Link
                   key={artist.id}

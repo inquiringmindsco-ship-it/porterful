@@ -15,9 +15,11 @@ interface ArtistFromDb {
   location: string
   bio: string
   avatar_url: string | null
+  cover_url: string | null
   verified: boolean
   artist_tier: string
   status: string
+  public_profile_enabled?: boolean | null
 }
 
 export default function ArtistsPage() {
@@ -38,13 +40,13 @@ export default function ArtistsPage() {
       }
       const { data, error } = await supabase
         .from('artists')
-        .select('id, name, slug, genre, location, bio, avatar_url, verified, artist_tier, status')
-        .eq('status', 'active')
+        .select('id, name, slug, genre, location, bio, avatar_url, cover_url, verified, artist_tier, status, public_profile_enabled')
+        .in('status', ['active', 'approved'])
         .order('name')
       if (error) {
         console.error('Error loading artists:', error)
       } else {
-        setArtists(data || [])
+        setArtists((data || []).filter((artist: ArtistFromDb) => artist.public_profile_enabled !== false))
       }
       setArtistsLoading(false)
     }
@@ -169,7 +171,7 @@ function ArtistCard({ artist }: { artist: ArtistFromDb }) {
     countTracks()
   }, [artist.name])
 
-  const image = artist.avatar_url || `/artist-images/${artist.slug}/avatar.jpg`
+  const image = artist.avatar_url || artist.cover_url || `/artist-images/${artist.slug}/avatar.jpg`
   const shortBio = artist.bio?.slice(0, 120) || 'Artist on Porterful'
 
   return (

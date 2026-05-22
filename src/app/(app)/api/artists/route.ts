@@ -1,34 +1,62 @@
 import { NextResponse } from 'next/server'
-import { ARTISTS, isPublicArtistRecord } from '@/lib/artists'
+import { createClient } from '@supabase/supabase-js'
+import { ARTISTS } from '@/lib/artists'
+
+export const dynamic = 'force-dynamic'
+
+function getServerSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { auth: { persistSession: false } }
+  )
+}
 
 export async function GET() {
   try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    const supabase = getServerSupabase()
 
-    if (supabaseUrl && supabaseKey) {
-      const res = await fetch(
-        `${supabaseUrl}/rest/v1/profiles?role=eq.artist&order=created_at.desc`,
-        {
-          headers: {
-            'apikey': supabaseKey,
-            'Authorization': `Bearer ${supabaseKey}`,
-          },
-          next: { revalidate: 60 }
-        }
+    const { data: artists, error } = await supabase
+      .from('artists')
+      .select(
+        'id, name, slug, genre, location, bio, avatar_url, cover_url, verified, artist_tier, status, public_profile_enabled, auto_publish, created_at'
       )
+      .order('created_at', { ascending: false })
 
-      if (res.ok) {
-        const artists = await res.json()
-        return NextResponse.json({ artists: Array.isArray(artists) ? artists.filter(isPublicArtistRecord) : [] })
-      }
+    if (error) {
+      console.error('[api/artists] DB error:', error)
+      return NextResponse.json({ artists: ARTISTS })
     }
 
-    // Fallback to static artists data when DB is not configured
-    return NextResponse.json({ artists: ARTISTS })
+    const { data: liveTracks } = await supabase
+      .from('tracks')
+      .select('artist_id, artist, is_active')
+      .eq('is_active', true)
+
+    const trackCountsById = new Map<string, number>()
+    const trackCountsByName = new Map<string, number>()
+
+    ;(liveTracks || []).forEach((track: any) => {
+      if (track.artist_id) {
+        trackCountsById.set(track.artist_id, (trackCountsById.get(track.artist_id) || 0) + 1)
+      }
+      if (track.artist) {
+        const key = String(track.artist).toLowerCase()
+        trackCountsByName.set(key, (trackCountsByName.get(key) || 0) + 1)
+      }
+    })
+
+    return NextResponse.json({
+      artists: (artists || [])
+        .filter((artist: any) => artist.public_profile_enabled !== false && ['active', 'approved'].includes(artist.status))
+        .map((artist: any) => ({
+          ...artist,
+          trackCount: trackCountsById.get(artist.id) || trackCountsByName.get(String(artist.name || '').toLowerCase()) || 0,
+          image: artist.avatar_url || artist.cover_url || `/artist-images/${artist.slug || artist.id}/avatar.jpg`,
+        })),
+    })
   } catch (error) {
     console.error('API error:', error)
-    // Fallback to static data on any error
     return NextResponse.json({ artists: ARTISTS })
   }
 }

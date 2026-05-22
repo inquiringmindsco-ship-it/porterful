@@ -1,9 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useSupabase } from '@/app/providers'
-import { ARTISTS } from '@/lib/artists'
+import { ARTISTS, type ArtistData } from '@/lib/artists'
 import { ArrowRight, Check, ChevronRight, Crown, Gift, Music, Wallet, Zap, ExternalLink, ShoppingCart, Link as Link2 } from 'lucide-react'
 
 const SUPERFAN_TIERS = [
@@ -81,7 +81,7 @@ const FAQS = [
 ]
 
 // Show first 3 artists from the ARTISTS array (only those with tracks)
-const FEATURED_ARTISTS = ARTISTS.filter((a) => a.trackCount && a.trackCount > 0).slice(0, 3)
+const FEATURED_ARTISTS_FALLBACK = ARTISTS.filter((a) => a.trackCount && a.trackCount > 0)
 
 // Placeholder values — replace with real data from your backend
 const PLACEHOLDER_STATS = {
@@ -95,6 +95,34 @@ const PAYOUT_THRESHOLD = 25.00
 export default function SuperfanPage() {
   const { user, loading } = useSupabase()
   const [activeFaq, setActiveFaq] = useState<number | null>(null)
+  const [publicArtists, setPublicArtists] = useState<ArtistData[]>(FEATURED_ARTISTS_FALLBACK)
+  const featuredArtists = publicArtists.filter((artist) => (artist.trackCount ?? 0) > 0).slice(0, 3)
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function loadArtists() {
+      try {
+        const res = await fetch('/api/artists')
+        if (!res.ok) return
+        const data = await res.json()
+        const artists = Array.isArray(data.artists) && data.artists.length > 0 ? data.artists : FEATURED_ARTISTS_FALLBACK
+        if (!cancelled) {
+          setPublicArtists(artists)
+        }
+      } catch {
+        if (!cancelled) {
+          setPublicArtists(FEATURED_ARTISTS_FALLBACK)
+        }
+      }
+    }
+
+    loadArtists()
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   // Show loading state while checking auth
   if (loading) {
@@ -187,7 +215,7 @@ export default function SuperfanPage() {
               <h2 className="text-lg font-bold">Support These Artists</h2>
             </div>
             <div className="grid md:grid-cols-3 gap-4">
-              {FEATURED_ARTISTS.map((artist) => (
+              {featuredArtists.map((artist) => (
                 <Link
                   key={artist.id}
                   href={`/artist/${artist.slug}`}
@@ -212,7 +240,7 @@ export default function SuperfanPage() {
           <section className="mb-8">
             <h2 className="text-lg font-bold mb-4">Support Artists</h2>
             <div className="flex flex-wrap gap-3">
-              {ARTISTS.filter((a) => a.trackCount && a.trackCount > 0).map((artist) => (
+              {publicArtists.filter((artist) => (artist.trackCount ?? 0) > 0).map((artist) => (
                 <Link
                   key={artist.id}
                   href={`/artist/${artist.slug}`}

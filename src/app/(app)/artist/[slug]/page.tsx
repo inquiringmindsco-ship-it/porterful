@@ -82,6 +82,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug } = await params
   const artist = await getArtistWithDb(slug)
   if (!artist) return { title: 'Artist Not Found' }
+  const heroImage = artist.bannerUrl || artist.coverUrl || artist.image
 
   return {
     title: `${artist.name} — Porterful`,
@@ -89,7 +90,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     openGraph: {
       title: `${artist.name} on Porterful`,
       description: artist.shortBio,
-      images: artist.image ? [{ url: artist.image }] : [],
+      images: heroImage ? [{ url: heroImage }] : [],
     },
   }
 }
@@ -146,7 +147,6 @@ export default async function ArtistPage({ params }: PageProps) {
 
   // Dedupe queue before passing to player
   const dedupedTracks = dedupeQueueTracks(tracks)
-
   // Featured set: active DB tracks flagged featured. Read from raw rows since
   // the canonical Track shape doesn't carry `featured`.
   const featuredKeys = new Set<string>(
@@ -157,7 +157,9 @@ export default async function ArtistPage({ params }: PageProps) {
 
   const featuredTracks = dedupedTracks
     .filter((t) => featuredKeys.has(getTrackDedupeKey(t)))
-    .slice(0, 3)
+    .slice(0, 6)
+
+  const topTrack = featuredTracks[0] ?? dedupedTracks[0] ?? null
 
   const featuredIdSet = new Set(featuredTracks.map((t) => t.id))
   const nonFeatured = dedupedTracks.filter((t) => !featuredIdSet.has(t.id))
@@ -178,9 +180,12 @@ export default async function ArtistPage({ params }: PageProps) {
           verified: artist.verified,
           likeness_verified: artist.likeness_verified,
           image: artist.image,
+          bannerUrl: artist.bannerUrl || artist.coverUrl || null,
+          coverUrl: artist.coverUrl || null,
+          trackCount: dedupedTracks.length,
           social: artist.social as SocialLinks | undefined,
         }}
-        firstTrack={dedupedTracks[0] ?? null}
+        firstTrack={topTrack}
         queueTracks={dedupedTracks}
       />
       <ArtistTabs

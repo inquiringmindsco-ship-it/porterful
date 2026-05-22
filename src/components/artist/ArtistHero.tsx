@@ -23,6 +23,9 @@ interface ArtistHeroProps {
     verified: boolean
     likeness_verified?: boolean
     image: string
+    bannerUrl?: string | null
+    coverUrl?: string | null
+    trackCount?: number | null
     social?: SocialLinks
   }
   firstTrack: Track | null
@@ -51,13 +54,14 @@ export function ArtistHero({ artist, firstTrack, queueTracks }: ArtistHeroProps)
       ) as Array<[Exclude<SocialPlatform, 'website'>, string]>)
     : []
   const artistMeta = [artist.genre, artist.location].filter(Boolean).join(' · ')
+  const heroImage = artist.bannerUrl || artist.coverUrl || artist.image
 
   return (
     <section className="relative overflow-hidden border-b border-[var(--pf-border)] bg-[var(--pf-bg)]">
       <div className="absolute inset-0 pointer-events-none">
-        {artist.image && (
+        {heroImage && (
           <Image
-            src={artist.image}
+            src={heroImage}
             alt=""
             fill
             sizes="100vw"
@@ -148,6 +152,11 @@ export function ArtistHero({ artist, firstTrack, queueTracks }: ArtistHeroProps)
                 <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/75 truncate max-w-full">
                   {artist.verified ? 'Verified artist' : 'Artist page'}
                 </span>
+                {typeof artist.trackCount === 'number' && (
+                  <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/75">
+                    {artist.trackCount} tracks
+                  </span>
+                )}
                 {artist.likeness_verified && (
                   <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/75">
                     Likeness verified

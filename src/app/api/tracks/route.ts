@@ -156,21 +156,49 @@ export async function GET(request: NextRequest) {
   const supabase = createServerClient();
 
   if (countOnly && artistName) {
-    // Count tracks for an artist (used by artist listing cards)
-    const { count, error } = await supabase
+    // Count canonical public tracks for an artist (used by artist listing cards)
+    const { data, error } = await supabase
       .from('tracks')
-      .select('*', { count: 'exact', head: true })
+      .select('*')
       .eq('artist', artistName)
-      .eq('is_active', true);
-    
+      .eq('is_active', true)
+      .order('track_number', { ascending: true, nullsFirst: false });
+
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
-    
-    // Also count static tracks
-    const staticCount = TRACKS.filter(t => t.artist === artistName).length;
-    
-    return NextResponse.json({ count: (count || 0) + staticCount });
+
+    const liveTracks = (data || []).map((t: any) => ({
+      id: t.id,
+      title: t.title,
+      artist: t.artist,
+      album: t.album,
+      duration: t.duration,
+      audio_url: t.audio_url,
+      cover_url: t.cover_url,
+      image: t.cover_url || t.image,
+      price: t.proud_to_pay_min || t.price || 1,
+      plays: t.plays || t.play_count || 0,
+      track_number: t.track_number,
+      is_active: t.is_active,
+    }))
+
+    const staticTracks = TRACKS.filter(t => t.artist === artistName).map((t) => ({
+      id: t.id,
+      title: t.title,
+      artist: t.artist,
+      album: t.album,
+      duration: t.duration,
+      audio_url: t.audio_url,
+      cover_url: (t as any).image || (t as any).cover_url || null,
+      image: (t as any).image || (t as any).cover_url || null,
+      price: t.price || 1,
+      plays: t.plays || 0,
+      track_number: (t as any).track_number,
+      is_active: true,
+    }))
+
+    return NextResponse.json({ count: mergeCanonicalTracks(liveTracks as any[], staticTracks as any[], { includeInactive: false }).length });
   }
 
   let query = supabase
