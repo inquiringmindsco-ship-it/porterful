@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
 
 function sanitizeFilename(name: string): string {
   const lastDot = name.lastIndexOf('.')
@@ -21,7 +22,7 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData()
     const file = formData.get('file') as File
     const folder = formData.get('folder') as string || 'submissions/pending'
-    
+
     if (!file) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 })
     }
@@ -39,46 +40,68 @@ export async function POST(request: NextRequest) {
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-    
+
     if (!supabaseUrl || !supabaseKey) {
       return NextResponse.json({ error: 'Storage not configured' }, { status: 500 })
     }
 
     const safeFilename = sanitizeFilename(file.name)
-    const filename = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}-${safeFilename}`
+    const filename = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}-${safeFilename}`
     const path = `${folder}/${filename}`
 
-    const uploadRes = await fetch(
-      `${supabaseUrl}/storage/v1/object/${path}`,
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${supabaseKey}`,
-          'Content-Type': file.type || 'audio/mpeg',
-          'x-upsert': 'true'
-        },
-        body: await file.arrayBuffer()
-      }
-    )
+    // Upload using Supabase JS client (fixes "string did not match expected pattern")
+    const supabaseAdmin = createClient(supabaseUrl, supabaseKey, {
+      auth: { persistSession: false },
+    })
 
-    if (!uploadRes.ok) {
-      const error = await uploadRes.text()
-      console.error('Upload failed:', error)
-      return NextResponse.json({ error: 'Upload failed', details: error }, { status: 500 })
+    const arrayBuffer = await file.arrayBuffer()
+    const buffer = Buffer.from(arrayBuffer)
+
+    const { error: uploadError } = await supabaseAdmin.storage
+      .from('music')
+      .upload(path, buffer, {
+        contentType: file.type || 'audio/mpeg',
+        upsert: false,
+      })
+
+    if (uploadError) {
+      console.error('Upload failed:', uploadError.message)
+      if (uploadError.message.includes('row-level security') || uploadError.message.includes('policy')) {
+        return NextResponse.json(
+          { error: 'Storage permission issue. Please contact support.' },
+          { status: 403 }
+        )
+      }
+      if (uploadError.message.includes('not found') || uploadError.message.includes('bucket')) {
+        return NextResponse.json(
+          { error: 'Upload temporarily failed. Storage bucket not found.' },
+          { status: 500 }
+        )
+      }
+      return NextResponse.json(
+        { error: `Upload failed: ${uploadError.message}` },
+        { status: 500 }
+      )
     }
 
-    const publicUrl = `${supabaseUrl}/storage/v1/object/public/${path}`
+    // Get public URL
+    const { data: urlData } = supabaseAdmin.storage
+      .from('music')
+      .getPublicUrl(path)
 
-    return NextResponse.json({ 
-      url: publicUrl,
+    return NextResponse.json({
+      url: urlData.publicUrl,
       path,
       filename: file.name,
       originalName: file.name,
       safeName: safeFilename,
-      size: file.size
+      size: file.size,
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Upload error:', error)
-    return NextResponse.json({ error: 'Upload failed' }, { status: 500 })
+    return NextResponse.json(
+      { error: error.message || 'Upload failed. Please try again.' },
+      { status: 500 }
+    )
   }
 }
