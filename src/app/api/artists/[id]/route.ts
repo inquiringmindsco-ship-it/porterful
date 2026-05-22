@@ -11,10 +11,8 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Try static fallback first
     const staticArtist = ARTISTS.find(a => a.id === params.id || a.slug === params.id)
-    if (!staticArtist) {
-      return NextResponse.json({ error: 'Artist not found' }, { status: 404 })
-    }
 
     const cookieStore = await cookies()
     const supabase = createServerClient(
@@ -58,27 +56,62 @@ export async function GET(
       }
     }
 
-    // Fetch artist-specific data (only if we have a profile)
-    let artistData = null
-    if (profile) {
-      const result = await supabase.from('artists').select('*').eq('id', profile.id).single()
-      artistData = result.data
+    // Fetch artist-specific data from DB first
+    const { data: dbArtist } = await supabase
+      .from('artists')
+      .select('*')
+      .eq('id', params.id)
+      .single()
+
+    // If no DB artist found, try by slug
+    let artistData = dbArtist
+    let resolvedProfile = profile
+    
+    if (!dbArtist) {
+      const { data: artistBySlug } = await supabase
+        .from('artists')
+        .select('*')
+        .eq('slug', params.id)
+        .single()
+      
+      if (artistBySlug) {
+        artistData = artistBySlug
+        // Try to get profile for this artist
+        if (!resolvedProfile) {
+          const { data: slugProfile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', artistBySlug.id)
+            .single()
+          if (slugProfile) resolvedProfile = slugProfile
+        }
+      }
     }
 
-    // If we have a static artist but no DB profile, use static data
-    const profileData = profile
-      ? { ...profile, ...artistData }
-      : staticArtist
-        ? { full_name: staticArtist.name, ...staticArtist, name: staticArtist.name }
-        : null
-
-    if (!profileData) {
-      return NextResponse.json({ error: 'Artist not found' }, { status: 404 })
+    // If we have a DB artist, use it as primary source
+    if (artistData) {
+      // Merge DB artist data with static fallback only for missing fields
+      const mergedData = {
+        ...resolvedProfile,
+        ...artistData,
+        // Ensure critical fields come from DB if present
+        name: artistData.name || resolvedProfile?.full_name || staticArtist?.name || 'Unknown',
+        bio: artistData.bio || resolvedProfile?.bio || staticArtist?.bio || '',
+        genre: artistData.genre || resolvedProfile?.genre || staticArtist?.genre || '',
+        location: artistData.location || resolvedProfile?.location || staticArtist?.location || '',
+        slug: artistData.slug || resolvedProfile?.username || staticArtist?.slug || params.id,
+      }
+      return NextResponse.json({ profile: mergedData })
     }
 
-    return NextResponse.json({
-      profile: profileData
-    })
+    // If no DB artist at all, try static fallback
+    if (staticArtist) {
+      return NextResponse.json({
+        profile: { ...profile, ...staticArtist, full_name: staticArtist.name }
+      })
+    }
+
+    return NextResponse.json({ error: 'Artist not found' }, { status: 404 })
   } catch (error) {
     console.error('Error fetching artist:', error)
     return NextResponse.json({ error: 'Server error' }, { status: 500 })
