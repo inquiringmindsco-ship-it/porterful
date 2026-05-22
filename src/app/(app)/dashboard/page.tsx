@@ -31,7 +31,9 @@ export default async function DashboardRoot() {
 
   let profile = ensuredProfile
 
-  if (inferredRole === 'artist' && profile.role !== 'artist') {
+  const elevatedRoles = new Set(['artist', 'admin', 'founder'])
+
+  if (inferredRole === 'artist' && !elevatedRoles.has(profile.role)) {
     const { data: normalizedProfile } = await adminSb
       .from('profiles')
       .update({ role: 'artist' })

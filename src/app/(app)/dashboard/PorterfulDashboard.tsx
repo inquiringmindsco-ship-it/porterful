@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useSupabase } from '@/app/providers'
-import { Disc, Music, Settings, Store, Upload, User, Headphones, Heart, Gift, Wallet } from 'lucide-react'
+import { Disc, Music, Settings, Store, Upload, User, Headphones, Heart, Gift, Wallet, ShieldCheck, BarChart3, Users, Inbox } from 'lucide-react'
 
 interface PorterfulDashboardProps {
   serverProfileId: string
@@ -18,6 +18,7 @@ export default function PorterfulDashboard({ serverProfileId, initialProfile }: 
   const [profile] = useState(initialProfile)
   const role = profile?.role || 'supporter'
   const isArtist = role === 'artist'
+  const isFounder = role === 'admin' || role === 'founder'
 
   useEffect(() => {
     setMounted(true)
@@ -40,15 +41,30 @@ export default function PorterfulDashboard({ serverProfileId, initialProfile }: 
       <div className="max-w-3xl mx-auto px-5 sm:px-6">
         {/* Header */}
         <header className="mb-7">
-          <h1 className="text-2xl sm:text-3xl font-bold">Porterful Dashboard</h1>
+          <div className="flex flex-wrap items-center gap-2 mb-2">
+            <h1 className="text-2xl sm:text-3xl font-bold">Porterful Dashboard</h1>
+            {isFounder && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-[var(--pf-orange)]/30 bg-[var(--pf-orange)]/10 text-[var(--pf-orange)] text-xs font-semibold uppercase tracking-wide">
+                <ShieldCheck size={12} />
+                Founder Access
+              </span>
+            )}
+          </div>
           <p className="text-sm text-[var(--pf-text-secondary)] mt-1">
-            Welcome back, {profile?.name || (isArtist ? 'Artist' : 'Supporter')}
+            Welcome back, {profile?.full_name || profile?.name || (isFounder ? 'Founder' : isArtist ? 'Artist' : 'Supporter')}
           </p>
         </header>
 
         {/* Primary actions — role-aware */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
-          {isArtist ? (
+        <div className={`grid grid-cols-1 ${isFounder ? 'sm:grid-cols-2 lg:grid-cols-4' : 'sm:grid-cols-3'} gap-3 mb-8`}>
+          {isFounder ? (
+            <>
+              <ActionCard label="Founder View" href="/dashboard/founder" icon={ShieldCheck} hint="Control tower for the whole platform" />
+              <ActionCard label="Artist Dashboard" href="/dashboard/artist" icon={Disc} hint="Your own catalog and uploads" />
+              <ActionCard label="Upload Track" href="/dashboard/upload" icon={Upload} hint="Direct Supabase upload" />
+              <ActionCard label="Review Queue" href="/dashboard/dashboard/submissions" icon={Inbox} hint="Artist signups and reviews" />
+            </>
+          ) : isArtist ? (
             <>
               <ActionCard label="Upload Track" href="/dashboard/upload" icon={Upload} hint="Add a new track" />
               <ActionCard label="Manage Catalog" href="/dashboard/artist" icon={Disc} hint="Tracks & products" />
@@ -68,9 +84,12 @@ export default function PorterfulDashboard({ serverProfileId, initialProfile }: 
           <SupportLink label="Music" href="/music" icon={Music} />
           <SupportLink label="Store" href="/store" icon={Store} />
           <SupportLink label="Settings" href="/settings/settings" icon={Settings} />
-          {!isArtist && (
+          {isFounder && <SupportLink label="Founder View" href="/dashboard/founder" icon={BarChart3} />}
+          {isFounder && <SupportLink label="Review Queue" href="/dashboard/dashboard/submissions" icon={Inbox} />}
+          {!isArtist && !isFounder && (
             <SupportLink label="Earnings" href="/dashboard/dashboard/payout" icon={Wallet} />
           )}
+          {isFounder && <SupportLink label="Earnings" href="/dashboard/dashboard/payout" icon={Wallet} />}
         </div>
 
         {/* Account — quiet, below */}

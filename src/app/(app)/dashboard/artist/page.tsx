@@ -59,7 +59,7 @@ export default function ArtistDashboardPage() {
           return
         }
 
-        if (serverUser.role !== 'artist') {
+        if (!['artist', 'admin', 'founder'].includes(serverUser.role)) {
           router.push('/dashboard')
           return
         }
