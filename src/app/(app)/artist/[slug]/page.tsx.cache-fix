@@ -1,0 +1,2 @@
+// Add headers to prevent 404 caching
+cat >> "src/app/(app)/artist/[slug]/page.tsx" << 'HEADERFIX'
