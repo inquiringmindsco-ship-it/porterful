@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from 'react'
 import { usePathname } from 'next/navigation'
 import { useSupabase } from '@/app/providers'
 import { useCart } from '@/lib/cart-context'
-import { Menu, X, ChevronDown, User, LogOut, ShoppingCart, Settings } from 'lucide-react'
+import { Menu, X, ChevronDown, User, LogOut, ShoppingCart, Settings, Shield } from 'lucide-react'
 
 export function Navbar() {
   const { user, supabase, loading } = useSupabase()
@@ -68,6 +68,8 @@ export function Navbar() {
 
   const dashboardHref = '/dashboard/artist'
   const dashboardLabel = 'My Dashboard'
+  const founderHref = '/dashboard/founder'
+  const founderLabel = 'Founder View'
   const isActiveLink = (href: string) => pathname === href || pathname.startsWith(`${href}/`)
 
   // Never render auth-dependent state until both:
@@ -171,6 +173,10 @@ export function Navbar() {
                         <Link href={dashboardHref} className="flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--pf-text-secondary)] hover:bg-[var(--pf-surface-hover)] hover:text-[var(--pf-text)] transition-colors" onClick={() => setProfileOpen(false)}>
                           <User size={16} />
                           <span>{dashboardLabel}</span>
+                        </Link>
+                        <Link href={founderHref} className="flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--pf-orange)] hover:bg-[var(--pf-surface-hover)] hover:text-[var(--pf-orange)] transition-colors" onClick={() => setProfileOpen(false)}>
+                          <Shield size={16} />
+                          <span>{founderLabel}</span>
                         </Link>
                         <Link href="/settings/settings" className="flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--pf-text-secondary)] hover:bg-[var(--pf-surface-hover)] hover:text-[var(--pf-text)] transition-colors" onClick={() => setProfileOpen(false)}>
                           <Settings size={16} />
