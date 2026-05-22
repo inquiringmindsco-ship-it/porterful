@@ -6,17 +6,26 @@ import { mergeCanonicalTracks } from '@/lib/track-dedupe';
 
 // POST /api/tracks — Upload a new track
 export async function POST(request: NextRequest) {
+  let uploadedAudioPath: string | null = null;
+  let uploadedCoverPath: string | null = null;
+  let supabaseClient: any = null;
+
   try {
     const auth = await getAuthenticatedClient();
     if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     const { supabase, user } = auth;
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    supabaseClient = supabase;
 
     const body = await request.json();
-    const { title, audio_url, cover_url, album, price } = body;
+    const { title, audio_url, cover_url, album, price, storage_paths } = body;
 
     if (!title?.trim()) return NextResponse.json({ error: 'Title is required' }, { status: 400 });
     if (!audio_url?.trim()) return NextResponse.json({ error: 'Audio file is required' }, { status: 400 });
+
+    // Track uploaded paths for orphan cleanup
+    uploadedAudioPath = storage_paths?.audio || null;
+    uploadedCoverPath = storage_paths?.cover || null;
 
     // Check track limit (unlimited for admin/founder/porterful artists, tiered for others)
     const { data: profile } = await supabase
@@ -89,6 +98,24 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, track: data });
   } catch (err: any) {
+    // Orphan cleanup: delete uploaded files if metadata save failed
+    if (uploadedAudioPath && supabaseClient) {
+      try {
+        await supabaseClient.storage.from('music').remove([uploadedAudioPath])
+        console.log('[tracks] Orphan cleanup: removed audio', uploadedAudioPath)
+      } catch (cleanupErr) {
+        console.error('[tracks] Failed to clean up audio orphan:', cleanupErr)
+      }
+    }
+    if (uploadedCoverPath && supabaseClient) {
+      try {
+        await supabaseClient.storage.from('music').remove([uploadedCoverPath])
+        console.log('[tracks] Orphan cleanup: removed cover', uploadedCoverPath)
+      } catch (cleanupErr) {
+        console.error('[tracks] Failed to clean up cover orphan:', cleanupErr)
+      }
+    }
+
     if (err.message?.includes('Unauthorized') || err.status === 401) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
