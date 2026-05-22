@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import { TRACKS, ALBUMS } from '@/lib/data'
 import { PRODUCTS } from '@/lib/products'
 import { isPublicTrackArtist } from '@/lib/artists'
+import { filterPublicArtists } from '@/lib/public-artists'
 
 function getServerSupabase() {
   return createClient(
@@ -53,15 +54,14 @@ export async function GET(request: NextRequest) {
       artistTrackCounts.set(artistName, (artistTrackCounts.get(artistName) || 0) + 1)
     })
 
+    const publicArtists = filterPublicArtists(artists as any[] | null | undefined)
     const publicArtistNames = new Set(
-      (artists || [])
-        .filter((artist: any) => artist.public_profile_enabled !== false && ['active', 'approved'].includes(artist.status))
+      publicArtists
         .map((artist: any) => String(artist.name || '').toLowerCase())
         .filter(Boolean),
     )
 
-    const liveArtistResults = (artists || [])
-      .filter((artist: any) => artist.public_profile_enabled !== false)
+    const liveArtistResults = publicArtists
       .filter((artist: any) =>
         artist.name.toLowerCase().includes(searchTerm) ||
         artist.slug.toLowerCase().includes(searchTerm) ||

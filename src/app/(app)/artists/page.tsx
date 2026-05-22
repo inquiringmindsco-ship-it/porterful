@@ -6,6 +6,7 @@ import { ArrowRight, Check, MapPin, Music } from 'lucide-react'
 import { useSupabase } from '@/app/providers'
 import { getArtistAccessContext } from '@/lib/artist-identity'
 import { ArtistMedia } from '@/components/artist/ArtistMedia'
+import { filterPublicArtists } from '@/lib/public-artists'
 
 interface ArtistFromDb {
   id: string
@@ -20,6 +21,7 @@ interface ArtistFromDb {
   artist_tier: string
   status: string
   public_profile_enabled?: boolean | null
+  image?: string
 }
 
 export default function ArtistsPage() {
@@ -46,7 +48,7 @@ export default function ArtistsPage() {
       if (error) {
         console.error('Error loading artists:', error)
       } else {
-        setArtists((data || []).filter((artist: ArtistFromDb) => artist.public_profile_enabled !== false))
+        setArtists(filterPublicArtists(data as ArtistFromDb[] | null | undefined) as unknown as ArtistFromDb[])
       }
       setArtistsLoading(false)
     }

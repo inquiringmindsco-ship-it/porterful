@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useSupabase } from '@/app/providers'
 import { ARTISTS, type ArtistData } from '@/lib/artists'
+import { filterPublicArtists } from '@/lib/public-artists'
 import { ArrowRight, Check, ChevronRight, Crown, Gift, Music, Wallet, Zap, ExternalLink, ShoppingCart, Link as Link2 } from 'lucide-react'
 
 const SUPERFAN_TIERS = [
@@ -103,12 +104,14 @@ export default function SuperfanPage() {
 
     async function loadArtists() {
       try {
-        const res = await fetch('/api/artists')
+        const res = await fetch('/api/artists', { cache: 'no-store' })
         if (!res.ok) return
         const data = await res.json()
-        const artists = Array.isArray(data.artists) && data.artists.length > 0 ? data.artists : FEATURED_ARTISTS_FALLBACK
+        const artists = filterPublicArtists(
+          (Array.isArray(data.artists) ? data.artists : []) as ArtistData[],
+        )
         if (!cancelled) {
-          setPublicArtists(artists)
+          setPublicArtists(artists.length > 0 ? artists : FEATURED_ARTISTS_FALLBACK)
         }
       } catch {
         if (!cancelled) {

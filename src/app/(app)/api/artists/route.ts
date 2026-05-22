@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { ARTISTS } from '@/lib/artists'
+import { filterPublicArtists, getStaticPublicArtistFallbacks } from '@/lib/public-artists'
 
 export const dynamic = 'force-dynamic'
 
@@ -25,7 +25,7 @@ export async function GET() {
 
     if (error) {
       console.error('[api/artists] DB error:', error)
-      return NextResponse.json({ artists: ARTISTS })
+      return NextResponse.json({ artists: getStaticPublicArtistFallbacks() })
     }
 
     const { data: liveTracks } = await supabase
@@ -47,8 +47,7 @@ export async function GET() {
     })
 
     return NextResponse.json({
-      artists: (artists || [])
-        .filter((artist: any) => artist.public_profile_enabled !== false && ['active', 'approved'].includes(artist.status))
+      artists: filterPublicArtists(artists as any[] | null | undefined)
         .map((artist: any) => ({
           ...artist,
           trackCount: trackCountsById.get(artist.id) || trackCountsByName.get(String(artist.name || '').toLowerCase()) || 0,
@@ -57,6 +56,6 @@ export async function GET() {
     })
   } catch (error) {
     console.error('API error:', error)
-    return NextResponse.json({ artists: ARTISTS })
+    return NextResponse.json({ artists: getStaticPublicArtistFallbacks() })
   }
 }

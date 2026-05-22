@@ -17,6 +17,7 @@ import {
 import { useAudio, Track } from '@/lib/audio-context'
 import { TRACKS as STATIC_TRACKS } from '@/lib/data'
 import { ARTISTS, type ArtistData } from '@/lib/artists'
+import { filterPublicArtists } from '@/lib/public-artists'
 import { getTrackArtwork } from '@/lib/artwork'
 import { ArtistMedia } from '@/components/artist/ArtistMedia'
 import { createBrowserSupabaseClient } from '@/lib/create-browser-client'
@@ -185,12 +186,14 @@ export default function MusicPage() {
 
     async function loadArtists() {
       try {
-        const res = await fetch('/api/artists')
+        const res = await fetch('/api/artists', { cache: 'no-store' })
         if (!res.ok) return
         const data = await res.json()
-        const artists = Array.isArray(data.artists) && data.artists.length > 0 ? data.artists : PUBLIC_ARTISTS_FALLBACK
+        const publicArtists = filterPublicArtists(
+          (Array.isArray(data.artists) ? data.artists : []) as ArtistData[],
+        )
         if (!cancelled) {
-          setPublicArtists(artists)
+          setPublicArtists(publicArtists.length > 0 ? publicArtists : PUBLIC_ARTISTS_FALLBACK)
         }
       } catch {
         if (!cancelled) {
