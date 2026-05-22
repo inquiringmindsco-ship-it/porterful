@@ -205,14 +205,14 @@ export default function EditArtistPage() {
         </Link>
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
           <div className="flex items-center gap-4">
-            <Link href="/dashboard/artist" className="p-2 hover:bg-[var(--pf-surface)] rounded-lg transition-colors">
+            <Link href="/dashboard/artist" className="p-2 hover:bg-[var(--pf-surface)] rounded-lg transition-colors shrink-0">
               <ArrowLeft size={20} />
             </Link>
-            <div>
-              <h1 className="text-3xl font-bold">Edit Artist Profile</h1>
-              <p className="text-[var(--pf-text-secondary)]">Update your public artist profile</p>
+            <div className="min-w-0">
+              <h1 className="text-2xl sm:text-3xl font-bold truncate">Edit Artist Profile</h1>
+              <p className="text-[var(--pf-text-secondary)] text-sm truncate">Update your public artist profile</p>
             </div>
           </div>
         </div>
@@ -267,9 +267,9 @@ export default function EditArtistPage() {
           {/* Avatar Image */}
           <div>
             <label className="block text-sm font-medium mb-2">Profile Photo</label>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 overflow-x-hidden">
               <div 
-                className="relative w-24 h-24 max-w-24 max-h-24 rounded-xl overflow-hidden bg-[var(--pf-surface)] border border-[var(--pf-border)] cursor-pointer group shrink-0"
+                className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden bg-[var(--pf-surface)] border border-[var(--pf-border)] cursor-pointer group shrink-0"
                 onClick={() => avatarInputRef.current?.click()}
               >
                 {avatarPreview ? (
@@ -361,7 +361,7 @@ export default function EditArtistPage() {
                   type="url"
                   value={website}
                   onChange={(e) => setWebsite(e.target.value)}
-                  className="pf-input pl-10"
+                  className="pf-input pl-10 w-full"
                   placeholder="https://yourwebsite.com"
                 />
               </div>
@@ -413,7 +413,7 @@ export default function EditArtistPage() {
           </div>
 
           {/* Save Button */}
-          <div className="flex justify-end gap-3">
+          <div className="flex flex-col sm:flex-row justify-end gap-3">
             <Link href="/dashboard/artist" className="pf-btn pf-btn-secondary">
               Cancel
             </Link>

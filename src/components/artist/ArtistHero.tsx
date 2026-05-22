@@ -110,7 +110,7 @@ export function ArtistHero({ artist, firstTrack, queueTracks }: ArtistHeroProps)
               </div>
 
               <div className="mt-3 flex flex-wrap items-center gap-2">
-                <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-5xl">{artist.name}</h1>
+                <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-white lg:text-5xl break-words max-w-full">{artist.name}</h1>
                 {artist.verified && (
                   <Verified size={18} className="shrink-0 text-white/70" />
                 )}
@@ -140,12 +140,12 @@ export function ArtistHero({ artist, firstTrack, queueTracks }: ArtistHeroProps)
                 </div>
               )}
 
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-white/70 sm:text-base">
+              <p className="mt-3 max-w-full text-sm leading-6 text-white/70 sm:text-base break-words">
                 {artistMeta || 'Artist page'}
               </p>
 
               <div className="mt-4 flex flex-wrap gap-2">
-                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/75">
+                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/75 truncate max-w-full">
                   {artist.verified ? 'Verified artist' : 'Artist page'}
                 </span>
                 {artist.likeness_verified && (

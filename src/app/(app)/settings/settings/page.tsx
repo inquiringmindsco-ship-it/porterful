@@ -157,8 +157,8 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--pf-bg)] text-[var(--pf-text)] py-8 px-6 mobile-page-safe">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-[var(--pf-bg)] text-[var(--pf-text)] py-8 px-4 sm:px-6 mobile-page-safe overflow-x-hidden">
+      <div className="max-w-6xl mx-auto w-full">
         {/* Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between mb-8">
           <div>
@@ -209,6 +209,24 @@ export default function SettingsPage() {
           <div className="lg:col-span-3">
             {activeTab === 'account' && (
               <div className="space-y-6">
+                <div className="bg-[var(--pf-surface)] rounded-xl p-6 border border-[var(--pf-border)]">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                    <div>
+                      <h2 className="text-xl font-bold">Public Artist Profile</h2>
+                      <p className="text-[var(--pf-text-muted)] text-sm mt-1">
+                        Edit your public artist name, bio, location, genres, image, and socials in one place.
+                      </p>
+                    </div>
+                    <Link
+                      href="/dashboard/dashboard/artist/edit"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--pf-orange)] text-white rounded-lg text-sm font-medium hover:bg-[var(--pf-orange-light)] transition-colors shrink-0"
+                    >
+                      <ExternalLink size={14} />
+                      Edit Artist Profile
+                    </Link>
+                  </div>
+                </div>
+
                 <div className="bg-[var(--pf-surface)] rounded-xl p-6 border border-[var(--pf-border)]">
                   <div className="flex flex-col gap-2 mb-6 sm:flex-row sm:items-start sm:justify-between">
                     <div>
@@ -279,16 +297,9 @@ export default function SettingsPage() {
                     <div>
                       <h2 className="text-xl font-bold">Account Information</h2>
                       <p className="text-[var(--pf-text-muted)] text-sm mt-1">
-                        These fields update your account identity only. Use the artist editor for your public profile.
+                        These fields update your account identity only.
                       </p>
                     </div>
-                    <Link 
-                      href="/dashboard/dashboard/artist/edit" 
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--pf-orange)]/10 text-[var(--pf-orange)] rounded-lg text-sm font-medium hover:bg-[var(--pf-orange)]/20 transition-colors shrink-0"
-                    >
-                      <ExternalLink size={14} />
-                      Edit Public Artist Profile
-                    </Link>
                   </div>
 
                   {/* Avatar */}
@@ -306,8 +317,8 @@ export default function SettingsPage() {
                         onClick={() => avatarInputRef.current?.click()}
                         disabled={photoUploading}
                         className="bg-[var(--pf-orange)] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[var(--pf-orange-light)] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-                      >
-                        {photoUploading ? 'Uploading...' : 'Upload Photo'}
+                        >
+                        {photoUploading ? 'Uploading...' : 'Upload Account Photo'}
                       </button>
                       <input
                         ref={avatarInputRef}
@@ -320,7 +331,9 @@ export default function SettingsPage() {
                         }}
                         className="hidden"
                       />
-                      <p className="text-[var(--pf-text-muted)] text-sm mt-2">JPG, PNG. Max 5MB.</p>
+                      <p className="text-[var(--pf-text-muted)] text-sm mt-2">
+                        JPG, PNG. Max 5MB. This is your account image, not your public artist image.
+                      </p>
                     </div>
                   </div>
 
@@ -342,6 +355,15 @@ export default function SettingsPage() {
                         value={profile.email}
                         disabled
                         className="w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 text-[var(--pf-text-muted)] cursor-not-allowed"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Role</label>
+                      <input
+                        type="text"
+                        value={profile.role ? profile.role.replace(/_/g, ' ') : ''}
+                        disabled
+                        className="w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 text-[var(--pf-text-muted)] cursor-not-allowed capitalize"
                       />
                     </div>
                   </div>
