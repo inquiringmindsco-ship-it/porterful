@@ -252,7 +252,7 @@ export default function PlaylistPage() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-[var(--pf-text)]">My Playlists</h1>
-            <p className="text-[var(--pf-text-secondary)] mt-1">Create playlists and earn when others listen</p>
+            <p className="text-[var(--pf-text-secondary)] mt-1">Create playlists and support artists when others listen</p>
           </div>
           <button onClick={() => setShowCreate(true)} className="pf-btn pf-btn-primary flex items-center gap-2">
             <Icon.Plus /> Create Playlist
@@ -268,8 +268,8 @@ export default function PlaylistPage() {
             <h3 className="text-lg font-bold text-[var(--pf-text)]">Playlist Earnings</h3>
           </div>
           <p className="text-[var(--pf-text-secondary)]">
-            Earn <span className="text-[var(--pf-orange)] font-bold">3%</span> of track purchases when someone buys from your playlist.
-            Share your playlists and grow your earnings.
+            Earn referral rewards when someone buys from your playlist.
+            Share your playlists and grow your audience.
           </p>
         </div>
 
@@ -353,7 +353,7 @@ export default function PlaylistPage() {
               <Icon.List />
             </div>
             <h3 className="text-xl font-bold text-[var(--pf-text)] mb-2">No playlists yet</h3>
-            <p className="text-[var(--pf-text-secondary)] mb-6">Create your first playlist to start earning</p>
+              <p className="text-[var(--pf-text-secondary)] mb-6">Create your first playlist to start sharing</p>
             <button onClick={() => setShowCreate(true)} className="pf-btn pf-btn-primary">
               <Icon.Plus /> Create Playlist
             </button>
@@ -432,7 +432,7 @@ export default function PlaylistPage() {
                   <Icon.X />
                 </button>
               </div>
-              <p className="text-[var(--pf-text-secondary)] mb-4">Share this link to earn 3% when someone makes a purchase:</p>
+              <p className="text-[var(--pf-text-secondary)] mb-4">Share this link to earn when someone makes a purchase:</p>
               <div className="flex gap-2">
                 <input 
                   type="text" 

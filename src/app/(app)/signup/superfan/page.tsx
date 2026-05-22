@@ -7,16 +7,16 @@ import { Star, Gift, Share2, Wallet, ArrowRight, Check } from 'lucide-react'
 
 const SUPERFAN_BENEFITS = [
   { icon: Share2, title: 'Share Links', description: 'Get your unique referral link for every artist and product' },
-  { icon: Wallet, title: 'Earn on Sales', description: '5% on artist merch, 3% on marketplace, 10% on Premium' },
-  { icon: Star, title: 'Climb Tiers', description: 'More referrals = higher rates = more earnings' },
+  { icon: Wallet, title: 'Earn on Sales', description: 'Referral rewards across merch, marketplace items, and premium support' },
+  { icon: Star, title: 'Climb Tiers', description: 'More referrals can unlock higher rewards' },
   { icon: Gift, title: 'Exclusive Access', description: 'Early releases, artist chats, limited merch drops' },
 ]
 
 const TIERS = [
-  { name: 'Supporter', referrals: 0, rate: '2%', color: 'bg-gray-500' },
-  { name: 'Superfan', referrals: 10, rate: '5%', color: 'bg-purple-500' },
-  { name: 'Champion', referrals: 50, rate: '8%', color: 'bg-blue-500' },
-  { name: 'Patron', referrals: 100, rate: '10%', color: 'bg-[var(--pf-orange)]' },
+  { name: 'Supporter', referrals: 0, rate: 'Starter', color: 'bg-gray-500' },
+  { name: 'Superfan', referrals: 10, rate: 'Growing', color: 'bg-purple-500' },
+  { name: 'Champion', referrals: 50, rate: 'Top', color: 'bg-blue-500' },
+  { name: 'Patron', referrals: 100, rate: 'Elite', color: 'bg-[var(--pf-orange)]' },
 ]
 
 export default function SuperfanSignupPage() {
@@ -202,7 +202,7 @@ export default function SuperfanSignupPage() {
             <div className="space-y-6">
               <div className="text-center mb-4">
                 <h3 className="text-lg font-semibold">Who do you want to support?</h3>
-                <p className="text-sm text-[var(--pf-text-secondary)]">Your earnings support these artists</p>
+                <p className="text-sm text-[var(--pf-text-secondary)]">Your activity supports these artists</p>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {['O D Music', 'Alex Rivers', 'Maya Sol', 'Jordan Blake', 'Luna Wave', 'Cruz Martinez'].map((artist) => (

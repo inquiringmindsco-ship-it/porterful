@@ -61,9 +61,9 @@ export default function RadioPage() {
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-[var(--pf-orange)] to-purple-600 mb-4">
             <Radio size={40} className="text-white" />
           </div>
-          <h1 className="text-3xl font-bold mb-2">Porterful Radio</h1>
+          <h1 className="text-3xl font-bold mb-2">Radio</h1>
           <p className="text-[var(--pf-text-secondary)]">
-            Shuffle through all tracks · Click play to start
+            Shuffle through all tracks
           </p>
         </div>
 
@@ -71,9 +71,6 @@ export default function RadioPage() {
           <div className="bg-[var(--pf-surface)] rounded-2xl border border-[var(--pf-border)] p-12 text-center">
             <Radio size={48} className="text-[var(--pf-text-muted)] mx-auto mb-4" />
             <h2 className="text-xl font-semibold mb-2">Radio is being tuned</h2>
-            <p className="text-[var(--pf-text-secondary)] mb-6">
-              The station is coming online soon. In the meantime, browse the full catalog.
-            </p>
             <Link href="/music" className="pf-btn pf-btn-primary inline-flex items-center gap-2">
               <ShoppingBag size={18} />
               Browse Music

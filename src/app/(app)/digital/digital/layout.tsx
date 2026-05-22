@@ -2,7 +2,7 @@ import { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Digital Music - Buy Albums & Singles',
-  description: 'Buy digital music directly from independent artists. Albums, singles, EP — own your music. earnings go directly to artists.',
+  description: 'Buy digital music directly from independent artists. Albums, singles, and EPs in one place.',
   keywords: ['buy music', 'digital music', 'album download', 'EP', 'single', 'independent music', 'support artists'],
   openGraph: {
     title: 'Digital Music - Porterful',

@@ -47,18 +47,18 @@ export default function TermsPage() {
             <div className="bg-[#1a1a1a] rounded-lg p-6 mb-4">
               <h3 className="font-bold mb-2">Artist Merch Sales:</h3>
               <ul className="text-[var(--pf-text-secondary)] text-sm">
-                <li>• Artist receives: 80%</li>
-                <li>• Superfan referrer: 5%</li>
-                <li>• Processing fees: 15%</li>
+                <li>• Artist receives: majority share</li>
+                <li>• Superfan referrer: referral reward</li>
+                <li>• Processing fees: handled separately</li>
               </ul>
             </div>
             <div className="bg-[#1a1a1a] rounded-lg p-6">
               <h3 className="font-bold mb-2">Marketplace Sales:</h3>
               <ul className="text-[var(--pf-text-secondary)] text-sm">
-                <li>• Business receives: 67%</li>
-                <li>• Artist share: 20%</li>
-                <li>• Superfan referrer: 3%</li>
-                <li>• Porterful: 10%</li>
+                <li>• Business receives: seller share</li>
+                <li>• Artist share: platform-defined artist support</li>
+                <li>• Superfan referrer: referral reward</li>
+                <li>• Porterful: platform fee</li>
               </ul>
             </div>
           </section>

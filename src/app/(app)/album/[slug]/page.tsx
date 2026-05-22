@@ -179,7 +179,7 @@ export default async function AlbumPage({ params }: PageProps) {
             <div className="flex-1">
               <h3 className="text-xl font-bold mb-2">Support this artist</h3>
               <p className="text-[var(--pf-text-secondary)]">
-                Buy tracks directly — every dollar goes to the artist. No middlemen.
+                Buy tracks directly and keep the artist at the center of the sale.
               </p>
             </div>
             <Link href="/music" className="pf-btn pf-btn-primary px-5 py-2 text-lg font-semibold">

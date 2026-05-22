@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     default: 'Porterful — Music, Merch, and Direct Support',
     template: '%s | Porterful'
   },
-  description: 'Music. Land. Mind. Law. Commerce. Credit.',
+  description: 'Music, merch, and direct support for independent artists.',
 }
 
 export const viewport: Viewport = {

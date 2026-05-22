@@ -11,13 +11,13 @@ const SUPERFAN_TIERS = [
     name: 'Listener',
     emoji: '🎧',
     requirement: 'Sign up & share',
-    reward: '3% on all referrals',
+    reward: 'Entry-level referral rewards',
     color: 'from-gray-400 to-gray-500',
     border: 'border-[var(--pf-border)]',
     textColor: 'text-[var(--pf-text-secondary)]',
     perks: [
       'Unique referral link',
-      '3% commission on referrals',
+      'Referral rewards on supported purchases',
       'Supporter badge on artist pages',
       'Early access to new releases',
     ],
@@ -26,13 +26,13 @@ const SUPERFAN_TIERS = [
     name: 'Advocate',
     emoji: '🔥',
     requirement: '5 successful referrals',
-    reward: '5% on all referrals',
+    reward: 'Higher referral rewards',
     color: 'from-[var(--pf-orange)] to-orange-600',
     border: 'border-[var(--pf-orange)]/30',
     textColor: 'text-[var(--pf-orange)]',
     perks: [
       'Everything in Listener',
-      '5% commission on referrals',
+      'Higher referral rewards on referrals',
       'Featured on artist pages',
       'Exclusive Discord role',
       'Behind-the-scenes content',
@@ -42,13 +42,13 @@ const SUPERFAN_TIERS = [
     name: 'Legend',
     emoji: '👑',
     requirement: '20+ successful referrals',
-    reward: '8% on all referrals',
+    reward: 'Top referral rewards',
     color: 'from-yellow-400 to-amber-500',
     border: 'border-yellow-400/30',
     textColor: 'text-yellow-400',
     perks: [
       'Everything in Advocate',
-      '8% commission on referrals',
+      'Top referral rewards on referrals',
       'Monthly payout',
       'Direct artist connection',
       'Exclusive Legend events',
@@ -60,7 +60,7 @@ const SUPERFAN_TIERS = [
 const FAQS = [
   {
     q: 'How do I become a Superfan?',
-    a: 'Sign up through any artist\'s page or join directly. No purchase required — just share your link and start earning.',
+    a: 'Sign up through any artist\'s page or join directly. No purchase required — just share your link and start sharing.',
   },
   {
     q: 'When do I get paid?',
@@ -148,7 +148,7 @@ export default function SuperfanPage() {
               <div>
                 <p className="text-sm text-[var(--pf-text-secondary)] mb-1">Current Tier</p>
                 <p className="text-3xl font-bold">{PLACEHOLDER_STATS.currentTier}</p>
-                <p className="text-xs text-[var(--pf-text-muted)] mt-1">3% per referral</p>
+                <p className="text-xs text-[var(--pf-text-muted)] mt-1">Referral rewards</p>
               </div>
             </div>
           </section>
@@ -236,7 +236,7 @@ export default function SuperfanPage() {
                 'Share your referral link on social media and stories',
                 'Post after buying something — your link auto-attaches',
                 'Help artists you love grow their audience',
-                'Hit 5 referrals to unlock Advocate tier (5% commission)',
+                'Hit 5 referrals to unlock Advocate tier',
               ].map((tip, i) => (
                 <li key={i} className="flex items-start gap-3 text-sm">
                   <Check size={16} className="text-[var(--pf-orange)] shrink-0 mt-0.5" />
@@ -259,10 +259,10 @@ export default function SuperfanPage() {
         {/* Hero */}
         <section className="text-center py-16">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            Earn 3%–8% supporting artists you love
+            Earn referral rewards supporting artists you love
           </h1>
           <p className="text-lg text-[var(--pf-text-secondary)] max-w-xl mx-auto mb-8">
-            Share music. Track referrals. Earn commissions — automatically.
+            Share music. Track referrals. Earn rewards automatically.
           </p>
           <Link href="/apply" className="pf-btn pf-btn-primary inline-flex items-center gap-2">
             Sign Up Free <ArrowRight size={18} />
@@ -276,7 +276,7 @@ export default function SuperfanPage() {
             {[
               { icon: Link2, title: 'Get your link', desc: 'Unique to your account' },
               { icon: ShoppingCart, title: 'Referrals buy', desc: 'Tracked for 30 days' },
-              { icon: Gift, title: 'You earn', desc: '3%–8% automatically' },
+              { icon: Gift, title: 'You earn', desc: 'Referral rewards automatically' },
             ].map(({ icon: Icon, title, desc }) => (
               <div key={title}>
                 <Icon size={24} className="text-[var(--pf-orange)] mx-auto mb-2" />

@@ -129,7 +129,7 @@ export default function TrendingPage() {
             What's <span className="text-[var(--pf-orange)]">Hot Right Now</span>
           </h1>
           <p className="text-xl text-[var(--pf-text-secondary)] max-w-2xl mx-auto">
-            The products everyone's buying. Updated hourly. Every purchase supports independent artists.
+            The products everyone's browsing. Updated regularly. Every purchase is designed to support independent artists.
           </p>
         </div>
 
@@ -142,7 +142,7 @@ export default function TrendingPage() {
               </div>
               <div>
                 <h3 className="font-bold text-lg">Products That Support Artists</h3>
-                <p className="text-sm text-[var(--pf-text-secondary)]">Every purchase contributes to the artist fund</p>
+                <p className="text-sm text-[var(--pf-text-secondary)]">Every purchase is designed to support artists</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -276,9 +276,9 @@ export default function TrendingPage() {
               <div className="w-12 h-12 mx-auto mb-4 rounded-xl bg-purple-500/20 flex items-center justify-center">
                 <ShoppingCart className="text-purple-400" size={24} />
               </div>
-              <h3 className="font-semibold mb-2">earnings to Artists</h3>
+              <h3 className="font-semibold mb-2">Artist support</h3>
               <p className="text-sm text-[var(--pf-text-secondary)]">
-                The majority of every sale goes directly to creators.
+                Every sale is designed to put artists first.
               </p>
             </div>
           </div>

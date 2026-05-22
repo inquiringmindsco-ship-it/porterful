@@ -44,12 +44,12 @@ export default function PressKitPage() {
             <p className="text-[var(--pf-text-secondary)] mb-4">
               Porterful is a four-sided marketplace connecting artists, superfans, small businesses, and brands. 
               Unlike traditional music platforms where artists receive fractions of a cent per stream, 
-              Porterful ensures artists earn from every transaction—not just their own merch.
+              Porterful is designed to keep artists at the center of each transaction, not just their own merch.
             </p>
             <p className="text-[var(--pf-text-secondary)] mb-4">
               The platform's "Proud to Pay" model lets fans directly support artists with transparent pricing. 
-              Superfans can earn referral income by sharing artists they love. Businesses can list products 
-              in the marketplace, with a portion of each sale going to artists.
+              Superfans can earn referral income by sharing artists they love when supported products are purchased. Businesses can list products 
+              in the marketplace with artist support built into the flow.
             </p>
             <p className="text-[var(--pf-text-secondary)]">
               Founded by O D Porter in 2024, Porterful is based in St. Louis, Missouri — with roots in Miami and New Orleans.
@@ -97,7 +97,7 @@ export default function PressKitPage() {
               <div>
                 <h3 className="font-semibold mb-1">Superfan Referrals</h3>
                 <p className="text-sm text-[var(--pf-text-secondary)]">
-                  Fans earn 5% on merch referrals, 3% on marketplace items.
+                  Fans can earn referral income on supported merch and marketplace items.
                 </p>
               </div>
             </div>

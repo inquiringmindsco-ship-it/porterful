@@ -1,0 +1,13 @@
+FRESH CHECKOUT — v3 FIX (customer_details.email fallback)
+
+Session: cs_live_a1ifXM83kIE4GYBf9n3Oqeg4b9RZmawwL2h2f0It3vAVydf79kISHr2xJS
+Date: 2026-05-05 21:47 CDT
+Fix: session.customer_email → metadata.email → customer_details.email
+
+Stripe collects buyer email in customer_details.email during checkout.
+This is now the third fallback in webhook buyer identification.
+
+Checkout URL:
+https://checkout.stripe.com/g/pay/cs_live_a1ifXM83kIE4GYBf9n3Oqeg4b9RZmawwL2h2f0It3vAVydf79kISHr2xJS#fidnandhYHdWcXxpYCc%2FJ2FgY2RwaXEnKSdicGRmZGhqaWBTZHdsZGtxJz8ncXdgZHFoYGtxWjcnKSdkdWxOYHwnPyd1blppbHNgWjA0UUE9UGZXfz01SVBcfEZQXHU2ZHNOMWNfa3Q2SGFzcWl%2FTmFfaz0xX2Nid0RtZmNjPGZidH9sXENJVXBkSzMwYGtKU3VjXUB8PE5cVFdsXTxXdVBQNUJHNTV1bW51MmFJNycpJ2N3amhWYHdzYHcnP3F3cGApJ2dkZm5id2pwa2FGamlqdyc%2FJyY0NDQ0NDQnKSdpZHxqcHFRfHVgJz8ndmxrYmlgWmxxYGgnKSdga2RnaWBVaWRmYG1qaWFgd3YnP3F3cGB4JSUl
+
+After payment, reply "verify" and I'll check order + playback + email.

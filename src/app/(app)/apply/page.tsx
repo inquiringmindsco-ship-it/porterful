@@ -6,38 +6,26 @@ import { ArrowRight, Check, Music, DollarSign, Users, Zap, Headphones, Globe, Sh
 const BENEFITS = [
   {
     icon: DollarSign,
-    title: "Artist-first earnings",
-    desc: 'More than any other platform. Your music, your price, your cut.',
-  },
-  {
-    icon: Users,
-    title: 'Direct fan relationships',
-    desc: 'No algorithm. Fans find you through identity, not recommendation engines.',
-  },
-  {
-    icon: Zap,
-    title: 'Superfan referrals',
-    desc: 'Your fans earn 3–8% bringing buyers to you. They become your promoters.',
+    title: "Keep your earnings",
+    desc: 'Set your own prices. Control your revenue.',
   },
   {
     icon: Music,
-    title: 'Merch + music together',
-    desc: 'Sell tracks, albums, books, and custom products from one artist page.',
+    title: 'Music + merch',
+    desc: 'Sell tracks, albums, and products from one page.',
   },
 ]
 
 const REVENUE_MODEL = [
-  { label: 'Track sale', artistGets: 'majority', porterful: 'platform', superfan: 'referral' },
-  { label: 'Album sale', artistGets: 'majority', porterful: 'platform', superfan: 'referral' },
-  { label: 'Merch sale', artistGets: 'majority', porterful: 'platform', superfan: 'referral' },
-  { label: 'Book sale', artistGets: 'majority', porterful: 'platform', superfan: 'referral' },
+  { label: 'Track sale', artistGets: 'artist-first', porterful: 'platform', superfan: 'referral reward' },
+  { label: 'Album sale', artistGets: 'artist-first', porterful: 'platform', superfan: 'referral reward' },
+  { label: 'Merch sale', artistGets: 'artist-first', porterful: 'platform', superfan: 'referral reward' },
+  { label: 'Book sale', artistGets: 'artist-first', porterful: 'platform', superfan: 'referral reward' },
 ]
 
 const PLATFORM_STATS = [
-  { value: 'Artist-first', label: 'Revenue share' },
-  { value: '100+', label: 'Tracks available' },
-  { value: '3–8%', label: 'Superfan commission' },
-  { value: '$0', label: 'To join' },
+  { value: 'Direct', label: 'Artist sales' },
+  { value: 'Free', label: 'To join' },
 ]
 
 export default function ApplyPage() {
@@ -54,16 +42,17 @@ export default function ApplyPage() {
         <div className="relative max-w-5xl mx-auto px-6 pt-20 pb-16 text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--pf-orange)]/10 border border-[var(--pf-orange)]/20 text-[var(--pf-orange)] text-sm font-medium mb-8">
             <Music size={14} />
-            Porterful Music — Artist Applications
+            Artist Applications
           </div>
 
           <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
-            Your music.<br />
+            Your music.
+            <br />
             <span className="text-[var(--pf-orange)]">Your terms.</span>
           </h1>
 
           <p className="text-xl text-[var(--pf-text-secondary)] max-w-2xl mx-auto mb-10">
-            Porterful is not a platform that takes from artists. It is a platform that artists own. Keep artist-first earnings on every sale. Build with your fans. No label. No middleman.
+            Sell music and merch directly. Keep your pricing. Own your fan relationships.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -185,7 +174,7 @@ export default function ApplyPage() {
           </div>
 
           <p className="text-sm text-[var(--pf-text-muted)] text-center">
-            Superfan cut applies only when a purchase comes through a referral link. If there is no superfan referral, the artist keeps 90% and Porterful takes 10%.
+            Referral rewards apply only when a purchase comes through a referral link.
           </p>
           <p className="text-xs text-[var(--pf-text-muted)] text-center mt-2">
             * Merchant fees (e.g., Stripe's 2.9% + $0.30) are deducted from artist earnings before split.
@@ -197,16 +186,15 @@ export default function ApplyPage() {
       <section className="border-t border-[var(--pf-border)]">
         <div className="max-w-5xl mx-auto px-6 py-16">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-3">What happens after you apply</h2>
-            <p className="text-[var(--pf-text-secondary)]">We review every application personally. Here's the process.</p>
-          </div>
+          <h2 className="text-3xl font-bold mb-3">What happens next</h2>
+        </div>
 
           <div className="grid md:grid-cols-4 gap-6">
-            {[
-              { step: '01', title: 'Apply', desc: 'Fill out the form. Complete applications get approved automatically.' },
-              { step: '02', title: 'Auto-Approve', desc: 'If your application is complete, you go live within minutes.' },
-              { step: '03', title: 'Dashboard', desc: 'Access your artist dashboard and start configuring.' },
-              { step: '04', title: 'Launch', desc: 'Your page goes live. You start earning.' },
+              {[
+              { step: '01', title: 'Apply', desc: 'Fill out the form.' },
+              { step: '02', title: 'Review', desc: 'We review within 48 hours.' },
+              { step: '03', title: 'Dashboard', desc: 'Set up your page.' },
+              { step: '04', title: 'Launch', desc: 'Go live.' },
             ].map(({ step, title, desc }) => (
               <div key={step} className="relative text-center p-6">
                 <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[var(--pf-orange)] to-purple-600 text-white font-bold text-xl flex items-center justify-center mx-auto mb-4">
@@ -233,13 +221,13 @@ export default function ApplyPage() {
 
           <h2 className="text-4xl font-bold mb-4">Ready to own your revenue?</h2>
           <p className="text-xl text-[var(--pf-text-secondary)] max-w-xl mx-auto mb-10">
-            Join artists who are building on Porterful. No upfront cost. No label. Just your music and your terms.
+            Join artists who are building on Porterful. No upfront cost. No label required. Just your music and your terms.
           </p>
 
           <div className="bg-[var(--pf-surface)] rounded-2xl border border-[var(--pf-orange)]/20 p-6 mb-8">
-            <h3 className="font-bold mb-3 text-[var(--pf-orange)]">Auto-Approved if complete</h3>
+            <h3 className="font-bold mb-3 text-[var(--pf-orange)]">Fast review if complete</h3>
             <p className="text-sm text-[var(--pf-text-secondary)] mb-3">
-              If your application has all required info, you go live automatically — no waiting.
+              If your application has all required info, it moves through review faster.
             </p>
             <div className="grid grid-cols-2 gap-2 text-sm">
               <div className="flex items-center gap-2">

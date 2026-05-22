@@ -130,7 +130,7 @@ export default function CartPage() {
                   </div>
                   {appliedReferral && (
                     <p className="text-sm text-green-400 mt-2">
-                      ✓ Referral applied! Superfan earns 5%
+                      ✓ Referral applied! Superfan reward added
                     </p>
                   )}
                 </div>

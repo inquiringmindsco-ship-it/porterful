@@ -127,24 +127,41 @@ export default function SystemSelector() {
   const isScrollingRef = useRef(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
+  // Use dynamic viewport height for mobile Safari compatibility
+  const [vh, setVh] = useState(100);
+
+  useEffect(() => {
+    const updateVh = () => {
+      // Use window.innerHeight for actual visible viewport (accounts for mobile address bar)
+      setVh(window.innerHeight);
+    };
+    updateVh();
+    window.addEventListener('resize', updateVh);
+    window.addEventListener('orientationchange', updateVh);
+    return () => {
+      window.removeEventListener('resize', updateVh);
+      window.removeEventListener('orientationchange', updateVh);
+    };
+  }, []);
+
   // ── Scroll Detection ─────────────────────────────────────────
   const handleScroll = useCallback(() => {
     if (!containerRef.current) return;
     const scrollTop = containerRef.current.scrollTop;
-    const itemHeight = window.innerHeight;
+    const itemHeight = vh;
     const newIndex = Math.round(scrollTop / itemHeight);
     if (newIndex !== lastIndexRef.current && newIndex >= 0 && newIndex < SYSTEM_COUNT) {
       lastIndexRef.current = newIndex;
       setActiveIndex(newIndex);
       if ('vibrate' in navigator) navigator.vibrate(6);
     }
-  }, []);
+  }, [vh]);
 
   // ── Snap to index ────────────────────────────────────────────
   const snapToIndex = useCallback((index: number) => {
     if (!containerRef.current || isTransitioning) return;
-    containerRef.current.scrollTo({ top: index * window.innerHeight, behavior: 'smooth' });
-  }, [isTransitioning]);
+    containerRef.current.scrollTo({ top: index * vh, behavior: 'smooth' });
+  }, [isTransitioning, vh]);
 
   // ── Enter System ────────────────────────────────────────────
   const handleEnter = useCallback((index: number) => {
@@ -178,23 +195,30 @@ export default function SystemSelector() {
     return () => window.removeEventListener('keydown', handleKey);
   }, [activeIndex, snapToIndex, handleEnter]);
 
-  // ── Wheel — one system per scroll ─────────────────────────
+  // ── Wheel — let CSS scroll-snap handle it natively, only nudge direction ──
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
     const onWheel = (e: WheelEvent) => {
-      e.preventDefault();
+      // Don't prevent default — let CSS scroll-snap handle the actual scroll.
+      // We only track direction to update activeIndex faster for UI feedback.
       if (isScrollingRef.current || isTransitioning) return;
-      isScrollingRef.current = true;
-      setTimeout(() => { isScrollingRef.current = false; }, 850);
-      const newIndex = e.deltaY > 0
+
+      // Determine intended direction
+      const goingDown = e.deltaY > 0;
+      const newIndex = goingDown
         ? Math.min(activeIndex + 1, SYSTEM_COUNT - 1)
         : Math.max(activeIndex - 1, 0);
-      snapToIndex(newIndex);
+
+      if (newIndex !== activeIndex) {
+        isScrollingRef.current = true;
+        setTimeout(() => { isScrollingRef.current = false; }, 600);
+        snapToIndex(newIndex);
+      }
     };
 
-    container.addEventListener('wheel', onWheel, { passive: false });
+    container.addEventListener('wheel', onWheel, { passive: true });
     return () => container.removeEventListener('wheel', onWheel);
   }, [activeIndex, snapToIndex, isTransitioning]);
 
@@ -203,16 +227,29 @@ export default function SystemSelector() {
     const container = containerRef.current;
     if (!container) return;
     let startY = 0;
+    let startTime = 0;
 
-    const onTouchStart = (e: TouchEvent) => { startY = e.changedTouches[0].clientY; };
+    const onTouchStart = (e: TouchEvent) => {
+      startY = e.changedTouches[0].clientY;
+      startTime = Date.now();
+    };
     const onTouchEnd = (e: TouchEvent) => {
       const delta = startY - e.changedTouches[0].clientY;
-      if (Math.abs(delta) < 50) return;
+      const duration = Date.now() - startTime;
+      if (Math.abs(delta) < 40) return; // Slightly lower threshold for better response
+      // Ignore fast flicks that look like momentum scroll — let CSS snap handle those
+      if (duration < 80 && Math.abs(delta) < 120) return;
       if (isScrollingRef.current || isTransitioning) return;
+
       const newIndex = delta > 0
         ? Math.min(activeIndex + 1, SYSTEM_COUNT - 1)
         : Math.max(activeIndex - 1, 0);
-      snapToIndex(newIndex);
+
+      if (newIndex !== activeIndex) {
+        isScrollingRef.current = true;
+        setTimeout(() => { isScrollingRef.current = false; }, 600);
+        snapToIndex(newIndex);
+      }
     };
 
     container.addEventListener('touchstart', onTouchStart, { passive: true });
@@ -276,7 +313,9 @@ export default function SystemSelector() {
           overflowY: 'scroll',
           scrollSnapType: 'y mandatory',
           scrollBehavior: 'auto',
+          WebkitOverflowScrolling: 'touch',
           background: '#000000',
+          height: `${vh}px`,
         }}
       >
         <style>{`
@@ -300,11 +339,11 @@ export default function SystemSelector() {
               key={system.id}
               style={{
                 display: 'flex',
-                height: '100vh',
+                height: `${vh}px`,
                 width: '100vw',
                 alignItems: 'center',
                 justifyContent: 'center',
-                scrollSnapAlign: 'center',
+                scrollSnapAlign: 'start',
                 position: 'relative',
               }}
             >

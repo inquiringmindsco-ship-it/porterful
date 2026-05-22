@@ -7,7 +7,7 @@ import { KeyboardShortcuts } from '@/lib/keyboard-shortcuts'
 
 export const metadata: Metadata = {
   title: 'Porterful',
-  description: 'Stream music, buy tracks, shop merch. earnings go directly to artists. No label. No middleman. Where artists own everything.',
+  description: 'Stream music, shop merch, and support artists directly.',
   keywords: [
     'independent music', 'artist merchandise', 'music marketplace', 'support artists',
     'buy music', 'artist economy', 'streaming alternative', 'direct to fan',
@@ -24,13 +24,13 @@ export const metadata: Metadata = {
     url: 'https://porterful.com',
     siteName: 'Porterful',
     title: 'Porterful - Music + Merch for Independent Artists',
-    description: 'Stream music, buy tracks, shop merch. earnings go directly to artists.',
+    description: 'Stream music, shop merch, and support artists directly.',
     images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'Porterful' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Porterful',
-    description: 'Stream music, buy tracks, shop merch. earnings go directly to artists.',
+    description: 'Stream music, shop merch, and support artists directly.',
     creator: '@porterful',
     site: '@porterful',
     images: ['/og-image.png'],
@@ -50,7 +50,7 @@ const jsonLd = {
   '@type': 'Organization',
   name: 'Porterful',
   url: 'https://porterful.com',
-  description: 'Stream music, buy tracks, shop merch. earnings go directly to artists.',
+  description: 'Stream music, shop merch, and support artists directly.',
   sameAs: [
     'https://twitter.com/porterful',
     'https://instagram.com/od.porter',

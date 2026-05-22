@@ -39,14 +39,24 @@ export function isPurchasable(product: Pick<Product, 'available' | 'fulfillment'
 
 export const PRODUCTS: Product[] = [
   // ==========================================================
-  // FULFILLABLE PRODUCTS (Printful or dropship linked)
+  // ACTIVE / FULFILLABLE PRODUCTS
+  // Requirements to move a product here:
+  //   - Printful product ID configured OR dropship supplier linked
+  //   - Stripe price ID confirmed working
+  //   - Test order successfully placed
   // ==========================================================
-
+  // (None yet — Printful API key not configured)
 
   // ==========================================================
-  // MOCK PRODUCTS — cannot fulfill right now
-  // Printful not configured, no supplier linked
-  // These are design mockups / placeholder listings
+  // MOCK / PLACEHOLDER PRODUCTS — DO NOT FULFILL
+  // These show as "Coming Soon" on the store.
+  // Checkout is blocked by isPurchasable() guard.
+  //
+  // To activate a product:
+  //   1. Set fulfillment: 'printful' or 'dropship'
+  //   2. Set available: true
+  //   3. Add real Printful/dropship product IDs
+  //   4. Test checkout end-to-end
   // ==========================================================
 
   {

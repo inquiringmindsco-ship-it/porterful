@@ -15,7 +15,7 @@ const ROLES = {
   artist: {
     icon: Music,
     label: 'Artist',
-    tagline: 'Upload tracks, set prices, keep the majority',
+    tagline: 'Upload tracks, set prices, keep control',
     color: 'from-orange-500 to-red-500',
   },
   business: {

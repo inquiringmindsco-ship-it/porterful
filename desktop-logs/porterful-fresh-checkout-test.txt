@@ -1,0 +1,10 @@
+FRESH $1 CHECKOUT TEST — FIXED WEBHOOK
+
+Session: cs_live_a1BN1zdtJH7wcPBYAlc1PeB0UK0R8RfYB9jl3ZP695A6henfMl2hx4bKWC
+Date: 2026-05-05
+Fix: metadata.email fallback for Stripe customer_email = null
+
+Checkout URL:
+https://checkout.stripe.com/g/pay/cs_live_a1BN1zdtJH7wcPBYAlc1PeB0UK0R8RfYB9jl3ZP695A6henfMl2hx4bKWC#fidnandhYHdWcXxpYCc%2FJ2FgY2RwaXEnKSdicGRmZGhqaWBTZHdsZGtxJz8ncXdgZHFoYGtxWjQnKSdkdWxOYHwnPyd1blppbHNgWjA0UUE9UGZXfz01SVBcfEZQXHU2ZHNOMWNfa3Q2SGFzcWl%2FTmFfaz0xX2Nid0RtZmNjPGZidH9sXENJVXBkSzMwYGtKU3VjXUB8PE5cVFdsXTxXdVBQNUJHNTV1bW51MmFJNycpJ2N3amhWYHdzYHcnP3F3cGApJ2dkZm5id2pwa2FGamlqdyc%2FJyY0NDQ0NDQnKSdpZHxqcHFRfHVgJz8ndmxrYmlgWmxxYGgnKSdga2RnaWBVaWRmYG1qaWFgd3YnP3F3cGB4JSUl
+
+After payment, reply with "verify" to check order + playback + email.

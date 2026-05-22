@@ -69,7 +69,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   // (the bug behind "light/dark doesn't switch live unless cache cleared").
   useEffect(() => {
     applyThemeToDocument(theme)
-  }, [theme]);
+  }, [theme])
 
   // Only an explicit user choice persists. System changes flow through
   // setThemeState directly (in the matchMedia listener above) without

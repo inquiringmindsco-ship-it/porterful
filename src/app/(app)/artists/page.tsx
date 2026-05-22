@@ -101,13 +101,13 @@ export default function ArtistsPage() {
           <div className="max-w-2xl">
             <p className="inline-flex items-center gap-2 rounded-full border border-[var(--pf-border)] bg-[var(--pf-surface)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--pf-text-muted)]">
               <Music size={12} />
-              Public artists
+              Artists
             </p>
             <h1 className="mt-4 text-4xl font-black tracking-tight sm:text-5xl">
               Artists
             </h1>
             <p className="mt-3 max-w-xl text-base text-[var(--pf-text-secondary)]">
-              Only the artists we can stand behind publicly. Real profiles, real music, no filler.
+              Only the artists we stand behind publicly. Real music, no filler.
             </p>
             {ctaReady ? (
               <Link
@@ -153,15 +153,13 @@ export default function ArtistsPage() {
               </div>
               <div className="space-y-3 p-5">
                 <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2">
                       <h2 className="text-xl font-bold">{artist.name}</h2>
                       {artist.verified && (
                         <Check size={16} className="text-[var(--pf-orange)]" />
                       )}
                     </div>
                     <p className="mt-1 text-sm text-[var(--pf-text-secondary)]">{artist.genre}</p>
-                  </div>
                   <span className="rounded-full border border-[var(--pf-border)] px-2.5 py-1 text-xs font-medium text-[var(--pf-text-muted)]">
                     {artist.trackCount || 0} tracks
                   </span>

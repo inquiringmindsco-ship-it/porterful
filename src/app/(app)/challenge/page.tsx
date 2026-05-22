@@ -38,7 +38,7 @@ export default function ChallengePage() {
             </h1>
 
             <p className="text-xl md:text-2xl text-[var(--pf-text-secondary)] mb-10 max-w-2xl mx-auto">
-              Every sale counts. Every track, every shirt, every order. We'll match your earnings dollar-for-dollar when you hit $10K.
+              Every sale counts. Every track, every shirt, every order. You may qualify for a bonus when you hit $10K in sales.
             </p>
 
             {/* CTAs */}
@@ -90,7 +90,7 @@ export default function ChallengePage() {
               </div>
               <h3 className="text-xl font-bold mb-3">Share Your Link</h3>
               <p className="text-[var(--pf-text-secondary)] text-sm mb-4">
-                Every fan that clicks your link and buys = money toward $10K. Share it everywhere.
+                Every fan that clicks your link and buys helps you build toward $10K. Share it everywhere.
               </p>
               <div className="bg-[var(--pf-bg-secondary)] rounded-xl p-3 flex items-center gap-2">
                 <input
@@ -165,8 +165,8 @@ export default function ChallengePage() {
                 Your biggest fans share your page. Every sale they refer = extra sales you didn't work for.
               </p>
               <div className="bg-[var(--pf-bg-secondary)] rounded-xl p-4 text-center">
-                <div className="text-2xl font-bold text-blue-500">3%</div>
-                <div className="text-xs text-[var(--pf-text-muted)]">Superfans earn from every referral</div>
+                <div className="text-2xl font-bold text-blue-500">Rewards</div>
+                <div className="text-xs text-[var(--pf-text-muted)]">Superfans can earn from referrals</div>
               </div>
             </div>
 
@@ -240,7 +240,7 @@ export default function ChallengePage() {
                 <span className="text-2xl font-bold text-white">3</span>
               </div>
               <h3 className="text-xl font-bold mb-2">Hit $10K, Get Paid</h3>
-              <p className="text-[var(--pf-text-secondary)]">First to $10K in sales gets a $10,000 bonus check. Real money.</p>
+              <p className="text-[var(--pf-text-secondary)]">The first artist to hit $10K in sales may qualify for a bonus payout.</p>
             </div>
           </div>
         </div>
@@ -261,7 +261,7 @@ export default function ChallengePage() {
               <div className="bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-2xl p-8">
                 <div className="text-4xl font-bold text-[var(--pf-orange)] mb-2">2,000</div>
                 <p className="text-[var(--pf-text-secondary)] mb-3">track sales at $5</p>
-                <div className="text-sm text-[var(--pf-text-muted)]">2,000 × $5 × majority share = $8K from tracks</div>
+                <div className="text-sm text-[var(--pf-text-muted)]">2,000 × $5 sales can add up fast</div>
                 <div className="text-sm text-[var(--pf-text-muted)]">+ merch on top = easy $10K</div>
               </div>
               <div className="bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-2xl p-8">
@@ -320,7 +320,7 @@ export default function ChallengePage() {
               Your Fans Are Ready.<br />Are You?
             </h2>
             <p className="text-xl text-white/80 mb-12 max-w-xl mx-auto">
-              Free to join. artist-first earnings on every sale. The $10K bonus is waiting.
+              Free to join. Artist-first sales can help you qualify for the $10K bonus.
             </p>
             <Link href="/signup?role=artist" className="inline-flex items-center gap-3 bg-white text-[var(--pf-orange)] font-bold text-lg px-12 py-5 rounded-2xl hover:bg-white/90 transition-colors shadow-2xl">
               <Zap size={24} />

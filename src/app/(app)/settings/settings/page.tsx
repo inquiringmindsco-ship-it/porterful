@@ -434,7 +434,7 @@ export default function SettingsPage() {
                         </button>
                       </div>
                       <p className="text-[var(--pf-text-muted)] mt-4">
-                        Share this code. When people shop using it, you earn 3% on all purchases.
+                        Share this code. When people shop using it, referral rewards may apply on supported purchases.
                       </p>
                     </>
                   ) : (

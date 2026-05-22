@@ -8,7 +8,7 @@ const PUBLIC_ARTIST_COUNT = ARTISTS.filter((a) => a.trackCount && a.trackCount >
 
 export const metadata: Metadata = {
   title: 'About Porterful - The Artist Economy Platform',
-  description: 'Porterful is where independent artists earn artist-first earnings on every sale. No label. No middleman. Music, merch, marketplace — built for creators who deserve a retirement plan.',
+  description: 'Porterful is a music and merch platform built to keep artists at the center of every sale.',
   keywords: [
     'independent artist platform',
     'artist economy',
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     title: 'About Porterful - The Artist Economy',
-    description: 'Where artists own everything. Music, merch, marketplace — earnings go directly to artists.',
+    description: 'Music, merch, and marketplace tools built to keep artists at the center.',
     images: ['/og-image.png'],
   },
 }
@@ -43,8 +43,8 @@ export default function AboutPage() {
               <span className="block text-[var(--pf-orange)]">Everything</span>
             </h1>
             <p className="text-xl text-[var(--pf-text-secondary)] max-w-3xl mx-auto">
-              Porterful is a music and merchandise platform where artists keep the majority of every sale.
-              No label. No middleman. Just artists and fans, directly connected.
+              Porterful is a music and merchandise platform built to keep artists at the center of every sale.
+              Fans connect directly with the people making the work.
             </p>
           </div>
 
@@ -83,7 +83,7 @@ export default function AboutPage() {
                   <strong className="text-[var(--pf-text)]">Spotify pays artists $0.003 per stream.</strong> That means an artist needs 1,666 plays to make $5.
                 </p>
                 <p>
-                  <strong className="text-[var(--pf-text)]">Record labels take 80-95%.</strong> Artists sign away their rights for pennies, hoping for fame that rarely comes.
+                  <strong className="text-[var(--pf-text)]">Record labels can take the biggest share.</strong> Artists sign away control for a promise that often never pays off.
                 </p>
                 <p>
                   <strong className="text-[var(--pf-text)]">No retirement plan for artists.</strong> Local musicians don't have 401(k)s. Touring artists don't get residuals. One bad month and they quit.
@@ -127,7 +127,7 @@ export default function AboutPage() {
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">✓</span>
-                  <span className="text-[var(--pf-text)]"><strong>Artist-first</strong> — earnings go directly to artists on every sale</span>
+                  <span className="text-[var(--pf-text)]"><strong>Artist-first</strong> — artists stay at the center of the sale</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">✓</span>
@@ -139,7 +139,7 @@ export default function AboutPage() {
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">✓</span>
-                  <span className="text-[var(--pf-text)]"><strong>Superfans earn</strong> by referring new buyers</span>
+                  <span className="text-[var(--pf-text)]"><strong>Superfans support growth</strong> by referring new buyers</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">✓</span>
@@ -161,7 +161,8 @@ export default function AboutPage() {
                 He wrote his story down and kept going when momentum dropped. Loss in the family derailed his momentum and he still didn't quit.
               </p>
               <p className="text-[var(--pf-text-secondary)] mb-4">
-                Porterful is his answer. Infrastructure that keeps money in the community. A retirement plan for artists who never had one. On this platform, artists keep the majority of every sale. Direct to fan. No middleman.
+                Porterful is his answer: infrastructure that keeps money in the community and gives artists a direct path to fans.
+                This is a platform for creators to build durable income.
               </p>
               <p className="text-[var(--pf-orange)] font-semibold text-lg">
                 This isn't just a platform — it's the plan.
@@ -179,21 +180,21 @@ export default function AboutPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="text-center">
                 <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg">
-                  Majority
+                  Artist share
                 </div>
                 <div className="font-bold text-lg text-[var(--pf-text)]">Artist</div>
                 <div className="text-sm text-[var(--pf-text-muted)]">Direct earnings on every sale</div>
               </div>
               <div className="text-center">
                 <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg">
-                  15%
+                  Fees
                 </div>
                 <div className="font-bold text-lg text-[var(--pf-text)]">Payment Processing</div>
                 <div className="text-sm text-[var(--pf-text-muted)]">Stripe, PayPal fees</div>
               </div>
               <div className="text-center">
                 <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg">
-                  5%
+                  Platform
                 </div>
                 <div className="font-bold text-lg text-[var(--pf-text)]">Platform</div>
                 <div className="text-sm text-[var(--pf-text-muted)]">Keeps the lights on</div>
@@ -201,8 +202,8 @@ export default function AboutPage() {
             </div>
             <div className="mt-8 pt-6 border-t border-[var(--pf-border)]">
               <p className="text-[var(--pf-text-secondary)] text-sm">
-                <strong className="text-[var(--pf-orange)]">Compare:</strong> Spotify pays artists ~$0.003 per stream. 
-                On Porterful, a $1 track purchase = $0.80 to the artist. That's <strong>267x more</strong> than 267 Spotify streams.
+                <strong className="text-[var(--pf-orange)]">Compare:</strong> Streaming payouts can be tiny. 
+                On Porterful, track purchases are designed to send real money to the artist instead of fractions of a cent per stream.
               </p>
             </div>
           </div>
@@ -242,7 +243,7 @@ export default function AboutPage() {
                 <h3 className="text-xl font-bold mb-2">O D Porter</h3>
                 <p className="text-[var(--pf-orange)] mb-2">Founder & Independent Artist</p>
                 <p className="text-[var(--pf-text-secondary)] italic">
-                  "I built Porterful because I was tired of watching artists get pennies while platforms got rich. Every purchase here puts real money in artists' pockets. This isn't just a platform — it's a retirement plan for creators."
+                  "I built Porterful because I was tired of watching artists get pennies while platforms got rich. Every purchase here is meant to put more money in artists' pockets. This is a platform for creators to build something lasting."
                 </p>
               </div>
             </div>

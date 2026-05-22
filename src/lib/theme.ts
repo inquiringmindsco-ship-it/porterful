@@ -47,7 +47,6 @@ export function getThemeBootstrapScript() {
       var key = '${THEME_STORAGE_KEY}';
       var saved = localStorage.getItem(key);
       var systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-      
       // Only use saved value if it's explicitly 'light' or 'dark'
       // Otherwise follow system preference
       var theme = (saved === 'light' || saved === 'dark') ? saved : (systemDark ? 'dark' : 'light');

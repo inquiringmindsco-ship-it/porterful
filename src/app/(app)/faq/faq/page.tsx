@@ -7,21 +7,21 @@ export default function FAQPage() {
     {
       title: 'For Artists',
       faqs: [
-        { q: 'How much do I earn from my merch?', a: 'You keep the majority of every sale. The rest covers payment processing and platform operations. No hidden fees.' },
-        { q: 'How do I get paid?', a: 'Payments are processed via Stripe. You can withdraw anytime with a $10 minimum. Payments typically arrive in 2-3 business days.' },
+        { q: 'How much do I earn from my merch?', a: 'You keep a large share of each sale. The rest covers payment processing and platform operations.' },
+        { q: 'How do I get paid?', a: 'Payments are processed via Stripe. You can withdraw when eligible, with a $10 minimum.' },
         { q: 'Can I use a dropship supplier?', a: 'Yes! We integrate with Printful, Zendrop, and CJ Dropshipping. You can also self-fulfill if you prefer.' },
-        { q: 'Do I earn from marketplace purchases?', a: 'Yes! When your superfans shop marketplace items from other businesses, you earn a share. That\'s the Porterful difference.' },
-        { q: 'How do referrals work for artists?', a: 'Share your artist page link. When fans sign up through it, they become your superfans. Their purchases generate income for you.' },
+        { q: 'Do I earn from marketplace purchases?', a: 'Yes! When your superfans shop marketplace items from other businesses, you can earn a share when supported products are sold.' },
+        { q: 'How do referrals work for artists?', a: 'Share your artist page link. When fans sign up through it, they become your superfans and can help generate income for you.' },
       ]
     },
     {
       title: 'For Superfans',
       faqs: [
-        { q: 'What is a Superfan?', a: 'A Superfan is someone who supports artists by sharing their work. When people shop through your referral code, you earn a percentage.' },
-        { q: 'How much can I earn?', a: '5% on artist merch, 3% on marketplace items. There\'s no cap—the more you share, the more you earn.' },
-        { q: 'Do I need to buy anything first?', a: 'No. You can start earning immediately. Just sign up, get your code, and share.' },
+        { q: 'What is a Superfan?', a: 'A Superfan is someone who supports artists by sharing their work. Referral rewards may apply when supported purchases happen through your code.' },
+        { q: 'How much can I earn?', a: 'Earnings vary by product and program. Check the program details for supported rates.' },
+        { q: 'Do I need to buy anything first?', a: 'No. You can start sharing after signing up.' },
         { q: 'How long does a referral last?', a: '30 days. When someone uses your code, their purchases count for you for 30 days.' },
-        { q: 'How do I cash out?', a: 'Connect your Stripe account and withdraw anytime. Minimum withdrawal is $10.' },
+        { q: 'How do I cash out?', a: 'Connect your Stripe account and withdraw when eligible. Minimum withdrawal is $10.' },
       ]
     },
     {
@@ -29,7 +29,7 @@ export default function FAQPage() {
       faqs: [
         { q: 'Why list on Porterful?', a: 'Reach a passionate audience of music fans. Artists promote products they love, driving organic sales.' },
         { q: 'What can I sell?', a: 'Any product that aligns with our community—apparel, accessories, home goods, tech, and more. No counterfeits or unauthorized merch.' },
-        { q: 'What\'s the fee structure?', a: '67% to you, 20% to artists (split among referring artists), 3% to superfans, 10% to Porterful. Win-win for everyone.' },
+        { q: 'What\'s the fee structure?', a: 'Revenue is split between the seller, artist support, referral rewards, and Porterful platform costs, depending on the product.' },
         { q: 'How do I get started?', a: 'Sign up as a Business, upload products, and set your prices. Artists discover and share products they love.' },
       ]
     },

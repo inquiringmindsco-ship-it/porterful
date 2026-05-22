@@ -13,7 +13,7 @@ const BENEFITS = [
   {
     icon: Heart,
     title: 'Direct to Artists',
-    description: 'the majority of every dollar goes directly to the artists you love.',
+    description: 'Built to keep artist support at the center of every purchase.',
   },
   {
     icon: Zap,
@@ -66,7 +66,7 @@ export default function ProudToPayPage() {
             <span className="text-[var(--pf-orange)]">You're Supporting.</span>
           </h1>
           <p className="text-xl text-[var(--pf-text-secondary)] max-w-2xl mx-auto">
-            On Porterful, every purchase goes directly to artists. No middlemen, no labels, no big tech taking their cut.
+            On Porterful, purchases are designed to reach artists without unnecessary middle layers.
           </p>
         </div>
 
@@ -126,24 +126,24 @@ export default function ProudToPayPage() {
           <div className="grid md:grid-cols-3 gap-6">
             <div className="text-center">
               <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-3">
-                <span className="text-2xl font-bold text-green-400">majority</span>
+                <span className="text-2xl font-bold text-green-400">artist-first</span>
               </div>
               <h3 className="font-bold mb-1">To Artists</h3>
               <p className="text-sm text-[var(--pf-text-secondary)]">Direct to the creator</p>
             </div>
             <div className="text-center">
               <div className="w-16 h-16 rounded-full bg-purple-500/20 flex items-center justify-center mx-auto mb-3">
-                <span className="text-2xl font-bold text-purple-400">20%</span>
+                <span className="text-2xl font-bold text-purple-400">fees</span>
               </div>
               <h3 className="font-bold mb-1">Artist Fund</h3>
               <p className="text-sm text-[var(--pf-text-secondary)]">Platform growth & support</p>
             </div>
             <div className="text-center">
               <div className="w-16 h-16 rounded-full bg-blue-500/20 flex items-center justify-center mx-auto mb-3">
-                <span className="text-2xl font-bold text-blue-400">0%</span>
+                <span className="text-2xl font-bold text-blue-400">simple</span>
               </div>
               <h3 className="font-bold mb-1">Middlemen</h3>
-              <p className="text-sm text-[var(--pf-text-secondary)]">No labels, no big tech</p>
+              <p className="text-sm text-[var(--pf-text-secondary)]">Fewer layers between artist and fan</p>
             </div>
           </div>
         </div>

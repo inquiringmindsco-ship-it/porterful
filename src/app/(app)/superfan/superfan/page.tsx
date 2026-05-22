@@ -15,7 +15,7 @@ export default function SuperfanPage() {
             Support Artists.<br />Earn While You're At It.
           </h1>
           <p className="text-xl text-[var(--pf-text-secondary)] max-w-2xl mx-auto">
-            Share your favorite artists with the world. When people shop through your referral, you earn—and so do they.
+            Share your favorite artists with the world. When people shop through your referral, you can earn rewards too.
           </p>
         </div>
       </section>
@@ -43,7 +43,7 @@ export default function SuperfanPage() {
               <div className="text-5xl mb-4">3️⃣</div>
               <h3 className="text-xl font-bold mb-2">Earn Passive Income</h3>
               <p className="text-[var(--pf-text-secondary)]">
-                When someone shops through your code, you earn 5% on merch, 3% on marketplace items.
+                When someone shops through your code, referral rewards may apply on supported merch and marketplace items.
               </p>
             </div>
           </div>
@@ -60,8 +60,8 @@ export default function SuperfanPage() {
                 <h3 className="text-xl font-bold mb-4 text-[var(--pf-orange)]">Artist Merch</h3>
                 <div className="space-y-3">
                   <div className="flex justify-between">
-                    <span className="text-[var(--pf-text-secondary)]">Your earnings:</span>
-                    <span className="font-semibold">5%</span>
+                    <span className="text-[var(--pf-text-secondary)]">Your rewards:</span>
+                    <span className="font-semibold">Merch</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-[var(--pf-text-secondary)]">Artist keeps:</span>
@@ -69,31 +69,31 @@ export default function SuperfanPage() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-[var(--pf-text-secondary)]">Processing:</span>
-                    <span className="font-semibold">15%</span>
+                    <span className="font-semibold">Fees</span>
                   </div>
                 </div>
                 <p className="text-sm text-[var(--pf-text-muted)] mt-4">
-                  Example: $50 t-shirt = $2.50 to you
+                  Example: $50 t-shirt = reward to you
                 </p>
               </div>
               <div>
                 <h3 className="text-xl font-bold mb-4 text-purple-400">Marketplace Items</h3>
                 <div className="space-y-3">
                   <div className="flex justify-between">
-                    <span className="text-[var(--pf-text-secondary)]">Your earnings:</span>
-                    <span className="font-semibold">3%</span>
+                    <span className="text-[var(--pf-text-secondary)]">Your rewards:</span>
+                    <span className="font-semibold">Marketplace</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-[var(--pf-text-secondary)]">Business keeps:</span>
-                    <span className="font-semibold">67%</span>
+                    <span className="font-semibold">Business share</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-[var(--pf-text-secondary)]">Artist + Platform:</span>
-                    <span className="font-semibold">30%</span>
+                    <span className="font-semibold">Shared</span>
                   </div>
                 </div>
                 <p className="text-sm text-[var(--pf-text-muted)] mt-4">
-                  Example: $100 product = $3 to you
+                  Example: $100 product = reward to you
                 </p>
               </div>
             </div>
@@ -151,7 +151,7 @@ export default function SuperfanPage() {
               { q: "How do I get paid?", a: "Earnings accumulate in your dashboard. Cash out anytime via Stripe (minimum $10)." },
               { q: "Can I refer multiple artists?", a: "Yes! Your code works for the entire marketplace. Share whoever you love." },
               { q: "Do I need to be verified?", a: "No verification needed to start. Just sign up and share." },
-              { q: "What if someone uses my code twice?", a: "You earn on every purchase from that customer for 30 days." },
+              { q: "What if someone uses my code twice?", a: "Referral rewards may apply on every purchase from that customer for 30 days." },
             ].map((faq, i) => (
               <div key={i} className="bg-[var(--pf-surface)] rounded-lg p-4 border border-[var(--pf-border)]">
                 <h3 className="font-semibold mb-2">{faq.q}</h3>
@@ -167,7 +167,7 @@ export default function SuperfanPage() {
         <div className="max-w-2xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-4">Ready to Become a Superfan?</h2>
           <p className="text-[var(--pf-text-secondary)] mb-6">
-            Join the community of fans supporting artists—and earning while doing it.
+            Join the community of fans supporting artists—and earning rewards while doing it.
           </p>
           <Link 
             href="/signup?role=superfan" 

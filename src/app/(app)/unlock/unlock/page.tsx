@@ -131,7 +131,7 @@ export default function UnlockPage() {
             </div>
             <div className="flex items-center gap-3">
               <Check size={20} className="text-green-400 shrink-0" />
-              <span className="text-[var(--pf-text)]"><strong>earnings to artists</strong> — your money goes further here</span>
+              <span className="text-[var(--pf-text)]"><strong>Artist support</strong> — your purchase helps fund the music</span>
             </div>
           </div>
 
@@ -215,7 +215,7 @@ export default function UnlockPage() {
                 </tr>
                 <tr className="border-b border-[var(--pf-border)]">
                   <td className="py-2 pr-4">Artist gets</td>
-                  <td className="text-center py-2 px-4"><strong className="text-green-400">80%</strong></td>
+                  <td className="text-center py-2 px-4"><strong className="text-green-400">artist-first</strong></td>
                   <td className="text-center py-2 px-4">~$0.003/stream</td>
                   <td className="text-center py-2 px-4">~$0.01/stream</td>
                 </tr>
