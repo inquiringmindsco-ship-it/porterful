@@ -218,16 +218,24 @@ export default function UploadPage() {
       }
 
       // 1b. Resolve duration from the selected file before we save metadata.
-      // This guarantees the DB row gets a real duration even if the change
-      // handler state has not finished updating yet.
-      const resolvedAudioDuration = Number.isFinite(audioDuration ?? NaN)
+      // This keeps future uploads from regressing, but it should never block
+      // the upload if metadata probing fails on a particular browser/file.
+      let resolvedAudioDuration: number | null = Number.isFinite(audioDuration ?? NaN)
         ? (audioDuration as number)
-        : await getAudioDuration(audioFile)
-      if (!Number.isFinite(resolvedAudioDuration)) {
-        throw new Error('Could not read audio duration')
+        : null
+      if (!Number.isFinite(resolvedAudioDuration ?? NaN)) {
+        try {
+          resolvedAudioDuration = await getAudioDuration(audioFile)
+        } catch (durationErr) {
+          console.warn('[upload] Could not extract duration before save', durationErr)
+          addDebug('WARNING — could not read duration, continuing with null')
+          resolvedAudioDuration = null
+        }
       }
-      setAudioDuration(resolvedAudioDuration)
-      addDebug(`Step 0b DONE — audio duration: ${resolvedAudioDuration} seconds`)
+      if (Number.isFinite(resolvedAudioDuration ?? NaN)) {
+        setAudioDuration(resolvedAudioDuration)
+        addDebug(`Step 0b DONE — audio duration: ${resolvedAudioDuration} seconds`)
+      }
 
       // 2. Get signed URL + upload audio directly to Supabase
       addDebug('Step 1: Requesting signed URL for audio...')
@@ -258,6 +266,7 @@ export default function UploadPage() {
           price: parseFloat(price) || 0,
           description: description.trim() || null,
           duration: resolvedAudioDuration, // canonical duration in seconds
+          duration_seconds: resolvedAudioDuration, // explicit canonical duration in seconds
           storage_paths: {
             audio: audioPath,
             cover: coverPath || null,
