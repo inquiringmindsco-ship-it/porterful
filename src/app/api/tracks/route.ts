@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     supabaseClient = supabase;
 
     const body = await request.json();
-    const { title, audio_url, cover_url, album, price, storage_paths } = body;
+    const { title, audio_url, cover_url, album, price, duration, storage_paths } = body;
 
     if (!title?.trim()) return NextResponse.json({ error: 'Title is required' }, { status: 400 });
     if (!audio_url?.trim()) return NextResponse.json({ error: 'Audio file is required' }, { status: 400 });
@@ -98,6 +98,7 @@ export async function POST(request: NextRequest) {
         audio_url: audio_url.trim(),
         cover_url: cover_url?.trim() || null,
         album: album?.trim() || null,
+        duration: duration ? parseInt(duration, 10) : null,
         proud_to_pay_min: price ? parseFloat(price) : 1,
         is_active: true,
       })

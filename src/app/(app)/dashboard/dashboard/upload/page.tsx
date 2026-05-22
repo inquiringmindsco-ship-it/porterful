@@ -18,6 +18,7 @@ export default function UploadPage() {
   const [price, setPrice] = useState('1.00')
   const [description, setDescription] = useState('')
   const [audioFile, setAudioFile] = useState<File | null>(null)
+  const [audioDuration, setAudioDuration] = useState<number | null>(null)
   const [coverFile, setCoverFile] = useState<File | null>(null)
   const [coverPreview, setCoverPreview] = useState('')
 
@@ -87,6 +88,24 @@ export default function UploadPage() {
     const file = e.target.files?.[0]
     if (!file) return
     setAudioFile(file)
+    setAudioDuration(null) // reset
+    
+    // Extract audio duration from browser
+    const audio = document.createElement('audio')
+    const url = URL.createObjectURL(file)
+    audio.preload = 'metadata'
+    audio.onloadedmetadata = () => {
+      URL.revokeObjectURL(url)
+      const seconds = Math.round(audio.duration)
+      setAudioDuration(seconds)
+      console.log('[upload] Duration extracted:', seconds, 'seconds')
+    }
+    audio.onerror = () => {
+      URL.revokeObjectURL(url)
+      console.warn('[upload] Could not extract duration')
+    }
+    audio.src = url
+
     if (!title) setTitle(file.name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' '))
   }
 
@@ -209,6 +228,7 @@ export default function UploadPage() {
           album: album.trim() || null,
           price: parseFloat(price) || 0,
           description: description.trim() || null,
+          duration: audioDuration, // numeric seconds from browser
           storage_paths: {
             audio: audioPath,
             cover: coverPath || null,
