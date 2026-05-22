@@ -203,4 +203,3 @@ export default async function ArtistPage({ params }: PageProps) {
     </div>
   )
 }
-// ARTIST_PAGE_DYNAMIC_1779440924
