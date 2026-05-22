@@ -11,7 +11,7 @@ export function isPublicArtistVisible(artist?: PublicArtistVisibility | null): b
   if (!artist) return false
 
   const status = String(artist.status || '').toLowerCase()
-  return artist.public_profile_enabled !== false && PUBLIC_ARTIST_STATUSES.includes(status as (typeof PUBLIC_ARTIST_STATUSES)[number])
+  return artist.public_profile_enabled === true && PUBLIC_ARTIST_STATUSES.includes(status as (typeof PUBLIC_ARTIST_STATUSES)[number])
 }
 
 export function filterPublicArtists(artists: any[] | null | undefined): any[] {

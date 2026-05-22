@@ -186,11 +186,18 @@ export default function MusicPage() {
 
     async function loadArtists() {
       try {
-        const res = await fetch('/api/artists', { cache: 'no-store' })
-        if (!res.ok) return
-        const data = await res.json()
-        const publicArtists = filterPublicArtists(
-          (Array.isArray(data.artists) ? data.artists : []) as ArtistData[],
+        const supabase = createBrowserSupabaseClient()
+        const { data } = await supabase
+          .from('artists')
+          .select('id, name, slug, genre, location, bio, avatar_url, cover_url, verified, artist_tier, status, public_profile_enabled')
+          .order('created_at', { ascending: false })
+
+        const publicArtists = filterPublicArtists((Array.isArray(data) ? data : []) as any[]).map(
+          (artist: any) =>
+            ({
+              ...artist,
+              image: artist.avatar_url || artist.cover_url || '',
+            }) as ArtistData,
         )
         if (!cancelled) {
           setPublicArtists(publicArtists.length > 0 ? publicArtists : PUBLIC_ARTISTS_FALLBACK)
