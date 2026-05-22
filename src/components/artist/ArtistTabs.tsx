@@ -126,9 +126,9 @@ export function ArtistTabs({
     : []
 
   return (
-    <div className="max-w-6xl mx-auto px-5 sm:px-6 pt-4 pb-12">
+    <div className="max-w-6xl mx-auto overflow-x-hidden px-5 pt-4 pb-12 sm:px-6">
       {/* Tabs */}
-      <div className="flex border-b border-[var(--pf-border)] mb-6 -mx-5 sm:mx-0 px-5 sm:px-0 overflow-x-auto scrollbar-hide">
+      <div className="flex w-full flex-nowrap border-b border-[var(--pf-border)] mb-6 -mx-5 overflow-x-auto px-5 pb-1 scrollbar-hide sm:mx-0 sm:px-0 sm:pb-0">
         {TABS.map((t) => {
           const isActive = active === t.key
           return (

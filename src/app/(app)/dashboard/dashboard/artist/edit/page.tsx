@@ -197,7 +197,7 @@ export default function EditArtistPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen pt-24 pb-12 mobile-page-safe">
+      <div className="min-h-screen pt-24 pb-12 mobile-page-safe overflow-x-hidden w-full max-w-full">
         <div className="pf-container max-w-3xl">
           <div className="animate-pulse space-y-4">
             <div className="h-8 bg-[var(--pf-surface)] rounded w-1/4" />
@@ -210,7 +210,7 @@ export default function EditArtistPage() {
   }
 
   return (
-    <div className="min-h-screen pt-24 pb-12 mobile-page-safe">
+    <div className="min-h-screen pt-24 pb-12 mobile-page-safe overflow-x-hidden w-full max-w-full">
       <div className="pf-container max-w-3xl">
         <Link
           href="/dashboard"
@@ -221,14 +221,14 @@ export default function EditArtistPage() {
         </Link>
 
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
-          <div className="flex items-center gap-4">
-            <Link href="/dashboard/artist" className="p-2 hover:bg-[var(--pf-surface)] rounded-lg transition-colors shrink-0">
+        <div className="mb-8 flex w-full flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex w-full items-start gap-3 min-w-0 sm:items-center sm:gap-4">
+            <Link href="/dashboard/artist" className="mt-1 shrink-0 rounded-lg p-2 transition-colors hover:bg-[var(--pf-surface)] sm:mt-0">
               <ArrowLeft size={20} />
             </Link>
-            <div className="min-w-0">
-              <h1 className="text-2xl sm:text-3xl font-bold truncate">Edit Artist Profile</h1>
-              <p className="text-[var(--pf-text-secondary)] text-sm truncate">Update your public artist profile</p>
+            <div className="min-w-0 flex-1">
+              <h1 className="break-words text-2xl font-bold leading-tight sm:text-3xl">Edit Artist Profile</h1>
+              <p className="break-words text-sm text-[var(--pf-text-secondary)]">Update your public artist profile</p>
             </div>
           </div>
         </div>
@@ -283,7 +283,7 @@ export default function EditArtistPage() {
           {/* Avatar Image */}
           <div>
             <label className="block text-sm font-medium mb-2">Profile Photo</label>
-            <div className="flex items-center gap-4 overflow-x-hidden">
+            <div className="flex flex-col items-start gap-4 overflow-x-hidden sm:flex-row sm:items-center">
               <div 
                 className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden bg-[var(--pf-surface)] border border-[var(--pf-border)] cursor-pointer group shrink-0"
                 onClick={() => avatarInputRef.current?.click()}
@@ -429,7 +429,7 @@ export default function EditArtistPage() {
           </div>
 
           {/* Save Button */}
-          <div className="flex flex-col sm:flex-row justify-end gap-3">
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
             <Link href="/dashboard/artist" className="pf-btn pf-btn-secondary">
               Cancel
             </Link>

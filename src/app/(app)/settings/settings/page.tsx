@@ -303,7 +303,7 @@ export default function SettingsPage() {
                   </div>
 
                   {/* Avatar */}
-                  <div className="flex items-center gap-6 mb-8">
+                  <div className="mb-8 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-6">
                     <div className="w-24 h-24 rounded-full bg-[var(--pf-orange)]/20 flex items-center justify-center text-4xl overflow-hidden">
                       {profile.avatar_url ? (
                         <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
@@ -316,7 +316,7 @@ export default function SettingsPage() {
                         type="button"
                         onClick={() => avatarInputRef.current?.click()}
                         disabled={photoUploading}
-                        className="bg-[var(--pf-orange)] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[var(--pf-orange-light)] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                        className="w-full rounded-lg bg-[var(--pf-orange)] px-4 py-2 font-semibold text-white transition-colors hover:bg-[var(--pf-orange-light)] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
                         >
                         {photoUploading ? 'Uploading...' : 'Upload Account Photo'}
                       </button>
@@ -386,17 +386,17 @@ export default function SettingsPage() {
                   <h2 className="text-xl font-bold mb-4">Your Referral Code</h2>
                   {referralCode ? (
                     <>
-                      <div className="flex items-center gap-4">
-                        <div className="flex-1 bg-[var(--pf-bg)] border border-[#ff6b00] rounded-lg px-6 py-4 text-2xl font-mono font-bold text-[var(--pf-orange)]">
-                          {referralCode}
-                        </div>
-                        <button
-                          onClick={() => navigator.clipboard.writeText(referralCode)}
-                          className="bg-[var(--pf-orange)] text-white px-6 py-4 rounded-lg font-semibold hover:bg-[var(--pf-orange-light)] transition-colors"
-                        >
-                          Copy
-                        </button>
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                      <div className="min-w-0 flex-1 bg-[var(--pf-bg)] border border-[#ff6b00] rounded-lg px-4 py-4 text-2xl font-mono font-bold text-[var(--pf-orange)] sm:px-6">
+                        {referralCode}
                       </div>
+                      <button
+                        onClick={() => navigator.clipboard.writeText(referralCode)}
+                        className="w-full rounded-lg bg-[var(--pf-orange)] px-6 py-4 font-semibold text-white transition-colors hover:bg-[var(--pf-orange-light)] sm:w-auto"
+                      >
+                        Copy
+                      </button>
+                    </div>
                       <p className="text-[var(--pf-text-muted)] mt-4">
                         Share this code. When people shop using it, referral rewards may apply on supported purchases.
                       </p>
@@ -422,7 +422,7 @@ export default function SettingsPage() {
                 {referralCode && (
                   <div className="bg-[var(--pf-surface)] rounded-xl p-6 border border-[var(--pf-border)]">
                     <h2 className="text-xl font-bold mb-4">Share Your Link</h2>
-                    <div className="flex items-center gap-4">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                       <input
                         type="text"
                         readOnly
@@ -431,7 +431,7 @@ export default function SettingsPage() {
                       />
                       <button
                         onClick={() => navigator.clipboard.writeText(`https://porterful.com/store?ref=${encodeURIComponent(referralCode)}`)}
-                        className="bg-[var(--pf-surface)] text-[var(--pf-text)] border border-[var(--pf-border)] px-4 py-3 rounded-lg hover:bg-[var(--pf-surface-hover)] transition-colors"
+                        className="w-full rounded-lg border border-[var(--pf-border)] bg-[var(--pf-surface)] px-4 py-3 text-[var(--pf-text)] transition-colors hover:bg-[var(--pf-surface-hover)] sm:w-auto"
                       >
                         Copy Link
                       </button>

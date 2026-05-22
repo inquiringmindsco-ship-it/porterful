@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
+import { createClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 import { ARTISTS } from '@/lib/artists'
 
@@ -117,6 +118,13 @@ export async function PATCH(
     const body = await request.json()
     const { name, bio, genre, location, website, youtube_url, twitter_url, instagram_url, avatar_url, cover_url } = body
 
+    // Use service role for update (bypasses RLS after auth check)
+    const serviceSupabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+      process.env.SUPABASE_SERVICE_ROLE_KEY || '',
+      { auth: { persistSession: false } }
+    )
+
     // Update artists table
     const artistUpdates: Record<string, string> = {}
     if (name !== undefined) artistUpdates.name = name
@@ -131,7 +139,7 @@ export async function PATCH(
     if (cover_url !== undefined) artistUpdates.cover_url = cover_url
 
     // Update artists table
-    const { data: artistData, error: artistError } = await supabase
+    const { data: artistData, error: artistError } = await serviceSupabase
       .from('artists')
       .update(artistUpdates)
       .eq('id', params.id)

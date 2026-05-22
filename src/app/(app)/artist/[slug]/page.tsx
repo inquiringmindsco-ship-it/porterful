@@ -168,7 +168,7 @@ export default async function ArtistPage({ params }: PageProps) {
   const products: never[] = []
 
   return (
-    <div className="min-h-screen pb-32">
+    <div className="min-h-screen overflow-x-hidden pb-32">
       <ArtistHero
         artist={{
           name: artist.name,
