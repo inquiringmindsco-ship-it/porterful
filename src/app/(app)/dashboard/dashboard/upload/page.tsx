@@ -64,25 +64,54 @@ export default function UploadPage() {
     if (!title) setTitle(file.name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' '))
   }
 
+  // Upload directly to Supabase via signed URL (bypasses Vercel body limit)
   const uploadFile = async (file: File, folder: string): Promise<string> => {
-    const formData = new FormData()
-    formData.append('file', file)
-    formData.append('folder', folder)
-    const res = await fetch('/api/upload', { method: 'POST', body: formData })
-    
-    // Safely parse response — handle non-JSON errors (e.g., Request Entity Too Large)
-    const text = await res.text()
-    let data: any = {}
+    // 1. Get signed upload URL from server
+    const signedRes = await fetch('/api/upload/signed-url', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        filename: file.name,
+        folder,
+        contentType: file.type || 'audio/mpeg',
+      }),
+    })
+
+    const signedText = await signedRes.text()
+    let signedData: any = {}
     try {
-      data = text ? JSON.parse(text) : {}
+      signedData = signedText ? JSON.parse(signedText) : {}
     } catch {
-      data = { error: text || `Upload failed with status ${res.status}` }
+      signedData = { error: signedText || `Failed to get upload URL (status ${signedRes.status})` }
     }
-    
-    if (!res.ok || data.error) {
-      throw new Error(data.error || data.message || `Upload failed with status ${res.status}`)
+
+    if (!signedRes.ok || signedData.error) {
+      throw new Error(signedData.error || 'Failed to get upload URL')
     }
-    return data.url
+
+    const { token, path, publicUrl, bucket } = signedData
+
+    // 2. Upload file directly to Supabase Storage (bypasses Vercel)
+    const uploadRes = await fetch(
+      `https://tsdjmiqczgxnkpvirkya.supabase.co/storage/v1/object/upload/sign/${bucket}/${path}`,
+      {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': file.type || 'audio/mpeg',
+          'x-upsert': 'false',
+        },
+        body: file,
+      }
+    )
+
+    if (!uploadRes.ok) {
+      const errText = await uploadRes.text()
+      console.error('[upload] Supabase upload failed:', uploadRes.status, errText)
+      throw new Error(`Storage upload failed: ${uploadRes.status} ${errText.substring(0, 200)}`)
+    }
+
+    return publicUrl
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
