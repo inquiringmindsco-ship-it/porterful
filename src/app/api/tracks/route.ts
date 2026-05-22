@@ -213,3 +213,6 @@ export async function GET(request: NextRequest) {
 }
 // Cache bust: 1777083644
 // Deploy trigger: Fri Apr 24 21:47:41 CDT 2026
+// Cache bust: 1779438684
+// Deploy trigger: Fri May 22 03:31:24 CDT 2026
+// Added: count_only support for artist track counts
