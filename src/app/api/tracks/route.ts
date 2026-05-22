@@ -150,8 +150,28 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const artistId = searchParams.get('artist_id');
+  const artistName = searchParams.get('artist');
+  const countOnly = searchParams.get('count_only') === 'true';
 
   const supabase = createServerClient();
+
+  if (countOnly && artistName) {
+    // Count tracks for an artist (used by artist listing cards)
+    const { count, error } = await supabase
+      .from('tracks')
+      .select('*', { count: 'exact', head: true })
+      .eq('artist', artistName)
+      .eq('is_active', true);
+    
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    
+    // Also count static tracks
+    const staticCount = TRACKS.filter(t => t.artist === artistName).length;
+    
+    return NextResponse.json({ count: (count || 0) + staticCount });
+  }
 
   let query = supabase
     .from('tracks')
