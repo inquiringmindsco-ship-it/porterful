@@ -71,11 +71,23 @@ async function getServerTracksByArtistNameFull(artistName: string) {
 export const dynamic = 'force-dynamic'
 
 export async function generateStaticParams() {
-  return ARTISTS
+  const supabase = getServerSupabase()
+
+  const { data } = await supabase
+    .from('artists')
+    .select('slug, status, public_profile_enabled')
+    .in('status', ['active', 'approved'])
+    .neq('public_profile_enabled', false)
+
+  const dbSlugs = (data || [])
+    .map((artist) => artist.slug)
+    .filter(Boolean)
+
+  const staticSlugs = ARTISTS
     .filter((artist) => artist.trackCount && artist.trackCount > 0)
-    .map((artist) => ({
-      slug: artist.slug,
-    }))
+    .map((artist) => artist.slug)
+
+  return Array.from(new Set([...dbSlugs, ...staticSlugs])).map((slug) => ({ slug }))
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {

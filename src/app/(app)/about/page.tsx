@@ -1,10 +1,27 @@
 import { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ARTISTS } from '@/lib/artists'
+import { createClient } from '@supabase/supabase-js'
 
-// Only count artists with playable tracks
-const PUBLIC_ARTIST_COUNT = ARTISTS.filter((a) => a.trackCount && a.trackCount > 0).length
+async function getPublicArtistCount() {
+  try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      { auth: { persistSession: false } }
+    )
+
+    const { count } = await supabase
+      .from('artists')
+      .select('id', { count: 'exact', head: true })
+      .in('status', ['active', 'approved'])
+      .neq('public_profile_enabled', false)
+
+    return count || 0
+  } catch {
+    return 0
+  }
+}
 
 export const metadata: Metadata = {
   title: 'About Porterful - The Artist Economy Platform',
@@ -27,7 +44,9 @@ export const metadata: Metadata = {
   },
 }
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const publicArtistCount = await getPublicArtistCount()
+
   return (
     <div className="min-h-screen bg-[var(--pf-bg)]">
       {/* Hero */}
@@ -51,7 +70,7 @@ export default function AboutPage() {
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
             <div className="text-center p-6 bg-[var(--pf-surface)] rounded-xl border border-[var(--pf-border)]">
-              <div className="text-3xl md:text-4xl font-bold text-[var(--pf-orange)]">{PUBLIC_ARTIST_COUNT}</div>
+              <div className="text-3xl md:text-4xl font-bold text-[var(--pf-orange)]">{publicArtistCount}</div>
               <div className="text-sm text-[var(--pf-text-muted)]">Public artists</div>
             </div>
             <div className="text-center p-6 bg-[var(--pf-surface)] rounded-xl border border-[var(--pf-border)]">

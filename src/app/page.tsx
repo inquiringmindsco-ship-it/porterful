@@ -2,22 +2,15 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowRight, Heart, Headphones, Pause, Play, Shirt } from 'lucide-react'
 import { Footer } from '@/components/Footer'
 import { useAudio, type Track } from '@/lib/audio-context'
 import { TRACKS } from '@/lib/data'
-import { ARTISTS } from '@/lib/artists'
+import { ARTISTS, type ArtistData } from '@/lib/artists'
 import { getTrackArtwork } from '@/lib/artwork'
 
-const PUBLIC_ARTISTS = ARTISTS.filter((artist) => artist.trackCount && artist.trackCount > 0)
-const featuredArtist = PUBLIC_ARTISTS.find((artist) => artist.slug === 'atm-trap') ?? PUBLIC_ARTISTS[0] ?? ARTISTS[0]
-const featuredTracks = TRACKS
-  .filter((track) => track.artist === featuredArtist?.name)
-  .slice(0, 3) as Track[]
-
-const heroTrack = featuredTracks[0] ?? TRACKS[0]
-const spotlightTrack = featuredTracks[1] ?? heroTrack
+const PUBLIC_ARTISTS_FALLBACK = ARTISTS.filter((artist) => artist.trackCount && artist.trackCount > 0)
 
 const formatStatLabel = (count: number, singular: string, plural = `${singular}s`) =>
   `${count} ${count === 1 ? singular : plural}`
@@ -25,6 +18,44 @@ const formatStatLabel = (count: number, singular: string, plural = `${singular}s
 export default function HomePage() {
   const { currentTrack, isPlaying, playTrack, togglePlay, setQueue, setMode } = useAudio()
   const revealScopeRef = useRef<HTMLElement | null>(null)
+  const [publicArtists, setPublicArtists] = useState<ArtistData[]>(PUBLIC_ARTISTS_FALLBACK)
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function loadArtists() {
+      try {
+        const res = await fetch('/api/artists')
+        if (!res.ok) return
+        const data = await res.json()
+        const artists = Array.isArray(data.artists) && data.artists.length > 0 ? data.artists : PUBLIC_ARTISTS_FALLBACK
+        if (!cancelled) {
+          setPublicArtists(artists)
+        }
+      } catch {
+        if (!cancelled) {
+          setPublicArtists(PUBLIC_ARTISTS_FALLBACK)
+        }
+      }
+    }
+
+    loadArtists()
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const featuredArtist = useMemo(
+    () => publicArtists.find((artist) => artist.slug === 'atm-trap') ?? publicArtists[0] ?? PUBLIC_ARTISTS_FALLBACK[0],
+    [publicArtists],
+  )
+  const featuredTracks = useMemo(
+    () => TRACKS.filter((track) => track.artist === featuredArtist?.name).slice(0, 3) as Track[],
+    [featuredArtist],
+  )
+  const heroTrack = featuredTracks[0] ?? TRACKS[0]
+  const spotlightTrack = featuredTracks[1] ?? heroTrack
 
   useEffect(() => {
     const scope = revealScopeRef.current
@@ -149,7 +180,7 @@ export default function HomePage() {
                 <div className="mt-4 flex flex-wrap gap-3 text-sm text-[var(--pf-text-muted)]">
                   <span className="inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.04] px-4 py-2">
                     <span className="h-2 w-2 rounded-full bg-[var(--pf-orange)]" />
-                    {formatStatLabel(PUBLIC_ARTISTS.length, 'artist')}
+                    {formatStatLabel(publicArtists.length, 'artist')}
                   </span>
                   <span className="inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.04] px-4 py-2">
                     <span className="h-2 w-2 rounded-full bg-emerald-400" />

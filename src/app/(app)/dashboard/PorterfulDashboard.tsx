@@ -60,6 +60,7 @@ export default function PorterfulDashboard({ serverProfileId, initialProfile }: 
           {isFounder ? (
             <>
               <ActionCard label="Founder View" href="/dashboard/founder" icon={ShieldCheck} hint="Control tower for the whole platform" />
+              <ActionCard label="Artist Management" href="/dashboard/founder/artists" icon={Users} hint="Toggle artist visibility" />
               <ActionCard label="Artist Dashboard" href="/dashboard/artist" icon={Disc} hint="Your own catalog and uploads" />
               <ActionCard label="Upload Track" href="/dashboard/upload" icon={Upload} hint="Direct Supabase upload" />
               <ActionCard label="Review Queue" href="/dashboard/dashboard/submissions" icon={Inbox} hint="Artist signups and reviews" />
