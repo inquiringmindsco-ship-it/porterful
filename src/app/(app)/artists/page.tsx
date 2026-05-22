@@ -7,49 +7,51 @@ import { ArrowRight, Check, MapPin, Music } from 'lucide-react'
 import { useSupabase } from '@/app/providers'
 import { getArtistAccessContext } from '@/lib/artist-identity'
 
-const PUBLIC_ARTISTS = [
-  {
-    id: 'od-porter',
-    name: 'O D Porter',
-    slug: 'od-porter',
-    genre: 'Hip-Hop, R&B, Soul',
-    location: 'St. Louis, MO',
-    shortBio: 'St. Louis artist. Born in Miami, raised in NOLA + the Lou. Founder of Porterful. Stubborn when he sets his mind to something.',
-    image: '/artist-images/od-porter/avatar.jpg',
-    verified: true,
-    trackCount: 84,
-  },
-  {
-    id: 'gune',
-    name: 'Gune',
-    slug: 'gune',
-    genre: 'Hip-Hop / R&B / Blues',
-    location: 'St. Louis, MO',
-    shortBio: "Raw St. Louis hip-hop. Gune doesn't make music for everyone — just for the ones who get it.",
-    image: '/artist-images/gune/avatar.jpg',
-    verified: true,
-    trackCount: 3,
-  },
-  {
-    id: 'atm-trap',
-    name: 'ATM Trap',
-    slug: 'atm-trap',
-    genre: 'Hip-Hop',
-    location: 'St. Louis, MO',
-    shortBio: 'St. Louis hip-hop artist. Real rap, real STL.',
-    image: '/artist-images/atm-trap/avatar.jpg',
-    verified: true,
-    trackCount: 4,
-  },
-] as const
+interface ArtistFromDb {
+  id: string
+  name: string
+  slug: string
+  genre: string
+  location: string
+  bio: string
+  avatar_url: string | null
+  verified: boolean
+  artist_tier: string
+  status: string
+}
 
 export default function ArtistsPage() {
   const { user, supabase, loading: authLoading } = useSupabase()
+  const [artists, setArtists] = useState<ArtistFromDb[]>([])
+  const [artistsLoading, setArtistsLoading] = useState(true)
   const [ctaReady, setCtaReady] = useState(false)
   const [ctaHref, setCtaHref] = useState('/signup?role=supporter')
   const [ctaLabel, setCtaLabel] = useState('Join Porterful')
   const [ctaDescription, setCtaDescription] = useState('Checking account...')
 
+  // Load artists from DB
+  useEffect(() => {
+    async function loadArtists() {
+      if (!supabase) {
+        setArtistsLoading(false)
+        return
+      }
+      const { data, error } = await supabase
+        .from('artists')
+        .select('id, name, slug, genre, location, bio, avatar_url, verified, artist_tier, status')
+        .eq('status', 'active')
+        .order('name')
+      if (error) {
+        console.error('Error loading artists:', error)
+      } else {
+        setArtists(data || [])
+      }
+      setArtistsLoading(false)
+    }
+    loadArtists()
+  }, [supabase])
+
+  // Load CTA
   useEffect(() => {
     let active = true
 
@@ -135,49 +137,82 @@ export default function ArtistsPage() {
       </section>
 
       <section className="pf-container py-12">
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {PUBLIC_ARTISTS.map((artist) => (
-            <Link
-              key={artist.id}
-              href={`/artist/${artist.slug}`}
-              className="group overflow-hidden rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] transition hover:border-[var(--pf-orange)]/40"
-            >
-              <div className="relative aspect-[4/5]">
-                <Image
-                  src={artist.image}
-                  alt={artist.name}
-                  fill
-                  sizes="(max-width: 1280px) 50vw, 33vw"
-                  className="object-cover transition duration-300 group-hover:scale-105"
-                />
-              </div>
-              <div className="space-y-3 p-5">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-center gap-2">
-                      <h2 className="text-xl font-bold">{artist.name}</h2>
-                      {artist.verified && (
-                        <Check size={16} className="text-[var(--pf-orange)]" />
-                      )}
-                    </div>
-                    <p className="mt-1 text-sm text-[var(--pf-text-secondary)]">{artist.genre}</p>
-                  <span className="rounded-full border border-[var(--pf-border)] px-2.5 py-1 text-xs font-medium text-[var(--pf-text-muted)]">
-                    {artist.trackCount || 0} tracks
-                  </span>
-                </div>
-
-                <p className="text-sm text-[var(--pf-text-secondary)]">
-                  {artist.shortBio}
-                </p>
-
-                <div className="flex items-center gap-2 text-xs text-[var(--pf-text-muted)]">
-                  <MapPin size={12} />
-                  <span>{artist.location}</span>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
+        {artistsLoading ? (
+          <div className="text-center py-12 text-[var(--pf-text-muted)]">Loading artists...</div>
+        ) : artists.length === 0 ? (
+          <div className="text-center py-12 text-[var(--pf-text-muted)]">No artists found.</div>
+        ) : (
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {artists.map((artist) => (
+              <ArtistCard key={artist.id} artist={artist} />
+            ))}
+          </div>
+        )}
       </section>
     </div>
+  )
+}
+
+function ArtistCard({ artist }: { artist: ArtistFromDb }) {
+  const [trackCount, setTrackCount] = useState(0)
+
+  useEffect(() => {
+    async function countTracks() {
+      const res = await fetch(`/api/tracks?artist=${encodeURIComponent(artist.name)}&count_only=true`)
+      if (res.ok) {
+        const data = await res.json()
+        setTrackCount(data.count || 0)
+      }
+    }
+    countTracks()
+  }, [artist.name])
+
+  const image = artist.avatar_url || `/artist-images/${artist.slug}/avatar.jpg`
+  const shortBio = artist.bio?.slice(0, 120) || 'Artist on Porterful'
+
+  return (
+    <Link
+      href={`/artist/${artist.slug}`}
+      className="group overflow-hidden rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] transition hover:border-[var(--pf-orange)]/40"
+    >
+      <div className="relative aspect-[4/5]">
+        <Image
+          src={image}
+          alt={artist.name}
+          fill
+          sizes="(max-width: 1280px) 50vw, 33vw"
+          className="object-cover transition duration-300 group-hover:scale-105"
+          onError={(e) => {
+            // Fallback to default if image fails
+            (e.target as HTMLImageElement).src = '/artist-images/default-avatar.jpg'
+          }}
+        />
+      </div>
+      <div className="space-y-3 p-5">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <h2 className="text-xl font-bold truncate">{artist.name}</h2>
+              {artist.verified && (
+                <Check size={16} className="text-[var(--pf-orange)] shrink-0" />
+              )}
+            </div>
+            <p className="mt-1 text-sm text-[var(--pf-text-secondary)] truncate">{artist.genre || 'Artist'}</p>
+          </div>
+          <span className="rounded-full border border-[var(--pf-border)] px-2.5 py-1 text-xs font-medium text-[var(--pf-text-muted)] shrink-0">
+            {trackCount} tracks
+          </span>
+        </div>
+
+        <p className="text-sm text-[var(--pf-text-secondary)] line-clamp-2">
+          {shortBio}
+        </p>
+
+        <div className="flex items-center gap-2 text-xs text-[var(--pf-text-muted)]">
+          <MapPin size={12} />
+          <span>{artist.location || 'Location unknown'}</span>
+        </div>
+      </div>
+    </Link>
   )
 }
