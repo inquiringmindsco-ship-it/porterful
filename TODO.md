@@ -1,6 +1,6 @@
 # Porterful Site Improvements — Batch 1 Report
 
-**Date:** Friday, May 22, 2026 — 2:32 AM (America/Chicago)  
+**Date:** Friday, May 22, 2026 — 3:33 AM (America/Chicago)  
 **Task:** Site improvements batch 1 (Rob Soule fix + social buttons + singles ordering)
 
 ---
@@ -22,9 +22,9 @@ No changes needed.
 ### 2. Add social media buttons to artist profile page
 **Status: ✅ ALREADY IMPLEMENTED**
 
-Social icons are already rendered in `src/components/artist/ArtistHero.tsx` (lines ~100-120):
-- Uses `SOCIAL_ICONS` map from `src/lib/artist-social.tsx`
-- Shows Instagram, Twitter/X, YouTube, TikTok as circular icon buttons
+Social icons are already rendered in `src/app/(app)/artist/artist/[id]/page.tsx` (lines ~245-270):
+- Uses `InstagramIcon`, `TwitterIcon`, `YouTubeIcon`, `TikTokIcon` from `@/lib/artist-social`
+- Shows Instagram, Twitter/X, YouTube, TikTok as icon buttons
 - Placed directly under the artist name in the profile header
 - Only renders if the artist has social data populated
 - Links open in new tab with proper `noopener noreferrer`
@@ -36,10 +36,9 @@ No changes needed.
 ### 3. Move Featured Singles above Albums on artist pages
 **Status: ✅ ALREADY IMPLEMENTED**
 
-In `src/components/artist/ArtistTabs.tsx` (lines ~180-210):
-- The `Featured Singles` section already appears **before** the `Albums & Projects` section
-- Comment in code confirms: `{/* Featured Singles - Moved BEFORE Albums */}`
-- Order on the Music tab: Featured Tracks → Featured Singles → Albums & Projects
+In `src/app/(app)/artist/artist/[id]/page.tsx` (lines ~395-450):
+- The `Featured Singles` section already appears **before** the `Albums` section
+- Order on the Music tab: Featured Singles → Albums
 
 No changes needed.
 

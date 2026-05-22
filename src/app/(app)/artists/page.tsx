@@ -158,10 +158,12 @@ function ArtistCard({ artist }: { artist: ArtistFromDb }) {
 
   useEffect(() => {
     async function countTracks() {
-      const res = await fetch(`/api/tracks?artist=${encodeURIComponent(artist.name)}&count_only=true`)
+      const res = await fetch(`/api/tracks?artist=${encodeURIComponent(artist.name)}`)
       if (res.ok) {
         const data = await res.json()
-        setTrackCount(data.count || 0)
+        // data.tracks may be an array from either the legacy static merge or DB rows
+        const tracks = Array.isArray(data.tracks) ? data.tracks : []
+        setTrackCount(tracks.length)
       }
     }
     countTracks()

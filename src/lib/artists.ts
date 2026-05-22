@@ -13,12 +13,18 @@ export interface ArtistData {
   verified: boolean
   likeness_verified?: boolean
   image: string
+  bannerUrl?: string
+  coverUrl?: string
   coverGradient: string
   followers: number
   supporters: number | null
   earnings: number | null
   products: number
   trackCount?: number
+  artist_tier?: string
+  status?: string
+  public_profile_enabled?: boolean
+  auto_publish?: boolean
   social?: {
     instagram?: string
     twitter?: string

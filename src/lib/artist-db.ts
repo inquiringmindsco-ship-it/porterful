@@ -36,39 +36,64 @@ function normalizeGenre(value: unknown): string {
   return ''
 }
 
-function buildDbSocial(dbArtist: any) {
+function firstNonEmpty(...values: Array<string | null | undefined>) {
+  for (const value of values) {
+    if (typeof value === 'string' && value.trim()) {
+      return value.trim()
+    }
+  }
+  return undefined
+}
+
+function buildDbSocial(dbArtist: any, staticArtist?: ArtistData) {
   const socialLinks = typeof dbArtist.social_links === 'object' && dbArtist.social_links ? dbArtist.social_links : {}
+  const staticSocial = staticArtist?.social || {}
 
   return {
-    instagram: dbArtist.instagram_url || socialLinks.instagram || undefined,
-    twitter: dbArtist.twitter_url || socialLinks.twitter || undefined,
-    youtube: dbArtist.youtube_url || socialLinks.youtube || undefined,
-    tiktok: dbArtist.tiktok_url || socialLinks.tiktok || undefined,
-    website: dbArtist.website_url || dbArtist.website || socialLinks.website || undefined,
+    instagram: firstNonEmpty(dbArtist.instagram_url, socialLinks.instagram, staticSocial.instagram),
+    twitter: firstNonEmpty(dbArtist.twitter_url, socialLinks.twitter, staticSocial.twitter),
+    youtube: firstNonEmpty(dbArtist.youtube_url, socialLinks.youtube, staticSocial.youtube),
+    tiktok: firstNonEmpty(dbArtist.tiktok_url, socialLinks.tiktok, staticSocial.tiktok),
+    website: firstNonEmpty(dbArtist.website_url, dbArtist.website, socialLinks.website, staticSocial.website),
   }
 }
 
-function buildDbArtistData(dbArtist: any): ArtistData {
-  const name = dbArtist.name || dbArtist.full_name || 'Unknown artist'
-  const bio = dbArtist.bio || ''
+function buildDbArtistData(dbArtist: any, staticArtist?: ArtistData): ArtistData {
+  const name = firstNonEmpty(dbArtist.name, dbArtist.full_name, staticArtist?.name) || 'Unknown artist'
+  const bio = firstNonEmpty(dbArtist.bio, staticArtist?.bio) || ''
+  const avatarUrl = firstNonEmpty(dbArtist.avatar_url, staticArtist?.image) || '/artist-images/default-avatar.jpg'
+  const bannerUrl = firstNonEmpty(dbArtist.banner_url, dbArtist.cover_url, staticArtist?.bannerUrl, staticArtist?.coverUrl, staticArtist?.coverSlides?.[0]?.src)
+  const slug = firstNonEmpty(dbArtist.slug, staticArtist?.slug, dbArtist.id) || name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
 
   return {
-    id: dbArtist.id || dbArtist.slug || name,
+    id: dbArtist.id || staticArtist?.id || slug,
     name,
-    slug: dbArtist.slug || dbArtist.id || name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
-    genre: normalizeGenre(dbArtist.genre),
-    location: dbArtist.location || '',
+    slug,
+    genre: normalizeGenre(dbArtist.genre) || staticArtist?.genre || '',
+    location: firstNonEmpty(dbArtist.location, staticArtist?.location) || '',
     bio,
-    shortBio: bio.slice(0, 100),
-    verified: Boolean(dbArtist.verified),
-    likeness_verified: Boolean(dbArtist.likeness_verified),
-    image: dbArtist.avatar_url || dbArtist.cover_url || '/artist-images/default-avatar.jpg',
+    shortBio: firstNonEmpty(dbArtist.short_bio, staticArtist?.shortBio) || bio.slice(0, 100),
+    verified: Boolean(dbArtist.verified ?? staticArtist?.verified),
+    likeness_verified: Boolean(dbArtist.likeness_verified ?? staticArtist?.likeness_verified),
+    image: avatarUrl,
+    bannerUrl,
+    coverUrl: bannerUrl,
     coverGradient: 'from-gray-700 to-gray-900',
     followers: 0,
     supporters: null,
     earnings: null,
-    products: 0,
+    products: staticArtist?.products || 0,
+    artist_tier: dbArtist.artist_tier || staticArtist?.artist_tier,
+    status: dbArtist.status || staticArtist?.status,
+    public_profile_enabled: typeof dbArtist.public_profile_enabled === 'boolean'
+      ? dbArtist.public_profile_enabled
+      : staticArtist?.public_profile_enabled,
+    auto_publish: typeof dbArtist.auto_publish === 'boolean'
+      ? dbArtist.auto_publish
+      : staticArtist?.auto_publish,
     social: buildDbSocial(dbArtist),
+    coverSlides: staticArtist?.coverSlides,
+    videos: staticArtist?.videos,
   }
 }
 
@@ -94,7 +119,7 @@ export async function getServerArtistBySlug(slug: string) {
 // Merge DB artist data with static fallback
 export function mergeArtistData(dbArtist: any | null, staticArtist: ArtistData | undefined): ArtistData | null {
   if (dbArtist) {
-    return buildDbArtistData(dbArtist)
+    return buildDbArtistData(dbArtist, staticArtist)
   }
 
   if (staticArtist) {
