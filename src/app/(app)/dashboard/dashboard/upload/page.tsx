@@ -69,10 +69,18 @@ export default function UploadPage() {
     formData.append('file', file)
     formData.append('folder', folder)
     const res = await fetch('/api/upload', { method: 'POST', body: formData })
-    const data = await res.json()
+    
+    // Safely parse response — handle non-JSON errors (e.g., Request Entity Too Large)
+    const text = await res.text()
+    let data: any = {}
+    try {
+      data = text ? JSON.parse(text) : {}
+    } catch {
+      data = { error: text || `Upload failed with status ${res.status}` }
+    }
+    
     if (!res.ok || data.error) {
-      // Pass through server error messages; default to generic only if empty
-      throw new Error(data.error || 'Upload failed')
+      throw new Error(data.error || data.message || `Upload failed with status ${res.status}`)
     }
     return data.url
   }
@@ -106,8 +114,15 @@ export default function UploadPage() {
         }),
       })
 
-      const data = await res.json()
-      if (!res.ok || data.error) throw new Error(data.error || 'Failed to save track')
+      const text = await res.text()
+      let data: any = {}
+      try {
+        data = text ? JSON.parse(text) : {}
+      } catch {
+        data = { error: text || `Save failed with status ${res.status}` }
+      }
+      
+      if (!res.ok || data.error) throw new Error(data.error || data.message || 'Failed to save track')
 
       setSuccess(true)
       setTimeout(() => router.push('/dashboard/artist'), 1500)
@@ -118,8 +133,8 @@ export default function UploadPage() {
         friendly = 'Your session expired. Please log in again and retry.'
       } else if (msg.includes('not supported') || msg.includes('Invalid audio format')) {
         friendly = msg
-      } else if (msg.includes('too large') || msg.includes('Max')) {
-        friendly = msg
+      } else if (msg.includes('too large') || msg.includes('Max') || msg.includes('Request Entity') || msg.includes('Entity Too Large')) {
+        friendly = 'File too large for upload. Please use a smaller file or contact support.'
       } else if (msg.includes('permission') || msg.includes('Storage permission')) {
         friendly = 'Storage permission issue. Please contact support.'
       } else if (msg.includes('not configured') || msg.includes('bucket')) {
