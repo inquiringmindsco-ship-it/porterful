@@ -68,8 +68,16 @@ async function getServerTracksByArtistNameFull(artistName: string) {
   return data || []
 }
 
+// Disable static generation for artist pages — always fetch fresh from DB
 export const dynamic = 'force-dynamic'
+export const dynamicParams = true
+export const revalidate = 0
 
+// DISABLED: Static generation prevents new artists from being viewable without rebuild
+// All artist pages are now fully dynamic (force-dynamic above)
+// export async function generateStaticParams() { ... }
+
+/*
 export async function generateStaticParams() {
   const supabase = getServerSupabase()
 
@@ -89,6 +97,7 @@ export async function generateStaticParams() {
 
   return Array.from(new Set([...dbSlugs, ...staticSlugs])).map((slug) => ({ slug }))
 }
+*/
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params
