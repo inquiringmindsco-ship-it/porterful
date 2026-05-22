@@ -147,11 +147,16 @@ export async function PATCH(
 
     if (Object.keys(artistUpdates).length > 0) {
       // Check if artist record exists
-      const { data: existing } = await supabase
+      const { data: existing, error: existingError } = await supabase
         .from('artists')
         .select('id')
         .eq('id', params.id)
-        .single()
+        .maybeSingle()
+
+      if (existingError) {
+        console.error('Artist lookup error:', existingError)
+        return NextResponse.json({ error: 'Failed to verify artist profile' }, { status: 500 })
+      }
 
       if (existing) {
         const { error: artistError } = await supabase
@@ -161,6 +166,7 @@ export async function PATCH(
 
         if (artistError) {
           console.error('Artist update error:', artistError)
+          return NextResponse.json({ error: 'Failed to update artist profile' }, { status: 500 })
         }
       } else {
         const { error: artistError } = await supabase
@@ -169,6 +175,7 @@ export async function PATCH(
 
         if (artistError) {
           console.error('Artist insert error:', artistError)
+          return NextResponse.json({ error: 'Failed to create artist profile' }, { status: 500 })
         }
       }
     }

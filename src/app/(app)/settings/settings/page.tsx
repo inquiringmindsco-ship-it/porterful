@@ -16,6 +16,7 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [photoUploading, setPhotoUploading] = useState(false);
   const [message, setMessage] = useState('');
+  const [hasArtistRecord, setHasArtistRecord] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
 
   const [profile, setProfile] = useState({
@@ -46,24 +47,32 @@ export default function SettingsPage() {
 
   async function loadProfile() {
     if (!user || !supabase) return;
-    
-    const { data } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', user.id)
-      .single();
-    
-    if (data) {
+
+    const [{ data: profileData }, { data: artistData }] = await Promise.all([
+      supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single(),
+      supabase
+        .from('artists')
+        .select('*')
+        .eq('id', user.id)
+        .maybeSingle(),
+    ]);
+
+    if (profileData) {
       setProfile({
-        role: data.role || '',
-        name: data.full_name || data.name || '',
-        email: data.email || user.email || '',
-        bio: data.bio || '',
-        location: data.location || '',
-        website: data.website || '',
-        avatar_url: data.avatar_url || '',
+        role: profileData.role || '',
+        name: artistData?.name || profileData.full_name || profileData.name || '',
+        email: profileData.email || user.email || '',
+        bio: artistData?.bio || '',
+        location: artistData?.location || '',
+        website: artistData?.website_url || artistData?.website || '',
+        avatar_url: artistData?.avatar_url || profileData.avatar_url || '',
       });
-      setReferralCode(data.referral_code || '');
+      setHasArtistRecord(!!artistData);
+      setReferralCode(profileData.referral_code || '');
     }
     setLoading(false);
   }
@@ -88,46 +97,48 @@ export default function SettingsPage() {
     setSaving(true);
     setMessage('');
 
-    // Save to profiles
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .update({
-        full_name: profile.name,
-        bio: profile.bio,
-        location: profile.location,
-        website: profile.website,
-        avatar_url: profile.avatar_url,
-      })
-      .eq('id', user.id);
+    const shouldSyncArtist = hasArtistRecord || ['artist', 'admin', 'founder'].includes(profile.role)
 
-    if (profileError) {
-      setMessage('Error saving: ' + profileError.message);
-      setSaving(false);
-      return;
-    }
-
-    // Also update artist record if this user is an artist
-    const { data: profileRow } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single();
-
-    if (profileRow?.role === 'artist') {
-      await supabase
-        .from('artists')
-        .update({
-          name: profile.name,
-          bio: profile.bio,
-          location: profile.location,
-          website_url: profile.website,
-          avatar_url: profile.avatar_url,
+    try {
+      if (shouldSyncArtist) {
+        const res = await fetch(`/api/artists/${user.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: profile.name,
+            bio: profile.bio,
+            location: profile.location,
+            website: profile.website,
+            avatar_url: profile.avatar_url,
+          }),
         })
-        .eq('id', user.id);
-    }
 
-    setMessage('Profile saved!');
-    setSaving(false);
+        const data = await res.json().catch(() => ({}))
+
+        if (!res.ok) {
+          throw new Error(data.error || 'Failed to save artist profile')
+        }
+      } else {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .update({
+            full_name: profile.name,
+            avatar_url: profile.avatar_url,
+          })
+          .eq('id', user.id)
+
+        if (profileError) {
+          throw profileError
+        }
+      }
+
+      await loadProfile();
+      setMessage('Profile saved!');
+    } catch (err: any) {
+      setMessage('Error saving: ' + (err?.message || 'Unknown error'));
+    } finally {
+      setSaving(false);
+    }
   }
 
   async function uploadProfilePhoto(file: File) {
@@ -154,7 +165,9 @@ export default function SettingsPage() {
       const url = uploadData.url as string;
       setProfile((prev) => ({ ...prev, avatar_url: url }));
 
-      if (profile.role === 'artist') {
+      const shouldSyncArtist = hasArtistRecord || ['artist', 'admin', 'founder'].includes(profile.role)
+
+      if (shouldSyncArtist) {
         const patchRes = await fetch(`/api/artists/${user.id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
@@ -182,6 +195,7 @@ export default function SettingsPage() {
         }
       }
 
+      await loadProfile();
       setMessage('Profile photo updated!');
     } catch (err: any) {
       setMessage('Error updating photo: ' + (err?.message || 'Unknown error'));
