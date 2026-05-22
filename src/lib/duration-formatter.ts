@@ -6,16 +6,17 @@ export function formatDuration(duration: string | number | undefined | null): st
   }
   
   // Numeric seconds (216)
-  if (typeof duration === 'number' || (typeof duration === 'string' && /^\d+$/.test(duration))) {
-    const seconds = typeof duration === 'number' ? duration : parseInt(duration, 10)
-    if (isNaN(seconds) || seconds <= 0) return '0:00'
+  if (typeof duration === 'number' || (typeof duration === 'string' && /^\d+(\.\d+)?$/.test(duration))) {
+    const seconds = typeof duration === 'number' ? duration : Number(duration)
+    if (isNaN(seconds)) return '--:--'
+    if (seconds <= 0) return '0:00'
     const mins = Math.floor(seconds / 60)
     const secs = Math.floor(seconds % 60)
     return `${mins}:${secs.toString().padStart(2, '0')}`
   }
   
   // Fallback for invalid/null
-  return duration?.toString() || '0:00'
+  return duration?.toString() || '--:--'
 }
 
 // Canonical album aliases - normalize variant names to official

@@ -37,6 +37,23 @@ export default function UploadPage() {
   const audioInputRef = useRef<HTMLInputElement>(null)
   const coverInputRef = useRef<HTMLInputElement>(null)
 
+  function getAudioDuration(file: File): Promise<number> {
+    return new Promise((resolve, reject) => {
+      const audio = document.createElement('audio')
+      const url = URL.createObjectURL(file)
+      audio.preload = 'metadata'
+      audio.onloadedmetadata = () => {
+        URL.revokeObjectURL(url)
+        resolve(Math.round(audio.duration))
+      }
+      audio.onerror = () => {
+        URL.revokeObjectURL(url)
+        reject(new Error('Could not read audio duration'))
+      }
+      audio.src = url
+    })
+  }
+
   useEffect(() => {
     async function checkAccess() {
       if (authLoading) return
@@ -200,6 +217,18 @@ export default function UploadPage() {
         throw new Error(msg)
       }
 
+      // 1b. Resolve duration from the selected file before we save metadata.
+      // This guarantees the DB row gets a real duration even if the change
+      // handler state has not finished updating yet.
+      const resolvedAudioDuration = Number.isFinite(audioDuration ?? NaN)
+        ? (audioDuration as number)
+        : await getAudioDuration(audioFile)
+      if (!Number.isFinite(resolvedAudioDuration)) {
+        throw new Error('Could not read audio duration')
+      }
+      setAudioDuration(resolvedAudioDuration)
+      addDebug(`Step 0b DONE — audio duration: ${resolvedAudioDuration} seconds`)
+
       // 2. Get signed URL + upload audio directly to Supabase
       addDebug('Step 1: Requesting signed URL for audio...')
       const { publicUrl: audioUrl, path: audioPath } = await uploadFile(audioFile, 'artists/tracks')
@@ -228,7 +257,7 @@ export default function UploadPage() {
           album: album.trim() || null,
           price: parseFloat(price) || 0,
           description: description.trim() || null,
-          duration: audioDuration, // numeric seconds from browser
+          duration: resolvedAudioDuration, // canonical duration in seconds
           storage_paths: {
             audio: audioPath,
             cover: coverPath || null,

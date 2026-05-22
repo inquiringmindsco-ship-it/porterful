@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     supabaseClient = supabase;
 
     const body = await request.json();
-    const { title, audio_url, cover_url, album, price, duration, storage_paths } = body;
+    const { title, audio_url, cover_url, album, price, duration, duration_seconds, storage_paths } = body;
 
     if (!title?.trim()) return NextResponse.json({ error: 'Title is required' }, { status: 400 });
     if (!audio_url?.trim()) return NextResponse.json({ error: 'Audio file is required' }, { status: 400 });
@@ -89,6 +89,14 @@ export async function POST(request: NextRequest) {
 
     const artistName = artistInfo?.name || user.email?.split('@')[0] || 'Unknown Artist';
 
+    const durationInput = duration_seconds ?? duration
+    const parsedDuration = durationInput === undefined || durationInput === null || durationInput === ''
+      ? null
+      : Number(durationInput)
+    const canonicalDuration = parsedDuration !== null && Number.isFinite(parsedDuration)
+      ? Math.max(0, Math.round(parsedDuration))
+      : null
+
     const { data, error } = await serviceSupabase
       .from('tracks')
       .insert({
@@ -98,7 +106,7 @@ export async function POST(request: NextRequest) {
         audio_url: audio_url.trim(),
         cover_url: cover_url?.trim() || null,
         album: album?.trim() || null,
-        duration: duration ? parseInt(duration, 10) : null,
+        duration: canonicalDuration,
         proud_to_pay_min: price ? parseFloat(price) : 1,
         is_active: true,
       })

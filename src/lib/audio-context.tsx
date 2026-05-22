@@ -118,7 +118,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     const audio = new Audio();
     audioRef.current = audio;
     audio.volume = 0.8;
-    audio.preload = 'auto';
+    audio.preload = 'metadata';
 
     const handleTimeUpdate = () => {
       if (!audioRef.current) return;

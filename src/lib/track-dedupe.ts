@@ -224,7 +224,7 @@ export function mergeCanonicalTracks(
         // Merge static fallback into DB track so we don't lose data.
         const mergedTrack: Track = {
           ...candidate.track,
-          duration: candidate.track.duration || current.track.duration,
+          duration: candidate.track.duration ?? current.track.duration,
           image: candidate.track.image || current.track.image,
           cover_url: candidate.track.cover_url || current.track.cover_url,
         }
