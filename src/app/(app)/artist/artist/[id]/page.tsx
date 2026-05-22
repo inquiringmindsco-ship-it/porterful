@@ -313,7 +313,7 @@ export default function ArtistProfilePage({ params }: { params: { id: string } }
             {/* Owner edit banner button */}
             {isOwner && (
               <Link
-                href="/dashboard/artist/edit"
+                href="/dashboard/dashboard/artist/edit"
                 className="absolute top-4 right-4 flex items-center gap-2 px-4 py-2 bg-black/50 backdrop-blur-sm border border-white/20 rounded-xl text-white text-sm font-medium hover:bg-black/70 transition-colors z-10"
               >
                 <Edit3 size={14} />
@@ -335,7 +335,7 @@ export default function ArtistProfilePage({ params }: { params: { id: string } }
               )}
               {isOwner && (
                 <Link
-                  href="/dashboard/artist/edit"
+                  href="/dashboard/dashboard/artist/edit"
                   className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity"
                 >
                   <Edit3 size={20} className="text-white" />

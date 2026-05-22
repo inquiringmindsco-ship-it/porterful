@@ -74,7 +74,7 @@ export default function ArtistsPage() {
         setCtaLabel('Manage My Artist Profile')
         setCtaDescription('Go to your artist dashboard')
       } else if (isArtist) {
-        setCtaHref('/dashboard/artist/edit')
+        setCtaHref('/dashboard/dashboard/artist/edit')
         setCtaLabel('Continue Setup')
         setCtaDescription('Finish your Porterful artist setup')
       } else {
