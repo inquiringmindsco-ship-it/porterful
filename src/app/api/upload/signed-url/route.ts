@@ -22,7 +22,7 @@ function sanitizeFilename(name: string): string {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { filename, folder, contentType } = body;
+    const { filename, folder, contentType, userId } = body;
 
     if (!filename || !folder) {
       return NextResponse.json(
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate folder
-    const allowedFolders = ['audio', 'artist-images', 'submissions/pending'];
+    const allowedFolders = ['artists/tracks', 'artists/covers', 'audio', 'artist-images', 'submissions/pending'];
     if (!allowedFolders.includes(folder)) {
       return NextResponse.json(
         { error: `Invalid folder. Use one of: ${allowedFolders.join(', ')}` },
@@ -52,10 +52,19 @@ export async function POST(request: NextRequest) {
 
     const safeFilename = sanitizeFilename(filename);
     const uniqueName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}-${safeFilename}`;
-    const path = `${folder}/${uniqueName}`;
+    
+    // Use user-scoped paths for artist uploads
+    let path: string;
+    if (folder.startsWith('artists/')) {
+      const userPath = userId || 'anonymous';
+      path = `${folder}/${userPath}/${uniqueName}`;
+    } else {
+      path = `${folder}/${uniqueName}`;
+    }
+    
     const bucket = 'music';
 
-    // Create signed upload URL (valid for 60 seconds)
+    // Create signed upload URL (valid for 120 seconds — longer for big files)
     const supabaseAdmin = createClient(supabaseUrl, serviceKey, {
       auth: { persistSession: false },
     });

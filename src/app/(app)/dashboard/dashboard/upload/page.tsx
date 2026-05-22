@@ -64,34 +64,47 @@ export default function UploadPage() {
     if (!title) setTitle(file.name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' '))
   }
 
-  // Upload directly to Supabase via signed URL (bypasses Vercel body limit)
+  /**
+   * Safe fetch helper — handles JSON, text, and empty responses
+   */
+  async function safeFetch<T = any>(url: string, init?: RequestInit): Promise<{ ok: boolean; status: number; data: T; raw: string }> {
+    const res = await fetch(url, init)
+    const raw = await res.text()
+    let data: any = {}
+    try {
+      data = raw ? JSON.parse(raw) : {}
+    } catch {
+      data = { error: raw || `HTTP ${res.status}` }
+    }
+    return { ok: res.ok, status: res.status, data, raw }
+  }
+
+  /**
+   * Upload directly to Supabase Storage via signed URL.
+   * Bypasses Vercel body limit entirely.
+   */
   const uploadFile = async (file: File, folder: string): Promise<string> => {
-    // 1. Get signed upload URL from server
-    const signedRes = await fetch('/api/upload/signed-url', {
+    const userId = user?.id || 'anonymous'
+
+    // 1. Get signed upload URL from server (tiny JSON request)
+    const { ok, status, data: signedData, raw: signedRaw } = await safeFetch('/api/upload/signed-url', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         filename: file.name,
         folder,
         contentType: file.type || 'audio/mpeg',
+        userId,
       }),
     })
 
-    const signedText = await signedRes.text()
-    let signedData: any = {}
-    try {
-      signedData = signedText ? JSON.parse(signedText) : {}
-    } catch {
-      signedData = { error: signedText || `Failed to get upload URL (status ${signedRes.status})` }
-    }
-
-    if (!signedRes.ok || signedData.error) {
-      throw new Error(signedData.error || 'Failed to get upload URL')
+    if (!ok || signedData.error) {
+      throw new Error(signedData.error || `Failed to get upload URL (HTTP ${status})`)
     }
 
     const { token, path, publicUrl, bucket } = signedData
 
-    // 2. Upload file directly to Supabase Storage (bypasses Vercel)
+    // 2. Upload file DIRECTLY to Supabase Storage (bypasses Vercel)
     const uploadRes = await fetch(
       `https://tsdjmiqczgxnkpvirkya.supabase.co/storage/v1/object/upload/sign/${bucket}/${path}`,
       {
@@ -107,7 +120,7 @@ export default function UploadPage() {
 
     if (!uploadRes.ok) {
       const errText = await uploadRes.text()
-      console.error('[upload] Supabase upload failed:', uploadRes.status, errText)
+      console.error('[upload] Supabase storage upload failed:', uploadRes.status, errText)
       throw new Error(`Storage upload failed: ${uploadRes.status} ${errText.substring(0, 200)}`)
     }
 
@@ -123,14 +136,17 @@ export default function UploadPage() {
     setError('')
 
     try {
-      const audioUrl = await uploadFile(audioFile, 'audio')
+      // Upload audio directly to Supabase
+      const audioUrl = await uploadFile(audioFile, 'artists/tracks')
 
+      // Upload cover art directly to Supabase (if provided)
       let coverUrl = ''
       if (coverFile) {
-        coverUrl = await uploadFile(coverFile, 'artist-images')
+        coverUrl = await uploadFile(coverFile, 'artists/covers')
       }
 
-      const res = await fetch('/api/tracks', {
+      // 3. Send metadata to server (tiny JSON — well under Vercel limit)
+      const { ok, status, data, raw } = await safeFetch('/api/tracks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -143,34 +159,32 @@ export default function UploadPage() {
         }),
       })
 
-      const text = await res.text()
-      let data: any = {}
-      try {
-        data = text ? JSON.parse(text) : {}
-      } catch {
-        data = { error: text || `Save failed with status ${res.status}` }
+      if (!ok || data.error) {
+        throw new Error(data.error || data.message || `Save failed (HTTP ${status})`)
       }
-      
-      if (!res.ok || data.error) throw new Error(data.error || data.message || 'Failed to save track')
 
       setSuccess(true)
       setTimeout(() => router.push('/dashboard/artist'), 1500)
     } catch (err: any) {
       const msg = err?.message || ''
       let friendly = msg
+
       if (msg.includes('session') || msg.includes('401') || msg.includes('Unauthorized')) {
         friendly = 'Your session expired. Please log in again and retry.'
       } else if (msg.includes('not supported') || msg.includes('Invalid audio format')) {
         friendly = msg
       } else if (msg.includes('too large') || msg.includes('Max') || msg.includes('Request Entity') || msg.includes('Entity Too Large')) {
-        friendly = 'File too large for upload. Please use a smaller file or contact support.'
-      } else if (msg.includes('permission') || msg.includes('Storage permission')) {
-        friendly = 'Storage permission issue. Please contact support.'
+        friendly = 'File too large. Please try a smaller file or contact support.'
+      } else if (msg.includes('permission') || msg.includes('Storage permission') || msg.includes('403')) {
+        friendly = 'Storage permission denied. Please contact support.'
       } else if (msg.includes('not configured') || msg.includes('bucket')) {
-        friendly = 'Upload temporarily failed. Our storage provider is not configured.'
+        friendly = 'Upload temporarily unavailable. Storage not configured.'
       } else if (msg.includes('Upload failed') || msg.includes('temporarily failed')) {
         friendly = msg
+      } else if (msg.includes('Save failed')) {
+        friendly = 'Track uploaded but failed to save metadata. Please contact support.'
       }
+
       setError(friendly)
       console.error('[upload] Full error:', msg, err)
     } finally {
