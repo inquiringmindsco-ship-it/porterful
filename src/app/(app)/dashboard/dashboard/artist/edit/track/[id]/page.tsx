@@ -68,7 +68,7 @@ export default function EditTrackPage() {
         .eq('id', user.id)
         .single()
 
-      if (!profile || profile.role !== 'artist') {
+      if (!profile || !['artist', 'admin', 'founder'].includes(profile.role)) {
         router.push('/dashboard')
         return
       }

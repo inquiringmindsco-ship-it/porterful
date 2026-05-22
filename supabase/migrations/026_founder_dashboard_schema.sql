@@ -1,5 +1,6 @@
 -- Migration 026: Founder Dashboard Schema
 -- Adds status/approval control fields for artists and tracks
+-- RUN THIS IN SUPABASE DASHBOARD SQL EDITOR
 
 BEGIN;
 
