@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useSupabase } from '@/app/providers';
 import { useRouter } from 'next/navigation';
-import { User, Code, CreditCard, Bell } from 'lucide-react';
+import { User, Code, CreditCard, Bell, ExternalLink } from 'lucide-react';
 import { useAccent } from '@/lib/accent-context';
 
 export default function SettingsPage() {
@@ -333,7 +333,21 @@ export default function SettingsPage() {
                 </div>
 
                 <div className="bg-[var(--pf-surface)] rounded-xl p-6 border border-[var(--pf-border)]">
-                  <h2 className="text-xl font-bold mb-6">Profile Information</h2>
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
+                    <div>
+                      <h2 className="text-xl font-bold">Profile Information</h2>
+                      <p className="text-[var(--pf-text-muted)] text-sm mt-1">
+                        These fields update your public artist profile.
+                      </p>
+                    </div>
+                    <Link 
+                      href="/dashboard/dashboard/artist/edit" 
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--pf-orange)]/10 text-[var(--pf-orange)] rounded-lg text-sm font-medium hover:bg-[var(--pf-orange)]/20 transition-colors shrink-0"
+                    >
+                      <ExternalLink size={14} />
+                      Edit Artist Profile
+                    </Link>
+                  </div>
 
                   {/* Avatar */}
                   <div className="flex items-center gap-6 mb-8">
@@ -417,6 +431,11 @@ export default function SettingsPage() {
                         className="w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 focus:outline-none focus:border-[#ff6b00] transition-colors resize-none"
                         placeholder="Tell your fans about yourself..."
                       />
+                      <p className="text-xs text-[var(--pf-text-muted)] mt-2">
+                        <Link href="/dashboard/dashboard/artist/edit" className="text-[var(--pf-orange)] hover:underline">
+                          Edit full artist profile →
+                        </Link>
+                      </p>
                     </div>
                   </div>
 
