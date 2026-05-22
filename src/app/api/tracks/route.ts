@@ -78,12 +78,23 @@ export async function POST(request: NextRequest) {
     // Insert track using service role (RLS bypass) after auth verification
     // This prevents RLS mismatches while ensuring only authenticated users insert
     const serviceSupabase = createServerClient();
+    supabaseClient = serviceSupabase;
+
+    // Get artist name for proper display
+    const { data: artistInfo } = await supabase
+      .from('artists')
+      .select('name')
+      .eq('id', user.id)
+      .single();
+
+    const artistName = artistInfo?.name || user.email?.split('@')[0] || 'Unknown Artist';
+
     const { data, error } = await serviceSupabase
       .from('tracks')
       .insert({
         artist_id: profile.id,
         title: title.trim(),
-        artist: user.email?.split('@')[0] || 'Unknown Artist',
+        artist: artistName,
         audio_url: audio_url.trim(),
         cover_url: cover_url?.trim() || null,
         album: album?.trim() || null,
