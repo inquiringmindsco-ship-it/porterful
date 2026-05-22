@@ -166,9 +166,25 @@ export default function EditArtistPage() {
         throw new Error(data.error || 'Failed to save')
       }
 
+      // Update local state from API response so user sees saved data immediately
+      const savedData = await res.json()
+      if (savedData?.profile) {
+        const p = savedData.profile
+        setName(p.name || p.full_name || name)
+        setBio(p.bio || bio)
+        setGenre(p.genre || genre)
+        setLocation(p.location || location)
+        setWebsite(p.website_url || p.website || website)
+        setYoutubeUrl(p.youtube_url || youtubeUrl)
+        setInstagramUrl(p.instagram_url || instagramUrl)
+        setTwitterUrl(p.twitter_url || twitterUrl)
+        setAvatarUrl(p.avatar_url || avatarUrl)
+        setCoverUrl(p.cover_url || coverUrl)
+      }
+
       setSuccess(true)
       
-      // Refresh the page data to show updated values
+      // Refresh server components and clear caches
       router.refresh()
       
       setTimeout(() => setSuccess(false), 3000)
