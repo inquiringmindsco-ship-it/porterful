@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Music, Check, X, ExternalLink, Clock, AlertCircle } from 'lucide-react'
+import { Music, Check, X, ExternalLink, Clock } from 'lucide-react'
 
 interface Submission {
   id: string
@@ -106,43 +106,49 @@ export default function SubmissionsPage() {
   }
   
   return (
-    <div className="min-h-screen pt-20 pb-24 bg-[var(--pf-bg)]">
+    <div className="min-h-screen w-full pt-20 pb-24 bg-[var(--pf-bg)] overflow-x-hidden">
       <div className="pf-container max-w-4xl">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold">Artist Submissions</h1>
-            <p className="text-[var(--pf-text-secondary)]">
+        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div className="min-w-0">
+            <h1 className="max-w-full break-words text-2xl font-bold leading-tight sm:text-3xl">
+              Artist Submissions
+            </h1>
+            <p className="mt-1 text-[var(--pf-text-secondary)]">
               {pendingCount > 0 ? `${pendingCount} pending review` : 'All caught up!'}
             </p>
           </div>
           
           {/* Filters */}
-          <div className="flex gap-2 bg-[var(--pf-surface)] p-1 rounded-lg">
-            {(['pending', 'approved', 'rejected', 'all'] as const).map(f => (
-              <button
-                key={f}
-                onClick={() => setFilter(f)}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition ${
-                  filter === f 
-                    ? 'bg-[var(--pf-orange)] text-white' 
-                    : 'hover:bg-[var(--pf-border)]'
-                }`}
-              >
-                {f.charAt(0).toUpperCase() + f.slice(1)}
-                {f === 'pending' && pendingCount > 0 && (
-                  <span className="ml-2 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
-                    {pendingCount}
-                  </span>
-                )}
-              </button>
-            ))}
+          <div className="w-full md:w-auto">
+            <div className="-mx-1 overflow-x-auto px-1 pb-1 md:mx-0 md:px-0 md:pb-0">
+              <div className="flex min-w-max gap-2 rounded-lg bg-[var(--pf-surface)] p-1">
+                {(['pending', 'approved', 'rejected', 'all'] as const).map(f => (
+                  <button
+                    key={f}
+                    onClick={() => setFilter(f)}
+                    className={`shrink-0 whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium transition ${
+                      filter === f 
+                        ? 'bg-[var(--pf-orange)] text-white' 
+                        : 'hover:bg-[var(--pf-border)]'
+                    }`}
+                  >
+                    {f.charAt(0).toUpperCase() + f.slice(1)}
+                    {f === 'pending' && pendingCount > 0 && (
+                      <span className="ml-2 rounded-full bg-red-500 px-2 py-0.5 text-xs text-white">
+                        {pendingCount}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
         
         {/* Submissions List */}
         {filteredSubmissions.length === 0 ? (
-          <div className="text-center py-16 bg-[var(--pf-surface)] rounded-xl border border-[var(--pf-border)]">
+          <div className="w-full max-w-full rounded-xl border border-[var(--pf-border)] bg-[var(--pf-surface)] py-16 text-center">
             <Music className="w-16 h-16 text-[var(--pf-text-secondary)] mx-auto mb-4 opacity-50" />
             <p className="text-[var(--pf-text-secondary)]">
               {filter === 'pending' ? 'No pending submissions' : `No ${filter} submissions`}
@@ -151,15 +157,18 @@ export default function SubmissionsPage() {
         ) : (
           <div className="space-y-4">
             {filteredSubmissions.map(sub => (
-              <div key={sub.id} className="bg-[var(--pf-surface)] rounded-xl border border-[var(--pf-border)] overflow-hidden">
+              <div
+                key={sub.id}
+                className="w-full max-w-full overflow-hidden rounded-xl border border-[var(--pf-border)] bg-[var(--pf-surface)]"
+              >
                 {/* Header */}
-                <div className="p-6 border-b border-[var(--pf-border)]">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h3 className="text-xl font-bold">{sub.stage_name}</h3>
-                      <p className="text-[var(--pf-text-secondary)] text-sm">{sub.email}</p>
+                <div className="border-b border-[var(--pf-border)] p-4 sm:p-6">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="break-words text-lg font-bold sm:text-xl">{sub.stage_name}</h3>
+                      <p className="break-words text-sm text-[var(--pf-text-secondary)]">{sub.email}</p>
                     </div>
-                    <div className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    <div className={`self-start rounded-full px-3 py-1 text-sm font-medium ${
                       sub.status === 'pending' ? 'bg-yellow-500/20 text-yellow-500' :
                       sub.status === 'approved' ? 'bg-green-500/20 text-green-500' :
                       'bg-red-500/20 text-red-500'
@@ -168,39 +177,44 @@ export default function SubmissionsPage() {
                     </div>
                   </div>
                   
-                  <div className="flex gap-4 mt-3 text-sm text-[var(--pf-text-secondary)]">
+                  <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm text-[var(--pf-text-secondary)]">
                     {sub.genre && <span>🎵 {sub.genre}</span>}
                     {sub.city && <span>📍 {sub.city}</span>}
                     <span>📅 {new Date(sub.submitted_at).toLocaleDateString()}</span>
                   </div>
                   
                   {sub.bio && (
-                    <p className="mt-3 text-sm text-[var(--pf-text-secondary)]">{sub.bio}</p>
+                    <p className="mt-3 break-words text-sm text-[var(--pf-text-secondary)]">{sub.bio}</p>
                   )}
                 </div>
                 
                 {/* Tracks */}
-                <div className="p-6 border-b border-[var(--pf-border)] bg-[var(--pf-bg)]">
+                <div className="border-b border-[var(--pf-border)] bg-[var(--pf-bg)] p-4 sm:p-6">
                   <p className="text-sm font-medium mb-3">Tracks ({sub.tracks.length})</p>
                   <div className="space-y-2">
                     {sub.tracks.map((track, i) => (
-                      <div key={track.id || i} className="flex items-center justify-between bg-[var(--pf-surface)] rounded-lg p-3">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-[var(--pf-orange)]/20 rounded flex items-center justify-center">
+                      <div
+                        key={track.id || i}
+                        className="flex w-full max-w-full flex-col gap-3 rounded-lg bg-[var(--pf-surface)] p-3 sm:flex-row sm:items-center sm:justify-between"
+                      >
+                        <div className="flex min-w-0 flex-1 items-start gap-3">
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-[var(--pf-orange)]/20">
                             <Music className="w-4 h-4 text-[var(--pf-orange)]" />
                           </div>
-                          <span className="font-medium">{track.filename}</span>
-                          {track.size && (
-                            <span className="text-xs text-[var(--pf-text-secondary)]">
-                              ({(track.size / 1024 / 1024).toFixed(1)} MB)
-                            </span>
-                          )}
+                          <div className="min-w-0 flex-1">
+                            <span className="block break-words font-medium">{track.filename}</span>
+                            {track.size && (
+                              <span className="mt-0.5 block text-xs text-[var(--pf-text-secondary)]">
+                                ({(track.size / 1024 / 1024).toFixed(1)} MB)
+                              </span>
+                            )}
+                          </div>
                         </div>
                         <a 
                           href={track.url} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="p-2 hover:bg-[var(--pf-border)] rounded-lg transition"
+                          className="self-start rounded-lg p-2 transition hover:bg-[var(--pf-border)] sm:self-auto"
                         >
                           <ExternalLink className="w-4 h-4" />
                         </a>
@@ -211,11 +225,11 @@ export default function SubmissionsPage() {
                 
                 {/* Actions */}
                 {sub.status === 'pending' && (
-                  <div className="p-4 flex gap-3">
+                  <div className="flex flex-col gap-3 p-4 sm:flex-row">
                     <button
                       onClick={() => handleApprove(sub)}
                       disabled={processing === sub.id}
-                      className="flex-1 bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition disabled:opacity-50 flex items-center justify-center gap-2"
+                      className="flex w-full items-center justify-center gap-2 rounded-lg bg-green-600 py-3 font-semibold text-white transition hover:bg-green-700 disabled:opacity-50 sm:flex-1"
                     >
                       {processing === sub.id ? (
                         <Clock className="w-5 h-5 animate-spin" />
@@ -229,7 +243,7 @@ export default function SubmissionsPage() {
                     <button
                       onClick={() => handleReject(sub)}
                       disabled={processing === sub.id}
-                      className="px-6 border border-red-500/50 text-red-500 py-3 rounded-lg font-semibold hover:bg-red-500/10 transition disabled:opacity-50"
+                      className="flex w-full items-center justify-center rounded-lg border border-red-500/50 px-6 py-3 font-semibold text-red-500 transition hover:bg-red-500/10 disabled:opacity-50 sm:w-auto"
                     >
                       <X className="w-5 h-5" />
                     </button>
