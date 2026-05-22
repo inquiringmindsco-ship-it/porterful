@@ -68,7 +68,8 @@ async function getServerTracksByArtistNameFull(artistName: string) {
   return data || []
 }
 
-export const dynamic = 'force-dynamic'
+// Use force-dynamic to ensure fresh data after edits
+// export const dynamic = 'force-dynamic'
 
 export async function generateStaticParams() {
   return ARTISTS
@@ -105,9 +106,11 @@ const ALBUM_LIST = [
   'Levi',
 ]
 
+// Use force-dynamic to ensure fresh data after edits
+// export const dynamic = 'force-dynamic'
+
 export default async function ArtistPage({ params }: PageProps) {
   const { slug } = await params
-  // Fetch artist from DB + static merge (DB bio/image overrides static)
   const artist = await getArtistWithDb(slug)
 
   if (!artist) {

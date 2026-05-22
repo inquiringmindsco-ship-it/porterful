@@ -146,6 +146,7 @@ export default function EditArtistPage() {
       const res = await fetch(`/api/artists/${user.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // Send cookies for auth
         body: JSON.stringify({
           name,
           bio,
@@ -166,6 +167,10 @@ export default function EditArtistPage() {
       }
 
       setSuccess(true)
+      
+      // Refresh the page data to show updated values
+      router.refresh()
+      
       setTimeout(() => setSuccess(false), 3000)
     } catch (err: any) {
       setError(err.message)
