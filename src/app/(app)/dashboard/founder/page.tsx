@@ -53,6 +53,8 @@ export default function FounderDashboard() {
   const [tracks, setTracks] = useState<TrackWithArtist[]>([])
   const [needsAttention, setNeedsAttention] = useState<any[]>([])
   const [activeTab, setActiveTab] = useState<'overview' | 'artists' | 'tracks' | 'revenue'>('overview')
+  const [error, setError] = useState('')
+  const [notice, setNotice] = useState('')
 
   useEffect(() => {
     if (!user) {
@@ -226,18 +228,39 @@ export default function FounderDashboard() {
   }
 
   async function toggleArtistField(artistId: string, field: string, value: boolean) {
-    if (!supabase) return
-    const { error } = await supabase
-      .from('artists')
-      .update({ [field]: value })
-      .eq('id', artistId)
+    setError('')
+    setNotice('Saving...')
+    
+    try {
+      // Get current session token for auth
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      const res = await fetch(`/api/artists/${artistId}/toggle`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token || ''}`,
+        },
+        body: JSON.stringify({ field, value }),
+      })
 
-    if (error) {
-      console.error('Error updating artist:', error)
-      return
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        setError(data.error || `Failed to update ${field}`)
+        setNotice('')
+        return
+      }
+
+      setNotice(`${field.replace('_', ' ')} updated`)
+      window.setTimeout(() => setNotice(''), 2000)
+      
+      // Reload data to reflect change
+      loadData()
+    } catch (err: any) {
+      console.error('Error updating artist:', err)
+      setError(err.message || 'Failed to update')
+      setNotice('')
     }
-
-    loadData()
   }
 
   if (loading) {

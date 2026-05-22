@@ -80,19 +80,38 @@ export default function FounderArtistsPage() {
 
     const newValue = !artist.public_profile_enabled
 
-    const { error } = await supabase
-      .from('artists')
-      .update({ public_profile_enabled: newValue })
-      .eq('id', artist.id)
+    try {
+      // Get current session token for auth
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      const res = await fetch(`/api/artists/${artist.id}/toggle`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token || ''}`,
+        },
+        body: JSON.stringify({ 
+          field: 'public_profile_enabled', 
+          value: newValue 
+        }),
+      })
 
-    if (error) {
-      setError(`Failed to update ${artist.name}: ${error.message}`)
-    } else {
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        setError(data.error || `Failed to update ${artist.name}`)
+        setSaving({ ...saving, [artist.id]: false })
+        return
+      }
+
+      // Only update local state after confirmed success
       setArtists(artists.map(a => 
         a.id === artist.id ? { ...a, public_profile_enabled: newValue } : a
       ))
       setNotice(`${artist.name} is now ${newValue ? 'visible' : 'hidden'}.`)
       window.setTimeout(() => setNotice(''), 2500)
+    } catch (err: any) {
+      console.error('Error updating visibility:', err)
+      setError(err.message || 'Failed to update visibility')
     }
 
     setSaving({ ...saving, [artist.id]: false })
