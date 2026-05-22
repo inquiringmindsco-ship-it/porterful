@@ -126,10 +126,8 @@ export default async function ArtistPage({ params }: PageProps) {
     { includeInactive: false }
   )
   
-  // Block empty public artist pages
-  if (tracks.length === 0) {
-    notFound()
-  }
+  // Allow artist pages even without tracks — they may be new or building profile.
+  // The public_profile_enabled flag (or admin preview) is the real gate.
 
   // Resolve DB artist UUID by slug for album order lookup
   // Static fallback uses string slug as id, but album_order rows use auth UUID
