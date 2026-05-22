@@ -11,7 +11,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    // Try static fallback first
+    // Try static fallback for reference
     const staticArtist = ARTISTS.find(a => a.id === params.id || a.slug === params.id)
 
     const cookieStore = await cookies()
@@ -28,78 +28,48 @@ export async function GET(
       }
     )
 
-    // Try to fetch profile by ID first
-    let { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', params.id)
-      .single()
+    // Try to fetch artist by ID first (DB is canonical)
+    let dbArtist = null
+    let profile = null
 
-    // If not found by ID, try finding by slug in artists table
-    if (profileError || !profile) {
-      const { data: artistBySlug } = await supabase
-        .from('artists')
-        .select('id')
-        .eq('slug', params.id)
-        .single()
-
-      if (artistBySlug) {
-        const { data: profileBySlug } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', artistBySlug.id)
-          .single()
-        if (profileBySlug) {
-          profile = profileBySlug
-          profileError = null
-        }
-      }
-    }
-
-    // Fetch artist-specific data from DB first
-    const { data: dbArtist } = await supabase
+    const { data: artistById } = await supabase
       .from('artists')
       .select('*')
       .eq('id', params.id)
-      .single()
+      .maybeSingle()
 
-    // If no DB artist found, try by slug
-    let artistData = dbArtist
-    let resolvedProfile = profile
-    
-    if (!dbArtist) {
+    if (artistById) {
+      dbArtist = artistById
+    } else {
+      // Try by slug
       const { data: artistBySlug } = await supabase
         .from('artists')
         .select('*')
         .eq('slug', params.id)
-        .single()
-      
-      if (artistBySlug) {
-        artistData = artistBySlug
-        // Try to get profile for this artist
-        if (!resolvedProfile) {
-          const { data: slugProfile } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', artistBySlug.id)
-            .single()
-          if (slugProfile) resolvedProfile = slugProfile
-        }
-      }
+        .maybeSingle()
+      if (artistBySlug) dbArtist = artistBySlug
     }
 
+    // Fetch profile for additional data
+    const artistId = dbArtist?.id || params.id
+    const { data: profileData } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', artistId)
+      .maybeSingle()
+    if (profileData) profile = profileData
+
     // If we have a DB artist, use it as primary source
-    if (artistData) {
-      // Merge DB artist data with static fallback only for missing fields
+    if (dbArtist) {
       const mergedData = {
-        ...resolvedProfile,
-        ...artistData,
+        ...profile,
+        ...dbArtist,
         // Ensure critical fields come from DB if present
-        name: artistData.name || resolvedProfile?.full_name || staticArtist?.name || 'Unknown',
-        bio: artistData.bio || resolvedProfile?.bio || staticArtist?.bio || '',
-        genre: artistData.genre || resolvedProfile?.genre || staticArtist?.genre || '',
-        location: artistData.location || resolvedProfile?.location || staticArtist?.location || '',
-        slug: artistData.slug || resolvedProfile?.username || staticArtist?.slug || params.id,
+        name: dbArtist.name || profile?.full_name || staticArtist?.name || 'Unknown',
+        bio: dbArtist.bio || profile?.bio || staticArtist?.bio || '',
+        genre: dbArtist.genre || profile?.genre || staticArtist?.genre || '',
+        location: dbArtist.location || profile?.location || staticArtist?.location || '',
+        slug: dbArtist.slug || profile?.username || staticArtist?.slug || params.id,
       }
       return NextResponse.json({ profile: mergedData })
     }
@@ -160,42 +130,23 @@ export async function PATCH(
     if (avatar_url !== undefined) artistUpdates.avatar_url = avatar_url
     if (cover_url !== undefined) artistUpdates.cover_url = cover_url
 
-    if (Object.keys(artistUpdates).length > 0) {
-      // Check if artist record exists
-      const { data: existing, error: existingError } = await supabase
-        .from('artists')
-        .select('id')
-        .eq('id', params.id)
-        .maybeSingle()
+    // Update artists table
+    const { data: artistData, error: artistError } = await supabase
+      .from('artists')
+      .update(artistUpdates)
+      .eq('id', params.id)
+      .select()
+      .single()
 
-      if (existingError) {
-        console.error('Artist lookup error:', existingError)
-        return NextResponse.json({ error: 'Failed to verify artist profile' }, { status: 500 })
-      }
-
-      if (existing) {
-        const { error: artistError } = await supabase
-          .from('artists')
-          .update(artistUpdates)
-          .eq('id', params.id)
-
-        if (artistError) {
-          console.error('Artist update error:', artistError)
-          return NextResponse.json({ error: 'Failed to update artist profile' }, { status: 500 })
-        }
-      } else {
-        const { error: artistError } = await supabase
-          .from('artists')
-          .insert({ id: params.id, ...artistUpdates })
-
-        if (artistError) {
-          console.error('Artist insert error:', artistError)
-          return NextResponse.json({ error: 'Failed to create artist profile' }, { status: 500 })
-        }
-      }
+    if (artistError) {
+      console.error('Error updating artist:', artistError)
+      return NextResponse.json({ error: 'Failed to update artist' }, { status: 500 })
     }
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({
+      success: true,
+      profile: artistData
+    })
   } catch (error) {
     console.error('Error updating artist:', error)
     return NextResponse.json({ error: 'Server error' }, { status: 500 })
