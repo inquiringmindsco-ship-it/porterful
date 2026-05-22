@@ -2,7 +2,7 @@ import { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Settings - Account Settings',
-  description: 'Manage your Porterful account settings, profile, and preferences.',
+  description: 'Manage your Porterful account settings, identity, and preferences.',
 }
 
 export default function SettingsLayout({ children }: { children: React.ReactNode }) {

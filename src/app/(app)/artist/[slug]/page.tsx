@@ -68,8 +68,7 @@ async function getServerTracksByArtistNameFull(artistName: string) {
   return data || []
 }
 
-// Use force-dynamic to ensure fresh data after edits
-// export const dynamic = 'force-dynamic'
+export const dynamic = 'force-dynamic'
 
 export async function generateStaticParams() {
   return ARTISTS
@@ -105,9 +104,6 @@ const ALBUM_LIST = [
   'Artgasm',
   'Levi',
 ]
-
-// Use force-dynamic to ensure fresh data after edits
-// export const dynamic = 'force-dynamic'
 
 export default async function ArtistPage({ params }: PageProps) {
   const { slug } = await params

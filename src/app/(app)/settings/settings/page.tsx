@@ -11,21 +11,17 @@ export default function SettingsPage() {
   const { supabase, user } = useSupabase();
   const { accent, presets, setAccent, resetAccent } = useAccent();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'profile' | 'referrals' | 'payouts' | 'notifications'>('profile');
+  const [activeTab, setActiveTab] = useState<'account' | 'referrals' | 'payouts' | 'notifications'>('account');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [photoUploading, setPhotoUploading] = useState(false);
   const [message, setMessage] = useState('');
-  const [hasArtistRecord, setHasArtistRecord] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
 
   const [profile, setProfile] = useState({
     role: '',
     name: '',
     email: '',
-    bio: '',
-    location: '',
-    website: '',
     avatar_url: '',
   });
 
@@ -48,30 +44,19 @@ export default function SettingsPage() {
   async function loadProfile() {
     if (!user || !supabase) return;
 
-    const [{ data: profileData }, { data: artistData }] = await Promise.all([
-      supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single(),
-      supabase
-        .from('artists')
-        .select('*')
-        .eq('id', user.id)
-        .maybeSingle(),
-    ]);
+    const { data: profileData } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single();
 
     if (profileData) {
       setProfile({
         role: profileData.role || '',
-        name: artistData?.name || profileData.full_name || profileData.name || '',
+        name: profileData.full_name || profileData.username || '',
         email: profileData.email || user.email || '',
-        bio: artistData?.bio || '',
-        location: artistData?.location || '',
-        website: artistData?.website_url || artistData?.website || '',
-        avatar_url: artistData?.avatar_url || profileData.avatar_url || '',
+        avatar_url: profileData.avatar_url || '',
       });
-      setHasArtistRecord(!!artistData);
       setReferralCode(profileData.referral_code || '');
     }
     setLoading(false);
@@ -97,43 +82,21 @@ export default function SettingsPage() {
     setSaving(true);
     setMessage('');
 
-    const shouldSyncArtist = hasArtistRecord || ['artist', 'admin', 'founder'].includes(profile.role)
-
     try {
-      if (shouldSyncArtist) {
-        const res = await fetch(`/api/artists/${user.id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({
-            name: profile.name,
-            bio: profile.bio,
-            location: profile.location,
-            website: profile.website,
-            avatar_url: profile.avatar_url,
-          }),
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({
+          full_name: profile.name,
+          avatar_url: profile.avatar_url,
         })
+        .eq('id', user.id)
 
-        const data = await res.json().catch(() => ({}))
-
-        if (!res.ok) {
-          throw new Error(data.error || 'Failed to save artist profile')
-        }
-      } else {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .update({
-            full_name: profile.name,
-            avatar_url: profile.avatar_url,
-          })
-          .eq('id', user.id)
-
-        if (profileError) {
-          throw profileError
-        }
+      if (profileError) {
+        throw profileError
       }
 
       await loadProfile();
+      router.refresh();
       setMessage('Profile saved!');
     } catch (err: any) {
       setMessage('Error saving: ' + (err?.message || 'Unknown error'));
@@ -166,38 +129,17 @@ export default function SettingsPage() {
       const url = uploadData.url as string;
       setProfile((prev) => ({ ...prev, avatar_url: url }));
 
-      const shouldSyncArtist = hasArtistRecord || ['artist', 'admin', 'founder'].includes(profile.role)
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: url })
+        .eq('id', user.id);
 
-      if (shouldSyncArtist) {
-        const patchRes = await fetch(`/api/artists/${user.id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({
-            name: profile.name,
-            bio: profile.bio,
-            location: profile.location,
-            website: profile.website,
-            avatar_url: url,
-          }),
-        });
-
-        if (!patchRes.ok) {
-          const patchData = await patchRes.json().catch(() => ({}));
-          throw new Error(patchData.error || 'Failed to update profile photo');
-        }
-      } else {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .update({ avatar_url: url })
-          .eq('id', user.id);
-
-        if (profileError) {
-          throw profileError;
-        }
+      if (profileError) {
+        throw profileError;
       }
 
       await loadProfile();
+      router.refresh();
       setMessage('Profile photo updated!');
     } catch (err: any) {
       setMessage('Error updating photo: ' + (err?.message || 'Unknown error'));
@@ -218,10 +160,10 @@ export default function SettingsPage() {
     <div className="min-h-screen bg-[var(--pf-bg)] text-[var(--pf-text)] py-8 px-6 mobile-page-safe">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold">Settings</h1>
-            <p className="text-[var(--pf-text-muted)]">Manage your account and preferences</p>
+            <h1 className="text-3xl font-bold">Account Settings</h1>
+            <p className="text-[var(--pf-text-muted)]">Manage your account identity, preferences, and billing.</p>
           </div>
           <Link href="/dashboard" className="text-[var(--pf-orange)] hover:underline">
             ← Back to Dashboard
@@ -239,7 +181,7 @@ export default function SettingsPage() {
           <div className="lg:col-span-1">
             <nav className="space-y-2">
               {[
-                { id: 'profile', label: 'Profile', icon: User },
+                { id: 'account', label: 'Account', icon: User },
                 { id: 'referrals', label: 'Referrals', icon: Code },
                 { id: 'payouts', label: 'Payouts', icon: CreditCard },
                 { id: 'notifications', label: 'Notifications', icon: Bell },
@@ -265,7 +207,7 @@ export default function SettingsPage() {
 
           {/* Content */}
           <div className="lg:col-span-3">
-            {activeTab === 'profile' && (
+            {activeTab === 'account' && (
               <div className="space-y-6">
                 <div className="bg-[var(--pf-surface)] rounded-xl p-6 border border-[var(--pf-border)]">
                   <div className="flex flex-col gap-2 mb-6 sm:flex-row sm:items-start sm:justify-between">
@@ -335,9 +277,9 @@ export default function SettingsPage() {
                 <div className="bg-[var(--pf-surface)] rounded-xl p-6 border border-[var(--pf-border)]">
                   <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
                     <div>
-                      <h2 className="text-xl font-bold">Profile Information</h2>
+                      <h2 className="text-xl font-bold">Account Information</h2>
                       <p className="text-[var(--pf-text-muted)] text-sm mt-1">
-                        These fields update your public artist profile.
+                        These fields update your account identity only. Use the artist editor for your public profile.
                       </p>
                     </div>
                     <Link 
@@ -345,7 +287,7 @@ export default function SettingsPage() {
                       className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--pf-orange)]/10 text-[var(--pf-orange)] rounded-lg text-sm font-medium hover:bg-[var(--pf-orange)]/20 transition-colors shrink-0"
                     >
                       <ExternalLink size={14} />
-                      Edit Artist Profile
+                      Edit Public Artist Profile
                     </Link>
                   </div>
 
@@ -401,41 +343,6 @@ export default function SettingsPage() {
                         disabled
                         className="w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 text-[var(--pf-text-muted)] cursor-not-allowed"
                       />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Location</label>
-                      <input
-                        type="text"
-                        value={profile.location}
-                        onChange={(e) => setProfile({ ...profile, location: e.target.value })}
-                        className="w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 focus:outline-none focus:border-[#ff6b00] transition-colors"
-                        placeholder="City, State"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Website</label>
-                      <input
-                        type="url"
-                        value={profile.website}
-                        onChange={(e) => setProfile({ ...profile, website: e.target.value })}
-                        className="w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 focus:outline-none focus:border-[#ff6b00] transition-colors"
-                        placeholder="https://yoursite.com"
-                      />
-                    </div>
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium mb-2">Bio</label>
-                      <textarea
-                        value={profile.bio}
-                        onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
-                        rows={3}
-                        className="w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 focus:outline-none focus:border-[#ff6b00] transition-colors resize-none"
-                        placeholder="Tell your fans about yourself..."
-                      />
-                      <p className="text-xs text-[var(--pf-text-muted)] mt-2">
-                        <Link href="/dashboard/dashboard/artist/edit" className="text-[var(--pf-orange)] hover:underline">
-                          Edit full artist profile →
-                        </Link>
-                      </p>
                     </div>
                   </div>
 

@@ -10,6 +10,68 @@ function getServerSupabase() {
   )
 }
 
+function normalizeGenre(value: unknown): string {
+  if (Array.isArray(value)) {
+    return value.filter(Boolean).join(', ')
+  }
+
+  if (typeof value === 'string') {
+    const trimmed = value.trim()
+    if (!trimmed) return ''
+
+    if (trimmed.startsWith('[')) {
+      try {
+        const parsed = JSON.parse(trimmed)
+        if (Array.isArray(parsed)) {
+          return parsed.filter(Boolean).join(', ')
+        }
+      } catch {
+        // Fall through to the raw string below.
+      }
+    }
+
+    return trimmed
+  }
+
+  return ''
+}
+
+function buildDbSocial(dbArtist: any) {
+  const socialLinks = typeof dbArtist.social_links === 'object' && dbArtist.social_links ? dbArtist.social_links : {}
+
+  return {
+    instagram: dbArtist.instagram_url || socialLinks.instagram || undefined,
+    twitter: dbArtist.twitter_url || socialLinks.twitter || undefined,
+    youtube: dbArtist.youtube_url || socialLinks.youtube || undefined,
+    tiktok: dbArtist.tiktok_url || socialLinks.tiktok || undefined,
+    website: dbArtist.website_url || dbArtist.website || socialLinks.website || undefined,
+  }
+}
+
+function buildDbArtistData(dbArtist: any): ArtistData {
+  const name = dbArtist.name || dbArtist.full_name || 'Unknown artist'
+  const bio = dbArtist.bio || ''
+
+  return {
+    id: dbArtist.id || dbArtist.slug || name,
+    name,
+    slug: dbArtist.slug || dbArtist.id || name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
+    genre: normalizeGenre(dbArtist.genre),
+    location: dbArtist.location || '',
+    bio,
+    shortBio: bio.slice(0, 100),
+    verified: Boolean(dbArtist.verified),
+    likeness_verified: Boolean(dbArtist.likeness_verified),
+    image: dbArtist.avatar_url || dbArtist.cover_url || '/artist-images/default-avatar.jpg',
+    coverGradient: 'from-gray-700 to-gray-900',
+    followers: 0,
+    supporters: null,
+    earnings: null,
+    products: 0,
+    social: buildDbSocial(dbArtist),
+  }
+}
+
 // Fetch artist from DB by slug
 export async function getServerArtistBySlug(slug: string) {
   const supabase = getServerSupabase()
@@ -31,61 +93,15 @@ export async function getServerArtistBySlug(slug: string) {
 
 // Merge DB artist data with static fallback
 export function mergeArtistData(dbArtist: any | null, staticArtist: ArtistData | undefined): ArtistData | null {
-  if (!staticArtist && !dbArtist) return null
-  
-  // If no static data, create from DB only (won't have tracks count, etc)
-  if (!staticArtist && dbArtist) {
-    return {
-      id: dbArtist.id || dbArtist.slug,
-      name: dbArtist.name || dbArtist.full_name || 'Unknown',
-      slug: dbArtist.slug,
-      genre: dbArtist.genre || '',
-      location: dbArtist.location || '',
-      bio: dbArtist.bio || '',
-      shortBio: dbArtist.bio?.slice(0, 100) || '',
-      verified: true,
-      likeness_verified: false,
-      image: dbArtist.avatar_url || '/artist-images/default-avatar.jpg',
-      coverGradient: 'from-gray-700 to-gray-900',
-      followers: 0,
-      supporters: null,
-      earnings: null,
-      products: 0,
-      social: {
-        instagram: dbArtist.instagram_url,
-        twitter: dbArtist.twitter_url,
-        youtube: dbArtist.youtube_url,
-        tiktok: dbArtist.tiktok_url,
-        website: dbArtist.website_url,
-      },
-    }
+  if (dbArtist) {
+    return buildDbArtistData(dbArtist)
   }
-  
-  // If no DB data, return static only
-  if (!dbArtist && staticArtist) {
+
+  if (staticArtist) {
     return staticArtist
   }
-  
-  // Merge: DB values override static values
-  return {
-    ...staticArtist!,
-    // DB overrides
-    bio: dbArtist.bio || staticArtist!.bio,
-    shortBio: dbArtist.bio?.slice(0, 100) || staticArtist!.shortBio,
-    image: dbArtist.avatar_url || dbArtist.image || staticArtist!.image,
-    // Merge social links (DB overrides individual fields)
-    social: {
-      ...staticArtist!.social,
-      ...(dbArtist.instagram_url && { instagram: dbArtist.instagram_url }),
-      ...(dbArtist.twitter_url && { twitter: dbArtist.twitter_url }),
-      ...(dbArtist.youtube_url && { youtube: dbArtist.youtube_url }),
-      ...(dbArtist.tiktok_url && { tiktok: dbArtist.tiktok_url }),
-      ...(dbArtist.website_url && { website: dbArtist.website_url }),
-    },
-    // Update genre/location if DB has values
-    genre: dbArtist.genre || staticArtist!.genre,
-    location: dbArtist.location || staticArtist!.location,
-  }
+
+  return null
 }
 
 // Get merged artist data (DB + static)

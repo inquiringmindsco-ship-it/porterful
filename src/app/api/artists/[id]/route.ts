@@ -114,24 +114,6 @@ export async function PATCH(
     const body = await request.json()
     const { name, bio, genre, location, website, youtube_url, twitter_url, instagram_url, avatar_url, cover_url } = body
 
-    // Update profiles table
-    const profileUpdates: Record<string, string> = {}
-    if (name !== undefined) profileUpdates.full_name = name
-    if (avatar_url !== undefined) profileUpdates.avatar_url = avatar_url
-    if (cover_url !== undefined) profileUpdates.cover_url = cover_url
-
-    if (Object.keys(profileUpdates).length > 0) {
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update(profileUpdates)
-        .eq('id', params.id)
-
-      if (profileError) {
-        console.error('Profile update error:', profileError)
-        return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 })
-      }
-    }
-
     // Update artists table
     const artistUpdates: Record<string, string> = {}
     if (name !== undefined) artistUpdates.name = name

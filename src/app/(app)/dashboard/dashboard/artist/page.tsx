@@ -126,8 +126,8 @@ export default function ArtistDashboardPage() {
             <Link href="/dashboard/upload" className="pf-btn pf-btn-primary flex items-center gap-2">
               <Icon.Upload /> Upload Track
             </Link>
-            <Link href="/dashboard/artist/edit" className="pf-btn pf-btn-secondary flex items-center gap-2">
-              <Icon.Edit /> Edit Profile
+            <Link href="/dashboard/dashboard/artist/edit" className="pf-btn pf-btn-secondary flex items-center gap-2">
+              <Icon.Edit /> Edit Artist Profile
             </Link>
             <Link href="/store" className="pf-btn pf-btn-secondary flex items-center gap-2">
               <Icon.Package /> View Store
