@@ -105,12 +105,12 @@ export default function UploadPage() {
     const { token, path, publicUrl, bucket } = signedData
 
     // 2. Upload file DIRECTLY to Supabase Storage (bypasses Vercel)
+    // Token must be passed as query param, not Authorization header
     const uploadRes = await fetch(
-      `https://tsdjmiqczgxnkpvirkya.supabase.co/storage/v1/object/upload/sign/${bucket}/${path}`,
+      `https://tsdjmiqczgxnkpvirkya.supabase.co/storage/v1/object/upload/sign/${bucket}/${path}?token=${encodeURIComponent(token)}`,
       {
         method: 'PUT',
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': file.type || 'audio/mpeg',
           'x-upsert': 'false',
         },
