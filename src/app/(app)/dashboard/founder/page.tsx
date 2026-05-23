@@ -58,6 +58,15 @@ export default function FounderDashboard() {
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
   
+  // Confirmation modal state
+  const [confirmModal, setConfirmModal] = useState<{
+    open: boolean
+    title: string
+    message: string
+    confirmLabel: string
+    onConfirm: () => void
+  }>({ open: false, title: '', message: '', confirmLabel: '', onConfirm: () => {} })
+  
   // Content settings
   const [contentSettings, setContentSettings] = useState<any>(null)
   const [contentLoading, setContentLoading] = useState(false)
@@ -216,18 +225,7 @@ export default function FounderDashboard() {
     }
   }
 
-  async function updateArtistStatus(artistId: string, status: string, previousStatus?: string) {
-    // Confirmation for destructive actions
-    if (status === 'suspended') {
-      const confirmed = window.confirm('Suspend this artist? Their public profile will be hidden.')
-      if (!confirmed) return
-    }
-    // Confirmation for reactivating a previously suspended artist
-    if ((status === 'approved' || status === 'active') && previousStatus === 'suspended') {
-      const confirmed = window.confirm('Reactivate this artist? Their public profile will be visible again.')
-      if (!confirmed) return
-    }
-
+  async function updateArtistStatus(artistId: string, status: string) {
     setError('')
     setNotice('Saving...')
     
@@ -259,8 +257,30 @@ export default function FounderDashboard() {
     }
   }
 
-  async function reactivateArtist(artistId: string) {
-    await updateArtistStatus(artistId, 'approved', 'suspended')
+  function suspendArtist(artistId: string) {
+    setConfirmModal({
+      open: true,
+      title: 'Suspend artist?',
+      message: 'Their public profile will be hidden.',
+      confirmLabel: 'Confirm Suspend',
+      onConfirm: () => {
+        setConfirmModal(m => ({ ...m, open: false }))
+        updateArtistStatus(artistId, 'suspended')
+      },
+    })
+  }
+
+  function reactivateArtist(artistId: string) {
+    setConfirmModal({
+      open: true,
+      title: 'Reactivate artist?',
+      message: 'Their public profile will be visible again.',
+      confirmLabel: 'Confirm Reactivate',
+      onConfirm: () => {
+        setConfirmModal(m => ({ ...m, open: false }))
+        updateArtistStatus(artistId, 'approved')
+      },
+    })
   }
 
   async function updateTrackStatus(trackId: string, status: string) {
@@ -477,6 +497,30 @@ export default function FounderDashboard() {
           </div>
         )}
 
+        {/* Confirmation Modal */}
+        {confirmModal.open && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+            <div className="pf-card w-full max-w-sm mx-4 p-6 space-y-4">
+              <h3 className="text-lg font-semibold">{confirmModal.title}</h3>
+              <p className="text-sm text-[var(--pf-text-muted)]">{confirmModal.message}</p>
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={() => setConfirmModal(m => ({ ...m, open: false }))}
+                  className="flex-1 px-4 py-2 rounded-lg bg-[var(--pf-surface)] border border-[var(--pf-border)] text-sm hover:bg-[var(--pf-surface-hover)]"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmModal.onConfirm}
+                  className="flex-1 px-4 py-2 rounded-lg bg-[var(--pf-orange)] text-white text-sm font-medium hover:opacity-90"
+                >
+                  {confirmModal.confirmLabel}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Overview Tab */}
         {activeTab === 'overview' && (
           <div className="space-y-6">
@@ -646,7 +690,7 @@ export default function FounderDashboard() {
                           )}
                           {(artist.status === 'approved' || artist.status === 'active') && (
                             <button
-                              onClick={() => updateArtistStatus(artist.id, 'suspended')}
+                              onClick={() => suspendArtist(artist.id)}
                               className="text-xs px-2 py-1 bg-red-500/20 text-red-400 rounded hover:bg-red-500/30"
                             >
                               Suspend
@@ -727,7 +771,7 @@ export default function FounderDashboard() {
                     )}
                     {(artist.status === 'approved' || artist.status === 'active') && (
                       <button
-                        onClick={() => updateArtistStatus(artist.id, 'suspended')}
+                        onClick={() => suspendArtist(artist.id)}
                         className="flex-1 text-xs px-3 py-2 bg-red-500/20 text-red-400 rounded hover:bg-red-500/30"
                       >
                         Suspend
