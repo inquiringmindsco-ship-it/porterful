@@ -216,10 +216,15 @@ export default function FounderDashboard() {
     }
   }
 
-  async function updateArtistStatus(artistId: string, status: string) {
+  async function updateArtistStatus(artistId: string, status: string, previousStatus?: string) {
     // Confirmation for destructive actions
     if (status === 'suspended') {
       const confirmed = window.confirm('Suspend this artist? Their public profile will be hidden.')
+      if (!confirmed) return
+    }
+    // Confirmation for reactivating a previously suspended artist
+    if ((status === 'approved' || status === 'active') && previousStatus === 'suspended') {
+      const confirmed = window.confirm('Reactivate this artist? Their public profile will be visible again.')
       if (!confirmed) return
     }
 
@@ -255,10 +260,7 @@ export default function FounderDashboard() {
   }
 
   async function reactivateArtist(artistId: string) {
-    const confirmed = window.confirm('Reactivate this artist? Their public profile will be visible again.')
-    if (!confirmed) return
-
-    await updateArtistStatus(artistId, 'approved')
+    await updateArtistStatus(artistId, 'approved', 'suspended')
   }
 
   async function updateTrackStatus(trackId: string, status: string) {
