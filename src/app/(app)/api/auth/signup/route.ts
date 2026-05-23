@@ -133,6 +133,8 @@ export async function POST(request: Request) {
             slug: artistSlug,
             bio: '',
             location: '',
+            status: 'active',
+            public_profile_enabled: true,
             ...(youtube ? { social_links: { youtube } } : {}),
           })
         }
@@ -148,6 +150,8 @@ export async function POST(request: Request) {
           slug: artistSlug,
           bio: '',
           location: '',
+          status: 'active',
+          public_profile_enabled: true,
           ...(youtube ? { social_links: { youtube } } : {}),
         })
       }
