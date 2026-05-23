@@ -204,8 +204,8 @@ export default async function ArtistPage({ params }: PageProps) {
         bio={artist.bio?.trim() || 'This artist has not added a bio yet.'}
         social={artist.social}
         featuredTracks={featuredTracks}
-        singles={singles}
         albumTracks={albumTracks}
+        singles={singles}
         products={products}
         albumOrder={albumOrder}
       />

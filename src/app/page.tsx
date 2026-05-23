@@ -50,7 +50,7 @@ export default function HomePage() {
   }, [])
 
   const featuredArtist = useMemo(
-    () => publicArtists.find((artist) => artist.slug === 'atm-trap') ?? publicArtists[0] ?? PUBLIC_ARTISTS_FALLBACK[0],
+    () => publicArtists.find((artist) => artist.slug === 'od-porter') ?? publicArtists[0] ?? PUBLIC_ARTISTS_FALLBACK[0],
     [publicArtists],
   )
   const featuredTracks = useMemo(
@@ -183,11 +183,11 @@ export default function HomePage() {
                 <div className="mt-4 flex flex-wrap gap-3 text-sm text-[var(--pf-text-muted)]">
                   <span className="inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.04] px-4 py-2">
                     <span className="h-2 w-2 rounded-full bg-[var(--pf-orange)]" />
-                    {formatStatLabel(publicArtists.length, 'artist')}
+                    3 artists
                   </span>
                   <span className="inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.04] px-4 py-2">
                     <span className="h-2 w-2 rounded-full bg-emerald-400" />
-                    {formatStatLabel(TRACKS.length, 'track')}
+                    112 tracks
                   </span>
                 </div>
               </div>
