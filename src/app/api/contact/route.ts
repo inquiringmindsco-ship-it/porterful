@@ -109,8 +109,8 @@ export async function POST(request: NextRequest) {
         success: false,
         error: 'Failed to store submission and send email',
         details: {
-          db: dbError?.message || 'Unknown DB error',
-          email: emailError?.message || 'Unknown email error',
+          db: (dbError as any)?.message || 'Unknown DB error',
+          email: (emailError as any)?.message || 'Unknown email error',
         },
       }, { status: 500 })
     }
