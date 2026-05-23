@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getAuthenticatedClient, unauthorized } from '@/lib/auth-utils'
 
 export async function POST(
   req: NextRequest,
@@ -6,13 +7,24 @@ export async function POST(
 ) {
   try {
     const { id } = await params
-    const body = await req.json().catch(() => ({}))
-    const { admin_secret } = body
 
-    if (admin_secret !== process.env.ADMIN_SECRET && admin_secret !== 'admin-secret') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    // 1. Auth check — require admin/founder role
+    const auth = await getAuthenticatedClient()
+    if (!auth) return unauthorized()
+
+    const { supabase, user } = auth
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    if (!['admin', 'founder'].includes(profile?.role)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
+    // 2. Use service_role for DB operations
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
@@ -20,7 +32,7 @@ export async function POST(
       return NextResponse.json({ error: 'Server not configured' }, { status: 500 })
     }
 
-    // 1. Get the submission
+    // 3. Get the submission
     const subRes = await fetch(
       `${supabaseUrl}/rest/v1/submissions?id=eq.${id}&select=*`,
       {
@@ -31,6 +43,11 @@ export async function POST(
       }
     )
 
+    if (!subRes.ok) {
+      const errText = await subRes.text()
+      return NextResponse.json({ error: `DB error: ${errText}` }, { status: 500 })
+    }
+
     const submissions = await subRes.json()
     if (!submissions || submissions.length === 0) {
       return NextResponse.json({ error: 'Submission not found' }, { status: 404 })
@@ -38,49 +55,28 @@ export async function POST(
 
     const submission = submissions[0]
 
-    // 2. Update submission status
+    // 4. Update submission status
     const now = new Date().toISOString()
-    let newArtistId: string | null = null
-
-    try {
-      const patchRes = await fetch(
-        `${supabaseUrl}/rest/v1/submissions?id=eq.${id}`,
-        {
-          method: 'PATCH',
-          headers: {
-            'apikey': supabaseKey,
-            'Authorization': `Bearer ${supabaseKey}`,
-            'Content-Type': 'application/json',
-            'Prefer': 'return=representation',
-          },
-          body: JSON.stringify({ status: 'approved', approved_at: now }),
-        }
-      )
-      if (!patchRes.ok) {
-        // Try without approved_at in case column doesn't exist
-        const fallbackRes = await fetch(
-          `${supabaseUrl}/rest/v1/submissions?id=eq.${id}`,
-          {
-            method: 'PATCH',
-            headers: {
-              'apikey': supabaseKey,
-              'Authorization': `Bearer ${supabaseKey}`,
-              'Content-Type': 'application/json',
-              'Prefer': 'return=minimal',
-            },
-            body: JSON.stringify({ status: 'approved' }),
-          }
-        )
-        if (!fallbackRes.ok) {
-          const errText = await fallbackRes.text().catch(() => 'Unknown')
-          return NextResponse.json({ error: `DB update failed: ${errText}` }, { status: 500 })
-        }
+    const patchRes = await fetch(
+      `${supabaseUrl}/rest/v1/submissions?id=eq.${id}`,
+      {
+        method: 'PATCH',
+        headers: {
+          'apikey': supabaseKey,
+          'Authorization': `Bearer ${supabaseKey}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=representation',
+        },
+        body: JSON.stringify({ status: 'approved', approved_at: now }),
       }
-    } catch (err: any) {
-      return NextResponse.json({ error: `DB update error: ${err.message}` }, { status: 500 })
+    )
+
+    if (!patchRes.ok) {
+      const errText = await patchRes.text()
+      return NextResponse.json({ error: `Failed to approve: ${errText}` }, { status: 500 })
     }
 
-    // 3. Create artist record
+    // 5. Create artist record
     const slug = (submission.stage_name || 'unknown')
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
@@ -99,18 +95,6 @@ export async function POST(
       status: 'active',
       public_profile_enabled: true,
       approved_at: now,
-      instagram_url: submission.instagram
-        ? `https://instagram.com/${submission.instagram}`
-        : null,
-      youtube_url: submission.youtube
-        ? `https://youtube.com/${submission.youtube.replace('@', '')}`
-        : null,
-      twitter_url: submission.twitter
-        ? `https://twitter.com/${submission.twitter}`
-        : null,
-      tiktok_url: submission.tiktok
-        ? `https://tiktok.com/@${submission.tiktok}`
-        : null,
     }
 
     const artistRes = await fetch(
@@ -127,10 +111,15 @@ export async function POST(
       }
     )
 
-    const artistData = await artistRes.json().catch(() => null)
-    newArtistId = artistData?.[0]?.id || null
+    if (!artistRes.ok) {
+      const errText = await artistRes.text()
+      return NextResponse.json({ error: `Artist creation failed: ${errText}` }, { status: 500 })
+    }
 
-    // 4. Update user role if user_id exists
+    const artistData = await artistRes.json()
+    const newArtistId = artistData?.[0]?.id || null
+
+    // 6. Update user role if user_id exists
     if (submission.user_id) {
       await fetch(
         `${supabaseUrl}/rest/v1/profiles?id=eq.${submission.user_id}`,

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getAuthenticatedClient, unauthorized } from '@/lib/auth-utils'
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,9 +29,9 @@ export async function POST(request: NextRequest) {
       submitted_at: new Date().toISOString()
     }
 
-    // Insert submission (with fallback if table doesn't exist yet)
+    // Insert submission
     let submissionId: string | null = null
-    let dbError = false
+    const dbError = false
     let dbErrorDetails = ''
 
     try {
@@ -51,21 +52,24 @@ export async function POST(request: NextRequest) {
       if (!subRes.ok) {
         dbErrorDetails = await subRes.text()
         console.error('[submissions] DB insert failed:', dbErrorDetails)
-        dbError = true
-        submissionId = `temp_${Date.now()}`
-      } else {
-        const submissionData = await subRes.json()
-        submissionId = submissionData?.[0]?.id || submissionData?.id || `temp_${Date.now()}`
+        return NextResponse.json(
+          { error: 'Failed to save submission', details: dbErrorDetails },
+          { status: 500 }
+        )
       }
+
+      const submissionData = await subRes.json()
+      submissionId = submissionData?.[0]?.id || submissionData?.id
     } catch (dbErr: any) {
       console.error('[submissions] DB exception:', dbErr)
-      dbErrorDetails = dbErr.message || 'Unknown DB error'
-      dbError = true
-      submissionId = `temp_${Date.now()}`
+      return NextResponse.json(
+        { error: 'Database error', details: dbErr.message },
+        { status: 500 }
+      )
     }
 
-    // Insert tracks (best effort — don't fail if table missing)
-    if (tracks && tracks.length > 0 && submissionId && !submissionId.startsWith('temp_')) {
+    // Insert tracks
+    if (tracks && tracks.length > 0 && submissionId) {
       for (const track of tracks) {
         try {
           await fetch(
@@ -93,15 +97,12 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // ALWAYS notify admin — even if DB failed
+    // Notify admin
     const discordWebhook = process.env.DISCORD_WEBHOOK_URL
     if (discordWebhook) {
       const trackList = tracks.map((t: { name: string }) => `• ${t.name}`).join('\n')
-      const dbStatus = dbError
-        ? `⚠️ DB save failed — run migration 023_submissions.sql\nDetails: ${dbErrorDetails.substring(0, 200)}`
-        : '✅ Saved to database'
       const message = {
-        content: `🎵 **New Artist Submission**\n\n**Artist:** ${stage_name}\n**Email:** ${email}\n**Genre:** ${genre || 'Not specified'}\n**City:** ${city || 'Not specified'}\n\n**Tracks:**\n${trackList}\n\n${dbStatus}\n📋 Status: Pending Review\n🔗 ID: ${submissionId}`
+        content: `🎵 **New Artist Submission**\n\n**Artist:** ${stage_name}\n**Email:** ${email}\n**Genre:** ${genre || 'Not specified'}\n**City:** ${city || 'Not specified'}\n\n**Tracks:**\n${trackList}\n\n✅ Saved to database\n📋 Status: Pending Review\n🔗 ID: ${submissionId}`
       }
 
       try {
@@ -113,46 +114,43 @@ export async function POST(request: NextRequest) {
       } catch (notifErr) {
         console.error('[submissions] Discord notification failed:', notifErr)
       }
-    } else {
-      console.log('=== NEW ARTIST SUBMISSION ===')
-      console.log('Artist:', stage_name)
-      console.log('Email:', email)
-      console.log('Genre:', genre)
-      console.log('City:', city)
-      console.log('Tracks:', tracks)
-      console.log('DB Status:', dbError ? 'FAILED — ' + dbErrorDetails : 'OK')
-      console.log('ID:', submissionId)
-      console.log('============================')
     }
 
-    // Return success to user regardless of DB state
     return NextResponse.json({
       success: true,
       submission_id: submissionId,
-      db_saved: !dbError,
       message: 'Submission received. We will review your music within 48 hours.'
     })
 
   } catch (error: any) {
     console.error('[submissions] Unexpected error:', error)
     return NextResponse.json(
-      { error: error.message || 'Submission failed. Please try again.' },
+      { error: error.message || 'Submission failed' },
       { status: 500 }
     )
   }
 }
 
-// Get all submissions (for admin)
+// Get all submissions (admin/founder only)
 export async function GET(request: NextRequest) {
   try {
-    // Require admin auth — check for secret header or query param
-    const adminSecret = request.headers.get('x-admin-secret') || 
-                       request.nextUrl.searchParams.get('admin_secret')
-    
-    if (adminSecret !== process.env.ADMIN_SECRET && adminSecret !== 'admin-secret') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const auth = await getAuthenticatedClient()
+    if (!auth) return unauthorized()
+
+    const { supabase, user } = auth
+
+    // Require admin or founder role
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    if (!['admin', 'founder'].includes(profile?.role)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
+    // Use service role for DB access
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
@@ -160,17 +158,21 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Database not configured' }, { status: 500 })
     }
 
-    // Get submissions
     const subRes = await fetch(
       `${supabaseUrl}/rest/v1/submissions?order=submitted_at.desc`,
       {
         headers: {
           'apikey': supabaseKey,
           'Authorization': `Bearer ${supabaseKey}`,
-          'Prefer': 'count=exact'
         }
       }
     )
+
+    if (!subRes.ok) {
+      const errText = await subRes.text()
+      console.error('[submissions] DB fetch failed:', errText)
+      return NextResponse.json({ error: 'Database error' }, { status: 500 })
+    }
 
     const submissions = await subRes.json()
 

@@ -36,14 +36,14 @@ export default function SubmissionsClient() {
 
   const fetchSubmissions = async () => {
     try {
-      const res = await fetch('/api/submissions?admin_secret=admin-secret', {
-        headers: { 'x-admin-secret': 'admin-secret' }
-      })
+      const res = await fetch('/api/submissions')
       if (res.ok) {
         const data = await res.json()
         setSubmissions(data)
       } else if (res.status === 401) {
-        setNotice({ type: 'error', message: 'Unauthorized' })
+        router.push('/login?returnTo=/dashboard/dashboard/submissions')
+      } else if (res.status === 403) {
+        setNotice({ type: 'error', message: 'Admin access required' })
       } else {
         setNotice({ type: 'error', message: 'Failed to load submissions' })
       }
@@ -62,7 +62,7 @@ export default function SubmissionsClient() {
       const res = await fetch(`/api/submissions/${submission.id}/approve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ admin_secret: 'admin-secret' })
+        body: JSON.stringify({})
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
@@ -85,7 +85,7 @@ export default function SubmissionsClient() {
       const res = await fetch(`/api/submissions/${submission.id}/decline`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ admin_secret: 'admin-secret' })
+        body: JSON.stringify({})
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
