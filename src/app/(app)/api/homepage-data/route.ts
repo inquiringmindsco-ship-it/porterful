@@ -69,7 +69,7 @@ export async function GET() {
       resolvedTracks = dbTracks || []
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       counts: {
         totalArtists: totalArtists || 0,
         publicArtists: publicArtists || 0,
@@ -80,12 +80,20 @@ export async function GET() {
       siteSettings: siteSettingsValue,
       tracks: resolvedTracks,
     })
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
+    response.headers.set('Pragma', 'no-cache')
+    response.headers.set('Expires', '0')
+    return response
   } catch (error) {
     console.error('Homepage data error:', error)
-    return NextResponse.json({ 
+    const errorResponse = NextResponse.json({ 
       counts: { totalArtists: 0, publicArtists: 0, totalTracks: 0, activeTracks: 0 },
       newestTrack: null,
       siteSettings: {},
     })
+    errorResponse.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
+    errorResponse.headers.set('Pragma', 'no-cache')
+    errorResponse.headers.set('Expires', '0')
+    return errorResponse
   }
 }
