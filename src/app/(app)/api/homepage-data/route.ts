@@ -45,15 +45,23 @@ export async function GET() {
 
     // Get site settings - using raw fetch to bypass Supabase JS client JSONB issue
     const siteSettingsUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/site_settings?key=***&select=*`
+    console.log('[homepage-data] Fetch URL:', siteSettingsUrl)
     const siteSettingsRes = await fetch(siteSettingsUrl, {
       headers: {
         'apikey': process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
         'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
       },
     })
+    console.log('[homepage-data] Response status:', siteSettingsRes.status)
     const siteSettingsRows = siteSettingsRes.ok ? await siteSettingsRes.json() : []
     const siteSettingsRow = siteSettingsRows[0] || null
-    const siteSettingsError = siteSettingsRes.ok ? null : { message: `HTTP ${siteSettingsRes.status}: ${await siteSettingsRes.text()}` }
+    let siteSettingsErrorMsg = null
+    if (!siteSettingsRes.ok) {
+      const errText = await siteSettingsRes.text()
+      siteSettingsErrorMsg = `HTTP ${siteSettingsRes.status}: ${errText.substring(0, 200)}`
+      console.log('[homepage-data] Error:', siteSettingsErrorMsg)
+    }
+    const siteSettingsError = siteSettingsErrorMsg ? { message: siteSettingsErrorMsg } : null
     
     const siteSettingsValue = siteSettingsRow?.value || {}
 
