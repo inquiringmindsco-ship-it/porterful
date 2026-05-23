@@ -83,6 +83,11 @@ export async function GET() {
       newestTrack,
       siteSettings: siteSettings?.value || {},
       tracks: resolvedTracks,
+      _debug: {
+        keyType: process.env.SUPABASE_SERVICE_ROLE_KEY ? 'SERVICE_ROLE' : 'ANON_FALLBACK',
+        hasServiceRole: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+        siteSettingsError: siteSettingsError ? siteSettingsError.message : null,
+      }
     })
   } catch (error) {
     console.error('Homepage data error:', error)
