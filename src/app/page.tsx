@@ -62,11 +62,19 @@ export default function HomePage() {
 
   // Build a Track-like object from DB data with proper duration formatting
   function buildTrackFromDb(nt: any): Track {
-    const duration = nt.duration ? 
-      (typeof nt.duration === 'number' ? 
-        `${Math.floor(nt.duration / 60)}:${String(nt.duration % 60).padStart(2, '0')}` : 
-        nt.duration) : 
-      '0:00'
+    let duration = '0:00'
+    if (nt.duration) {
+      const raw = String(nt.duration).trim()
+      // If it's a numeric string like "221" → format as M:SS
+      if (/^\d+$/.test(raw)) {
+        const seconds = parseInt(raw, 10)
+        duration = `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`
+      } else if (typeof nt.duration === 'number') {
+        duration = `${Math.floor(nt.duration / 60)}:${String(nt.duration % 60).padStart(2, '0')}`
+      } else {
+        duration = raw
+      }
+    }
     return {
       id: nt.id,
       title: nt.title,
