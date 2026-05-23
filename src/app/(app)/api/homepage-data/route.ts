@@ -43,7 +43,7 @@ export async function GET() {
 
     // Get site settings - using raw fetch to bypass Supabase JS client JSONB issue
     const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const siteSettingsUrl = baseUrl + encodeURI('/rest/v1/site_settings?select=*')
+    const siteSettingsUrl = baseUrl + '/rest/v1/site_settings?select=*'
     const siteSettingsRes = await fetch(siteSettingsUrl, {
       cache: 'no-store',
       headers: {
@@ -51,9 +51,19 @@ export async function GET() {
         'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
       },
     })
-    const siteSettingsRows = siteSettingsRes.ok ? await siteSettingsRes.json() : []
+    console.log('[homepage-data] Raw fetch status:', siteSettingsRes.status)
+    let siteSettingsRows: any[] = []
+    if (siteSettingsRes.ok) {
+      siteSettingsRows = await siteSettingsRes.json()
+    } else {
+      const errText = await siteSettingsRes.text()
+      console.log('[homepage-data] Raw fetch error:', errText.substring(0, 200))
+    }
+    console.log('[homepage-data] Rows count:', siteSettingsRows.length)
     const siteSettingsRow = siteSettingsRows.find((r: any) => r.key === 'homepage') || siteSettingsRows[0] || null
+    console.log('[homepage-data] Found row:', siteSettingsRow ? 'yes' : 'no')
     const siteSettingsValue = siteSettingsRow?.value || {}
+    console.log('[homepage-data] Value keys:', Object.keys(siteSettingsValue))
 
     // Resolve featured/hero tracks if they're DB tracks not in static array
     const featuredIds = siteSettingsValue?.featured_track_ids || []
