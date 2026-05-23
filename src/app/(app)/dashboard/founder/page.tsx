@@ -54,7 +54,7 @@ export default function FounderDashboard() {
   const [artists, setArtists] = useState<ArtistWithProfile[]>([])
   const [tracks, setTracks] = useState<TrackWithArtist[]>([])
   const [needsAttention, setNeedsAttention] = useState<any[]>([])
-  const [activeTab, setActiveTab] = useState<'overview' | 'artists' | 'tracks' | 'content' | 'revenue'>('overview')
+  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'music' | 'content' | 'revenue'>('overview')
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
   
@@ -466,7 +466,7 @@ export default function FounderDashboard() {
 
         {/* Tabs */}
         <div className="flex gap-2 mb-6 border-b border-[var(--pf-border)] overflow-x-auto">
-          {(['overview', 'artists', 'tracks', 'content', 'revenue'] as const).map((tab) => (
+          {(['overview', 'users', 'music', 'content', 'revenue'] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -580,8 +580,8 @@ export default function FounderDashboard() {
           </div>
         )}
 
-        {/* Artists Tab */}
-        {activeTab === 'artists' && (
+        {/* Users/Accounts Tab */}
+        {activeTab === 'users' && (
           <div className="space-y-4">
             {/* Search & Filter Bar */}
             <div className="flex flex-col sm:flex-row gap-3">
@@ -798,8 +798,8 @@ export default function FounderDashboard() {
           </div>
         )}
 
-        {/* Tracks Tab */}
-        {activeTab === 'tracks' && (
+        {/* Music Tab */}
+        {activeTab === 'music' && (
           <div className="space-y-4">
             {/* Search & Filter Bar */}
             <div className="flex flex-col sm:flex-row gap-3">
