@@ -104,23 +104,28 @@ export default function HomePage() {
     return artistTracks[0] ?? TRACKS[0]
   }, [homepageData, publicArtists])
 
-  // Spotlight track: from site settings featured picks, or second newest
-  const spotlightTrack = useMemo(() => {
-    // If site settings has featured tracks, use the first one
+  // Spotlight track: from site settings featured picks — up to 3 tracks
+  const featuredTracks = useMemo(() => {
     const featuredIds = homepageData?.siteSettings?.featured_track_ids || []
-    if (featuredIds.length > 0) {
-      // Try static tracks first
-      const found = TRACKS.find((t) => t.id === featuredIds[0])
-      if (found) return found as Track
-      // Fall back to DB tracks
-      const dbMatch = homepageData?.tracks?.find((t: any) => t.id === featuredIds[0])
-      if (dbMatch) return buildTrackFromDb(dbMatch)
+    const tracks: Track[] = []
+    for (const id of featuredIds.slice(0, 3)) {
+      const found = TRACKS.find((t) => t.id === id)
+      if (found) {
+        tracks.push(found as Track)
+      } else {
+        const dbMatch = homepageData?.tracks?.find((t: any) => t.id === id)
+        if (dbMatch) tracks.push(buildTrackFromDb(dbMatch))
+      }
     }
-    // Fallback to second track from featured artist
+    return tracks.length > 0 ? tracks : null
+  }, [homepageData])
+
+  // Primary spotlight is first featured track (for single-card display compat)
+  const spotlightTrack = featuredTracks?.[0] ?? (() => {
     const featuredArtist = publicArtists.find((a) => a.slug === 'od-porter') ?? publicArtists[0] ?? PUBLIC_ARTISTS_FALLBACK[0]
     const artistTracks = TRACKS.filter((t) => t.artist === featuredArtist?.name).slice(0, 3) as Track[]
     return artistTracks[1] ?? heroTrack
-  }, [homepageData, publicArtists, heroTrack])
+  })()
 
   const featuredArtist = useMemo(
     () => publicArtists.find((artist) => artist.slug === 'od-porter') ?? publicArtists[0] ?? PUBLIC_ARTISTS_FALLBACK[0],
@@ -355,19 +360,22 @@ export default function HomePage() {
                 <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--pf-orange)]">
                   Featured
                 </p>
-                <h2 className="mt-2 text-3xl font-bold text-white md:text-4xl">{spotlightTrack.title}</h2>
+                <h2 className="mt-2 text-3xl font-bold text-white md:text-4xl">
+                  {featuredTracks?.[0]?.title ?? spotlightTrack.title}
+                </h2>
               </div>
               <Link href="/music" className="text-sm font-medium text-[var(--pf-orange)] hover:underline">
                 All music →
               </Link>
             </div>
 
+            {/* Primary featured track (large card) */}
             <article className="pf-reveal-child overflow-hidden rounded-[2rem] border border-[var(--pf-border)] bg-[var(--pf-surface)] shadow-[0_24px_70px_rgba(0,0,0,0.28)]">
               <div className="grid gap-0 lg:grid-cols-[0.86fr_1.14fr]">
                 <div className="relative min-h-[280px] lg:min-h-[360px]">
                   <Image
-                    src={getTrackArtwork(spotlightTrack)}
-                    alt={spotlightTrack.title}
+                    src={getTrackArtwork(featuredTracks?.[0] ?? spotlightTrack)}
+                    alt={(featuredTracks?.[0] ?? spotlightTrack).title}
                     fill
                     sizes="(max-width: 1024px) 100vw, 40vw"
                     className="object-cover"
@@ -377,16 +385,16 @@ export default function HomePage() {
 
                 <div className="flex flex-col justify-between p-6 md:p-8">
                   <div>
-                    <p className="text-sm text-[var(--pf-text-secondary)]">{spotlightTrack.artist}</p>
+                    <p className="text-sm text-[var(--pf-text-secondary)]">{(featuredTracks?.[0] ?? spotlightTrack).artist}</p>
                     <p className="mt-1 text-sm text-[var(--pf-text-muted)]">
-                      {spotlightTrack.album} · {spotlightTrack.duration}
+                      {(featuredTracks?.[0] ?? spotlightTrack).album} · {(featuredTracks?.[0] ?? spotlightTrack).duration}
                     </p>
                   </div>
 
                   <div className="mt-8 flex flex-wrap gap-3">
                     <button
                       type="button"
-                      onClick={() => startTrack(spotlightTrack)}
+                      onClick={() => startTrack(featuredTracks?.[0] ?? spotlightTrack)}
                       className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[var(--pf-orange)] px-6 py-3 text-base font-semibold text-[#111111] transition-transform duration-200 hover:-translate-y-0.5"
                       aria-label={isSpotlightActive && isPlaying ? 'Pause featured track' : 'Play featured track'}
                     >
@@ -395,15 +403,71 @@ export default function HomePage() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => buyTrack(spotlightTrack)}
+                      onClick={() => buyTrack(featuredTracks?.[0] ?? spotlightTrack)}
                       className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-[var(--pf-border)] bg-[var(--pf-bg)] px-6 py-3 text-base font-semibold text-[var(--pf-text)] transition-transform duration-200 hover:-translate-y-0.5 hover:border-[var(--pf-text-muted)]"
                     >
-                      Buy — ${spotlightTrack.price || 1}
+                      Buy — ${(featuredTracks?.[0] ?? spotlightTrack).price || 1}
                     </button>
                   </div>
                 </div>
               </div>
             </article>
+
+            {/* Additional featured tracks (up to 2 more, grid) */}
+            {featuredTracks && featuredTracks.length > 1 && (
+              <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                {featuredTracks.slice(1).map((track, idx) => (
+                  <article
+                    key={track.id}
+                    className="pf-reveal-child overflow-hidden rounded-[1.5rem] border border-[var(--pf-border)] bg-[var(--pf-surface)] shadow-[0_12px_40px_rgba(0,0,0,0.2)]"
+                  >
+                    <div className="grid gap-0 sm:grid-cols-[120px_1fr]">
+                      <div className="relative aspect-square sm:aspect-auto sm:h-full">
+                        <Image
+                          src={getTrackArtwork(track)}
+                          alt={track.title}
+                          fill
+                          sizes="120px"
+                          className="object-cover"
+                        />
+                        <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(0,0,0,0.15),rgba(0,0,0,0.35))]" />
+                      </div>
+
+                      <div className="flex flex-col justify-between p-4 sm:p-5">
+                        <div>
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[var(--pf-orange)]">
+                            Featured {idx + 2}
+                          </p>
+                          <h3 className="mt-1 text-base font-semibold text-white truncate">{track.title}</h3>
+                          <p className="text-sm text-[var(--pf-text-secondary)] truncate">{track.artist}</p>
+                          <p className="mt-0.5 text-xs text-[var(--pf-text-muted)]">
+                            {track.album} · {track.duration}
+                          </p>
+                        </div>
+
+                        <div className="mt-4 flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => startTrack(track)}
+                            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--pf-orange)] text-[#111111] transition-transform duration-200 hover:-translate-y-0.5"
+                            aria-label={`Play ${track.title}`}
+                          >
+                            <Play size={14} className="ml-0.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => buyTrack(track)}
+                            className="inline-flex h-9 items-center justify-center rounded-full border border-[var(--pf-border)] bg-[var(--pf-bg)] px-3 text-xs font-semibold text-[var(--pf-text)] transition-transform duration-200 hover:-translate-y-0.5 hover:border-[var(--pf-text-muted)]"
+                          >
+                            ${track.price || 1}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            )}
           </div>
         </section>
 
