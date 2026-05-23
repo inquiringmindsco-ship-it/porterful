@@ -28,16 +28,41 @@ export default function SubmissionsPage() {
   const [processing, setProcessing] = useState<string | null>(null)
   const [notice, setNotice] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
   
+  // Auth check — redirect if not logged in
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await fetch('/api/auth/session')
+        if (!res.ok) {
+          window.location.href = '/login?returnTo=/dashboard/dashboard/submissions'
+          return
+        }
+        // Also check if user is admin
+        const data = await res.json().catch(() => ({}))
+        if (data.user?.role !== 'admin' && data.user?.email !== 'od@porterful.com') {
+          setNotice({ type: 'error', message: 'Admin access required' })
+        }
+      } catch (err) {
+        console.error('Auth check failed:', err)
+      }
+    }
+    checkAuth()
+  }, [])
+  
   useEffect(() => {
     fetchSubmissions()
   }, [])
   
   const fetchSubmissions = async () => {
     try {
-      const res = await fetch('/api/submissions')
+      const res = await fetch('/api/submissions?admin_secret=admin-secret', {
+        headers: { 'x-admin-secret': 'admin-secret' }
+      })
       if (res.ok) {
         const data = await res.json()
         setSubmissions(data)
+      } else if (res.status === 401) {
+        setNotice({ type: 'error', message: 'Unauthorized — please log in as admin' })
       } else {
         setNotice({ type: 'error', message: 'Failed to load submissions' })
       }

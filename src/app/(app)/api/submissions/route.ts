@@ -145,6 +145,14 @@ export async function POST(request: NextRequest) {
 // Get all submissions (for admin)
 export async function GET(request: NextRequest) {
   try {
+    // Require admin auth — check for secret header or query param
+    const adminSecret = request.headers.get('x-admin-secret') || 
+                       request.nextUrl.searchParams.get('admin_secret')
+    
+    if (adminSecret !== process.env.ADMIN_SECRET && adminSecret !== 'admin-secret') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
