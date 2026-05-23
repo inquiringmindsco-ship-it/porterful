@@ -7,7 +7,8 @@ import Link from 'next/link'
 import { 
   Users, Music, Package, DollarSign, AlertCircle, 
   CheckCircle, XCircle, Play, Pause,
-  ChevronUp, ChevronDown, Shield, TrendingUp
+  ChevronUp, ChevronDown, Shield, TrendingUp,
+  Star, Sparkles, LayoutTemplate
 } from 'lucide-react'
 
 type ArtistWithProfile = {
@@ -52,9 +53,15 @@ export default function FounderDashboard() {
   const [artists, setArtists] = useState<ArtistWithProfile[]>([])
   const [tracks, setTracks] = useState<TrackWithArtist[]>([])
   const [needsAttention, setNeedsAttention] = useState<any[]>([])
-  const [activeTab, setActiveTab] = useState<'overview' | 'artists' | 'tracks' | 'revenue'>('overview')
+  const [activeTab, setActiveTab] = useState<'overview' | 'artists' | 'tracks' | 'content' | 'revenue'>('overview')
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
+  const [contentSettings, setContentSettings] = useState<any>(null)
+  const [contentLoading, setContentLoading] = useState(false)
+  const [selectedHeroTrack, setSelectedHeroTrack] = useState<string>('')
+  const [selectedFeaturedTracks, setSelectedFeaturedTracks] = useState<string[]>([])
+  const [selectedPromoTracks, setSelectedPromoTracks] = useState<string[]>([])
+  const [heroLabel, setHeroLabel] = useState('Featured Release')
 
   useEffect(() => {
     if (!user) {
@@ -263,6 +270,70 @@ export default function FounderDashboard() {
     }
   }
 
+  async function loadContentSettings() {
+    if (!supabase) return
+    setContentLoading(true)
+    try {
+      const res = await fetch('/api/site-settings', { cache: 'no-store' })
+      const data = await res.json()
+      if (data.settings) {
+        setContentSettings(data.settings)
+        setSelectedHeroTrack(data.settings.hero_track_id || '')
+        setSelectedFeaturedTracks(data.settings.featured_track_ids || [])
+        setSelectedPromoTracks(data.settings.promo_track_ids || [])
+        setHeroLabel(data.settings.hero_label || 'Featured Release')
+      }
+    } catch (err) {
+      console.error('Error loading content settings:', err)
+    } finally {
+      setContentLoading(false)
+    }
+  }
+
+  async function saveContentSettings() {
+    if (!supabase) return
+    setContentLoading(true)
+    setNotice('Saving content settings...')
+    
+    try {
+      const payload = {
+        hero_track_id: selectedHeroTrack || null,
+        featured_track_ids: selectedFeaturedTracks,
+        promo_track_ids: selectedPromoTracks,
+        hero_label: heroLabel || 'Featured Release',
+      }
+      
+      const res = await fetch('/api/site-settings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        setError(data.error || 'Failed to save content settings')
+        setNotice('')
+        setContentLoading(false)
+        return
+      }
+
+      setNotice('Content settings saved')
+      window.setTimeout(() => setNotice(''), 2000)
+    } catch (err: any) {
+      console.error('Error saving content settings:', err)
+      setError(err.message || 'Failed to save')
+      setNotice('')
+    } finally {
+      setContentLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    if (activeTab === 'content') {
+      loadContentSettings()
+    }
+  }, [activeTab])
+
   if (loading) {
     return (
       <div className="min-h-screen pt-24 pb-12 flex items-center justify-center">
@@ -285,7 +356,7 @@ export default function FounderDashboard() {
 
         {/* Tabs */}
         <div className="flex gap-2 mb-6 border-b border-[var(--pf-border)]">
-          {(['overview', 'artists', 'tracks', 'revenue'] as const).map((tab) => (
+          {(['overview', 'artists', 'tracks', 'content', 'revenue'] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -544,6 +615,157 @@ export default function FounderDashboard() {
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {/* Content Tab */}
+        {activeTab === 'content' && (
+          <div className="space-y-6">
+            {contentLoading && (
+              <div className="text-center py-8 text-[var(--pf-text-muted)] animate-pulse">
+                Loading content settings...
+              </div>
+            )}
+            
+            <div className="pf-card p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <LayoutTemplate className="text-[var(--pf-orange)]" />
+                <h2 className="text-lg font-semibold">Homepage Hero</h2>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Hero Label</label>
+                  <input
+                    type="text"
+                    value={heroLabel}
+                    onChange={(e) => setHeroLabel(e.target.value)}
+                    className="w-full max-w-md px-3 py-2 rounded-lg bg-[var(--pf-surface)] border border-[var(--pf-border)] text-sm focus:border-[var(--pf-orange)] focus:outline-none"
+                    placeholder="Featured Release"
+                  />
+                  <p className="text-xs text-[var(--pf-text-muted)] mt-1">
+                    Text shown in the top-left badge on the hero image
+                  </p>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium mb-2">Hero Track</label>
+                  <select
+                    value={selectedHeroTrack}
+                    onChange={(e) => setSelectedHeroTrack(e.target.value)}
+                    className="w-full max-w-md px-3 py-2 rounded-lg bg-[var(--pf-surface)] border border-[var(--pf-border)] text-sm focus:border-[var(--pf-orange)] focus:outline-none"
+                  >
+                    <option value="">Auto-pick (first track from featured artist)</option>
+                    {tracks.map((track) => (
+                      <option key={track.id} value={track.id}>
+                        {track.title} — {track.artist}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-xs text-[var(--pf-text-muted)] mt-1">
+                    Main track displayed in the hero player card
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="pf-card p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <Star className="text-[var(--pf-orange)]" />
+                <h2 className="text-lg font-semibold">Featured Tracks</h2>
+              </div>
+              
+              <p className="text-sm text-[var(--pf-text-muted)] mb-4">
+                Select up to 3 tracks to feature on the homepage (below the hero)
+              </p>
+              
+              <div className="space-y-2 max-h-80 overflow-y-auto">
+                {tracks.map((track) => (
+                  <label
+                    key={track.id}
+                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-[var(--pf-surface-hover)] cursor-pointer transition-colors"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedFeaturedTracks.includes(track.id)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          if (selectedFeaturedTracks.length < 3) {
+                            setSelectedFeaturedTracks([...selectedFeaturedTracks, track.id])
+                          }
+                        } else {
+                          setSelectedFeaturedTracks(selectedFeaturedTracks.filter(id => id !== track.id))
+                        }
+                      }}
+                      className="w-4 h-4 rounded border-[var(--pf-border)] bg-[var(--pf-surface)] text-[var(--pf-orange)] focus:ring-[var(--pf-orange)]"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm truncate">{track.title}</p>
+                      <p className="text-xs text-[var(--pf-text-muted)]">{track.artist} · {track.status}</p>
+                    </div>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div className="pf-card p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <Sparkles className="text-[var(--pf-orange)]" />
+                <h2 className="text-lg font-semibold">Promo Tracks</h2>
+              </div>
+              
+              <p className="text-sm text-[var(--pf-text-muted)] mb-4">
+                Select tracks for special promotional placement
+              </p>
+              
+              <div className="space-y-2 max-h-80 overflow-y-auto">
+                {tracks.map((track) => (
+                  <label
+                    key={track.id}
+                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-[var(--pf-surface-hover)] cursor-pointer transition-colors"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedPromoTracks.includes(track.id)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedPromoTracks([...selectedPromoTracks, track.id])
+                        } else {
+                          setSelectedPromoTracks(selectedPromoTracks.filter(id => id !== track.id))
+                        }
+                      }}
+                      className="w-4 h-4 rounded border-[var(--pf-border)] bg-[var(--pf-surface)] text-[var(--pf-orange)] focus:ring-[var(--pf-orange)]"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm truncate">{track.title}</p>
+                      <p className="text-xs text-[var(--pf-text-muted)]">{track.artist} · {track.status}</p>
+                    </div>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={saveContentSettings}
+                disabled={contentLoading}
+                className="inline-flex items-center gap-2 rounded-full bg-[var(--pf-orange)] px-6 py-3 text-sm font-semibold text-[#111111] transition-transform duration-200 hover:-translate-y-0.5 disabled:opacity-50"
+              >
+                {contentLoading ? 'Saving...' : 'Save Content Settings'}
+              </button>
+              
+              <button
+                onClick={() => {
+                  setSelectedHeroTrack('')
+                  setSelectedFeaturedTracks([])
+                  setSelectedPromoTracks([])
+                  setHeroLabel('Featured Release')
+                }}
+                className="inline-flex items-center gap-2 rounded-full border border-[var(--pf-border)] px-6 py-3 text-sm font-semibold text-[var(--pf-text-secondary)] transition-colors hover:bg-[var(--pf-surface)]"
+              >
+                Reset to Defaults
+              </button>
+            </div>
           </div>
         )}
 
