@@ -20,20 +20,34 @@ export default function HomePage() {
   const { currentTrack, isPlaying, playTrack, togglePlay, setQueue, setMode } = useAudio()
   const revealScopeRef = useRef<HTMLElement | null>(null)
   const [publicArtists, setPublicArtists] = useState<ArtistData[]>(PUBLIC_ARTISTS_FALLBACK)
+  const [siteSettings, setSiteSettings] = useState<any>(null)
+  const [heroLabelText, setHeroLabelText] = useState('Featured Release')
 
   useEffect(() => {
     let cancelled = false
 
-    async function loadArtists() {
+    async function loadData() {
       try {
-        const res = await fetch('/api/artists', { cache: 'no-store' })
-        if (!res.ok) return
-        const data = await res.json()
-        const artists = filterPublicArtists(
-          (Array.isArray(data.artists) ? data.artists : []) as ArtistData[],
-        )
-        if (!cancelled) {
-          setPublicArtists(artists.length > 0 ? artists : PUBLIC_ARTISTS_FALLBACK)
+        // Load artists
+        const artistsRes = await fetch('/api/artists', { cache: 'no-store' })
+        if (artistsRes.ok) {
+          const artistsData = await artistsRes.json()
+          const artists = filterPublicArtists(
+            (Array.isArray(artistsData.artists) ? artistsData.artists : []) as ArtistData[],
+          )
+          if (!cancelled) {
+            setPublicArtists(artists.length > 0 ? artists : PUBLIC_ARTISTS_FALLBACK)
+          }
+        }
+
+        // Load site settings
+        const settingsRes = await fetch('/api/site-settings', { cache: 'no-store' })
+        if (settingsRes.ok) {
+          const settingsData = await settingsRes.json()
+          if (!cancelled && settingsData.settings) {
+            setSiteSettings(settingsData.settings)
+            setHeroLabelText(settingsData.settings.hero_label || 'Featured Release')
+          }
         }
       } catch {
         if (!cancelled) {
@@ -42,23 +56,41 @@ export default function HomePage() {
       }
     }
 
-    loadArtists()
+    loadData()
 
     return () => {
       cancelled = true
     }
   }, [])
 
+  const heroTrack = useMemo(() => {
+    // If site settings has a hero track, find it in TRACKS
+    if (siteSettings?.hero_track_id) {
+      const found = TRACKS.find((t) => t.id === siteSettings.hero_track_id)
+      if (found) return found as Track
+    }
+    // Fallback to featured tracks from O D Porter
+    const featuredArtist = publicArtists.find((a) => a.slug === 'od-porter') ?? publicArtists[0] ?? PUBLIC_ARTISTS_FALLBACK[0]
+    const artistTracks = TRACKS.filter((t) => t.artist === featuredArtist?.name).slice(0, 3) as Track[]
+    return artistTracks[0] ?? TRACKS[0]
+  }, [siteSettings, publicArtists])
+
+  const spotlightTrack = useMemo(() => {
+    // If site settings has featured tracks, use the first one
+    if (siteSettings?.featured_track_ids?.length > 0) {
+      const found = TRACKS.find((t) => t.id === siteSettings.featured_track_ids[0])
+      if (found) return found as Track
+    }
+    // Fallback
+    const featuredArtist = publicArtists.find((a) => a.slug === 'od-porter') ?? publicArtists[0] ?? PUBLIC_ARTISTS_FALLBACK[0]
+    const artistTracks = TRACKS.filter((t) => t.artist === featuredArtist?.name).slice(0, 3) as Track[]
+    return artistTracks[1] ?? heroTrack
+  }, [siteSettings, publicArtists, heroTrack])
+
   const featuredArtist = useMemo(
     () => publicArtists.find((artist) => artist.slug === 'od-porter') ?? publicArtists[0] ?? PUBLIC_ARTISTS_FALLBACK[0],
     [publicArtists],
   )
-  const featuredTracks = useMemo(
-    () => TRACKS.filter((track) => track.artist === featuredArtist?.name).slice(0, 3) as Track[],
-    [featuredArtist],
-  )
-  const heroTrack = featuredTracks[0] ?? TRACKS[0]
-  const spotlightTrack = featuredTracks[1] ?? heroTrack
 
   useEffect(() => {
     const scope = revealScopeRef.current
@@ -103,7 +135,10 @@ export default function HomePage() {
   }, [])
 
   const startTrack = (track: Track) => {
-    const queue = featuredTracks.length > 0 ? featuredTracks : [track]
+    // Build queue from featured artist tracks or just this track
+    const featuredArtist = publicArtists.find((a) => a.slug === 'od-porter') ?? publicArtists[0] ?? PUBLIC_ARTISTS_FALLBACK[0]
+    const artistTracks = TRACKS.filter((t) => t.artist === featuredArtist?.name).slice(0, 3) as Track[]
+    const queue = artistTracks.length > 0 ? artistTracks : [track]
     setMode('track')
     setQueue(queue)
 
@@ -208,7 +243,7 @@ export default function HomePage() {
 
                       <div className="absolute left-3 sm:left-4 top-3 sm:top-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/[0.55] px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.26em] text-[var(--pf-text-secondary)] backdrop-blur-xl">
                         <span className="h-2 w-2 rounded-full bg-[var(--pf-orange)]" />
-                        Featured Release
+                        {heroLabelText}
                       </div>
 
                       <div className="absolute inset-x-3 sm:inset-x-4 bottom-6 sm:bottom-8 grid gap-3 sm:grid-cols-[1.2fr_0.8fr]">
