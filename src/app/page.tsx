@@ -70,16 +70,21 @@ export default function HomePage() {
       if (staticMatch) {
         return staticMatch as Track
       }
-      // Build a Track-like object from DB data
+      // Build a Track-like object from DB data with proper duration formatting
+      const duration = nt.duration ? 
+        (typeof nt.duration === 'number' ? 
+          `${Math.floor(nt.duration / 60)}:${String(nt.duration % 60).padStart(2, '0')}` : 
+          nt.duration) : 
+        '0:00'
       return {
         id: nt.id,
         title: nt.title,
         artist: nt.artist,
         album: nt.album || 'Single',
-        duration: nt.duration || '0:00',
+        duration,
         cover_url: nt.cover_url,
         image: nt.cover_url || '/album-art/default.jpg',
-        audio_url: '', // Will need to be fetched when played
+        audio_url: `/api/tracks/${nt.id}/audio`, // Dynamic audio endpoint
         price: 1,
       } as Track
     }
@@ -237,11 +242,23 @@ export default function HomePage() {
                 <div className="mt-4 flex flex-wrap gap-3 text-sm text-[var(--pf-text-muted)]">
                   <span className="inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.04] px-4 py-2">
                     <span className="h-2 w-2 rounded-full bg-[var(--pf-orange)]" />
-                    {loading ? '...' : `${artistCount} artists`}
+                    {loading ? (
+                      <span className="inline-flex items-center gap-1">
+                        <span className="h-1.5 w-1.5 rounded-full bg-[var(--pf-text-muted)] animate-pulse" />
+                        <span className="h-1.5 w-1.5 rounded-full bg-[var(--pf-text-muted)] animate-pulse delay-75" />
+                        <span className="h-1.5 w-1.5 rounded-full bg-[var(--pf-text-muted)] animate-pulse delay-150" />
+                      </span>
+                    ) : `${artistCount} ${artistCount === 1 ? 'artist' : 'artists'}`}
                   </span>
                   <span className="inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.04] px-4 py-2">
                     <span className="h-2 w-2 rounded-full bg-emerald-400" />
-                    {loading ? '...' : `${trackCount} tracks`}
+                    {loading ? (
+                      <span className="inline-flex items-center gap-1">
+                        <span className="h-1.5 w-1.5 rounded-full bg-[var(--pf-text-muted)] animate-pulse" />
+                        <span className="h-1.5 w-1.5 rounded-full bg-[var(--pf-text-muted)] animate-pulse delay-75" />
+                        <span className="h-1.5 w-1.5 rounded-full bg-[var(--pf-text-muted)] animate-pulse delay-150" />
+                      </span>
+                    ) : `${trackCount} ${trackCount === 1 ? 'track' : 'tracks'}`}
                   </span>
                 </div>
               </div>
