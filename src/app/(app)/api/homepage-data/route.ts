@@ -45,6 +45,7 @@ export async function GET() {
     const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const siteSettingsUrl = baseUrl + encodeURI('/rest/v1/site_settings?select=*')
     const siteSettingsRes = await fetch(siteSettingsUrl, {
+      cache: 'no-store',
       headers: {
         'apikey': process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
         'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
