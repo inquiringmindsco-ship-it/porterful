@@ -158,14 +158,14 @@ export default function HomePage() {
       <main ref={revealScopeRef} className="min-h-screen bg-[var(--pf-bg)] pt-16 md:pt-20 overflow-x-hidden pb-24">
         <section className="relative overflow-hidden border-b border-[var(--pf-border)] bg-[radial-gradient(circle_at_12%_18%,rgba(249,115,22,0.16),transparent_24%),radial-gradient(circle_at_82%_12%,rgba(168,85,247,0.16),transparent_22%),linear-gradient(180deg,#0c0d11_0%,#07080b_100%)]">
           <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(180deg,rgba(255,255,255,0.02),transparent_18%),radial-gradient(circle_at_bottom,rgba(255,255,255,0.03),transparent_40%)]" />
-          <div className="pf-container relative py-10 md:py-14 lg:py-16">
-            <div className="grid items-center gap-10 lg:grid-cols-[0.94fr_1.06fr]">
+          <div className="pf-container relative py-8 sm:py-10 md:py-14 lg:py-16">
+            <div className="grid items-center gap-8 sm:gap-10 lg:grid-cols-[0.94fr_1.06fr]">
               <div className="max-w-2xl">
                 <h1 className="text-4xl font-black leading-[0.95] tracking-[-0.06em] text-white sm:text-6xl sm:leading-[0.92] lg:text-7xl">
                   Music + Merch. Direct.
                 </h1>
 
-                <div className="mt-6 flex flex-wrap gap-3">
+                <div className="mt-5 sm:mt-6 flex flex-wrap gap-3">
                   <Link
                     href="/music"
                     className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[var(--pf-orange)] px-6 py-3 text-base font-semibold text-[#111111] transition-transform duration-200 hover:-translate-y-0.5"
@@ -193,9 +193,9 @@ export default function HomePage() {
               </div>
 
               <div className="relative">
-                <div className="rounded-[2rem] border border-white/10 bg-black/40 p-3 shadow-[0_30px_100px_rgba(0,0,0,0.45)] backdrop-blur-sm">
+                <div className="rounded-[2rem] border border-white/10 bg-black/40 p-2 sm:p-3 shadow-[0_30px_100px_rgba(0,0,0,0.45)] backdrop-blur-sm">
                   <div className="relative overflow-hidden rounded-[1.5rem]">
-                    <div className="relative aspect-[4/5] min-h-[520px]">
+                    <div className="relative aspect-[4/5] min-h-[400px] sm:min-h-[480px] md:min-h-[520px]">
                       <Image
                         src="/images/hero/porterful-hero-studio.webp"
                         alt="A Black artist in a dark recording studio with headphones, a microphone, a keyboard, a vinyl record, and subtle merch details nearby."
@@ -206,13 +206,13 @@ export default function HomePage() {
                       />
                       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,8,10,0.1),rgba(7,8,10,0.46)),radial-gradient(circle_at_72%_18%,rgba(249,115,22,0.14),transparent_28%),radial-gradient(circle_at_20%_82%,rgba(168,85,247,0.1),transparent_32%)]" />
 
-                      <div className="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/[0.55] px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.26em] text-[var(--pf-text-secondary)] backdrop-blur-xl">
+                      <div className="absolute left-3 sm:left-4 top-3 sm:top-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/[0.55] px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.26em] text-[var(--pf-text-secondary)] backdrop-blur-xl">
                         <span className="h-2 w-2 rounded-full bg-[var(--pf-orange)]" />
-                        Dark studio session
+                        Featured Release
                       </div>
 
-                      <div className="absolute inset-x-4 bottom-4 grid gap-3 sm:grid-cols-[1.2fr_0.8fr]">
-                        <div className="rounded-2xl border border-white/10 bg-[#0b0d10]/92 p-4 shadow-2xl backdrop-blur-xl">
+                      <div className="absolute inset-x-3 sm:inset-x-4 bottom-6 sm:bottom-8 grid gap-3 sm:grid-cols-[1.2fr_0.8fr]">
+                        <div className="rounded-2xl border border-white/10 bg-[#0b0d10]/92 p-3 sm:p-4 shadow-2xl backdrop-blur-xl">
                           <div className="flex items-start gap-3">
                             <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-white/10">
                               <Image
@@ -237,7 +237,7 @@ export default function HomePage() {
                             </button>
                           </div>
 
-                          <div className="mt-3 h-1.5 rounded-full bg-white/10">
+                          <div className="mt-3 h-1 rounded-full bg-white/10">
                             <div className="h-full w-[64%] rounded-full bg-gradient-to-r from-[var(--pf-orange)] to-[#f59e0b]" />
                           </div>
                           <div className="mt-2 flex items-center justify-between text-[11px] uppercase tracking-[0.22em] text-[var(--pf-text-muted)]">
@@ -246,8 +246,8 @@ export default function HomePage() {
                           </div>
                         </div>
 
-                        <div className="rounded-2xl border border-white/10 bg-black/[0.72] p-4 shadow-2xl backdrop-blur-xl">
-                          <h2 className="text-lg font-semibold leading-tight text-white">
+                        <div className="rounded-2xl border border-white/10 bg-black/[0.72] p-3 sm:p-4 shadow-2xl backdrop-blur-xl">
+                          <h2 className="text-base sm:text-lg font-semibold leading-tight text-white">
                             Hoodies · Tees · Vinyl
                           </h2>
                           <Link href="/store" className="mt-2 inline-block text-sm text-[var(--pf-orange)] hover:underline">
