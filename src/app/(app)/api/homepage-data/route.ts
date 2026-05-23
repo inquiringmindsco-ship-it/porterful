@@ -44,11 +44,19 @@ export async function GET() {
       .single()
 
     // Get site settings
-    const { data: siteSettings } = await supabase
+    const { data: siteSettings, error: siteSettingsError } = await supabase
       .from('site_settings')
       .select('value')
       .eq('key', 'homepage')
       .single()
+    
+    if (siteSettingsError) {
+      console.error('[homepage-data] site_settings error:', siteSettingsError)
+    }
+    
+    console.log('[homepage-data] siteSettings raw:', JSON.stringify(siteSettings, null, 2))
+    console.log('[homepage-data] siteSettings.value:', siteSettings?.value)
+    console.log('[homepage-data] hero_track_id:', siteSettings?.value?.hero_track_id)
 
     // Resolve featured/hero tracks if they're DB tracks not in static array
     const featuredIds = siteSettings?.value?.featured_track_ids || []
