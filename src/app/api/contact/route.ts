@@ -29,22 +29,31 @@ export async function POST(request: NextRequest) {
     }
 
     // Store submission in database first (always works)
-    const supabase = getSupabase()
-    const { data: submission, error: dbError } = await supabase
-      .from('contact_submissions')
-      .insert({
-        name,
-        email,
-        subject: subject || 'General',
-        message,
-        status: 'new',
-      })
-      .select()
-      .single()
-
-    if (dbError) {
-      console.error('Database error:', dbError)
-      // Continue to try email even if DB fails
+    let submission = null
+    let dbError = null
+    try {
+      const supabase = getSupabase()
+      const result = await supabase
+        .from('contact_submissions')
+        .insert({
+          name,
+          email,
+          subject: subject || 'General',
+          message,
+          status: 'new',
+        })
+        .select()
+        .single()
+      
+      submission = result.data
+      dbError = result.error
+      
+      if (dbError) {
+        console.error('Database error:', dbError)
+      }
+    } catch (e) {
+      console.error('Database exception:', e)
+      dbError = e
     }
 
     // Try to send email via Resend
@@ -94,11 +103,17 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // Both failed
-    return NextResponse.json({
-      error: 'Failed to process submission',
-      details: emailError || dbError,
-    }, { status: 500 })
+    // If DB failed but we have a valid Resend key, try email-only
+    if (!submission && resend && !emailSent) {
+      return NextResponse.json({
+        success: false,
+        error: 'Failed to store submission and send email',
+        details: {
+          db: dbError?.message || 'Unknown DB error',
+          email: emailError?.message || 'Unknown email error',
+        },
+      }, { status: 500 })
+    }
 
   } catch (err) {
     console.error('Contact form error:', err)
