@@ -4,6 +4,11 @@ import { useMemo, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, ChevronDown, Disc, Star } from 'lucide-react'
+import {
+  SOCIAL_ICONS,
+  normalizeSocialUrl,
+  type SocialPlatform,
+} from '@/lib/artist-social'
 import type { Track } from '@/lib/audio-context'
 import type { Product } from '@/lib/products'
 import { ArtistTrackList } from '@/components/artist/ArtistTrackList'
@@ -189,7 +194,10 @@ export function ArtistTabs({
           {/* Albums / Projects */}
           {albumGroups.length > 0 && (
             <section>
-              <h2 className="text-base font-semibold mb-3">Albums &amp; Projects</h2>
+              <div className="flex items-center gap-2 mb-3">
+                <Disc size={14} className="text-[var(--pf-text-muted)]" />
+                <h2 className="text-base font-semibold">Albums &amp; Projects</h2>
+              </div>
               <div className="space-y-3">
                 {albumGroups.map((album) => {
                   const isOpen = openAlbum === album.name
@@ -310,18 +318,37 @@ export function ArtistTabs({
           {socialEntries.length > 0 && (
             <div>
               <p className="text-xs uppercase tracking-widest text-[var(--pf-text-secondary)] mb-3">Links</p>
-              <div className="flex flex-wrap gap-2">
-                {socialEntries.map(([platform, value]) => (
-                  <a
-                    key={platform}
-                    href={externalUrl(platform, value)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-3 py-1.5 rounded-full bg-[var(--pf-surface)] border border-[var(--pf-border)] text-sm text-[var(--pf-text-secondary)] hover:text-[var(--pf-text)] hover:border-[var(--pf-text-muted)] transition-colors capitalize"
-                  >
-                    {platform}
-                  </a>
-                ))}
+              <div className="flex flex-wrap gap-3">
+                {socialEntries.map(([platform, value]) => {
+                  const Icon = SOCIAL_ICONS[platform as Exclude<SocialPlatform, 'website'>]
+                  const href = normalizeSocialUrl(platform as SocialPlatform, value)
+                  if (!Icon || !href) {
+                    return (
+                      <a
+                        key={platform}
+                        href={externalUrl(platform, value)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-3 py-1.5 rounded-full bg-[var(--pf-surface)] border border-[var(--pf-border)] text-sm text-[var(--pf-text-secondary)] hover:text-[var(--pf-text)] hover:border-[var(--pf-text-muted)] transition-colors capitalize"
+                      >
+                        {platform}
+                      </a>
+                    )
+                  }
+                  return (
+                    <a
+                      key={platform}
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--pf-surface)] border border-[var(--pf-border)] text-sm text-[var(--pf-text-secondary)] hover:text-[var(--pf-text)] hover:border-[var(--pf-text-muted)] transition-colors capitalize"
+                      aria-label={`${artistName} on ${platform}`}
+                    >
+                      <Icon size={16} />
+                      <span>{platform}</span>
+                    </a>
+                  )
+                })}
               </div>
             </div>
           )}

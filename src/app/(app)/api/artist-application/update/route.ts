@@ -39,28 +39,45 @@ export async function POST(req: Request) {
     if (status === 'approved') {
       const slug = app.stage_name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
 
-      // Create artist record
-      const { error: artistError } = await supabase
+      // Check if artist already exists
+      const { data: existingArtist } = await supabase
         .from('artists')
-        .insert({
-          user_id: app.user_id,
-          name: app.stage_name,
-          slug,
-          bio: app.bio || null,
-          genre: app.genre || null,
-          city: app.city || null,
-          avatar_url: app.avatar_url || null,
-          cover_url: app.cover_image_url || null,
-          verified: true,
-          instagram_url: app.instagram ? `https://instagram.com/${app.instagram}` : null,
-          youtube_url: app.youtube ? `https://youtube.com/${app.youtube.replace('@', '')}` : null,
-          twitter_url: app.twitter ? `https://twitter.com/${app.twitter}` : null,
-          tiktok_url: app.tiktok ? `https://tiktok.com/@${app.tiktok}` : null,
-        })
+        .select('id')
+        .eq('slug', slug)
+        .maybeSingle()
 
-      if (artistError) {
-        console.error('Artist creation error:', artistError)
-        // Still return success since status was updated
+      if (existingArtist) {
+        // Update existing artist to active
+        await supabase
+          .from('artists')
+          .update({ status: 'active', public_profile_enabled: true })
+          .eq('id', existingArtist.id)
+      } else {
+        // Create artist record
+        const { error: artistError } = await supabase
+          .from('artists')
+          .insert({
+            user_id: app.user_id,
+            name: app.stage_name,
+            slug,
+            bio: app.bio || null,
+            genre: app.genre || null,
+            city: app.city || null,
+            avatar_url: app.avatar_url || null,
+            cover_url: app.cover_image_url || null,
+            verified: true,
+            status: 'active',
+            public_profile_enabled: true,
+            instagram_url: app.instagram ? `https://instagram.com/${app.instagram}` : null,
+            youtube_url: app.youtube ? `https://youtube.com/${app.youtube.replace('@', '')}` : null,
+            twitter_url: app.twitter ? `https://twitter.com/${app.twitter}` : null,
+            tiktok_url: app.tiktok ? `https://tiktok.com/@${app.tiktok}` : null,
+          })
+
+        if (artistError) {
+          console.error('Artist creation error:', artistError)
+          // Still return success since status was updated
+        }
       }
 
       // Update the user's role to artist
