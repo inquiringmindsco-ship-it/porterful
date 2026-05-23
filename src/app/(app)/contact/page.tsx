@@ -6,6 +6,7 @@ import Link from 'next/link'
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState('')
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -18,19 +19,21 @@ export default function ContactPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSubmitting(true)
+    setError('')
     try {
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       })
-      if (res.ok) {
+      const data = await res.json()
+      if (res.ok && data.success) {
         setSubmitted(true)
       } else {
-        alert(`Failed to send. Email ${supportEmail} directly.`)
+        setError(data.error || `Failed to send. Email ${supportEmail} directly.`)
       }
     } catch {
-      alert(`Failed to send. Email ${supportEmail} directly.`)
+      setError(`Failed to send. Email ${supportEmail} directly.`)
     }
     setSubmitting(false)
   }
@@ -46,9 +49,9 @@ export default function ContactPage() {
         </div>
 
         {submitted ? (
-          <div className="rounded-2xl border border-[var(--pf-orange)]/30 bg-[var(--pf-surface)] p-8 text-center">
+          <div className="rounded-2xl border border-green-500/30 bg-[var(--pf-surface)] p-8 text-center">
             <div className="mb-4 text-6xl">✉️</div>
-            <h2 className="mb-2 text-2xl font-bold">Message Sent</h2>
+            <h2 className="mb-2 text-2xl font-bold text-green-400">Message Sent</h2>
             <p className="mb-6 text-[var(--pf-text-secondary)]">
               We’ll get back to you within 24-48 hours.
             </p>
@@ -58,6 +61,11 @@ export default function ContactPage() {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
+            {error && (
+              <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-4 text-red-400 text-sm">
+                {error}
+              </div>
+            )}
             <div className="grid gap-6 md:grid-cols-2">
               <div>
                 <label className="mb-2 block text-sm font-medium">Name</label>

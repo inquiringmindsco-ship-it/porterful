@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
+import { createClient } from '@supabase/supabase-js'
 
 const TO_EMAIL = 'porter.jonathanj@gmail.com'
 
@@ -11,42 +12,94 @@ function getResend() {
   return new Resend(apiKey)
 }
 
+function getSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { persistSession: false } }
+  )
+}
+
 export async function POST(request: NextRequest) {
   try {
-    const resend = getResend()
-    if (!resend) {
-      console.warn('Resend not configured - skipping email send')
-      // Return success in build/CI environments without real email
-      return NextResponse.json({ success: true, warning: 'Email service not configured' })
-    }
-
     const { name, email, subject, message } = await request.json()
 
     if (!name || !email || !message) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    const { data, error } = await resend.emails.send({
-      from: 'Porterful Contact <onboarding@resend.dev>',
-      to: [TO_EMAIL],
-      replyTo: email,
-      subject: `[Porterful] ${subject || 'New contact form submission'}`,
-      html: `
-        <h2>New message from Porterful contact form</h2>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Subject:</strong> ${subject || '(no subject)'}</p>
-        <p><strong>Message:</strong></p>
-        <p>${message.replace(/\n/g, '<br>')}</p>
-      `,
-    })
+    // Store submission in database first (always works)
+    const supabase = getSupabase()
+    const { data: submission, error: dbError } = await supabase
+      .from('contact_submissions')
+      .insert({
+        name,
+        email,
+        subject: subject || 'General',
+        message,
+        status: 'new',
+      })
+      .select()
+      .single()
 
-    if (error) {
-      console.error('Resend error:', error)
-      return NextResponse.json({ error: 'Failed to send email' }, { status: 500 })
+    if (dbError) {
+      console.error('Database error:', dbError)
+      // Continue to try email even if DB fails
     }
 
-    return NextResponse.json({ success: true, id: data?.id })
+    // Try to send email via Resend
+    const resend = getResend()
+    let emailSent = false
+    let emailError = null
+
+    if (resend) {
+      try {
+        const { data, error } = await resend.emails.send({
+          from: 'Porterful <contact@porterful.com>',
+          to: [TO_EMAIL],
+          replyTo: email,
+          subject: `[Porterful Contact] ${subject || 'New message'} from ${name}`,
+          html: `
+            <h2>New message from Porterful contact form</h2>
+            <p><strong>Name:</strong> ${name}</p>
+            <p><strong>Email:</strong> ${email}</p>
+            <p><strong>Subject:</strong> ${subject || '(no subject)'}</p>
+            <p><strong>Message:</strong></p>
+            <p>${message.replace(/\n/g, '<br>')}</p>
+            <hr>
+            <p><small>Stored in database: ${submission ? 'Yes' : 'No'}</small></p>
+          `,
+        })
+
+        if (error) {
+          console.error('Resend error:', error)
+          emailError = error
+        } else {
+          emailSent = true
+        }
+      } catch (e) {
+        console.error('Email send exception:', e)
+        emailError = e
+      }
+    }
+
+    // Return success if either DB or email worked
+    if (submission || emailSent) {
+      return NextResponse.json({
+        success: true,
+        id: submission?.id,
+        emailSent,
+        stored: !!submission,
+        warning: emailError ? 'Email failed but submission stored' : undefined,
+      })
+    }
+
+    // Both failed
+    return NextResponse.json({
+      error: 'Failed to process submission',
+      details: emailError || dbError,
+    }, { status: 500 })
+
   } catch (err) {
     console.error('Contact form error:', err)
     return NextResponse.json({ error: 'Server error' }, { status: 500 })
