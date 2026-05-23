@@ -66,9 +66,8 @@ export default function SubmissionsPage() {
         return
       }
       
-      setSubmissions(subs => 
-        subs.map(s => s.id === submission.id ? { ...s, status: 'approved' as const } : s)
-      )
+      // Force re-fetch to verify DB actually updated
+      await fetchSubmissions()
       setNotice({ type: 'success', message: data.message || `${submission.stage_name} approved!` })
     } catch (err) {
       console.error('Approve failed:', err)
@@ -95,9 +94,8 @@ export default function SubmissionsPage() {
         return
       }
       
-      setSubmissions(subs => 
-        subs.map(s => s.id === submission.id ? { ...s, status: 'rejected' as const } : s)
-      )
+      // Force re-fetch to verify DB actually updated
+      await fetchSubmissions()
       setNotice({ type: 'success', message: data.message || `${submission.stage_name} declined.` })
     } catch (err) {
       console.error('Reject failed:', err)

@@ -40,19 +40,45 @@ export async function POST(
 
     // 2. Update submission status to rejected
     const now = new Date().toISOString()
-    await fetch(
-      `${supabaseUrl}/rest/v1/submissions?id=eq.${id}`,
-      {
-        method: 'PATCH',
-        headers: {
-          'apikey': supabaseKey,
-          'Authorization': `Bearer ${supabaseKey}`,
-          'Content-Type': 'application/json',
-          'Prefer': 'return=minimal',
-        },
-        body: JSON.stringify({ status: 'rejected', declined_at: now }),
+    const updatePayload: Record<string, any> = { status: 'rejected' }
+    // Only add declined_at if the column might exist (best effort)
+    try {
+      const patchRes = await fetch(
+        `${supabaseUrl}/rest/v1/submissions?id=eq.${id}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'apikey': supabaseKey,
+            'Authorization': `Bearer ${supabaseKey}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation',
+          },
+          body: JSON.stringify({ status: 'rejected', declined_at: now }),
+        }
+      )
+      if (!patchRes.ok) {
+        // Try without declined_at in case column doesn't exist
+        const fallbackRes = await fetch(
+          `${supabaseUrl}/rest/v1/submissions?id=eq.${id}`,
+          {
+            method: 'PATCH',
+            headers: {
+              'apikey': supabaseKey,
+              'Authorization': `Bearer ${supabaseKey}`,
+              'Content-Type': 'application/json',
+              'Prefer': 'return=minimal',
+            },
+            body: JSON.stringify({ status: 'rejected' }),
+          }
+        )
+        if (!fallbackRes.ok) {
+          const errText = await fallbackRes.text().catch(() => 'Unknown')
+          return NextResponse.json({ error: `DB update failed: ${errText}` }, { status: 500 })
+        }
       }
-    )
+    } catch (err: any) {
+      return NextResponse.json({ error: `DB update error: ${err.message}` }, { status: 500 })
+    }
 
     return NextResponse.json({
       success: true,

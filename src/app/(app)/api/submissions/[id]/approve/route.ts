@@ -40,19 +40,45 @@ export async function POST(
 
     // 2. Update submission status
     const now = new Date().toISOString()
-    await fetch(
-      `${supabaseUrl}/rest/v1/submissions?id=eq.${id}`,
-      {
-        method: 'PATCH',
-        headers: {
-          'apikey': supabaseKey,
-          'Authorization': `Bearer ${supabaseKey}`,
-          'Content-Type': 'application/json',
-          'Prefer': 'return=minimal',
-        },
-        body: JSON.stringify({ status: 'approved', approved_at: now }),
+    let newArtistId: string | null = null
+
+    try {
+      const patchRes = await fetch(
+        `${supabaseUrl}/rest/v1/submissions?id=eq.${id}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'apikey': supabaseKey,
+            'Authorization': `Bearer ${supabaseKey}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation',
+          },
+          body: JSON.stringify({ status: 'approved', approved_at: now }),
+        }
+      )
+      if (!patchRes.ok) {
+        // Try without approved_at in case column doesn't exist
+        const fallbackRes = await fetch(
+          `${supabaseUrl}/rest/v1/submissions?id=eq.${id}`,
+          {
+            method: 'PATCH',
+            headers: {
+              'apikey': supabaseKey,
+              'Authorization': `Bearer ${supabaseKey}`,
+              'Content-Type': 'application/json',
+              'Prefer': 'return=minimal',
+            },
+            body: JSON.stringify({ status: 'approved' }),
+          }
+        )
+        if (!fallbackRes.ok) {
+          const errText = await fallbackRes.text().catch(() => 'Unknown')
+          return NextResponse.json({ error: `DB update failed: ${errText}` }, { status: 500 })
+        }
       }
-    )
+    } catch (err: any) {
+      return NextResponse.json({ error: `DB update error: ${err.message}` }, { status: 500 })
+    }
 
     // 3. Create artist record
     const slug = (submission.stage_name || 'unknown')
@@ -102,7 +128,7 @@ export async function POST(
     )
 
     const artistData = await artistRes.json().catch(() => null)
-    const artistId = artistData?.[0]?.id || null
+    newArtistId = artistData?.[0]?.id || null
 
     // 4. Update user role if user_id exists
     if (submission.user_id) {
@@ -123,7 +149,7 @@ export async function POST(
 
     return NextResponse.json({
       success: true,
-      artist_id: artistId,
+      artist_id: newArtistId,
       slug,
       message: `${submission.stage_name} approved and artist profile created.`,
     })
