@@ -13,46 +13,39 @@ import { getTrackArtwork } from '@/lib/artwork'
 
 const PUBLIC_ARTISTS_FALLBACK = ARTISTS.filter((artist) => artist.trackCount && artist.trackCount > 0)
 
-const formatStatLabel = (count: number, singular: string, plural = `${singular}s`) =>
-  `${count} ${count === 1 ? singular : plural}`
-
 export default function HomePage() {
   const { currentTrack, isPlaying, playTrack, togglePlay, setQueue, setMode } = useAudio()
   const revealScopeRef = useRef<HTMLElement | null>(null)
   const [publicArtists, setPublicArtists] = useState<ArtistData[]>(PUBLIC_ARTISTS_FALLBACK)
-  const [siteSettings, setSiteSettings] = useState<any>(null)
-  const [heroLabelText, setHeroLabelText] = useState('Featured Release')
+  const [homepageData, setHomepageData] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     let cancelled = false
 
     async function loadData() {
       try {
-        // Load artists
-        const artistsRes = await fetch('/api/artists', { cache: 'no-store' })
-        if (artistsRes.ok) {
-          const artistsData = await artistsRes.json()
-          const artists = filterPublicArtists(
-            (Array.isArray(artistsData.artists) ? artistsData.artists : []) as ArtistData[],
-          )
+        // Load all homepage data from single API
+        const res = await fetch('/api/homepage-data', { cache: 'no-store' })
+        if (res.ok) {
+          const data = await res.json()
           if (!cancelled) {
-            setPublicArtists(artists.length > 0 ? artists : PUBLIC_ARTISTS_FALLBACK)
-          }
-        }
-
-        // Load site settings
-        const settingsRes = await fetch('/api/site-settings', { cache: 'no-store' })
-        if (settingsRes.ok) {
-          const settingsData = await settingsRes.json()
-          if (!cancelled && settingsData.settings) {
-            setSiteSettings(settingsData.settings)
-            setHeroLabelText(settingsData.settings.hero_label || 'Featured Release')
+            setHomepageData(data)
+            // Also load artists for the browse section
+            const artistsRes = await fetch('/api/artists', { cache: 'no-store' })
+            if (artistsRes.ok) {
+              const artistsData = await artistsRes.json()
+              const artists = filterPublicArtists(
+                (Array.isArray(artistsData.artists) ? artistsData.artists : []) as ArtistData[],
+              )
+              setPublicArtists(artists.length > 0 ? artists : PUBLIC_ARTISTS_FALLBACK)
+            }
           }
         }
       } catch {
-        if (!cancelled) {
-          setPublicArtists(PUBLIC_ARTISTS_FALLBACK)
-        }
+        // Silently fail, use fallbacks
+      } finally {
+        if (!cancelled) setLoading(false)
       }
     }
 
@@ -63,29 +56,52 @@ export default function HomePage() {
     }
   }, [])
 
+  // Get real counts from API
+  const artistCount = homepageData?.counts?.publicArtists || publicArtists.length || 0
+  const trackCount = homepageData?.counts?.activeTracks || 0
+
+  // Get hero track: newest release from API, or fallback
   const heroTrack = useMemo(() => {
-    // If site settings has a hero track, find it in TRACKS
-    if (siteSettings?.hero_track_id) {
-      const found = TRACKS.find((t) => t.id === siteSettings.hero_track_id)
-      if (found) return found as Track
+    // If there's a newest track from DB, use it
+    if (homepageData?.newestTrack) {
+      const nt = homepageData.newestTrack
+      // Check if we have this track in our static TRACKS array (for artwork/audio)
+      const staticMatch = TRACKS.find((t) => t.title === nt.title && t.artist === nt.artist)
+      if (staticMatch) {
+        return staticMatch as Track
+      }
+      // Build a Track-like object from DB data
+      return {
+        id: nt.id,
+        title: nt.title,
+        artist: nt.artist,
+        album: nt.album || 'Single',
+        duration: nt.duration || '0:00',
+        cover_url: nt.cover_url,
+        image: nt.cover_url || '/album-art/default.jpg',
+        audio_url: '', // Will need to be fetched when played
+        price: 1,
+      } as Track
     }
-    // Fallback to featured tracks from O D Porter
+    // Fallback to O D Porter's tracks
     const featuredArtist = publicArtists.find((a) => a.slug === 'od-porter') ?? publicArtists[0] ?? PUBLIC_ARTISTS_FALLBACK[0]
     const artistTracks = TRACKS.filter((t) => t.artist === featuredArtist?.name).slice(0, 3) as Track[]
     return artistTracks[0] ?? TRACKS[0]
-  }, [siteSettings, publicArtists])
+  }, [homepageData, publicArtists])
 
+  // Spotlight track: from site settings featured picks, or second newest
   const spotlightTrack = useMemo(() => {
     // If site settings has featured tracks, use the first one
-    if (siteSettings?.featured_track_ids?.length > 0) {
-      const found = TRACKS.find((t) => t.id === siteSettings.featured_track_ids[0])
+    const featuredIds = homepageData?.siteSettings?.featured_track_ids || []
+    if (featuredIds.length > 0) {
+      const found = TRACKS.find((t) => t.id === featuredIds[0])
       if (found) return found as Track
     }
-    // Fallback
+    // Fallback to second track from featured artist
     const featuredArtist = publicArtists.find((a) => a.slug === 'od-porter') ?? publicArtists[0] ?? PUBLIC_ARTISTS_FALLBACK[0]
     const artistTracks = TRACKS.filter((t) => t.artist === featuredArtist?.name).slice(0, 3) as Track[]
     return artistTracks[1] ?? heroTrack
-  }, [siteSettings, publicArtists, heroTrack])
+  }, [homepageData, publicArtists, heroTrack])
 
   const featuredArtist = useMemo(
     () => publicArtists.find((artist) => artist.slug === 'od-porter') ?? publicArtists[0] ?? PUBLIC_ARTISTS_FALLBACK[0],
@@ -188,6 +204,9 @@ export default function HomePage() {
   const isHeroActive = currentTrack?.id === heroTrack.id
   const isSpotlightActive = currentTrack?.id === spotlightTrack.id
 
+  // Get hero label from site settings or default
+  const heroLabel = homepageData?.siteSettings?.hero_label || 'New Release'
+
   return (
     <div className="dark">
       <main ref={revealScopeRef} className="min-h-screen bg-[var(--pf-bg)] pt-16 md:pt-20 overflow-x-hidden pb-24">
@@ -218,11 +237,11 @@ export default function HomePage() {
                 <div className="mt-4 flex flex-wrap gap-3 text-sm text-[var(--pf-text-muted)]">
                   <span className="inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.04] px-4 py-2">
                     <span className="h-2 w-2 rounded-full bg-[var(--pf-orange)]" />
-                    3 artists
+                    {loading ? '...' : `${artistCount} artists`}
                   </span>
                   <span className="inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.04] px-4 py-2">
                     <span className="h-2 w-2 rounded-full bg-emerald-400" />
-                    112 tracks
+                    {loading ? '...' : `${trackCount} tracks`}
                   </span>
                 </div>
               </div>
@@ -243,7 +262,7 @@ export default function HomePage() {
 
                       <div className="absolute left-3 sm:left-4 top-3 sm:top-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/[0.55] px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.26em] text-[var(--pf-text-secondary)] backdrop-blur-xl">
                         <span className="h-2 w-2 rounded-full bg-[var(--pf-orange)]" />
-                        {heroLabelText}
+                        {heroLabel}
                       </div>
 
                       <div className="absolute inset-x-3 sm:inset-x-4 bottom-6 sm:bottom-8 grid gap-3 sm:grid-cols-[1.2fr_0.8fr]">
@@ -383,7 +402,7 @@ export default function HomePage() {
                     href="/signup?role=artist"
                     className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-[var(--pf-border)] bg-[var(--pf-bg)] px-5 py-3 text-sm font-semibold text-[var(--pf-text)] transition-transform duration-200 hover:-translate-y-0.5 hover:border-[var(--pf-text-muted)]"
                   >
-                    Join →
+                    Join as Artist →
                   </Link>
                 </div>
               </article>
@@ -393,20 +412,6 @@ export default function HomePage() {
 
         <section className="pf-reveal-group border-b border-[var(--pf-border)]">
           <div className="pf-container py-12 md:py-16">
-            <div className="pf-reveal-child mb-6 flex items-end justify-between gap-4">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--pf-orange)]">
-                  Shop
-                </p>
-                <h2 className="mt-2 text-3xl font-bold text-white md:text-4xl">
-                  Merch
-                </h2>
-              </div>
-              <Link href="/store" className="text-sm font-medium text-[var(--pf-orange)] hover:underline">
-                Shop Merch
-              </Link>
-            </div>
-
             <div className="grid gap-4 lg:grid-cols-[1.12fr_0.88fr]">
               <article className="pf-reveal-child rounded-[2rem] border border-[var(--pf-border)] bg-[var(--pf-surface)] p-6 md:p-8 shadow-[0_24px_70px_rgba(0,0,0,0.24)]">
                 <div className="mt-6 grid gap-3 sm:grid-cols-3">
