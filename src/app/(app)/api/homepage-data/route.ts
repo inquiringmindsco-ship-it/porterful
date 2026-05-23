@@ -50,6 +50,21 @@ export async function GET() {
       .eq('key', 'homepage')
       .single()
 
+    // Resolve featured/hero tracks if they're DB tracks not in static array
+    const featuredIds = siteSettings?.value?.featured_track_ids || []
+    const heroId = siteSettings?.value?.hero_track_id
+    const promoIds = siteSettings?.value?.promo_track_ids || []
+    const allNeededIds = Array.from(new Set([...(heroId ? [heroId] : []), ...featuredIds, ...promoIds]))
+    
+    let resolvedTracks: any[] = []
+    if (allNeededIds.length > 0) {
+      const { data: dbTracks } = await supabase
+        .from('tracks')
+        .select('id, title, artist, album, duration, cover_url, is_active')
+        .in('id', allNeededIds)
+      resolvedTracks = dbTracks || []
+    }
+
     return NextResponse.json({
       counts: {
         totalArtists: totalArtists || 0,
@@ -59,6 +74,7 @@ export async function GET() {
       },
       newestTrack,
       siteSettings: siteSettings?.value || {},
+      tracks: resolvedTracks,
     })
   } catch (error) {
     console.error('Homepage data error:', error)

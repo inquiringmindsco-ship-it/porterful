@@ -60,35 +60,45 @@ export default function HomePage() {
   const artistCount = homepageData?.counts?.publicArtists || publicArtists.length || 0
   const trackCount = homepageData?.counts?.activeTracks || 0
 
-  // Get hero track: newest release from API, or fallback
+  // Build a Track-like object from DB data with proper duration formatting
+  function buildTrackFromDb(nt: any): Track {
+    const duration = nt.duration ? 
+      (typeof nt.duration === 'number' ? 
+        `${Math.floor(nt.duration / 60)}:${String(nt.duration % 60).padStart(2, '0')}` : 
+        nt.duration) : 
+      '0:00'
+    return {
+      id: nt.id,
+      title: nt.title,
+      artist: nt.artist,
+      album: nt.album || 'Single',
+      duration,
+      cover_url: nt.cover_url,
+      image: nt.cover_url || '/album-art/default.jpg',
+      audio_url: `/api/tracks/${nt.id}/audio`, // Dynamic audio endpoint
+      price: 1,
+    } as Track
+  }
+
+  // Get hero track: from site settings, or newest release, or fallback
   const heroTrack = useMemo(() => {
-    // If there's a newest track from DB, use it
+    // 1. Check site_settings hero_track_id first
+    const heroTrackId = homepageData?.siteSettings?.hero_track_id
+    if (heroTrackId) {
+      const found = TRACKS.find((t) => t.id === heroTrackId)
+      if (found) return found as Track
+      // Also check in DB tracks if not in static
+      const dbMatch = homepageData?.tracks?.find((t: any) => t.id === heroTrackId)
+      if (dbMatch) return buildTrackFromDb(dbMatch)
+    }
+    // 2. Fallback to newest track from DB
     if (homepageData?.newestTrack) {
       const nt = homepageData.newestTrack
-      // Check if we have this track in our static TRACKS array (for artwork/audio)
       const staticMatch = TRACKS.find((t) => t.title === nt.title && t.artist === nt.artist)
-      if (staticMatch) {
-        return staticMatch as Track
-      }
-      // Build a Track-like object from DB data with proper duration formatting
-      const duration = nt.duration ? 
-        (typeof nt.duration === 'number' ? 
-          `${Math.floor(nt.duration / 60)}:${String(nt.duration % 60).padStart(2, '0')}` : 
-          nt.duration) : 
-        '0:00'
-      return {
-        id: nt.id,
-        title: nt.title,
-        artist: nt.artist,
-        album: nt.album || 'Single',
-        duration,
-        cover_url: nt.cover_url,
-        image: nt.cover_url || '/album-art/default.jpg',
-        audio_url: `/api/tracks/${nt.id}/audio`, // Dynamic audio endpoint
-        price: 1,
-      } as Track
+      if (staticMatch) return staticMatch as Track
+      return buildTrackFromDb(nt)
     }
-    // Fallback to O D Porter's tracks
+    // 3. Final fallback
     const featuredArtist = publicArtists.find((a) => a.slug === 'od-porter') ?? publicArtists[0] ?? PUBLIC_ARTISTS_FALLBACK[0]
     const artistTracks = TRACKS.filter((t) => t.artist === featuredArtist?.name).slice(0, 3) as Track[]
     return artistTracks[0] ?? TRACKS[0]
@@ -99,8 +109,12 @@ export default function HomePage() {
     // If site settings has featured tracks, use the first one
     const featuredIds = homepageData?.siteSettings?.featured_track_ids || []
     if (featuredIds.length > 0) {
+      // Try static tracks first
       const found = TRACKS.find((t) => t.id === featuredIds[0])
       if (found) return found as Track
+      // Fall back to DB tracks
+      const dbMatch = homepageData?.tracks?.find((t: any) => t.id === featuredIds[0])
+      if (dbMatch) return buildTrackFromDb(dbMatch)
     }
     // Fallback to second track from featured artist
     const featuredArtist = publicArtists.find((a) => a.slug === 'od-porter') ?? publicArtists[0] ?? PUBLIC_ARTISTS_FALLBACK[0]
