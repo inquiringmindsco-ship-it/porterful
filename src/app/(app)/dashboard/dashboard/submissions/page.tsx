@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { Music, Check, X, ExternalLink, Clock, AlertCircle } from 'lucide-react'
 
 interface Submission {
@@ -21,37 +22,43 @@ interface Submission {
 }
 
 export default function SubmissionsPage() {
+  const router = useRouter()
   const [submissions, setSubmissions] = useState<Submission[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending')
   const [showDeclined, setShowDeclined] = useState(false)
   const [processing, setProcessing] = useState<string | null>(null)
   const [notice, setNotice] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
   
-  // Auth check — redirect if not logged in
+  // Auth check — block page if not logged in
   useEffect(() => {
     const checkAuth = async () => {
       try {
         const res = await fetch('/api/auth/session')
         if (!res.ok) {
-          window.location.href = '/login?returnTo=/dashboard/dashboard/submissions'
+          router.push('/login?returnTo=/dashboard/dashboard/submissions')
           return
         }
-        // Also check if user is admin
         const data = await res.json().catch(() => ({}))
-        if (data.user?.role !== 'admin' && data.user?.email !== 'od@porterful.com') {
-          setNotice({ type: 'error', message: 'Admin access required' })
+        if (!data.user) {
+          router.push('/login?returnTo=/dashboard/dashboard/submissions')
+          return
         }
+        setIsAuthenticated(true)
       } catch (err) {
         console.error('Auth check failed:', err)
+        router.push('/login?returnTo=/dashboard/dashboard/submissions')
       }
     }
     checkAuth()
-  }, [])
+  }, [router])
   
   useEffect(() => {
-    fetchSubmissions()
-  }, [])
+    if (isAuthenticated) {
+      fetchSubmissions()
+    }
+  }, [isAuthenticated])
   
   const fetchSubmissions = async () => {
     try {
