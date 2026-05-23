@@ -43,7 +43,7 @@ export async function GET() {
 
     // Get site settings - using raw fetch to bypass Supabase JS client JSONB issue
     const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const siteSettingsUrl = baseUrl + encodeURI('/rest/v1/site_settings?select=*')
+    const siteSettingsUrl = baseUrl + encodeURI('/rest/v1/site_settings?select=*') + '&_=' + Date.now()
     const siteSettingsRes = await fetch(siteSettingsUrl, {
       cache: 'no-store',
       headers: {
