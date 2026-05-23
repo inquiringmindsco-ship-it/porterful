@@ -76,7 +76,7 @@ export async function POST(
       return NextResponse.json({ error: `Failed to approve: ${errText}` }, { status: 500 })
     }
 
-    // 5. Create artist record
+    // 5. Upsert artist record — update existing if slug matches, else create
     const slug = (submission.stage_name || 'unknown')
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
@@ -97,27 +97,85 @@ export async function POST(
       approved_at: now,
     }
 
-    const artistRes = await fetch(
-      `${supabaseUrl}/rest/v1/artists?select=id`,
+    // Try to find existing artist by slug
+    const existingRes = await fetch(
+      `${supabaseUrl}/rest/v1/artists?slug=eq.${slug}&select=id`,
       {
-        method: 'POST',
         headers: {
           'apikey': supabaseKey,
           'Authorization': `Bearer ${supabaseKey}`,
-          'Content-Type': 'application/json',
-          'Prefer': 'return=representation',
         },
-        body: JSON.stringify(artistPayload),
       }
     )
 
-    if (!artistRes.ok) {
-      const errText = await artistRes.text()
-      return NextResponse.json({ error: `Artist creation failed: ${errText}` }, { status: 500 })
-    }
+    let artistId: string | null = null
 
-    const artistData = await artistRes.json()
-    const newArtistId = artistData?.[0]?.id || null
+    if (existingRes.ok) {
+      const existing = await existingRes.json()
+      if (existing && existing.length > 0) {
+        // Update existing artist
+        artistId = existing[0].id
+        const updateRes = await fetch(
+          `${supabaseUrl}/rest/v1/artists?id=eq.${artistId}`,
+          {
+            method: 'PATCH',
+            headers: {
+              'apikey': supabaseKey,
+              'Authorization': `Bearer ${supabaseKey}`,
+              'Content-Type': 'application/json',
+              'Prefer': 'return=representation',
+            },
+            body: JSON.stringify(artistPayload),
+          }
+        )
+        if (!updateRes.ok) {
+          const errText = await updateRes.text()
+          return NextResponse.json({ error: `Artist update failed: ${errText}` }, { status: 500 })
+        }
+      } else {
+        // Create new artist
+        const artistRes = await fetch(
+          `${supabaseUrl}/rest/v1/artists?select=id`,
+          {
+            method: 'POST',
+            headers: {
+              'apikey': supabaseKey,
+              'Authorization': `Bearer ${supabaseKey}`,
+              'Content-Type': 'application/json',
+              'Prefer': 'return=representation',
+            },
+            body: JSON.stringify(artistPayload),
+          }
+        )
+        if (!artistRes.ok) {
+          const errText = await artistRes.text()
+          return NextResponse.json({ error: `Artist creation failed: ${errText}` }, { status: 500 })
+        }
+        const artistData = await artistRes.json()
+        artistId = artistData?.[0]?.id || null
+      }
+    } else {
+      // Fallback: try insert anyway
+      const artistRes = await fetch(
+        `${supabaseUrl}/rest/v1/artists?select=id`,
+        {
+          method: 'POST',
+          headers: {
+            'apikey': supabaseKey,
+            'Authorization': `Bearer ${supabaseKey}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation',
+          },
+          body: JSON.stringify(artistPayload),
+        }
+      )
+      if (!artistRes.ok) {
+        const errText = await artistRes.text()
+        return NextResponse.json({ error: `Artist creation failed: ${errText}` }, { status: 500 })
+      }
+      const artistData = await artistRes.json()
+      artistId = artistData?.[0]?.id || null
+    }
 
     // 6. Update user role if user_id exists
     if (submission.user_id) {
@@ -138,9 +196,9 @@ export async function POST(
 
     return NextResponse.json({
       success: true,
-      artist_id: newArtistId,
+      artist_id: artistId,
       slug,
-      message: `${submission.stage_name} approved and artist profile created.`,
+      message: `${submission.stage_name} approved and artist profile upserted.`,
     })
   } catch (err: any) {
     console.error('[submissions/approve] error:', err)
