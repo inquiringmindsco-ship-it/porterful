@@ -55,14 +55,19 @@ export default function AdminPage() {
       const res = await fetch('/api/artist-application/update', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, status }),
+        body: JSON.stringify({ id, status, admin_secret: 'admin-secret' }),
       })
-      if (res.ok) {
-        fetchApplications()
-        setSelectedApp(null)
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        console.error('Approval failed:', data.error || `HTTP ${res.status}`)
+        alert('Failed to update status: ' + (data.error || 'Unknown error'))
+        return
       }
+      fetchApplications()
+      setSelectedApp(null)
     } catch (err) {
       console.error('Update failed:', err)
+      alert('Network error while updating status')
     } finally {
       setActionLoading(false)
     }
