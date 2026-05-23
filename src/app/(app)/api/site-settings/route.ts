@@ -22,6 +22,12 @@ export async function GET() {
 
     if (error) {
       console.error('[site-settings] DB error:', error)
+      if (error.message?.includes('does not exist') || error.code === '42P01') {
+        return NextResponse.json(
+          { error: 'site_settings table not found. Run migration 028_site_settings.sql in Supabase dashboard.' },
+          { status: 500 }
+        )
+      }
       return NextResponse.json({ settings: null })
     }
 
@@ -45,6 +51,12 @@ export async function PATCH(req: Request) {
 
     if (error) {
       console.error('[site-settings] Update error:', error)
+      if (error.message?.includes('does not exist') || error.code === '42P01') {
+        return NextResponse.json(
+          { error: 'site_settings table not found. Run migration 028_site_settings.sql in Supabase dashboard.' },
+          { status: 500 }
+        )
+      }
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
