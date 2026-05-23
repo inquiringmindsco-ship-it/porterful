@@ -131,8 +131,10 @@ export default function SubmissionsPage() {
   }
   
   const filteredSubmissions = submissions.filter(sub => {
-    // If filter is 'pending' and showDeclined is OFF, hide rejected
-    if (filter === 'pending' && !showDeclined && sub.status === 'rejected') return false
+    // If filter is 'pending' and showDeclined is OFF, hide rejected/approved
+    if (filter === 'pending' && !showDeclined) {
+      return sub.status === 'pending'
+    }
     if (filter === 'all') return true
     return sub.status === filter
   })
