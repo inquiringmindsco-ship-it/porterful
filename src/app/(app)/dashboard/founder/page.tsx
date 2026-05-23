@@ -128,6 +128,21 @@ export default function FounderDashboard() {
     setLoading(true)
 
     try {
+      // Get accurate user counts from admin API
+      let adminCounts = null
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        const adminRes = await fetch('/api/admin/users', {
+          headers: { 'Authorization': `Bearer ${session?.access_token || ''}` },
+        })
+        if (adminRes.ok) {
+          const adminData = await adminRes.json()
+          adminCounts = adminData.counts
+        }
+      } catch (e) {
+        console.error('Failed to load admin counts:', e)
+      }
+
       // Parallel queries for efficiency
       const [
         { data: profilesData },
@@ -144,8 +159,8 @@ export default function FounderDashboard() {
       ])
 
       // Calculate metrics
-      const totalUsers = profilesData?.length || 0
-      const totalArtists = artistsData?.length || 0
+      const totalUsers = adminCounts?.total || profilesData?.length || 0
+      const totalArtists = adminCounts?.artists || artistsData?.length || 0
       const totalTracks = tracksData?.length || 0
       const liveTracks = tracksData?.filter(t => t.status === 'live' || t.is_active).length || 0
       const totalOrders = ordersData?.length || 0
