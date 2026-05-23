@@ -124,7 +124,7 @@ export default async function ArtistPage({ params }: PageProps) {
     const isPublicProfile = dbArtistRecord.public_profile_enabled !== false
     const isAllowedStatus = status === 'active' || status === 'approved' || status === 'null' || status === ''
 
-    if (!isPublicProfile) {
+    if (!isPublicProfile || !isAllowedStatus) {
       notFound()
     }
   }
