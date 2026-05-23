@@ -217,18 +217,40 @@ export default function FounderDashboard() {
   }
 
   async function updateArtistStatus(artistId: string, status: string) {
-    if (!supabase) return
-    const { error } = await supabase
-      .from('artists')
-      .update({ status })
-      .eq('id', artistId)
-
-    if (error) {
-      console.error('Error updating artist:', error)
-      return
+    // Confirmation for destructive actions
+    if (status === 'suspended') {
+      const confirmed = window.confirm('Suspend this artist? Their public profile will be hidden.')
+      if (!confirmed) return
     }
 
-    loadData()
+    setError('')
+    setNotice('Saving...')
+    
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      const res = await fetch(`/api/artists/${artistId}/status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token || ''}`,
+        },
+        body: JSON.stringify({ status }),
+      })
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        setError(data.error || `Failed to update status to ${status}`)
+        setNotice('')
+        return
+      }
+
+      setNotice(`Status updated to ${status}`)
+      loadData()
+    } catch (err: any) {
+      setError(err.message || 'Failed to update status')
+      setNotice('')
+    }
   }
 
   async function updateTrackStatus(trackId: string, status: string) {
