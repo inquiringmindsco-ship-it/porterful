@@ -33,6 +33,11 @@ export default function ArtistDashboardPage() {
   const [dbTracks, setDbTracks] = useState<any[]>([])
   const [dbProducts, setDbProducts] = useState<any[]>([])
   const [featured, setFeatured] = useState<string[]>([])
+  
+  // Search and filter states
+  const [trackSearch, setTrackSearch] = useState('')
+  const [trackStatusFilter, setTrackStatusFilter] = useState<'all' | 'live' | 'hidden'>('all')
+  const [trackSort, setTrackSort] = useState<'newest' | 'oldest'>('newest')
 
   const getProductTitle = (product: any) => product.title || product.name || 'Untitled product'
   const getProductImage = (product: any) => {
@@ -174,12 +179,39 @@ export default function ArtistDashboardPage() {
         {/* Tracks Tab — REAL DB DATA */}
         {activeTab === 'tracks' && (
           <div className="space-y-4">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold">All Tracks</h2>
-              <Link href="/dashboard/upload" className="pf-btn pf-btn-primary flex items-center gap-2">
-                <Icon.Plus /> Upload Track
+            {/* Search & Filter Bar */}
+            <div className="flex flex-col sm:flex-row gap-3 mb-4">
+              <div className="relative flex-1">
+                <input
+                  type="text"
+                  value={trackSearch}
+                  onChange={(e) => setTrackSearch(e.target.value)}
+                  placeholder="Search tracks..."
+                  className="w-full px-4 py-2 rounded-lg bg-[var(--pf-surface)] border border-[var(--pf-border)] text-sm focus:border-[var(--pf-orange)] focus:outline-none"
+                />
+              </div>
+              <select
+                value={trackStatusFilter}
+                onChange={(e) => setTrackStatusFilter(e.target.value as any)}
+                className="px-4 py-2 rounded-lg bg-[var(--pf-surface)] border border-[var(--pf-border)] text-sm focus:border-[var(--pf-orange)] focus:outline-none"
+              >
+                <option value="all">All Status</option>
+                <option value="live">Live</option>
+                <option value="hidden">Hidden</option>
+              </select>
+              <select
+                value={trackSort}
+                onChange={(e) => setTrackSort(e.target.value as any)}
+                className="px-4 py-2 rounded-lg bg-[var(--pf-surface)] border border-[var(--pf-border)] text-sm focus:border-[var(--pf-orange)] focus:outline-none"
+              >
+                <option value="newest">Newest</option>
+                <option value="oldest">Oldest</option>
+              </select>
+              <Link href="/dashboard/upload" className="pf-btn pf-btn-primary flex items-center gap-2 whitespace-nowrap">
+                <Icon.Plus /> Upload
               </Link>
             </div>
+
             {dbTracks.length === 0 ? (
               <div className="pf-card p-12 text-center">
                 <Icon.Music />
@@ -191,43 +223,59 @@ export default function ArtistDashboardPage() {
               </div>
             ) : (
               <div className="space-y-3">
-                {dbTracks.map((track) => (
-                  <div key={track.id} className="pf-card p-4 flex items-center gap-4">
-                    <div className="relative w-14 h-14 rounded-lg overflow-hidden bg-[var(--pf-surface)] shrink-0">
-                      {track.cover_url ? (
-                        <Image src={track.cover_url} alt={track.title} fill sizes="56px" className="object-cover" />
-                      ) : (
-                        <div className="absolute inset-0 flex items-center justify-center text-[var(--pf-text-muted)]">
-                          <Icon.Music />
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium truncate">{track.title}</p>
-                      <p className="text-sm text-[var(--pf-text-muted)]">
-                        {(track.proud_to_pay_min ?? track.price) === 0 ? 'Free' : `$${track.proud_to_pay_min ?? track.price ?? 1}`}
-                        {track.description && ` • ${track.description.slice(0, 50)}${track.description.length > 50 ? '...' : ''}`}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className={`px-2 py-1 rounded text-xs border ${track.is_active ? 'border-green-500/30 bg-green-500/10 text-green-400' : 'border-[var(--pf-border)] bg-[var(--pf-surface)] text-[var(--pf-text-muted)]'}`}>
-                        {track.is_active ? 'Live' : 'Hidden'}
-                      </span>
-                      {track.featured && (
-                        <span className="px-2 py-1 rounded text-xs border border-[var(--pf-orange)]/30 bg-[var(--pf-orange)]/10 text-[var(--pf-orange)]">
-                          Featured
+                {dbTracks
+                  .filter((track) => {
+                    const matchesSearch = !trackSearch ||
+                      track.title?.toLowerCase().includes(trackSearch.toLowerCase()) ||
+                      track.artist?.toLowerCase().includes(trackSearch.toLowerCase())
+                    const matchesStatus = trackStatusFilter === 'all' ||
+                      (trackStatusFilter === 'live' && track.is_active) ||
+                      (trackStatusFilter === 'hidden' && !track.is_active)
+                    return matchesSearch && matchesStatus
+                  })
+                  .sort((a, b) => {
+                    if (trackSort === 'newest') {
+                      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+                    }
+                    return new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+                  })
+                  .map((track) => (
+                    <div key={track.id} className="pf-card p-4 flex items-center gap-4">
+                      <div className="relative w-14 h-14 rounded-lg overflow-hidden bg-[var(--pf-surface)] shrink-0">
+                        {track.cover_url ? (
+                          <Image src={track.cover_url} alt={track.title} fill sizes="56px" className="object-cover" />
+                        ) : (
+                          <div className="absolute inset-0 flex items-center justify-center text-[var(--pf-text-muted)]">
+                            <Icon.Music />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium truncate">{track.title}</p>
+                        <p className="text-sm text-[var(--pf-text-muted)]">
+                          {(track.proud_to_pay_min ?? track.price) === 0 ? 'Free' : `$${track.proud_to_pay_min ?? track.price ?? 1}`}
+                          {track.description && ` • ${track.description.slice(0, 50)}${track.description.length > 50 ? '...' : ''}`}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className={`px-2 py-1 rounded text-xs border ${track.is_active ? 'border-green-500/30 bg-green-500/10 text-green-400' : 'border-[var(--pf-border)] bg-[var(--pf-surface)] text-[var(--pf-text-muted)]'}`}>
+                          {track.is_active ? 'Live' : 'Hidden'}
                         </span>
-                      )}
-                      <Link
-                        href={`/dashboard/artist/tracks/${track.id}/edit`}
-                        className="pf-btn pf-btn-secondary text-[var(--pf-text-secondary)]"
-                        title="Edit track"
-                      >
-                        <Icon.Edit />
-                      </Link>
+                        {track.featured && (
+                          <span className="px-2 py-1 rounded text-xs border border-[var(--pf-orange)]/30 bg-[var(--pf-orange)]/10 text-[var(--pf-orange)]">
+                            Featured
+                          </span>
+                        )}
+                        <Link
+                          href={`/dashboard/artist/tracks/${track.id}/edit`}
+                          className="pf-btn pf-btn-secondary text-[var(--pf-text-secondary)]"
+                          title="Edit track"
+                        >
+                          <Icon.Edit />
+                        </Link>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
               </div>
             )}
           </div>
