@@ -87,6 +87,10 @@ export async function GET() {
         keyType: process.env.SUPABASE_SERVICE_ROLE_KEY ? 'SERVICE_ROLE' : 'ANON_FALLBACK',
         hasServiceRole: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
         siteSettingsError: siteSettingsError ? siteSettingsError.message : null,
+        rawSiteSettings: siteSettings,
+        rawValue: siteSettings?.value,
+        valueType: typeof siteSettings?.value,
+        valueKeys: siteSettings?.value ? Object.keys(siteSettings.value) : null,
       }
     })
   } catch (error) {
