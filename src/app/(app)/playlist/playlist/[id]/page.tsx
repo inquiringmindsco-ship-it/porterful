@@ -80,6 +80,13 @@ const Icon = {
       <polyline points="15,18 9,12 15,6" />
     </svg>
   ),
+  Music: ({ className }: { className?: string }) => (
+    <svg width="96" height="96" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className={className}>
+      <path d="M9 18V5l12-2v13" />
+      <circle cx="6" cy="18" r="3" />
+      <circle cx="18" cy="16" r="3" />
+    </svg>
+  ),
 }
 
 export default function PlaylistDetailPage() {
