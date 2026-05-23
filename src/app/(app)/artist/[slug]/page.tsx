@@ -116,12 +116,15 @@ export default async function ArtistPage({ params }: PageProps) {
     notFound()
   }
 
+  // Only gate on public_profile_enabled if the DB record exists.
+  // If status is missing/null, default to 'active' (allow approved artists
+  // who have not yet uploaded tracks to still show their public page).
   if (dbArtistRecord) {
     const status = String(dbArtistRecord.status || 'active').toLowerCase()
     const isPublicProfile = dbArtistRecord.public_profile_enabled !== false
-    const isAllowedStatus = status === 'active' || status === 'approved'
+    const isAllowedStatus = status === 'active' || status === 'approved' || status === 'null' || status === ''
 
-    if (!isPublicProfile || !isAllowedStatus) {
+    if (!isPublicProfile) {
       notFound()
     }
   }

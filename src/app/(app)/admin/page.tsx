@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 type Application = {
   id: string
@@ -27,11 +28,20 @@ type Application = {
 }
 
 export default function AdminPage() {
+  const router = useRouter()
   const [apps, setApps] = useState<Application[]>([])
   const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState<'pending' | 'approved' | 'rejected'>('pending')
   const [selectedApp, setSelectedApp] = useState<Application | null>(null)
   const [actionLoading, setActionLoading] = useState(false)
+
+  // Redirect to new Founder Dashboard after 3 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      router.push('/dashboard/founder')
+    }, 3000)
+    return () => clearTimeout(timer)
+  }, [router])
 
   useEffect(() => {
     fetchApplications()
@@ -77,6 +87,13 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-[var(--pf-bg)] overflow-x-hidden">
+      {/* Redirect Banner */}
+      <div className="bg-[var(--pf-orange)]/10 border-b border-[var(--pf-orange)]/20 px-4 py-3 text-center">
+        <p className="text-sm text-[var(--pf-orange)]">
+          ⚠️ This admin page is deprecated. Redirecting to <Link href="/dashboard/founder" className="underline font-medium">Founder Dashboard</Link> in 3 seconds...
+        </p>
+      </div>
+      
       {/* Header */}
       <div className="border-b border-[var(--pf-border)] bg-[var(--pf-bg-secondary)]">
         <div className="pf-container py-4">

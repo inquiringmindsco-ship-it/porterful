@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Music, Check, X, ExternalLink, Clock } from 'lucide-react'
+import { Music, Check, X, ExternalLink, Clock, AlertCircle } from 'lucide-react'
 
 interface Submission {
   id: string
@@ -24,7 +24,9 @@ export default function SubmissionsPage() {
   const [submissions, setSubmissions] = useState<Submission[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending')
+  const [showDeclined, setShowDeclined] = useState(false)
   const [processing, setProcessing] = useState<string | null>(null)
+  const [notice, setNotice] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
   
   useEffect(() => {
     fetchSubmissions()
@@ -36,9 +38,12 @@ export default function SubmissionsPage() {
       if (res.ok) {
         const data = await res.json()
         setSubmissions(data)
+      } else {
+        setNotice({ type: 'error', message: 'Failed to load submissions' })
       }
     } catch (err) {
       console.error('Failed to fetch:', err)
+      setNotice({ type: 'error', message: 'Network error loading submissions' })
     } finally {
       setLoading(false)
     }
@@ -46,26 +51,28 @@ export default function SubmissionsPage() {
   
   const handleApprove = async (submission: Submission) => {
     setProcessing(submission.id)
+    setNotice(null)
     try {
-      // In a real app, this would:
-      // 1. Move tracks from submissions/pending to artists/{slug}/
-      // 2. Create artist profile in database
-      // 3. Send approval email
-      // 4. Update submission status
-      
       const res = await fetch(`/api/submissions/${submission.id}/approve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(submission)
+        body: JSON.stringify({ admin_secret: 'admin-secret' })
       })
       
-      if (res.ok) {
-        setSubmissions(subs => 
-          subs.map(s => s.id === submission.id ? { ...s, status: 'approved' as const } : s)
-        )
+      const data = await res.json().catch(() => ({}))
+      
+      if (!res.ok) {
+        setNotice({ type: 'error', message: data.error || `Approve failed (HTTP ${res.status})` })
+        return
       }
+      
+      setSubmissions(subs => 
+        subs.map(s => s.id === submission.id ? { ...s, status: 'approved' as const } : s)
+      )
+      setNotice({ type: 'success', message: data.message || `${submission.stage_name} approved!` })
     } catch (err) {
       console.error('Approve failed:', err)
+      setNotice({ type: 'error', message: 'Network error while approving' })
     } finally {
       setProcessing(null)
     }
@@ -73,21 +80,36 @@ export default function SubmissionsPage() {
   
   const handleReject = async (submission: Submission) => {
     setProcessing(submission.id)
+    setNotice(null)
     try {
-      await fetch(`/api/submissions/${submission.id}/reject`, {
-        method: 'POST'
+      const res = await fetch(`/api/submissions/${submission.id}/decline`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ admin_secret: 'admin-secret' })
       })
+      
+      const data = await res.json().catch(() => ({}))
+      
+      if (!res.ok) {
+        setNotice({ type: 'error', message: data.error || `Decline failed (HTTP ${res.status})` })
+        return
+      }
+      
       setSubmissions(subs => 
         subs.map(s => s.id === submission.id ? { ...s, status: 'rejected' as const } : s)
       )
+      setNotice({ type: 'success', message: data.message || `${submission.stage_name} declined.` })
     } catch (err) {
       console.error('Reject failed:', err)
+      setNotice({ type: 'error', message: 'Network error while declining' })
     } finally {
       setProcessing(null)
     }
   }
   
   const filteredSubmissions = submissions.filter(sub => {
+    // If filter is 'pending' and showDeclined is OFF, hide rejected
+    if (filter === 'pending' && !showDeclined && sub.status === 'rejected') return false
     if (filter === 'all') return true
     return sub.status === filter
   })
@@ -145,6 +167,33 @@ export default function SubmissionsPage() {
             </div>
           </div>
         </div>
+        
+        {/* Show Declined Toggle (only on pending tab) */}
+        {filter === 'pending' && (
+          <div className="mb-4 flex items-center gap-2">
+            <label className="flex items-center gap-2 text-sm text-[var(--pf-text-secondary)] cursor-pointer">
+              <input
+                type="checkbox"
+                checked={showDeclined}
+                onChange={(e) => setShowDeclined(e.target.checked)}
+                className="rounded border-[var(--pf-border)] bg-[var(--pf-surface)]"
+              />
+              Show declined submissions
+            </label>
+          </div>
+        )}
+        
+        {/* Notice */}
+        {notice && (
+          <div className={`mb-4 p-3 rounded-xl flex items-center gap-2 text-sm ${
+            notice.type === 'success'
+              ? 'bg-green-500/10 border border-green-500/20 text-green-400'
+              : 'bg-red-500/10 border border-red-500/20 text-red-400'
+          }`}>
+            {notice.type === 'success' ? <Check size={16} /> : <AlertCircle size={16} />}
+            {notice.message}
+          </div>
+        )}
         
         {/* Submissions List */}
         {filteredSubmissions.length === 0 ? (
@@ -255,7 +304,7 @@ export default function SubmissionsPage() {
                     <p className={`text-sm ${sub.status === 'approved' ? 'text-green-500' : 'text-red-500'}`}>
                       {sub.status === 'approved' 
                         ? '✅ Artist approved and set up on Porterful'
-                        : '❌ Submission rejected'}
+                        : '❌ Submission declined'}
                     </p>
                   </div>
                 )}
