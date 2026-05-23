@@ -124,10 +124,7 @@ export default async function ArtistPage({ params }: PageProps) {
     const isPublicProfile = dbArtistRecord.public_profile_enabled !== false
     const isAllowedStatus = status === 'active' || status === 'approved' || status === 'pending' || status === 'null' || status === ''
 
-    console.log('[ArtistPage] gating check:', { slug, status, isPublicProfile, isAllowedStatus, public_profile_enabled: dbArtistRecord.public_profile_enabled })
-
     if (!isPublicProfile || !isAllowedStatus) {
-      console.log('[ArtistPage] notFound triggered:', { slug, reason: !isPublicProfile ? 'public_profile_enabled=false' : 'status not allowed' })
       notFound()
     }
   }
