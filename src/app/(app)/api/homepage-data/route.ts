@@ -6,8 +6,6 @@ export const dynamic = 'force-dynamic'
 function getServerSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL!
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  console.log('[homepage-data] Supabase URL:', url ? 'SET' : 'MISSING')
-  console.log('[homepage-data] Using key type:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'SERVICE_ROLE' : 'ANON')
   return createClient(url, key, { auth: { persistSession: false } })
 }
 
@@ -46,24 +44,14 @@ export async function GET() {
     // Get site settings - using raw fetch to bypass Supabase JS client JSONB issue
     const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const siteSettingsUrl = baseUrl + encodeURI('/rest/v1/site_settings?select=*')
-    console.log('[homepage-data] Fetch URL:', siteSettingsUrl)
     const siteSettingsRes = await fetch(siteSettingsUrl, {
       headers: {
         'apikey': process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
         'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
       },
     })
-    console.log('[homepage-data] Response status:', siteSettingsRes.status)
     const siteSettingsRows = siteSettingsRes.ok ? await siteSettingsRes.json() : []
     const siteSettingsRow = siteSettingsRows.find((r: any) => r.key === 'homepage') || siteSettingsRows[0] || null
-    let siteSettingsErrorMsg = null
-    if (!siteSettingsRes.ok) {
-      const errText = await siteSettingsRes.text()
-      siteSettingsErrorMsg = `HTTP ${siteSettingsRes.status}: ${errText.substring(0, 200)}`
-      console.log('[homepage-data] Error:', siteSettingsErrorMsg)
-    }
-    const siteSettingsError = siteSettingsErrorMsg ? { message: siteSettingsErrorMsg } : null
-    
     const siteSettingsValue = siteSettingsRow?.value || {}
 
     // Resolve featured/hero tracks if they're DB tracks not in static array
@@ -91,16 +79,6 @@ export async function GET() {
       newestTrack,
       siteSettings: siteSettingsValue,
       tracks: resolvedTracks,
-      _debug: {
-        keyType: process.env.SUPABASE_SERVICE_ROLE_KEY ? 'SERVICE_ROLE' : 'ANON_FALLBACK',
-        hasServiceRole: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
-        siteSettingsError: siteSettingsError ? siteSettingsError.message : null,
-        rawSiteSettings: siteSettingsRow,
-        rawValue: siteSettingsValue,
-        valueType: typeof siteSettingsValue,
-        valueKeys: siteSettingsValue ? Object.keys(siteSettingsValue) : null,
-        source: 'raw_fetch',
-      }
     })
   } catch (error) {
     console.error('Homepage data error:', error)
