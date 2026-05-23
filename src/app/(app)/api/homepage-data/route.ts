@@ -44,18 +44,16 @@ export async function GET() {
       .single()
 
     // Get site settings - using raw fetch to bypass Supabase JS client JSONB issue
-    const siteSettingsRes = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/site_settings?key=***&select=*`,
-      {
-        headers: {
-          'apikey': process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-          'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
-        },
-      }
-    )
+    const siteSettingsUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/site_settings?key=***&select=*`
+    const siteSettingsRes = await fetch(siteSettingsUrl, {
+      headers: {
+        'apikey': process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
+      },
+    })
     const siteSettingsRows = siteSettingsRes.ok ? await siteSettingsRes.json() : []
     const siteSettingsRow = siteSettingsRows[0] || null
-    const siteSettingsError = siteSettingsRes.ok ? null : { message: `HTTP ${siteSettingsRes.status}` }
+    const siteSettingsError = siteSettingsRes.ok ? null : { message: `HTTP ${siteSettingsRes.status}: ${await siteSettingsRes.text()}` }
     
     const siteSettingsValue = siteSettingsRow?.value || {}
 
