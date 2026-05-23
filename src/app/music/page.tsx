@@ -172,6 +172,7 @@ export default function MusicPage() {
           plays: t.play_count || 0,
           price: t.proud_to_pay_min || 1,
           is_active: t.is_active,
+          status: t.status, // PHASE C: include status for hasPlayableAudio check
           track_number: t.track_number,
         }))
         setDbTracks(mapped)

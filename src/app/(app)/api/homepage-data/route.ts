@@ -32,11 +32,14 @@ export async function GET() {
       .from('tracks')
       .select('*', { count: 'exact', head: true })
       .eq('is_active', true)
+      .in('status', ['live', 'published'])
 
-    // Get newest track
+    // Get newest LIVE track only
     const { data: newestTrack } = await supabase
       .from('tracks')
-      .select('id, title, artist, album, duration, cover_url, is_active')
+      .select('id, title, artist, album, duration, cover_url, is_active, status')
+      .in('status', ['live', 'published'])
+      .eq('is_active', true)
       .order('created_at', { ascending: false })
       .limit(1)
       .single()
@@ -68,8 +71,10 @@ export async function GET() {
     if (allNeededIds.length > 0) {
       const { data: dbTracks } = await supabase
         .from('tracks')
-        .select('id, title, artist, album, duration, cover_url, is_active')
+        .select('id, title, artist, album, duration, cover_url, is_active, status')
         .in('id', allNeededIds)
+        .in('status', ['live', 'published'])
+        .eq('is_active', true)
       resolvedTracks = dbTracks || []
     }
 

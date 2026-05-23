@@ -121,11 +121,12 @@ export async function POST(request: Request) {
         
         if (existingArtist) {
           // This is a claim flow - the artist record exists but needs user_id
-          // Update the existing artist record to point to this user
+          // PHASE B GUARDRAIL: Keep existing status/public_profile, only update user linkage
           await supabase.from('artists').update({ id: userId }).eq('slug', invite_artist_slug)
           artistSlug = invite_artist_slug
         } else {
           // Slug doesn't exist yet, use it as new
+          // PHASE B: New artist defaults to pending/hidden until approved
           artistSlug = invite_artist_slug
           await supabase.from('artists').insert({
             id: userId,
@@ -133,13 +134,14 @@ export async function POST(request: Request) {
             slug: artistSlug,
             bio: '',
             location: '',
-            status: 'active',
-            public_profile_enabled: true,
+            status: 'pending',
+            public_profile_enabled: false,
             ...(youtube ? { social_links: { youtube } } : {}),
           })
         }
       } else {
         // Normal signup - generate slug from name
+        // PHASE B: New artist defaults to pending/hidden until approved by founder
         artistSlug = name.toLowerCase()
           .replace(/[^a-z0-9]+/g, '-')
           .replace(/^-|-$/g, '') + '-' + Math.random().toString(36).substr(2, 4)
@@ -150,8 +152,8 @@ export async function POST(request: Request) {
           slug: artistSlug,
           bio: '',
           location: '',
-          status: 'active',
-          public_profile_enabled: true,
+          status: 'pending',
+          public_profile_enabled: false,
           ...(youtube ? { social_links: { youtube } } : {}),
         })
       }

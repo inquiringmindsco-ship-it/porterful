@@ -85,6 +85,7 @@ export default function HomePage() {
       image: nt.cover_url || '/album-art/default.jpg',
       audio_url: `/api/tracks/${nt.id}/audio`, // Dynamic audio endpoint
       price: 1,
+      status: nt.status, // PHASE C: pass through status for eligibility checks
     } as Track
   }
 

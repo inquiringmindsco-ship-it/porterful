@@ -161,8 +161,9 @@ export async function POST(req: Request) {
           avatar_url: avatar_url || null,
           cover_url: cover_image_url || null,
           verified: true,
-          status: 'active',
-          public_profile_enabled: true,
+          // PHASE B: Auto-approved artists still need founder review before going public
+          status: 'approved',
+          public_profile_enabled: false,
           instagram_url: instagram ? `https://instagram.com/${instagram.replace('@', '')}` : null,
           youtube_url: youtube ? `https://youtube.com/${youtube.replace('@', '')}` : null,
           twitter_url: twitter ? `https://twitter.com/${twitter.replace('@', '')}` : null,

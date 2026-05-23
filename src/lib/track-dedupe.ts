@@ -137,13 +137,24 @@ function getAlbumSortRank(album: string | null | undefined): number {
 }
 
 // Check whether a track is both visible and has a playable audio URL.
+// Check whether a track is both visible and has a playable audio URL.
 // We intentionally keep this lightweight so we do not block on network checks.
-export function hasPlayableAudio(track: Pick<Track, 'audio_url' | 'is_active'> | null | undefined): track is Track & { audio_url: string } {
-  const audioUrl = track?.audio_url?.trim()
-  return !!audioUrl && audioUrl !== 'null' && audioUrl !== 'undefined' && track?.is_active !== false
+//
+// PHASE C GUARDRAIL: Track must be status='live' or 'published' AND is_active !== false.
+// Draft/pending/archived tracks are NOT playable publicly even if is_active=true.
+export function hasPlayableAudio(
+  track: (Pick<Track, 'audio_url' | 'is_active'> & { status?: string | null }) | null | undefined
+): track is Track & { audio_url: string } {
+  if (!track) return false
+  const audioUrl = track.audio_url?.trim()
+  const hasAudio = !!audioUrl && audioUrl !== 'null' && audioUrl !== 'undefined'
+  const isActive = track.is_active !== false
+  const status = String(track.status || '').toLowerCase().trim()
+  const isLive = status === 'live' || status === 'published'
+  return hasAudio && isActive && isLive
 }
 
-export function filterPlayableTracks<T extends Track>(tracks: T[]): T[] {
+export function filterPlayableTracks<T extends Track & { status?: string | null }>(tracks: T[]): T[] {
   return tracks.filter((track) => hasPlayableAudio(track))
 }
 

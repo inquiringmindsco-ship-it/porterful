@@ -3,6 +3,7 @@ import { createServerClient } from '@supabase/ssr'
 import { createClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 import { ARTISTS } from '@/lib/artists'
+import { isPublicArtistEligible } from '@/lib/public-artists'
 
 export const dynamic = 'force-dynamic'
 
@@ -61,7 +62,19 @@ export async function GET(
     if (profileData) profile = profileData
 
     // If we have a DB artist, use it as primary source
+    // PHASE A GUARDRAIL: Check public eligibility before returning
     if (dbArtist) {
+      const isPublic = isPublicArtistEligible({
+        status: dbArtist.status,
+        public_profile_enabled: dbArtist.public_profile_enabled,
+      })
+      
+      // If not publicly eligible, return 404 for public requests
+      // (Internal/dashboard requests should use a different endpoint with auth)
+      if (!isPublic) {
+        return NextResponse.json({ error: 'Artist not found or not publicly visible' }, { status: 404 })
+      }
+
       const mergedData = {
         ...profile,
         ...dbArtist,

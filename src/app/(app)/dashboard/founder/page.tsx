@@ -342,17 +342,30 @@ export default function FounderDashboard() {
 
   async function updateTrackStatus(trackId: string, status: string) {
     if (!supabase) return
-    const { error } = await supabase
-      .from('tracks')
-      .update({ status, is_active: status === 'live' })
-      .eq('id', trackId)
+    
+    // PHASE D: Use server endpoint instead of direct client update (bypasses RLS)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      const res = await fetch(`/api/admin/tracks/${trackId}/status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token || ''}`,
+        },
+        body: JSON.stringify({ status }),
+      })
 
-    if (error) {
-      console.error('Error updating track:', error)
-      return
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        console.error('Error updating track status:', data.error || res.statusText)
+        return
+      }
+
+      loadData()
+    } catch (err: any) {
+      console.error('Error updating track:', err)
     }
-
-    loadData()
   }
 
   async function toggleArtistField(artistId: string, field: string, value: boolean) {

@@ -74,6 +74,7 @@ export async function POST(req: Request) {
       .replace(/\b\w/g, (c: string) => c.toUpperCase())
 
     // Create artist profile stub
+    // PHASE B: Onboarded artists default to pending/hidden until approved
     const { data: artist, error: artistError } = await supabase
       .from('artists')
       .insert({
@@ -85,6 +86,8 @@ export async function POST(req: Request) {
         avatar_url: null, // Will use initial avatar
         cover_url: null,
         verified: false, // Unverified until profile is completed
+        status: 'pending',
+        public_profile_enabled: false,
         instagram_url: platform === 'instagram' ? platformUrl : null,
         youtube_url: platform === 'youtube' ? platformUrl : null,
         twitter_url: platform === 'twitter' ? platformUrl : null,

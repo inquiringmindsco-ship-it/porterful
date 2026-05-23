@@ -21,6 +21,7 @@ export interface Track {
   duration?: string | number;
   audio_url?: string;
   is_active?: boolean;
+  status?: string | null; // PHASE C: 'live', 'published', 'draft', 'pending_review', etc.
   cover_url?: string;
   image?: string;
   plays?: number;

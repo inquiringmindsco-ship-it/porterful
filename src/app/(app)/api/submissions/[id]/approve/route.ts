@@ -92,8 +92,10 @@ export async function POST(
       avatar_url: submission.avatar_url || null,
       cover_url: submission.cover_image_url || null,
       verified: true,
-      status: 'active',
-      public_profile_enabled: true,
+      // PHASE B: Submissions approval sets artist to approved but NOT auto-public
+      // Founder must explicitly enable public profile in dashboard
+      status: 'approved',
+      public_profile_enabled: false,
       approved_at: now,
     }
 
