@@ -1,7 +1,1 @@
-import { NextResponse } from 'next/server'
-
-export const dynamic = 'force-dynamic'
-
-export async function GET() {
-  return NextResponse.json({ status: 'ok' })
-}
+// Sat Apr 18 18:30:12 CDT 2026
