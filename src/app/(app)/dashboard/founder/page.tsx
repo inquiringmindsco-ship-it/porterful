@@ -246,11 +246,19 @@ export default function FounderDashboard() {
       }
 
       setNotice(`Status updated to ${status}`)
+      window.setTimeout(() => setNotice(''), 3000)
       loadData()
     } catch (err: any) {
       setError(err.message || 'Failed to update status')
       setNotice('')
     }
+  }
+
+  async function reactivateArtist(artistId: string) {
+    const confirmed = window.confirm('Reactivate this artist? Their public profile will be visible again.')
+    if (!confirmed) return
+
+    await updateArtistStatus(artistId, 'approved')
   }
 
   async function updateTrackStatus(trackId: string, status: string) {
@@ -642,6 +650,14 @@ export default function FounderDashboard() {
                               Suspend
                             </button>
                           )}
+                          {artist.status === 'suspended' && (
+                            <button
+                              onClick={() => reactivateArtist(artist.id)}
+                              className="text-xs px-2 py-1 bg-green-500/20 text-green-400 rounded hover:bg-green-500/30"
+                            >
+                              Reactivate
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -713,6 +729,14 @@ export default function FounderDashboard() {
                         className="flex-1 text-xs px-3 py-2 bg-red-500/20 text-red-400 rounded hover:bg-red-500/30"
                       >
                         Suspend
+                      </button>
+                    )}
+                    {artist.status === 'suspended' && (
+                      <button
+                        onClick={() => reactivateArtist(artist.id)}
+                        className="flex-1 text-xs px-3 py-2 bg-green-500/20 text-green-400 rounded hover:bg-green-500/30"
+                      >
+                        Reactivate
                       </button>
                     )}
                   </div>
