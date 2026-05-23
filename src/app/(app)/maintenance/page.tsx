@@ -1,5 +1,6 @@
 'use client'
 
+import { Construction } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -19,7 +20,9 @@ export default function MaintenancePage() {
       {/* Content */}
       <main className="flex-1 flex items-center justify-center px-6">
         <div className="max-w-lg w-full text-center">
-          <div className="text-6xl mb-6">🚧</div>
+          <div className="mb-6 flex justify-center text-[var(--pf-orange)]">
+            <Construction className="h-16 w-16" />
+          </div>
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
             Under <span className="text-[var(--pf-orange)]">Construction</span>
           </h1>

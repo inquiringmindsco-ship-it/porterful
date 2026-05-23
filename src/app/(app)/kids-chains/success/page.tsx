@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { CheckCircle, Loader2, Package } from 'lucide-react';
+import { CheckCircle, Loader2, Package, PartyPopper } from 'lucide-react';
 
 export default function OrderSuccessPage() {
   const [status, setStatus] = useState<'verifying' | 'confirmed' | 'error'>('verifying');
@@ -42,7 +42,10 @@ export default function OrderSuccessPage() {
             <div className="w-20 h-20 bg-emerald-900/50 border-2 border-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6">
               <CheckCircle className="w-10 h-10 text-emerald-400" />
             </div>
-            <h1 className="text-4xl font-black text-white mb-3">Order Confirmed! 🎉</h1>
+            <h1 className="text-4xl font-black text-white mb-3 flex items-center justify-center gap-3">
+              Order Confirmed!
+              <PartyPopper className="h-10 w-10 text-emerald-400" />
+            </h1>
             <p className="text-[var(--pf-text-muted)] mb-2">
               Your custom name chain is being queued for production.
             </p>

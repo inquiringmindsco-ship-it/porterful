@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react'
 import { useParams } from 'next/navigation'
+import { Zap } from 'lucide-react'
 
 export default function RefPage() {
   const params = useParams()
@@ -22,7 +23,9 @@ export default function RefPage() {
   return (
     <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--pf-bg)' }}>
       <div className="text-center">
-        <div className="text-4xl mb-4 animate-pulse">⚡</div>
+        <div className="mb-4 flex justify-center animate-pulse text-[var(--pf-orange)]">
+          <Zap className="h-10 w-10" />
+        </div>
         <p style={{ color: 'var(--pf-muted)' }}>Taking you to Porterful...</p>
       </div>
     </div>

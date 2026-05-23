@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
+import { UtensilsCrossed } from 'lucide-react'
 
 // Mock restaurant data with real food images
 const RESTAURANTS = [
@@ -295,7 +296,9 @@ export default function FoodPage() {
         <div className="relative h-[55vh] max-w-sm mx-auto">
           {stack.length === 0 ? (
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-              <div className="text-6xl mb-4">🍽️</div>
+              <div className="mb-4 flex justify-center text-[var(--pf-orange)]">
+                <UtensilsCrossed className="h-16 w-16" />
+              </div>
               <h2 className="text-xl font-bold mb-2">All out of food!</h2>
               <p className="text-[var(--pf-text-secondary)] text-sm mb-6">Check back soon for more delicious options</p>
               <button

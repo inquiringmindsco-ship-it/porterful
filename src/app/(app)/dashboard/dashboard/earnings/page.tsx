@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { DollarSign, TrendingUp, Clock, ShoppingCart, Users } from 'lucide-react';
+import { DollarSign, TrendingUp, Clock, ShoppingCart, Users, Wallet } from 'lucide-react';
 
 interface EarningsData {
   seller: {
@@ -219,7 +219,9 @@ export default function EarningsDashboard() {
         <h2 className="text-xl font-bold mb-4">Recent Sales</h2>
         {!hasSales ? (
           <div className="bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-2xl p-12 text-center">
-            <div className="text-5xl mb-4">💰</div>
+            <div className="flex justify-center mb-4 text-[var(--pf-orange)]">
+              <Wallet className="h-12 w-12" />
+            </div>
             <h3 className="text-lg font-bold mb-2">No sales yet</h3>
             <p className="text-gray-400 mb-6 max-w-sm mx-auto">
               Create an offer link and share it. When someone buys through your link, the sale will appear here.

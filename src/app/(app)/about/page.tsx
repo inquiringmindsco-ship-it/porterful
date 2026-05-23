@@ -2,6 +2,7 @@ import { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { createClient } from '@supabase/supabase-js'
+import { XCircle, CheckCircle } from 'lucide-react'
 
 async function getPublicArtistCount() {
   try {
@@ -116,19 +117,19 @@ export default async function AboutPage() {
               <h3 className="text-xl font-bold mb-4 text-red-400">The Old Way</h3>
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl">❌</span>
+                  <XCircle className="h-6 w-6 text-red-400 shrink-0" />
                   <span className="text-[var(--pf-text-secondary)]">Artists get 10-20% of their own sales</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl">❌</span>
+                  <XCircle className="h-6 w-6 text-red-400 shrink-0" />
                   <span className="text-[var(--pf-text-secondary)]">Labels own the masters forever</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl">❌</span>
+                  <XCircle className="h-6 w-6 text-red-400 shrink-0" />
                   <span className="text-[var(--pf-text-secondary)]">$0.003 per stream on Spotify</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl">❌</span>
+                  <XCircle className="h-6 w-6 text-red-400 shrink-0" />
                   <span className="text-[var(--pf-text-secondary)]">No pension, no safety net</span>
                 </div>
               </div>
@@ -145,23 +146,23 @@ export default async function AboutPage() {
               <h3 className="text-xl font-bold mb-4 text-[var(--pf-orange)]">The Porterful Way</h3>
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl">✓</span>
+                  <CheckCircle className="h-6 w-6 text-[var(--pf-orange)] shrink-0" />
                   <span className="text-[var(--pf-text)]"><strong>Artist-first</strong> — artists stay at the center of the sale</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl">✓</span>
+                  <CheckCircle className="h-6 w-6 text-[var(--pf-orange)] shrink-0" />
                   <span className="text-[var(--pf-text)]">Artists <strong>own their masters</strong></span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl">✓</span>
+                  <CheckCircle className="h-6 w-6 text-[var(--pf-orange)] shrink-0" />
                   <span className="text-[var(--pf-text)]"><strong>$1 per track</strong> — fans pay once, own forever</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl">✓</span>
+                  <CheckCircle className="h-6 w-6 text-[var(--pf-orange)] shrink-0" />
                   <span className="text-[var(--pf-text)]"><strong>Superfans support growth</strong> by referring new buyers</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl">✓</span>
+                  <CheckCircle className="h-6 w-6 text-[var(--pf-orange)] shrink-0" />
                   <span className="text-[var(--pf-text)]"><strong>Artist Fund</strong> grows every purchase</span>
                 </div>
               </div>

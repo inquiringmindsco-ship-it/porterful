@@ -46,7 +46,9 @@ export default function OfferSuccessPage() {
         animate={{ opacity: 1, scale: 1 }}
         className="w-full max-w-md text-center"
       >
-        <div className="text-7xl mb-6">✅</div>
+        <div className="flex justify-center mb-6">
+          <CheckCircle className="h-20 w-20 text-green-400" />
+        </div>
         <h1 className="text-3xl font-black text-white mb-2">Payment Confirmed</h1>
         <p className="text-gray-400 mb-6">
           {offer

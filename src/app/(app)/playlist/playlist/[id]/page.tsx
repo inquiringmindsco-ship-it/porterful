@@ -160,7 +160,9 @@ export default function PlaylistDetailPage() {
             {playlist.tracks.length > 0 ? (
               <Image src={playlist.tracks[0].image} alt={playlist.name} fill sizes="(max-width: 768px) 100vw, 256px" className="object-cover rounded-2xl" />
             ) : (
-              <div className="text-6xl">🎵</div>
+              <div className="flex items-center justify-center text-white/40">
+                <Icon.Music className="h-24 w-24" />
+              </div>
             )}
           </div>
           <div className="flex-1">

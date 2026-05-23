@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Shield, CheckCircle, ArrowLeft, Loader2 } from 'lucide-react';
+import { Shield, CheckCircle, ArrowLeft, Loader2, Package, Map, BookOpen, TreePine, Search } from 'lucide-react';
 
 interface OfferData {
   offer_id: string;
@@ -67,7 +67,9 @@ export default function OfferPage() {
   if (notFound || !offer) return (
     <main className="min-h-screen bg-[#08080B] flex items-center justify-center">
       <div className="text-center max-w-md mx-auto px-6">
-        <div className="text-6xl mb-4">🔍</div>
+        <div className="flex justify-center mb-4">
+          <Search className="h-16 w-16 text-[var(--pf-orange)]" />
+        </div>
         <h1 className="text-2xl font-bold text-white mb-2">Offer Not Found</h1>
         <p className="text-gray-400 mb-6">This link may have expired or been shared incorrectly.</p>
         <Link href="/" className="text-[var(--pf-orange)] hover:underline">← Go to Porterful</Link>
@@ -89,12 +91,14 @@ export default function OfferPage() {
 
         <div className="bg-[#111118] border border-[#1E1E26] rounded-2xl overflow-hidden">
           <div className="bg-gradient-to-r from-[var(--pf-orange)]/10 to-purple-500/10 p-6 text-center border-b border-[#1E1E26]">
-            <div className="text-5xl mb-3">{
-              product === 'credit-klimb' ? '🏦' :
-              product === 'nlds-membership' ? '🗺️' :
-              product === 'teachyoung' ? '📚' :
-              product === 'family-os' ? '🌳' : '📦'
-            }</div>
+            <div className="mb-3 flex justify-center text-[var(--pf-orange)]">
+              {
+                product === 'credit-klimb' ? <Shield className="h-12 w-12" /> :
+                product === 'nlds-membership' ? <Map className="h-12 w-12" /> :
+                product === 'teachyoung' ? <BookOpen className="h-12 w-12" /> :
+                product === 'family-os' ? <TreePine className="h-12 w-12" /> : <Package className="h-12 w-12" />
+              }
+            </div>
             <h1 className="text-2xl font-black text-white mb-1">{offer.product_name}</h1>
             <p className="text-sm text-gray-400">Shared by <span className="text-[var(--pf-orange)] font-medium">@{offer.username}</span></p>
           </div>

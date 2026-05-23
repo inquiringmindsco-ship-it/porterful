@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { Link2 } from 'lucide-react'
 
 export default function AffiliatePage() {
   const router = useRouter()
@@ -93,7 +94,9 @@ export default function AffiliatePage() {
           </>
         ) : (
           <>
-            <div className="text-4xl mb-4">🔗</div>
+            <div className="flex justify-center mb-4 text-[var(--pf-orange)]">
+              <Link2 className="h-12 w-12" />
+            </div>
             <h2 className="text-2xl font-bold mb-2" style={{ color: 'var(--pf-fg)' }}>
               Your Link is Ready
             </h2>
