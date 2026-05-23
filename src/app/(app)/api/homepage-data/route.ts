@@ -43,25 +43,26 @@ export async function GET() {
       .limit(1)
       .single()
 
-    // Get site settings
-    const { data: siteSettings, error: siteSettingsError } = await supabase
-      .from('site_settings')
-      .select('value')
-      .eq('key', 'homepage')
-      .single()
+    // Get site settings - using raw fetch to bypass Supabase JS client JSONB issue
+    const siteSettingsRes = await fetch(
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/site_settings?key=***&select=*`,
+      {
+        headers: {
+          'apikey': process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+          'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
+        },
+      }
+    )
+    const siteSettingsRows = siteSettingsRes.ok ? await siteSettingsRes.json() : []
+    const siteSettingsRow = siteSettingsRows[0] || null
+    const siteSettingsError = siteSettingsRes.ok ? null : { message: `HTTP ${siteSettingsRes.status}` }
     
-    if (siteSettingsError) {
-      console.error('[homepage-data] site_settings error:', siteSettingsError)
-    }
-    
-    console.log('[homepage-data] siteSettings raw:', JSON.stringify(siteSettings, null, 2))
-    console.log('[homepage-data] siteSettings.value:', siteSettings?.value)
-    console.log('[homepage-data] hero_track_id:', siteSettings?.value?.hero_track_id)
+    const siteSettingsValue = siteSettingsRow?.value || {}
 
     // Resolve featured/hero tracks if they're DB tracks not in static array
-    const featuredIds = siteSettings?.value?.featured_track_ids || []
-    const heroId = siteSettings?.value?.hero_track_id
-    const promoIds = siteSettings?.value?.promo_track_ids || []
+    const featuredIds = siteSettingsValue?.featured_track_ids || []
+    const heroId = siteSettingsValue?.hero_track_id
+    const promoIds = siteSettingsValue?.promo_track_ids || []
     const allNeededIds = Array.from(new Set([...(heroId ? [heroId] : []), ...featuredIds, ...promoIds]))
     
     let resolvedTracks: any[] = []
@@ -81,16 +82,17 @@ export async function GET() {
         activeTracks: activeTracks || 0,
       },
       newestTrack,
-      siteSettings: siteSettings?.value || {},
+      siteSettings: siteSettingsValue,
       tracks: resolvedTracks,
       _debug: {
         keyType: process.env.SUPABASE_SERVICE_ROLE_KEY ? 'SERVICE_ROLE' : 'ANON_FALLBACK',
         hasServiceRole: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
         siteSettingsError: siteSettingsError ? siteSettingsError.message : null,
-        rawSiteSettings: siteSettings,
-        rawValue: siteSettings?.value,
-        valueType: typeof siteSettings?.value,
-        valueKeys: siteSettings?.value ? Object.keys(siteSettings.value) : null,
+        rawSiteSettings: siteSettingsRow,
+        rawValue: siteSettingsValue,
+        valueType: typeof siteSettingsValue,
+        valueKeys: siteSettingsValue ? Object.keys(siteSettingsValue) : null,
+        source: 'raw_fetch',
       }
     })
   } catch (error) {
