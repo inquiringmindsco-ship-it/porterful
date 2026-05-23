@@ -76,6 +76,14 @@ export default function FounderDashboard() {
   const [heroLabel, setHeroLabel] = useState('Featured Release')
   const [saveSuccess, setSaveSuccess] = useState(false)
   
+  // Users tab state
+  const [users, setUsers] = useState<any[]>([])
+  const [userCounts, setUserCounts] = useState<any>(null)
+  const [userSearch, setUserSearch] = useState('')
+  const [userRoleFilter, setUserRoleFilter] = useState<string>('all')
+  const [userNeedsAttentionFilter, setUserNeedsAttentionFilter] = useState(false)
+  const [usersLoading, setUsersLoading] = useState(false)
+  
   // Search & filter states
   const [artistSearch, setArtistSearch] = useState('')
   const [artistStatusFilter, setArtistStatusFilter] = useState<string>('all')
@@ -108,6 +116,12 @@ export default function FounderDashboard() {
 
     loadData()
   }
+
+  useEffect(() => {
+    if (activeTab === 'users') {
+      loadUsers()
+    }
+  }, [activeTab])
 
   async function loadData() {
     if (!supabase) return
@@ -222,6 +236,34 @@ export default function FounderDashboard() {
       console.error('Error loading founder data:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  async function loadUsers() {
+    if (!supabase) return
+    setUsersLoading(true)
+    
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      const res = await fetch('/api/admin/users', {
+        headers: {
+          'Authorization': `Bearer ${session?.access_token || ''}`,
+        },
+      })
+
+      if (!res.ok) {
+        console.error('Failed to load users:', await res.text())
+        return
+      }
+
+      const data = await res.json()
+      setUsers(data.users || [])
+      setUserCounts(data.counts || {})
+    } catch (err) {
+      console.error('Error loading users:', err)
+    } finally {
+      setUsersLoading(false)
     }
   }
 
@@ -583,216 +625,280 @@ export default function FounderDashboard() {
         {/* Users/Accounts Tab */}
         {activeTab === 'users' && (
           <div className="space-y-4">
+            {/* Summary Cards */}
+            {userCounts && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="pf-card p-3">
+                  <p className="text-xs text-[var(--pf-text-muted)]">Total Users</p>
+                  <p className="text-xl font-bold">{userCounts.total}</p>
+                </div>
+                <div className="pf-card p-3">
+                  <p className="text-xs text-[var(--pf-text-muted)]">Artists</p>
+                  <p className="text-xl font-bold text-[var(--pf-orange)]">{userCounts.artists}</p>
+                </div>
+                <div className="pf-card p-3">
+                  <p className="text-xs text-[var(--pf-text-muted)]">Fans</p>
+                  <p className="text-xl font-bold">{userCounts.fans}</p>
+                </div>
+                <div className="pf-card p-3">
+                  <p className="text-xs text-[var(--pf-text-muted)]">Needs Attention</p>
+                  <p className="text-xl font-bold text-red-400">{userCounts.needs_attention}</p>
+                </div>
+                <div className="pf-card p-3">
+                  <p className="text-xs text-[var(--pf-text-muted)]">Completed Onboarding</p>
+                  <p className="text-xl font-bold text-green-400">{userCounts.completed_onboarding}</p>
+                </div>
+                <div className="pf-card p-3">
+                  <p className="text-xs text-[var(--pf-text-muted)]">Uploaded Music</p>
+                  <p className="text-xl font-bold text-blue-400">{userCounts.uploaded_music}</p>
+                </div>
+                <div className="pf-card p-3">
+                  <p className="text-xs text-[var(--pf-text-muted)]">Businesses</p>
+                  <p className="text-xl font-bold">{userCounts.businesses}</p>
+                </div>
+                <div className="pf-card p-3">
+                  <p className="text-xs text-[var(--pf-text-muted)]">Admins</p>
+                  <p className="text-xl font-bold">{userCounts.admins}</p>
+                </div>
+              </div>
+            )}
+
             {/* Search & Filter Bar */}
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--pf-text-muted)]" size={16} />
                 <input
                   type="text"
-                  value={artistSearch}
-                  onChange={(e) => setArtistSearch(e.target.value)}
-                  placeholder="Search artists..."
+                  value={userSearch}
+                  onChange={(e) => setUserSearch(e.target.value)}
+                  placeholder="Search users by name or email..."
                   className="w-full pl-10 pr-4 py-2 rounded-lg bg-[var(--pf-surface)] border border-[var(--pf-border)] text-sm focus:border-[var(--pf-orange)] focus:outline-none"
                 />
               </div>
               <select
-                value={artistStatusFilter}
-                onChange={(e) => setArtistStatusFilter(e.target.value)}
+                value={userRoleFilter}
+                onChange={(e) => setUserRoleFilter(e.target.value)}
                 className="px-4 py-2 rounded-lg bg-[var(--pf-surface)] border border-[var(--pf-border)] text-sm focus:border-[var(--pf-orange)] focus:outline-none"
               >
-                <option value="all">All Statuses</option>
-                <option value="active">Active</option>
-                <option value="approved">Approved</option>
-                <option value="pending">Pending</option>
-                <option value="suspended">Suspended</option>
+                <option value="all">All Roles</option>
+                <option value="artist">Artists</option>
+                <option value="supporter">Fans/Listeners</option>
+                <option value="business">Businesses</option>
+                <option value="brand">Brands</option>
+                <option value="admin">Admins</option>
+                <option value="founder">Founders</option>
               </select>
+              <button
+                onClick={() => setUserNeedsAttentionFilter(!userNeedsAttentionFilter)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  userNeedsAttentionFilter
+                    ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+                    : 'bg-[var(--pf-surface)] border border-[var(--pf-border)] text-[var(--pf-text-muted)]'
+                }`}
+              >
+                Needs Attention
+              </button>
             </div>
 
-            {/* Mobile Cards / Desktop Table */}
-            <div className="hidden md:block pf-card overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-[var(--pf-border)] text-left">
-                    <th className="p-3">Artist</th>
-                    <th className="p-3">Tier</th>
-                    <th className="p-3">Status</th>
-                    <th className="p-3">Tracks</th>
-                    <th className="p-3">Public</th>
-                    <th className="p-3">Auto-Pub</th>
-                    <th className="p-3">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredArtists.map((artist) => (
-                    <tr key={artist.id} className="border-b border-[var(--pf-border)] hover:bg-[var(--pf-surface-hover)]">
-                      <td className="p-3">
-                        <Link href={`/artist/${artist.slug}`} className="font-medium hover:text-[var(--pf-orange)]">
-                          {artist.name}
-                        </Link>
-                        <p className="text-xs text-[var(--pf-text-muted)]">{artist.email || 'No email'}</p>
-                      </td>
-                      <td className="p-3">
-                        <span className="text-xs px-2 py-1 rounded bg-[var(--pf-surface)]">
-                          {artist.artist_tier?.replace('_', ' ') || 'basic'}
-                        </span>
-                      </td>
-                      <td className="p-3">
-                        <span className={`text-xs px-2 py-1 rounded ${
-                          artist.status === 'active' ? 'bg-green-500/20 text-green-400' :
-                          artist.status === 'approved' ? 'bg-blue-500/20 text-blue-400' :
-                          artist.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400' :
-                          'bg-red-500/20 text-red-400'
-                        }`}>
-                          {artist.status}
-                        </span>
-                      </td>
-                      <td className="p-3">{artist.live_track_count}/{artist.track_count}</td>
-                      <td className="p-3">
-                        <button
-                          onClick={() => toggleArtistField(artist.id, 'public_profile_enabled', !artist.public_profile_enabled)}
-                          className={`text-xs px-2 py-1 rounded ${
-                            artist.public_profile_enabled
-                              ? 'bg-green-500/20 text-green-400'
-                              : 'bg-gray-500/20 text-gray-400'
-                          }`}
-                        >
-                          {artist.public_profile_enabled ? 'Visible' : 'Hidden'}
-                        </button>
-                      </td>
-                      <td className="p-3">
-                        <button
-                          onClick={() => toggleArtistField(artist.id, 'auto_publish', !artist.auto_publish)}
-                          className={`text-xs px-2 py-1 rounded ${
-                            artist.auto_publish
-                              ? 'bg-green-500/20 text-green-400'
-                              : 'bg-gray-500/20 text-gray-400'
-                          }`}
-                        >
-                          {artist.auto_publish ? 'On' : 'Off'}
-                        </button>
-                      </td>
-                      <td className="p-3">
-                        <div className="flex gap-2">
-                          <Link
-                            href={`/artist/${artist.slug}`}
-                            className="text-xs px-2 py-1 bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded hover:bg-[var(--pf-surface-hover)]"
-                            title="View public page"
-                          >
-                            <Eye size={14} />
-                          </Link>
-                          {artist.status === 'pending' && (
-                            <button
-                              onClick={() => updateArtistStatus(artist.id, 'approved')}
-                              className="text-xs px-2 py-1 bg-green-500/20 text-green-400 rounded hover:bg-green-500/30"
-                            >
-                              Approve
-                            </button>
-                          )}
-                          {(artist.status === 'approved' || artist.status === 'active') && (
-                            <button
-                              onClick={() => suspendArtist(artist.id)}
-                              className="text-xs px-2 py-1 bg-red-500/20 text-red-400 rounded hover:bg-red-500/30"
-                            >
-                              Suspend
-                            </button>
-                          )}
-                          {artist.status === 'suspended' && (
-                            <button
-                              onClick={() => reactivateArtist(artist.id)}
-                              className="text-xs px-2 py-1 bg-green-500/20 text-green-400 rounded hover:bg-green-500/30"
-                            >
-                              Reactivate
-                            </button>
-                          )}
-                        </div>
-                      </td>
+            {/* Loading State */}
+            {usersLoading && (
+              <div className="text-center py-12 text-[var(--pf-text-muted)]">
+                <div className="animate-pulse">Loading users...</div>
+              </div>
+            )}
+
+            {/* Desktop Table */}
+            {!usersLoading && (
+              <div className="hidden md:block pf-card overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-[var(--pf-border)] text-left">
+                      <th className="p-3">User</th>
+                      <th className="p-3">Role</th>
+                      <th className="p-3">Status</th>
+                      <th className="p-3">Tracks</th>
+                      <th className="p-3">Email</th>
+                      <th className="p-3">Signed Up</th>
+                      <th className="p-3">Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {users
+                      .filter((u: any) => {
+                        const matchesSearch = !userSearch ||
+                          u.email?.toLowerCase().includes(userSearch.toLowerCase()) ||
+                          u.full_name?.toLowerCase().includes(userSearch.toLowerCase()) ||
+                          u.username?.toLowerCase().includes(userSearch.toLowerCase())
+                        const matchesRole = userRoleFilter === 'all' || u.role === userRoleFilter
+                        const matchesAttention = !userNeedsAttentionFilter || u.needs_attention
+                        return matchesSearch && matchesRole && matchesAttention
+                      })
+                      .map((user: any) => (
+                        <tr key={user.id} className="border-b border-[var(--pf-border)] hover:bg-[var(--pf-surface-hover)]">
+                          <td className="p-3">
+                            <div className="font-medium">{user.full_name || user.username || 'Unnamed'}</div>
+                            <p className="text-xs text-[var(--pf-text-muted)]">{user.email}</p>
+                          </td>
+                          <td className="p-3">
+                            <span className={`text-xs px-2 py-1 rounded ${
+                              user.role === 'artist' ? 'bg-purple-500/20 text-purple-400' :
+                              user.role === 'founder' ? 'bg-orange-500/20 text-orange-400' :
+                              user.role === 'admin' ? 'bg-blue-500/20 text-blue-400' :
+                              user.role === 'business' || user.role === 'brand' ? 'bg-yellow-500/20 text-yellow-400' :
+                              'bg-gray-500/20 text-gray-400'
+                            }`}>
+                              {user.role}
+                            </span>
+                          </td>
+                          <td className="p-3">
+                            {user.artist_profile ? (
+                              <span className={`text-xs px-2 py-1 rounded ${
+                                user.artist_profile.status === 'active' ? 'bg-green-500/20 text-green-400' :
+                                user.artist_profile.status === 'approved' ? 'bg-blue-500/20 text-blue-400' :
+                                user.artist_profile.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400' :
+                                'bg-red-500/20 text-red-400'
+                              }`}>
+                                {user.artist_profile.status}
+                              </span>
+                            ) : (
+                              <span className="text-xs text-[var(--pf-text-muted)]">—</span>
+                            )}
+                          </td>
+                          <td className="p-3">
+                            {user.track_count > 0 ? (
+                              <span className="text-xs">{user.live_track_count}/{user.track_count} live</span>
+                            ) : (
+                              <span className="text-xs text-[var(--pf-text-muted)]">No uploads</span>
+                            )}
+                          </td>
+                          <td className="p-3">
+                            <span className={`text-xs ${user.email_confirmed ? 'text-green-400' : 'text-yellow-400'}`}>
+                              {user.email_confirmed ? '✓ Confirmed' : '○ Unconfirmed'}
+                            </span>
+                          </td>
+                          <td className="p-3">
+                            <span className="text-xs text-[var(--pf-text-muted)]">
+                              {new Date(user.signup_date).toLocaleDateString()}
+                            </span>
+                          </td>
+                          <td className="p-3">
+                            <div className="flex gap-2">
+                              {user.artist_profile && (
+                                <Link
+                                  href={`/artist/${user.username || user.id}`}
+                                  className="text-xs px-2 py-1 bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded hover:bg-[var(--pf-surface-hover)]"
+                                >
+                                  View
+                                </Link>
+                              )}
+                              {user.needs_attention && user.attention_reasons?.map((reason: string) => (
+                                <span key={reason} className="text-xs px-2 py-1 bg-yellow-500/10 text-yellow-400 rounded">
+                                  {reason}
+                                </span>
+                              ))}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
 
             {/* Mobile Cards */}
-            <div className="md:hidden space-y-3">
-              {filteredArtists.map((artist) => (
-                <div key={artist.id} className="pf-card p-4 space-y-3">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <Link href={`/artist/${artist.slug}`} className="font-medium hover:text-[var(--pf-orange)]">
-                        {artist.name}
-                      </Link>
-                      <p className="text-xs text-[var(--pf-text-muted)]">{artist.email || 'No email'}</p>
-                    </div>
-                    <span className={`text-xs px-2 py-1 rounded ${
-                      artist.status === 'active' ? 'bg-green-500/20 text-green-400' :
-                      artist.status === 'approved' ? 'bg-blue-500/20 text-blue-400' :
-                      artist.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400' :
-                      'bg-red-500/20 text-red-400'
-                    }`}>
-                      {artist.status}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-4 text-xs text-[var(--pf-text-muted)]">
-                    <span>{artist.artist_tier?.replace('_', ' ') || 'basic'}</span>
-                    <span>{artist.live_track_count}/{artist.track_count} tracks</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => toggleArtistField(artist.id, 'public_profile_enabled', !artist.public_profile_enabled)}
-                      className={`text-xs px-2 py-1 rounded ${
-                        artist.public_profile_enabled ? 'bg-green-500/20 text-green-400' : 'bg-gray-500/20 text-gray-400'
-                      }`}
-                    >
-                      {artist.public_profile_enabled ? 'Visible' : 'Hidden'}
-                    </button>
-                    <button
-                      onClick={() => toggleArtistField(artist.id, 'auto_publish', !artist.auto_publish)}
-                      className={`text-xs px-2 py-1 rounded ${
-                        artist.auto_publish ? 'bg-green-500/20 text-green-400' : 'bg-gray-500/20 text-gray-400'
-                      }`}
-                    >
-                      Auto: {artist.auto_publish ? 'On' : 'Off'}
-                    </button>
-                  </div>
-                  <div className="flex gap-2">
-                    <Link
-                      href={`/artist/${artist.slug}`}
-                      className="flex-1 text-center text-xs px-3 py-2 bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded hover:bg-[var(--pf-surface-hover)]"
-                    >
-                      View
-                    </Link>
-                    {artist.status === 'pending' && (
-                      <button
-                        onClick={() => updateArtistStatus(artist.id, 'approved')}
-                        className="flex-1 text-xs px-3 py-2 bg-green-500/20 text-green-400 rounded hover:bg-green-500/30"
-                      >
-                        Approve
-                      </button>
-                    )}
-                    {(artist.status === 'approved' || artist.status === 'active') && (
-                      <button
-                        onClick={() => suspendArtist(artist.id)}
-                        className="flex-1 text-xs px-3 py-2 bg-red-500/20 text-red-400 rounded hover:bg-red-500/30"
-                      >
-                        Suspend
-                      </button>
-                    )}
-                    {artist.status === 'suspended' && (
-                      <button
-                        onClick={() => reactivateArtist(artist.id)}
-                        className="flex-1 text-xs px-3 py-2 bg-green-500/20 text-green-400 rounded hover:bg-green-500/30"
-                      >
-                        Reactivate
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
+            {!usersLoading && (
+              <div className="md:hidden space-y-3">
+                {users
+                  .filter((u: any) => {
+                    const matchesSearch = !userSearch ||
+                      u.email?.toLowerCase().includes(userSearch.toLowerCase()) ||
+                      u.full_name?.toLowerCase().includes(userSearch.toLowerCase()) ||
+                      u.username?.toLowerCase().includes(userSearch.toLowerCase())
+                    const matchesRole = userRoleFilter === 'all' || u.role === userRoleFilter
+                    const matchesAttention = !userNeedsAttentionFilter || u.needs_attention
+                    return matchesSearch && matchesRole && matchesAttention
+                  })
+                  .map((user: any) => (
+                    <div key={user.id} className="pf-card p-4 space-y-3">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <p className="font-medium">{user.full_name || user.username || 'Unnamed'}</p>
+                          <p className="text-xs text-[var(--pf-text-muted)]">{user.email}</p>
+                        </div>
+                        <span className={`text-xs px-2 py-1 rounded ${
+                          user.role === 'artist' ? 'bg-purple-500/20 text-purple-400' :
+                          user.role === 'founder' ? 'bg-orange-500/20 text-orange-400' :
+                          user.role === 'admin' ? 'bg-blue-500/20 text-blue-400' :
+                          'bg-gray-500/20 text-gray-400'
+                        }`}>
+                          {user.role}
+                        </span>
+                      </div>
+                      
+                      <div className="text-xs text-[var(--pf-text-muted)] space-y-1">
+                        <p>Signed up: {new Date(user.signup_date).toLocaleDateString()}</p>
+                        <p>Email: {user.email_confirmed ? '✓ Confirmed' : '○ Unconfirmed'}</p>
+                        {user.last_seen && <p>Last seen: {new Date(user.last_seen).toLocaleDateString()}</p>}
+                      </div>
 
-            {filteredArtists.length === 0 && (
+                      {user.artist_profile && (
+                        <div className="text-xs space-y-1">
+                          <p>
+                            <span className="text-[var(--pf-text-muted)]">Artist status: </span>
+                            <span className={`
+                              ${user.artist_profile.status === 'active' ? 'text-green-400' :
+                                user.artist_profile.status === 'approved' ? 'text-blue-400' :
+                                user.artist_profile.status === 'pending' ? 'text-yellow-400' :
+                                'text-red-400'}
+                            `}>
+                              {user.artist_profile.status}
+                            </span>
+                          </p>
+                          <p>
+                            <span className="text-[var(--pf-text-muted)]">Tracks: </span>
+                            <span>{user.live_track_count}/{user.track_count} live</span>
+                          </p>
+                          <p>
+                            <span className="text-[var(--pf-text-muted)]">Public: </span>
+                            <span>{user.artist_profile.public_profile_enabled ? 'Visible' : 'Hidden'}</span>
+                          </p>
+                        </div>
+                      )}
+
+                      {user.needs_attention && user.attention_reasons?.length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          {user.attention_reasons.map((reason: string) => (
+                            <span key={reason} className="text-xs px-2 py-1 bg-yellow-500/10 text-yellow-400 rounded">
+                              {reason}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
+                      {user.artist_profile && (
+                        <Link
+                          href={`/artist/${user.username || user.id}`}
+                          className="block text-center text-xs px-3 py-2 bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded hover:bg-[var(--pf-surface-hover)]"
+                        >
+                          View Artist Profile
+                        </Link>
+                      )}
+                    </div>
+                  ))}
+              </div>
+            )}
+
+            {!usersLoading && users.filter((u: any) => {
+              const matchesSearch = !userSearch ||
+                u.email?.toLowerCase().includes(userSearch.toLowerCase()) ||
+                u.full_name?.toLowerCase().includes(userSearch.toLowerCase()) ||
+                u.username?.toLowerCase().includes(userSearch.toLowerCase())
+              const matchesRole = userRoleFilter === 'all' || u.role === userRoleFilter
+              const matchesAttention = !userNeedsAttentionFilter || u.needs_attention
+              return matchesSearch && matchesRole && matchesAttention
+            }).length === 0 && (
               <div className="text-center py-12 text-[var(--pf-text-muted)]">
-                <p>No artists match your filters.</p>
+                <p>No users match your filters.</p>
               </div>
             )}
           </div>
