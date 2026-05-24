@@ -17,37 +17,40 @@ export async function GET(request: NextRequest) {
     // Look up the purchase by recovery token
     const { data: purchase, error } = await supabase
       .from('music_purchases')
-      .select('id, track_title, artist_name, storage_path, recovery_token_expires_at')
+      .select('id, track_title, artist_name, storage_path, storage_bucket, recovery_token_expires_at')
       .eq('recovery_token', token)
       .maybeSingle()
 
     if (error) {
       console.error('[music-recover] Database error:', error)
-      return NextResponse.json({ error: 'Database error.' }, { status: 500 })
+      return NextResponse.json({ error: 'Database error. Please try again later.' }, { status: 500 })
     }
 
     if (!purchase) {
-      return NextResponse.json({ error: 'Invalid or expired recovery token.' }, { status: 404 })
+      return NextResponse.json({ error: 'Invalid recovery token. Please request a new access link from your purchase confirmation email.' }, { status: 404 })
     }
 
     // Check if token has expired
     if (purchase.recovery_token_expires_at && new Date(purchase.recovery_token_expires_at) < new Date()) {
-      return NextResponse.json({ error: 'Recovery link has expired.' }, { status: 410 })
+      return NextResponse.json({ error: 'Recovery link has expired. Please request a new access link.' }, { status: 410 })
     }
 
     // Generate signed download URL
-    // storage_path includes bucket prefix (e.g. audio/artists/...), but
-    // createSignedUrl expects the path relative to the bucket root.
+    // Use the bucket from the purchase record (defaults to 'music' for new records, 'audio' for legacy)
+    const bucket = purchase.storage_bucket || 'music';
     const rawPath = purchase.storage_path
     const relativePath = rawPath.replace(/^audio\//, '')
     const { data: signedUrlData, error: signedError } = await supabase
       .storage
-      .from('audio')
+      .from(bucket)
       .createSignedUrl(relativePath, 300) // 5 minutes
 
     if (signedError || !signedUrlData?.signedUrl) {
-      console.error('[music-recover] Signed URL error:', signedError)
-      return NextResponse.json({ error: 'Failed to generate download link.', debug: { rawPath, relativePath, signedErrorMessage: signedError?.message, signedErrorName: signedError?.name, signedErrorStatus: signedError?.statusCode } }, { status: 500 })
+      console.error('[music-recover] Signed URL error:', signedError, { bucket, relativePath })
+      return NextResponse.json({ 
+        error: 'Failed to generate download link. The track file may have been moved or removed. Please contact support.',
+        debug: process.env.NODE_ENV === 'development' ? { bucket, relativePath, error: signedError?.message } : undefined
+      }, { status: 500 })
     }
 
     return NextResponse.json({

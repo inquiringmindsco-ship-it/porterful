@@ -289,23 +289,42 @@ export async function POST(req: NextRequest) {
           const hasAudio = item.audioUrl || item.audio_url || item.audioUrl === '';
           if (isTrack || hasAudio) {
             // Derive real Supabase storage path from the public audio URL
-            // e.g.  https://...supabase.co/storage/v1/object/audio/artists/atm-trap/...
-            //   →  audio/artists/atm-trap/thought-we-was-bruddaz.mp3
+            // e.g.  https://...supabase.co/storage/v1/object/public/music/audio/613a.../c345....mp3
+            //   →  audio/613a.../c345....mp3  (relative to 'music' bucket)
             const publicAudioUrl: string = item.audioUrl || item.audio_url || '';
             let storagePath = item.storagePath || '';
+            const storageBucket = 'music'; // Correct bucket for music files
+            
             if (!storagePath && publicAudioUrl.includes('/storage/v1/object/')) {
-              const match = publicAudioUrl.match(/\/storage\/v1\/object\/(.+?)(?:\?|$)/);
+              // Match path after /public/ prefix: /storage/v1/object/public/music/audio/... → audio/...
+              const match = publicAudioUrl.match(/\/storage\/v1\/object\/public\/music\/(.+?)(?:\?|$)/);
               if (match) {
                 storagePath = match[1];
+              } else {
+                // Fallback: match without public prefix (legacy URLs)
+                const legacyMatch = publicAudioUrl.match(/\/storage\/v1\/object\/(.+?)(?:\?|$)/);
+                if (legacyMatch) {
+                  storagePath = legacyMatch[1].replace(/^music\//, '');
+                }
               }
             }
-            // Final fallback: canonical naming (relative to bucket root)
-            if (!storagePath) {
-              storagePath = `artists/${item.artist}/${item.name}.mp3`
-                .toLowerCase()
-                .replace(/\s+/g, '-')       // spaces → hyphens
-                .replace(/[^a-z0-9/_.-]/g, ''); // strip remaining invalid chars
+            
+            // Final fallback: try to find track in DB by ID
+            if (!storagePath && item.id) {
+              const { data: trackRecord } = await supabase
+                .from('tracks')
+                .select('audio_url')
+                .eq('id', item.id)
+                .maybeSingle();
+              if (trackRecord?.audio_url) {
+                const match = trackRecord.audio_url.match(/\/storage\/v1\/object\/public\/music\/(.+?)(?:\?|$)/);
+                if (match) storagePath = match[1];
+              }
             }
+
+            // Generate recovery token immediately on purchase
+            const recoveryToken = crypto.randomUUID();
+            const recoveryExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
 
             const { error: musicError } = await supabase
               .from('music_purchases')
@@ -317,8 +336,10 @@ export async function POST(req: NextRequest) {
                 artist_name: item.artist || 'Unknown Artist',
                 stripe_session_id: session.id,
                 amount_paid: Math.round((item.price_cents || item.price || 0)),
-                storage_bucket: 'audio',
+                storage_bucket: storageBucket,
                 storage_path: storagePath,
+                recovery_token: recoveryToken,
+                recovery_token_expires_at: recoveryExpiresAt,
                 purchased_at: new Date().toISOString(),
               }, {
                 onConflict: 'buyer_email,track_id',
@@ -328,7 +349,7 @@ export async function POST(req: NextRequest) {
             if (musicError) {
               console.error('[stripe-webhook] Music purchase insert failed:', musicError.message, { code: musicError.code });
             } else {
-              console.log('[stripe-webhook] Music purchase recorded:', item.name, '| path:', storagePath);
+              console.log('[stripe-webhook] Music purchase recorded:', item.name, '| bucket:', storageBucket, '| path:', storagePath, '| token:', recoveryToken.substring(0, 8) + '...');
             }
           }
         }

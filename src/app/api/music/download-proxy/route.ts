@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     // Validate the recovery token
     const { data: purchase, error: purchaseError } = await supabase
       .from('music_purchases')
-      .select('track_title, artist_name, storage_path, recovery_token_expires_at')
+      .select('track_title, artist_name, storage_path, storage_bucket, recovery_token_expires_at')
       .eq('recovery_token', token)
       .maybeSingle();
 
@@ -36,24 +36,29 @@ export async function GET(request: NextRequest) {
     }
 
     if (!purchase) {
-      return NextResponse.json({ error: 'Invalid or expired recovery token.' }, { status: 404 });
+      return NextResponse.json({ error: 'Invalid recovery token. Please request a new access link.' }, { status: 404 });
     }
 
     // Check if token has expired
     if (purchase.recovery_token_expires_at && new Date(purchase.recovery_token_expires_at) < new Date()) {
-      return NextResponse.json({ error: 'Recovery link has expired.' }, { status: 410 });
+      return NextResponse.json({ error: 'Recovery link has expired. Please request a new access link.' }, { status: 410 });
     }
 
     // Download file directly via Supabase client (service role)
+    // Use the bucket from the purchase record (defaults to 'music' for new records)
+    const bucket = purchase.storage_bucket || 'music';
     const relativePath = purchase.storage_path.replace(/^audio\//, '');
     const { data: fileData, error: downloadError } = await supabase
       .storage
-      .from('audio')
+      .from(bucket)
       .download(relativePath);
 
     if (downloadError || !fileData) {
-      console.error('[download-proxy] Download error:', downloadError);
-      return NextResponse.json({ error: 'Failed to download file.' }, { status: 500 });
+      console.error('[download-proxy] Download error:', downloadError, { bucket, relativePath });
+      return NextResponse.json({ 
+        error: 'Failed to download file. The track may have been moved or removed. Please contact support.',
+        debug: process.env.NODE_ENV === 'development' ? { bucket, relativePath, error: downloadError?.message } : undefined
+      }, { status: 500 });
     }
 
     const fileBuffer = await fileData.arrayBuffer();
