@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
     // Download file directly via Supabase client (service role)
     // Use the bucket from the purchase record (defaults to 'music' for new records)
     const bucket = purchase.storage_bucket || 'music';
-    const relativePath = purchase.storage_path.replace(/^audio\//, '');
+    const relativePath = purchase.storage_path; // Use path as-is
     const { data: fileData, error: downloadError } = await supabase
       .storage
       .from(bucket)

@@ -38,8 +38,7 @@ export async function GET(request: NextRequest) {
     // Generate signed download URL
     // Use the bucket from the purchase record (defaults to 'music' for new records, 'audio' for legacy)
     const bucket = purchase.storage_bucket || 'music';
-    const rawPath = purchase.storage_path
-    const relativePath = rawPath.replace(/^audio\//, '')
+    const relativePath = purchase.storage_path; // Use path as-is (includes audio/ prefix)
     const { data: signedUrlData, error: signedError } = await supabase
       .storage
       .from(bucket)
