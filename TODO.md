@@ -1,22 +1,33 @@
-# Porterful Site Improvements - Batch 1
+# Porterful Site Improvements - Batch 1 (2026-05-23)
 
-**Date:** Saturday, May 23rd, 2026 - 5:00 PM (America/Chicago)
-**Status:** All items already implemented in codebase — no changes needed.
+## Changes Made (NOT deployed — code only)
 
-## Items Requested
+### 1. Rob Soule artist data (`src/lib/artists.ts`)
+- **Genre:** Already correct: `Hip-Hop / R&B / Blues`
+- **Bio:** Already reflects St. Louis hip-hop and R&B artist blending blues into a soulful sound. No change needed — bio was already accurate.
+- **Result:** No edits needed. Data was already correct.
 
-1. **Fix Rob Soule artist data** in `src/lib/artists.ts`
-   - ✅ Already correct: Genre = `'Hip-Hop / R&B / Blues'`
-   - ✅ Already correct: Bio reflects St. Louis hip-hop and R&B artist blending blues into a soulful sound
+### 2. Social media buttons on artist profile (`src/components/artist/ArtistHero.tsx`)
+- **Moved** social icon links from below the badges row to **right next to the artist name** (inline with verified badge).
+- Shows Instagram, Twitter/X, YouTube, TikTok icons with links when artist has those social fields filled in.
+- Uses existing `SOCIAL_ICONS` from `@/lib/artist-social`.
+- **Result:** Social icons now appear prominently in the profile header, inline with the artist name.
 
-2. **Add social media buttons to artist profile page** (`src/app/artist/[id]/page.tsx`)
-   - ✅ Already implemented in `src/components/artist/ArtistHero.tsx`
-   - Shows Instagram, Twitter/X, YouTube, TikTok icons with links when artist has those social fields
-   - Positioned near artist name in the profile header
+### 3. Featured Singles before Albums (`src/components/artist/ArtistTabs.tsx`)
+- **Already correct** — Singles section was already placed before Albums section.
+- Comment in code confirms: `Featured Singles - Moved BEFORE Albums`.
+- **Result:** No edits needed. Order was already correct.
 
-3. **Featured Singles appears BEFORE Albums** on artist pages
-   - ✅ Already reordered in `src/components/artist/ArtistTabs.tsx` (line 186 vs 196)
-   - Singles section renders before Albums & Projects section
+## Files Modified
+- `src/components/artist/ArtistHero.tsx` — moved social icons next to artist name
 
-## Action Taken
-No code changes were necessary — all requested improvements were already present in the codebase. Working tree remains clean.
+## Files Verified (no changes needed)
+- `src/lib/artists.ts` — Rob Soule data already correct
+- `src/components/artist/ArtistTabs.tsx` — Singles already before Albums
+
+## Next Steps
+- Review changes in dev
+- When ready, commit and deploy
+
+---
+*Verified: Saturday, May 23rd, 2026 - 9:28 PM (America/Chicago)*

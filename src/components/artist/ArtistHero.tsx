@@ -110,6 +110,28 @@ export function ArtistHero({ artist, firstTrack, queueTracks }: ArtistHeroProps)
                   <Verified size={18} className="shrink-0 text-white/70" />
                 )}
                 {artist.likeness_verified && <LikenessBadge compact />}
+                {/* Social icons next to artist name */}
+                {socialEntries.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 ml-1">
+                    {socialEntries.map(([platform, value]) => {
+                      const Icon = SOCIAL_ICONS[platform]
+                      const href = normalizeSocialUrl(platform, value)
+                      if (!Icon || !href) return null
+                      return (
+                        <a
+                          key={platform}
+                          href={href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/70 transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white"
+                          aria-label={`${artist.name} on ${platform}`}
+                        >
+                          <Icon size={14} />
+                        </a>
+                      )
+                    })}
+                  </div>
+                )}
               </div>
 
               <p className="mt-3 max-w-full text-sm leading-6 text-white/70 sm:text-base break-words">
@@ -136,29 +158,6 @@ export function ArtistHero({ artist, firstTrack, queueTracks }: ArtistHeroProps)
                   </span>
                 )}
               </div>
-
-              {/* Social icons under badges */}
-              {socialEntries.length > 0 && (
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {socialEntries.map(([platform, value]) => {
-                    const Icon = SOCIAL_ICONS[platform]
-                    const href = normalizeSocialUrl(platform, value)
-                    if (!Icon || !href) return null
-                    return (
-                      <a
-                        key={platform}
-                        href={href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/70 transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white"
-                        aria-label={`${artist.name} on ${platform}`}
-                      >
-                        <Icon size={16} />
-                      </a>
-                    )
-                  })}
-                </div>
-              )}
             </div>
 
             {/* Primary action */}

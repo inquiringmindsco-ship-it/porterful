@@ -149,8 +149,14 @@ export function hasPlayableAudio(
   const audioUrl = track.audio_url?.trim()
   const hasAudio = !!audioUrl && audioUrl !== 'null' && audioUrl !== 'undefined'
   const isActive = track.is_active !== false
+  // PHASE C + EMERGENCY FIX: 
+  // - If status is explicitly set, require live|published
+  // - If status is missing/undefined (legacy static tracks), treat as live (backwards compat)
   const status = String(track.status || '').toLowerCase().trim()
-  const isLive = status === 'live' || status === 'published'
+  const hasExplicitStatus = track.status !== undefined && track.status !== null
+  const isLive = hasExplicitStatus 
+    ? (status === 'live' || status === 'published')
+    : true // Legacy static tracks without status field are treated as live
   return hasAudio && isActive && isLive
 }
 
