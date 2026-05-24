@@ -4,6 +4,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase';
 import { Resend } from 'resend';
+import { buildPurchaseEmailHTML, buildPurchaseEmailText } from '@/lib/music-email-template';
 
 function getResend(): Resend | null {
   const key = process.env.RESEND_API_KEY;
@@ -78,7 +79,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // ── Send access email via Resend (honest result) ──
+    // ── Send access email via Resend (branded template) ──
     let emailDelivered = false;
     const resend = getResend();
     // Use verified domain: likenessverified.com
@@ -86,22 +87,38 @@ export async function POST(request: NextRequest) {
     const fromAddress = 'Porterful <noreply@likenessverified.com>';
     if (resend && accessLinks.length > 0) {
       try {
+        const html = buildPurchaseEmailHTML({
+          buyerEmail: email,
+          tracks: accessLinks.map(l => ({
+            trackTitle: l.trackTitle,
+            artistName: l.artist,
+            accessUrl: l.accessUrl,
+            expiresAt: l.expiresAt,
+          })),
+        });
+
+        const text = buildPurchaseEmailText({
+          buyerEmail: email,
+          tracks: accessLinks.map(l => ({
+            trackTitle: l.trackTitle,
+            artistName: l.artist,
+            accessUrl: l.accessUrl,
+            expiresAt: l.expiresAt,
+          })),
+        });
+
         const { error: sendError } = await resend.emails.send({
           from: fromAddress,
           to: email,
-          subject: 'Your Porterful Music Access',
-          html: `<p>Hi there,</p>
-<p>Your music access is ready. Here are your purchased tracks:</p>
-<ul>
-${accessLinks.map(l => `<li><a href="${l.accessUrl}">${l.trackTitle}</a> by ${l.artist} (expires ${new Date(l.expiresAt).toLocaleDateString()})</li>`).join('\n')}
-</ul>
-<p>Questions? Reply to this email.</p>`,
+          subject: accessLinks.length > 1 ? 'Your Porterful Tracks Are Ready' : 'Your Porterful Track Is Ready',
+          html,
+          text,
         });
         if (sendError) {
           console.error('[email-access] Resend error:', sendError.message);
         } else {
           emailDelivered = true;
-          console.log('[email-access] Resend delivered to:', email);
+          console.log('[email-access] Resend delivered branded email to:', email);
         }
       } catch (e) {
         console.error('[email-access] Resend exception:', e);
