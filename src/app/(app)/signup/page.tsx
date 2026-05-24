@@ -137,7 +137,8 @@ export default function SignupPage() {
 
       if (!res.ok) {
         // Check if user already exists
-        if (data.error?.toLowerCase().includes('already') || data.error?.toLowerCase().includes('registered')) {
+        const errorText = String(data.error || '').toLowerCase()
+        if (res.status === 409 || errorText.includes('already') || errorText.includes('registered') || errorText.includes('exists')) {
           // Redirect to login with message
           router.push(`/login?exists=true&email=${encodeURIComponent(email)}${nextPath ? `&next=${encodeURIComponent(nextPath)}` : ''}`)
           return

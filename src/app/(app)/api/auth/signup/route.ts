@@ -1,6 +1,19 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
+import { ensureProfile } from '@/lib/server/ensure-profile'
+
+function isDuplicateAuthUserError(error: { message?: string; status?: number } | null | undefined) {
+  if (!error) return false
+  const message = (error.message || '').toLowerCase()
+  return (
+    error.status === 409 ||
+    message.includes('already') ||
+    message.includes('registered') ||
+    message.includes('exists') ||
+    message.includes('duplicate')
+  )
+}
 
 export async function POST(request: Request) {
   try {
@@ -15,17 +28,7 @@ export async function POST(request: Request) {
 
     // Create auth user with service role key (bypasses RLS)
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
-    
-    // First check if user already exists
-    const { data: existingUser } = await supabase.auth.admin.listUsers()
-    const userExists = existingUser?.users?.some((u: any) => u.email?.toLowerCase() === email.toLowerCase())
-    
-    if (userExists) {
-      return NextResponse.json({ 
-        error: 'This email is already registered. Please sign in instead.' 
-      }, { status: 409 })
-    }
-    
+
     const { data: authData, error: signUpError } = await supabase.auth.admin.createUser({
       email,
       password,
@@ -34,6 +37,12 @@ export async function POST(request: Request) {
     })
 
     if (signUpError) {
+      if (isDuplicateAuthUserError(signUpError)) {
+        return NextResponse.json({
+          error: 'This email is already registered. Please sign in instead.',
+        }, { status: 409 })
+      }
+
       console.error('Signup error:', signUpError)
       return NextResponse.json({ error: signUpError.message }, { status: 400 })
     }
@@ -43,8 +52,6 @@ export async function POST(request: Request) {
     }
 
     const userId = authData.user.id
-    const normalizedEmail = email.toLowerCase()
-    const username = normalizedEmail.split('@')[0] || userId
 
     // --- Referral Logic ---
     let referredBy: string | null = null
@@ -77,20 +84,47 @@ export async function POST(request: Request) {
     }
     // --- End Referral Logic ---
 
-    // Create profile
-    const { error: profileError } = await supabase.from('profiles').insert({
-      id: userId,
-      email: normalizedEmail,
-      username,
-      full_name: name,
-      avatar_url: null,
-      role: role,
-      ...(referredBy ? { referred_by: referredBy } : {}),
-    })
+    // Ensure the profile exists even if the auth trigger already created it.
+    const { profile: ensuredProfile, error: ensureProfileError } = await ensureProfile(supabase, authData.user)
 
-    if (profileError) {
-      console.error('Profile creation error:', profileError)
-      // Continue anyway - profile might already exist
+    let profile = ensuredProfile
+    if (!profile) {
+      const { data: existingProfile, error: existingProfileError } = await supabase
+        .from('profiles')
+        .select('id, role, referred_by')
+        .eq('id', userId)
+        .maybeSingle()
+
+      if (existingProfileError || !existingProfile) {
+        console.error('Profile ensure error:', ensureProfileError || existingProfileError)
+        return NextResponse.json({
+          error: 'Could not prepare your profile. Please try again.',
+        }, { status: 500 })
+      }
+
+      profile = existingProfile
+    }
+
+    const profileUpdates: Record<string, unknown> = {}
+    if (profile.role !== role) {
+      profileUpdates.role = role
+    }
+    if (referredBy && profile.referred_by !== referredBy) {
+      profileUpdates.referred_by = referredBy
+    }
+
+    if (Object.keys(profileUpdates).length > 0) {
+      const { error: profileUpdateError } = await supabase
+        .from('profiles')
+        .update(profileUpdates)
+        .eq('id', userId)
+
+      if (profileUpdateError) {
+        console.error('Profile update error:', profileUpdateError)
+        return NextResponse.json({
+          error: 'Could not finish setting up your profile. Please try again.',
+        }, { status: 500 })
+      }
     }
 
     // Create referral record if this was a referred signup

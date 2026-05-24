@@ -58,6 +58,12 @@ export default function SuperfanSignupPage() {
 
       const signupData = await signupRes.json()
       if (!signupRes.ok) {
+        const errorText = String(signupData.error || '').toLowerCase()
+        if (signupRes.status === 409 || errorText.includes('already') || errorText.includes('registered') || errorText.includes('exists')) {
+          router.push(`/login?exists=true&email=${encodeURIComponent(formData.email)}`)
+          return
+        }
+
         setError(signupData.error || 'Could not create your superfan account.')
         setLoading(false)
         return
