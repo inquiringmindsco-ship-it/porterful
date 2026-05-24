@@ -141,7 +141,7 @@ On Porterful, he's not competing with the algorithm. He's building something rea
     slug: 'rob-soule',
     genre: 'Hip-Hop / R&B / Blues',
     location: 'St. Louis, MO',
-    bio: `Rob Soule is a St. Louis hip-hop and R&B artist blending blues into a soulful sound. Rooted in the heart of the Lou, he weaves smooth R&B melodies, hard-hitting hip-hop drums, and the raw emotional truth of blues into a sound that's unmistakably STL. Tracks like "Love Jones" and "2B" showcase his signature style — melodic hooks, heartfelt lyricism, and that STL soul.`,
+    bio: `Rob Soule is a St. Louis hip-hop and R&B artist blending blues influences into a soulful, modern sound deeply rooted in the city's music scene.`,
     shortBio: 'St. Louis hip-hop and R&B artist blending blues into a soulful sound. Tracks like "Love Jones" and "2B" showcase his signature STL style.',
     verified: true,
     likeness_verified: false,

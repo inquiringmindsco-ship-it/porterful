@@ -27,6 +27,26 @@ type ArtistWithProfile = {
   last_upload?: string
 }
 
+type Purchase = {
+  id: string
+  buyer_email: string
+  buyer_user_id?: string
+  track_id: string
+  track_title: string
+  artist_name: string
+  stripe_session_id?: string
+  amount_paid: number
+  storage_bucket?: string
+  storage_path?: string
+  download_count?: number
+  last_downloaded_at?: string
+  recovery_token?: string
+  recovery_token_expires_at?: string
+  purchased_at: string
+  created_at: string
+  updated_at: string
+}
+
 type TrackWithArtist = {
   id: string
   title: string
@@ -54,6 +74,10 @@ export default function FounderDashboard() {
   const [artists, setArtists] = useState<ArtistWithProfile[]>([])
   const [tracks, setTracks] = useState<TrackWithArtist[]>([])
   const [needsAttention, setNeedsAttention] = useState<any[]>([])
+  const [purchases, setPurchases] = useState<Purchase[]>([])
+  const [purchaseSearch, setPurchaseSearch] = useState('')
+  const [purchaseArtistFilter, setPurchaseArtistFilter] = useState<string>('all')
+  const [purchaseDateFilter, setPurchaseDateFilter] = useState<string>('all')
   const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'music' | 'content' | 'revenue'>('overview')
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
@@ -247,6 +271,7 @@ export default function FounderDashboard() {
       setArtists(enrichedArtists)
       setTracks(enrichedTracks)
       setNeedsAttention(attentionItems)
+      setPurchases(musicPurchasesData || [])
     } catch (error) {
       console.error('Error loading founder data:', error)
     } finally {
@@ -1309,28 +1334,177 @@ export default function FounderDashboard() {
         {/* Revenue Tab */}
         {activeTab === 'revenue' && (
           <div className="space-y-6">
+            {/* Revenue Metrics */}
             <div className="pf-card p-6">
               <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <TrendingUp className="text-[var(--pf-orange)]" />
                 Revenue Overview
               </h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="p-4 rounded-lg bg-[var(--pf-surface)]">
-                  <p className="text-xs text-[var(--pf-text-muted)]">Confirmed Orders</p>
-                  <p className="text-2xl font-bold">{metrics.find(m => m.label === 'Total Orders')?.value || 0}</p>
+                  <p className="text-xs text-[var(--pf-text-muted)]">Total Purchases</p>
+                  <p className="text-2xl font-bold">{purchases.length}</p>
                 </div>
                 <div className="p-4 rounded-lg bg-[var(--pf-surface)]">
                   <p className="text-xs text-[var(--pf-text-muted)]">Total Revenue</p>
-                  <p className="text-2xl font-bold">{metrics.find(m => m.label === 'Total Revenue')?.value || '$0.00'}</p>
+                  <p className="text-2xl font-bold">
+                    ${(purchases.reduce((sum, p) => sum + (p.amount_paid || 0), 0) / 100).toFixed(2)}
+                  </p>
                 </div>
                 <div className="p-4 rounded-lg bg-[var(--pf-surface)]">
-                  <p className="text-xs text-[var(--pf-text-muted)]">Catalog Value</p>
-                  <p className="text-2xl font-bold">{metrics.find(m => m.label === 'Catalog Value')?.value || '$0.00'}</p>
+                  <p className="text-xs text-[var(--pf-text-muted)]">Unique Buyers</p>
+                  <p className="text-2xl font-bold">
+                    {new Set(purchases.map(p => p.buyer_email)).size}
+                  </p>
+                </div>
+                <div className="p-4 rounded-lg bg-[var(--pf-surface)]">
+                  <p className="text-xs text-[var(--pf-text-muted)]">Downloaded</p>
+                  <p className="text-2xl font-bold">
+                    {purchases.filter(p => (p.download_count || 0) > 0).length}
+                  </p>
                 </div>
               </div>
-              <p className="text-sm text-[var(--pf-text-muted)] mt-4">
-                Payout logic not wired yet. Revenue shows confirmed orders only.
-              </p>
+            </div>
+
+            {/* Purchase Table */}
+            <div className="pf-card p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold flex items-center gap-2">
+                  <Package className="text-[var(--pf-orange)]" />
+                  Purchase History
+                </h2>
+                <span className="text-sm text-[var(--pf-text-muted)]">
+                  {purchases.length} total
+                </span>
+              </div>
+
+              {/* Search & Filter */}
+              <div className="flex flex-col sm:flex-row gap-3 mb-4">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--pf-text-muted)]" size={16} />
+                  <input
+                    type="text"
+                    placeholder="Search buyer, track, or artist..."
+                    value={purchaseSearch}
+                    onChange={(e) => setPurchaseSearch(e.target.value)}
+                    className="w-full pl-9 pr-4 py-2 rounded-lg bg-[var(--pf-surface)] border border-[var(--pf-border)] text-sm focus:border-[var(--pf-orange)] outline-none"
+                  />
+                </div>
+                <select
+                  value={purchaseArtistFilter}
+                  onChange={(e) => setPurchaseArtistFilter(e.target.value)}
+                  className="px-3 py-2 rounded-lg bg-[var(--pf-surface)] border border-[var(--pf-border)] text-sm focus:border-[var(--pf-orange)] outline-none"
+                >
+                  <option value="all">All Artists</option>
+                  {Array.from(new Set(purchases.map(p => p.artist_name))).sort().map(artist => (
+                    <option key={artist} value={artist}>{artist}</option>
+                  ))}
+                </select>
+                <select
+                  value={purchaseDateFilter}
+                  onChange={(e) => setPurchaseDateFilter(e.target.value)}
+                  className="px-3 py-2 rounded-lg bg-[var(--pf-surface)] border border-[var(--pf-border)] text-sm focus:border-[var(--pf-orange)] outline-none"
+                >
+                  <option value="all">All Time</option>
+                  <option value="today">Today</option>
+                  <option value="week">This Week</option>
+                  <option value="month">This Month</option>
+                </select>
+              </div>
+
+              {/* Table */}
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-[var(--pf-border)] text-left text-[var(--pf-text-muted)]">
+                      <th className="pb-3 px-3 font-medium">Track</th>
+                      <th className="pb-3 px-3 font-medium">Artist</th>
+                      <th className="pb-3 px-3 font-medium">Buyer</th>
+                      <th className="pb-3 px-3 font-medium">Amount</th>
+                      <th className="pb-3 px-3 font-medium">Date</th>
+                      <th className="pb-3 px-3 font-medium">Status</th>
+                      <th className="pb-3 px-3 font-medium">Downloads</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(() => {
+                      const now = new Date()
+                      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+                      const weekStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+                      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
+
+                      const filtered = purchases.filter(p => {
+                        const matchesSearch = !purchaseSearch ||
+                          p.track_title?.toLowerCase().includes(purchaseSearch.toLowerCase()) ||
+                          p.artist_name?.toLowerCase().includes(purchaseSearch.toLowerCase()) ||
+                          p.buyer_email?.toLowerCase().includes(purchaseSearch.toLowerCase())
+                        const matchesArtist = purchaseArtistFilter === 'all' || p.artist_name === purchaseArtistFilter
+                        const purchaseDate = new Date(p.purchased_at)
+                        const matchesDate = purchaseDateFilter === 'all' ||
+                          (purchaseDateFilter === 'today' && purchaseDate >= todayStart) ||
+                          (purchaseDateFilter === 'week' && purchaseDate >= weekStart) ||
+                          (purchaseDateFilter === 'month' && purchaseDate >= monthStart)
+                        return matchesSearch && matchesArtist && matchesDate
+                      })
+
+                      if (filtered.length === 0) {
+                        return (
+                          <tr>
+                            <td colSpan={7} className="py-8 text-center text-[var(--pf-text-muted)]">
+                              No purchases match your filters.
+                            </td>
+                          </tr>
+                        )
+                      }
+
+                      return filtered
+                        .sort((a, b) => new Date(b.purchased_at).getTime() - new Date(a.purchased_at).getTime())
+                        .map(p => {
+                          const isTokenValid = p.recovery_token &&
+                            (!p.recovery_token_expires_at || new Date(p.recovery_token_expires_at) > new Date())
+                          const hasDownloaded = (p.download_count || 0) > 0
+
+                          return (
+                            <tr key={p.id} className="border-b border-[var(--pf-border)] last:border-0 hover:bg-[var(--pf-surface-hover)]">
+                              <td className="py-3 px-3">
+                                <p className="font-medium">{p.track_title}</p>
+                                <p className="text-xs text-[var(--pf-text-muted)] truncate max-w-[200px]">
+                                  {p.stripe_session_id ? p.stripe_session_id.slice(0, 12) + '...' : 'No session'}
+                                </p>
+                              </td>
+                              <td className="py-3 px-3 text-[var(--pf-text-secondary)]">{p.artist_name}</td>
+                              <td className="py-3 px-3">
+                                <p className="text-[var(--pf-text-secondary)]">{p.buyer_email}</p>
+                              </td>
+                              <td className="py-3 px-3 font-medium">${(p.amount_paid / 100).toFixed(2)}</td>
+                              <td className="py-3 px-3 text-[var(--pf-text-muted)]">
+                                {new Date(p.purchased_at).toLocaleDateString('en-US', {
+                                  month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                                })}
+                              </td>
+                              <td className="py-3 px-3">
+                                <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+                                  isTokenValid
+                                    ? 'bg-green-500/20 text-green-400'
+                                    : 'bg-yellow-500/20 text-yellow-400'
+                                }`}>
+                                  {isTokenValid ? 'Ready' : 'Token Expired'}
+                                </span>
+                              </td>
+                              <td className="py-3 px-3">
+                                <span className={`text-xs font-medium ${
+                                  hasDownloaded ? 'text-green-400' : 'text-[var(--pf-text-muted)]'
+                                }`}>
+                                  {hasDownloaded ? `${p.download_count}×` : '—'}
+                                </span>
+                              </td>
+                            </tr>
+                          )
+                        })
+                    })()}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         )}
