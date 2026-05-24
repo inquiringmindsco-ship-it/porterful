@@ -156,8 +156,6 @@ export default function SignupPage() {
         body: JSON.stringify({ email, password }),
       })
 
-      const loginData = await loginRes.json()
-
       if (loginRes.ok) {
         if (nextPath) {
           router.push(nextPath)
@@ -167,8 +165,14 @@ export default function SignupPage() {
           router.push('/dashboard')
         }
       } else {
+        const loginData = await loginRes.json().catch(() => ({}))
         // Account created but login failed - redirect to login with success message
-        router.push('/login?created=true')
+        const loginError = String((loginData as { error?: string }).error || '').toLowerCase()
+        if (loginError.includes('already') || loginError.includes('registered') || loginError.includes('exists')) {
+          router.push(`/login?exists=true&email=${encodeURIComponent(email)}${nextPath ? `&next=${encodeURIComponent(nextPath)}` : ''}`)
+        } else {
+          router.push('/login?created=true')
+        }
       }
     } catch (err: any) {
       setError(err.message || 'Something went wrong')

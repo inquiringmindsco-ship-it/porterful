@@ -78,8 +78,8 @@ export default function SuperfanSignupPage() {
         }),
       })
 
-      const loginData = await loginRes.json()
       if (!loginRes.ok) {
+        const loginData = await loginRes.json().catch(() => ({}))
         setError(loginData.error || 'Account created, but sign-in was not completed. Please sign in manually.')
         setLoading(false)
         return
