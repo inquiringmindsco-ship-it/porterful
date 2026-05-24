@@ -52,16 +52,16 @@ async function getArtistAlbumOrder(artistId: string): Promise<Record<string, num
   return order
 }
 
-async function getServerTracksByArtistNameFull(artistName: string) {
+async function getServerTracksByArtistId(artistId: string) {
   const supabase = getServerSupabase()
   const { data, error } = await supabase
     .from('tracks')
     .select('*')
-    .eq('artist', artistName)
+    .eq('artist_id', artistId)
     .order('track_number', { ascending: true, nullsFirst: false })
   
   if (error) {
-    console.error('[getServerTracksByArtistNameFull] Error:', error)
+    console.error('[getServerTracksByArtistId] Error:', error)
     return []
   }
   
@@ -129,8 +129,16 @@ export default async function ArtistPage({ params }: PageProps) {
     }
   }
 
-  // Fetch ALL DB tracks (including inactive for canonical dedupe)
-  const dbTracksRaw = await getServerTracksByArtistNameFull(artist.name)
+  // Fetch ALL DB tracks by artist_id (UUID) instead of artist name string
+  // This fixes the issue where tracks have the real name but artist page uses stage name
+  let dbTracksRaw: any[] = []
+  if (dbArtistRecord?.id) {
+    dbTracksRaw = await getServerTracksByArtistId(dbArtistRecord.id)
+  }
+  // Fallback: also try by artist name if no tracks found by ID (legacy compat)
+  if (dbTracksRaw.length === 0) {
+    dbTracksRaw = await getServerTracksByArtistId(dbArtistRecord.id)
+  }
   const staticTracks = getArtistTracks(slug)
   
   // Merge using canonical dedupe: inactive DB blocks matching static
