@@ -20,6 +20,17 @@ const nextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      // Safe redirect: brand-facing URL → canonical slug
+      // Do not change database slug. Alias only.
+      {
+        source: '/artist/ray-of-sunshine',
+        destination: '/artist/melanie-dyson-o2jf',
+        permanent: false, // 307 Temporary Redirect (safe for future slug changes)
+      },
+    ];
+  },
 };
 
 export default nextConfig;
