@@ -90,7 +90,7 @@ function StoreProductCard({
         <Image src={product.image} alt={product.name} fill className="object-cover" />
         {!purchasable && (
           <div className="absolute left-3 top-3 rounded-full bg-[var(--pf-bg)]/80 border border-[var(--pf-border)] px-2 py-1 text-xs font-medium text-[var(--pf-text)] backdrop-blur">
-            Coming Soon
+            Preview
           </div>
         )}
       </div>
@@ -141,7 +141,7 @@ function StoreProductCard({
             className="inline-flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl border border-[var(--pf-border)] bg-[var(--pf-surface)] px-4 py-3 text-sm font-semibold text-[var(--pf-text-secondary)]"
           >
             <Clock size={16} />
-            Coming Soon
+            Preview
           </button>
         )}
       </div>
@@ -209,7 +209,7 @@ export default function StorePage() {
             Shop Porterful
           </h1>
           <p className="mt-2 max-w-2xl text-sm sm:text-base text-[var(--pf-text-secondary)]">
-            Merch and goods from real artists.
+            Preview merch and goods from Porterful artists.
           </p>
         </div>
 

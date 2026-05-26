@@ -78,7 +78,7 @@ export const PRODUCTS: Product[] = [
       '/signal/origin-back.png',
     ],
     featured: true,
-    description: 'Wear your signal. NFC tap point connects anyone who taps to your Likeness registry. Available in Black, White, and Origin.',
+    description: 'Preview concept. Not live yet.',
     colors: ['Black', 'White', 'Origin'],
     sizes: ['S', 'M', 'L', 'XL', 'XXL'],
     fulfillment: 'mock', // Images are placeholders, no Printful link
@@ -97,7 +97,7 @@ export const PRODUCTS: Product[] = [
     artist: 'Gune',
     image: '/artist-images/gune/gune-shirt.jpg',
     featured: true,
-    description: 'Official Gune merch. Limited edition shirt. Coming soon.',
+    description: 'Preview merch. Not live yet.',
     colors: ['Black', 'White'],
     sizes: ['S', 'M', 'L', 'XL', 'XXL'],
     fulfillment: 'mock',

@@ -26,6 +26,31 @@
       "source": "/artist/ray-of-sunshine",
       "destination": "/artist/melanie-dyson-o2jf",
       "permanent": false
+    },
+    {
+      "source": "/cart/cart",
+      "destination": "/cart",
+      "permanent": false
+    },
+    {
+      "source": "/marketplace/marketplace",
+      "destination": "/store",
+      "permanent": false
+    },
+    {
+      "source": "/digital/digital",
+      "destination": "/radio",
+      "permanent": false
+    },
+    {
+      "source": "/radio/radio",
+      "destination": "/radio",
+      "permanent": false
+    },
+    {
+      "source": "/support/support",
+      "destination": "/support",
+      "permanent": false
     }
   ],
   "rewrites": [
