@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthenticatedClient } from '@/lib/auth-utils';
 import { createServerClient } from '@/lib/supabase';
-import { TRACKS } from '@/lib/data';
-import { mergeCanonicalTracks } from '@/lib/track-dedupe';
 
 // POST /api/tracks — Upload a new track
 export async function POST(request: NextRequest) {
@@ -156,59 +154,40 @@ export async function GET(request: NextRequest) {
   const supabase = createServerClient();
 
   if (countOnly && artistName) {
-    // Count canonical public tracks for an artist (used by artist listing cards)
-    const { data, error } = await supabase
+    // A3-2 FIX: Count DB/public-truth tracks only.
+    // Static tracks are not merged into public count.
+    const { data, error, count } = await supabase
       .from('tracks')
-      .select('*')
+      .select('*', { count: 'exact', head: true })
       .eq('artist', artistName)
       .eq('is_active', true)
+      // A3-2 FIX: Explicit status gating
+      .or('status.is.null,status.eq.live,status.eq.published')
       .order('track_number', { ascending: true, nullsFirst: false });
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    const liveTracks = (data || []).map((t: any) => ({
-      id: t.id,
-      title: t.title,
-      artist: t.artist,
-      album: t.album,
-      duration: t.duration,
-      audio_url: t.audio_url,
-      cover_url: t.cover_url,
-      image: t.cover_url || t.image,
-      price: t.proud_to_pay_min || t.price || 1,
-      plays: t.plays || t.play_count || 0,
-      track_number: t.track_number,
-      is_active: t.is_active,
-    }))
-
-    const staticTracks = TRACKS.filter(t => t.artist === artistName).map((t) => ({
-      id: t.id,
-      title: t.title,
-      artist: t.artist,
-      album: t.album,
-      duration: t.duration,
-      audio_url: t.audio_url,
-      cover_url: (t as any).image || (t as any).cover_url || null,
-      image: (t as any).image || (t as any).cover_url || null,
-      price: t.price || 1,
-      plays: t.plays || 0,
-      track_number: (t as any).track_number,
-      is_active: true,
-    }))
-
-    return NextResponse.json({ count: mergeCanonicalTracks(liveTracks as any[], staticTracks as any[], { includeInactive: false }).length });
+    // A3-2 FIX: head=true returns no rows; count is in the `count` property
+    return NextResponse.json({ count: count || 0 });
   }
 
   let query = supabase
     .from('tracks')
     .select('*')
     .eq('is_active', true)
+    // A3-2 FIX: Explicit status gating — live, published, or null (legacy compat)
+    .or('status.is.null,status.eq.live,status.eq.published')
     .order('track_number', { ascending: true, nullsFirst: false });
 
   if (artistId) {
     query = query.eq('artist_id', artistId);
+  }
+
+  // A3-2 FIX: Also filter by artist= query param (was ignored before)
+  if (artistName) {
+    query = query.eq('artist', artistName);
   }
 
   const { data, error } = await query;
@@ -217,27 +196,12 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  // Merge local static tracks (Gune, ATM Trap, O D Porter catalog)
-  const localTracks = TRACKS.map(t => ({
-    id: t.id,
-    title: t.title,
-    artist: t.artist,
-    album: t.album,
-    audio_url: t.audio_url,
-    cover_url: (t as any).image || (t as any).cover_url || null,
-    price: t.price || 1,
-    plays: t.plays || 0,
-    duration: t.duration,
-    track_number: (t as any).track_number,
-    is_active: true,
-    created_at: '2024-01-01T00:00:00Z',
-  }));
+  // A3-2 FIX: Stop merging ungated static TRACKS into public API responses.
+  // Public API must return DB/public-truth tracks only.
+  // Static tracks are kept as fallback only when DB returns zero results.
+  const tracks = (data || []).length > 0 ? data : []
 
-  // Canonical merge: static/CDN tracks first, then DB rows.
-  // This keeps the public route aligned with the music page and player queue.
-  const canonicalTracks = mergeCanonicalTracks(data || [], localTracks, { includeInactive: false });
-
-  return NextResponse.json({ tracks: canonicalTracks });
+  return NextResponse.json({ tracks })
 }
 // Cache bust: 1777083644
 // Deploy trigger: Fri Apr 24 21:47:41 CDT 2026

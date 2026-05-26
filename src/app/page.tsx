@@ -89,52 +89,31 @@ export default function HomePage() {
     } as Track
   }
 
-  // Get hero track: from site settings, or newest release, or fallback
+  // Get hero track: DB-only, no static fallback
   const heroTrack = useMemo(() => {
-    // 1. Check site_settings hero_track_id first
     const heroTrackId = homepageData?.siteSettings?.hero_track_id
     if (heroTrackId) {
-      const found = TRACKS.find((t) => t.id === heroTrackId)
-      if (found) return found as Track
-      // Also check in DB tracks if not in static
       const dbMatch = homepageData?.tracks?.find((t: any) => t.id === heroTrackId)
       if (dbMatch) return buildTrackFromDb(dbMatch)
     }
-    // 2. Fallback to newest track from DB
     if (homepageData?.newestTrack) {
-      const nt = homepageData.newestTrack
-      const staticMatch = TRACKS.find((t) => t.title === nt.title && t.artist === nt.artist)
-      if (staticMatch) return staticMatch as Track
-      return buildTrackFromDb(nt)
+      return buildTrackFromDb(homepageData.newestTrack)
     }
-    // 3. Final fallback
-    const featuredArtist = publicArtists.find((a) => a.slug === 'od-porter') ?? publicArtists[0] ?? PUBLIC_ARTISTS_FALLBACK[0]
-    const artistTracks = TRACKS.filter((t) => t.artist === featuredArtist?.name).slice(0, 3) as Track[]
-    return artistTracks[0] ?? TRACKS[0]
-  }, [homepageData, publicArtists])
+    return null
+  }, [homepageData])
 
-  // Spotlight track: from site settings featured picks — up to 3 tracks
+  // Spotlight track: DB-only featured picks
   const featuredTracks = useMemo(() => {
     const featuredIds = homepageData?.siteSettings?.featured_track_ids || []
     const tracks: Track[] = []
     for (const id of featuredIds.slice(0, 3)) {
-      const found = TRACKS.find((t) => t.id === id)
-      if (found) {
-        tracks.push(found as Track)
-      } else {
-        const dbMatch = homepageData?.tracks?.find((t: any) => t.id === id)
-        if (dbMatch) tracks.push(buildTrackFromDb(dbMatch))
-      }
+      const dbMatch = homepageData?.tracks?.find((t: any) => t.id === id)
+      if (dbMatch) tracks.push(buildTrackFromDb(dbMatch))
     }
     return tracks.length > 0 ? tracks : null
   }, [homepageData])
 
-  // Primary spotlight is first featured track (for single-card display compat)
-  const spotlightTrack = featuredTracks?.[0] ?? (() => {
-    const featuredArtist = publicArtists.find((a) => a.slug === 'od-porter') ?? publicArtists[0] ?? PUBLIC_ARTISTS_FALLBACK[0]
-    const artistTracks = TRACKS.filter((t) => t.artist === featuredArtist?.name).slice(0, 3) as Track[]
-    return artistTracks[1] ?? heroTrack
-  })()
+  const spotlightTrack = featuredTracks?.[0] ?? null
 
   const featuredArtist = useMemo(
     () => publicArtists.find((artist) => artist.slug === 'od-porter') ?? publicArtists[0] ?? PUBLIC_ARTISTS_FALLBACK[0],
@@ -184,10 +163,14 @@ export default function HomePage() {
   }, [])
 
   const startTrack = (track: Track) => {
-    // Build queue from featured artist tracks or just this track
-    const featuredArtist = publicArtists.find((a) => a.slug === 'od-porter') ?? publicArtists[0] ?? PUBLIC_ARTISTS_FALLBACK[0]
-    const artistTracks = TRACKS.filter((t) => t.artist === featuredArtist?.name).slice(0, 3) as Track[]
-    const queue = artistTracks.length > 0 ? artistTracks : [track]
+    // A3-1 FIX: Build queue from DB-backed visible tracks only
+    const dbTracks = homepageData?.tracks || []
+    const artistName = track.artist
+    const artistDbTracks = dbTracks
+      .filter((t: any) => t.artist === artistName || (track as any).artist_id && t.artist_id === (track as any).artist_id)
+      .slice(0, 3)
+      .map((t: any) => buildTrackFromDb(t))
+    const queue = artistDbTracks.length > 0 ? artistDbTracks : [track]
     setMode('track')
     setQueue(queue)
 
@@ -234,8 +217,8 @@ export default function HomePage() {
     }
   }
 
-  const isHeroActive = currentTrack?.id === heroTrack.id
-  const isSpotlightActive = currentTrack?.id === spotlightTrack.id
+  const isHeroActive = heroTrack ? currentTrack?.id === heroTrack.id : false
+  const isSpotlightActive = spotlightTrack ? currentTrack?.id === spotlightTrack.id : false
 
   // Get hero label from site settings or default
   const heroLabel = homepageData?.siteSettings?.hero_label || 'New Release'
@@ -311,7 +294,8 @@ export default function HomePage() {
                       </div>
 
                       <div className="absolute inset-x-3 sm:inset-x-4 bottom-6 sm:bottom-8 grid gap-3 sm:grid-cols-[1.2fr_0.8fr]">
-                        <div className="rounded-2xl border border-white/10 bg-[#0b0d10]/92 p-3 sm:p-4 shadow-2xl backdrop-blur-xl">
+                        {heroTrack && (
+                          <div className="rounded-2xl border border-white/10 bg-[#0b0d10]/92 p-3 sm:p-4 shadow-2xl backdrop-blur-xl">
                           <div className="flex items-start gap-3">
                             <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-white/10">
                               <Image
@@ -344,6 +328,7 @@ export default function HomePage() {
                             <span>{heroTrack.duration}</span>
                           </div>
                         </div>
+                      )}
 
                         <div className="rounded-2xl border border-white/10 bg-black/[0.72] p-3 sm:p-4 shadow-2xl backdrop-blur-xl">
                           <h2 className="text-base sm:text-lg font-semibold leading-tight text-white">
@@ -370,7 +355,7 @@ export default function HomePage() {
                   Featured
                 </p>
                 <h2 className="mt-2 text-3xl font-bold text-white md:text-4xl">
-                  {featuredTracks?.[0]?.title ?? spotlightTrack.title}
+                  {featuredTracks?.[0]?.title ?? spotlightTrack?.title ?? 'Discover'}
                 </h2>
               </div>
               <Link href="/music" className="text-sm font-medium text-[var(--pf-orange)] hover:underline">
@@ -384,7 +369,7 @@ export default function HomePage() {
                 <div className="relative min-h-[280px] lg:min-h-[360px]">
                   <Image
                     src={getTrackArtwork(featuredTracks?.[0] ?? spotlightTrack)}
-                    alt={(featuredTracks?.[0] ?? spotlightTrack).title}
+                    alt={featuredTracks?.[0]?.title ?? spotlightTrack?.title ?? 'Featured Track'}
                     fill
                     sizes="(max-width: 1024px) 100vw, 40vw"
                     className="object-cover"
@@ -394,16 +379,16 @@ export default function HomePage() {
 
                 <div className="flex flex-col justify-between p-6 md:p-8">
                   <div>
-                    <p className="text-sm text-[var(--pf-text-secondary)]">{(featuredTracks?.[0] ?? spotlightTrack).artist}</p>
+                    <p className="text-sm text-[var(--pf-text-secondary)]">{featuredTracks?.[0]?.artist ?? spotlightTrack?.artist ?? ''}</p>
                     <p className="mt-1 text-sm text-[var(--pf-text-muted)]">
-                      {(featuredTracks?.[0] ?? spotlightTrack).album} · {(featuredTracks?.[0] ?? spotlightTrack).duration}
+                      {featuredTracks?.[0]?.album ?? spotlightTrack?.album ?? ''} · {featuredTracks?.[0]?.duration ?? spotlightTrack?.duration ?? ''}
                     </p>
                   </div>
 
                   <div className="mt-8 flex flex-wrap gap-3">
                     <button
                       type="button"
-                      onClick={() => startTrack(featuredTracks?.[0] ?? spotlightTrack)}
+                      onClick={() => { const track = featuredTracks?.[0] ?? spotlightTrack; if (track) startTrack(track); }}
                       className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[var(--pf-orange)] px-6 py-3 text-base font-semibold text-[#111111] transition-transform duration-200 hover:-translate-y-0.5"
                       aria-label={isSpotlightActive && isPlaying ? 'Pause featured track' : 'Play featured track'}
                     >
@@ -412,10 +397,10 @@ export default function HomePage() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => buyTrack(featuredTracks?.[0] ?? spotlightTrack)}
+                      onClick={() => { const track = featuredTracks?.[0] ?? spotlightTrack; if (track) buyTrack(track); }}
                       className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-[var(--pf-border)] bg-[var(--pf-bg)] px-6 py-3 text-base font-semibold text-[var(--pf-text)] transition-transform duration-200 hover:-translate-y-0.5 hover:border-[var(--pf-text-muted)]"
                     >
-                      Buy — ${(featuredTracks?.[0] ?? spotlightTrack).price || 1}
+                      Buy — ${featuredTracks?.[0]?.price ?? spotlightTrack?.price ?? 1}
                     </button>
                   </div>
                 </div>
