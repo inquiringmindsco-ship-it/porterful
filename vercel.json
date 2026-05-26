@@ -21,6 +21,13 @@
       ]
     }
   ],
+  "redirects": [
+    {
+      "source": "/artist/ray-of-sunshine",
+      "destination": "/artist/melanie-dyson-o2jf",
+      "permanent": false
+    }
+  ],
   "rewrites": [
     {
       "source": "/signup",
