@@ -27,18 +27,18 @@ export default function ChallengePage() {
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[var(--pf-orange)] to-orange-500 rounded-full text-white text-sm font-bold mb-6 shadow-lg shadow-[var(--pf-orange)]/30">
               <Trophy size={16} className="fill-current" />
-              $10,000 Challenge
+              Sales Challenge
             </div>
 
             {/* Main Headline */}
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
-              Make <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--pf-orange)] to-yellow-400">$10,000</span>
-              <br />in Sales. Get
-              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[var(--pf-orange)] to-yellow-400">$10,000</span> Cash.
+              Reach a <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--pf-orange)] to-yellow-400">$10,000 Sales Goal</span>
+              <br />and Get
+              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[var(--pf-orange)] to-yellow-400">Recognized</span>.
             </h1>
 
             <p className="text-xl md:text-2xl text-[var(--pf-text-secondary)] mb-10 max-w-2xl mx-auto">
-              Every sale counts. Every track, every shirt, every order. You may qualify for a bonus when you hit $10K in sales.
+              Every sale counts. Every track, every shirt, every order. Artists reaching milestones may be featured in future recognition programs.
             </p>
 
             {/* CTAs */}
@@ -48,7 +48,7 @@ export default function ChallengePage() {
                 Join Free — Start Selling
               </Link>
               <Link href="#tools" className="pf-btn pf-btn-secondary text-lg px-8 py-4 flex items-center justify-center gap-2">
-                Tools to Win
+                Tools to Reach the Goal
                 <ArrowRight size={20} />
               </Link>
             </div>
@@ -68,12 +68,12 @@ export default function ChallengePage() {
         </div>
       </section>
 
-      {/* Tools to Win Section */}
+      {/* Tools to Reach the Goal Section */}
       <section id="tools" className="py-20 md:py-28 bg-[var(--pf-bg-secondary)]">
         <div className="pf-container">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-bold mb-4">
-              Here's How Artists <span className="text-[var(--pf-orange)]">Actually Win</span>
+              Here's How Artists <span className="text-[var(--pf-orange)]">Reach Their Goals</span>
             </h2>
             <p className="text-[var(--pf-text-secondary)] text-lg max-w-2xl mx-auto">
               It's not just about uploading music. You need a plan. Here's the playbook.
@@ -90,7 +90,7 @@ export default function ChallengePage() {
               </div>
               <h3 className="text-xl font-bold mb-3">Share Your Link</h3>
               <p className="text-[var(--pf-text-secondary)] text-sm mb-4">
-                Every fan that clicks your link and buys helps you build toward $10K. Share it everywhere.
+                Every fan that clicks your link and buys helps you build toward the $10K sales goal. Share it everywhere.
               </p>
               <div className="bg-[var(--pf-bg-secondary)] rounded-xl p-3 flex items-center gap-2">
                 <input
@@ -137,7 +137,7 @@ export default function ChallengePage() {
               </div>
               <h3 className="text-xl font-bold mb-3">Track Everything</h3>
               <p className="text-[var(--pf-text-secondary)] text-sm mb-4">
-                See your sales in real-time. Know exactly how close you are to the $10K every single day.
+                See your sales in real-time. Know exactly how close you are to the $10K sales goal every single day.
               </p>
               <div className="bg-[var(--pf-bg-secondary)] rounded-xl p-4 space-y-2">
                 <div className="flex justify-between text-xs">
@@ -217,7 +217,7 @@ export default function ChallengePage() {
       <section className="py-20 md:py-28">
         <div className="pf-container">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Simple Steps to Win</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Simple Steps to Build Momentum</h2>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
@@ -239,8 +239,8 @@ export default function ChallengePage() {
               <div className="w-16 h-16 mx-auto mb-5 bg-gradient-to-br from-[var(--pf-orange)] to-orange-500 rounded-2xl flex items-center justify-center shadow-lg shadow-[var(--pf-orange)]/30">
                 <span className="text-2xl font-bold text-white">3</span>
               </div>
-              <h3 className="text-xl font-bold mb-2">Hit $10K, Get Paid</h3>
-              <p className="text-[var(--pf-text-secondary)]">The first artist to hit $10K in sales may qualify for a bonus payout.</p>
+              <h3 className="text-xl font-bold mb-2">Reach the $10K Sales Goal, Get Recognized</h3>
+              <p className="text-[var(--pf-text-secondary)]">Artists reaching milestones may be featured in future recognition programs.</p>
             </div>
           </div>
         </div>
@@ -254,27 +254,27 @@ export default function ChallengePage() {
               Let's Do the <span className="text-[var(--pf-orange)]">Math</span>
             </h2>
             <p className="text-[var(--pf-text-secondary)] text-lg mb-12">
-              This is more achievable than you think.
+              Here's how the numbers work.
             </p>
 
             <div className="grid md:grid-cols-3 gap-6">
               <div className="bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-2xl p-8">
                 <div className="text-4xl font-bold text-[var(--pf-orange)] mb-2">2,000</div>
                 <p className="text-[var(--pf-text-secondary)] mb-3">track sales at $5</p>
-                <div className="text-sm text-[var(--pf-text-muted)]">2,000 × $5 sales can add up fast</div>
-                <div className="text-sm text-[var(--pf-text-muted)]">+ merch on top = easy $10K</div>
+                <div className="text-sm text-[var(--pf-text-muted)]">2,000 × $5 sales = $10K</div>
+                <div className="text-sm text-[var(--pf-text-muted)]">+ merch sales help reach the goal</div>
               </div>
               <div className="bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-2xl p-8">
                 <div className="text-4xl font-bold text-[var(--pf-orange)] mb-2">500</div>
                 <p className="text-[var(--pf-text-secondary)] mb-3">superfan referrals</p>
-                <div className="text-sm text-[var(--pf-text-muted)]">Each superfan sends 5 buyers</div>
-                <div className="text-sm text-[var(--pf-text-muted)]">500 superfans × 5 × $20 avg = $50K in sales</div>
+                <div className="text-sm text-[var(--pf-text-muted)]">Example: each superfan sends 5 buyers</div>
+                <div className="text-sm text-[var(--pf-text-muted)]">500 superfans × 5 × $20 avg = potential $50K in sales</div>
               </div>
               <div className="bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-2xl p-8">
                 <div className="text-4xl font-bold text-[var(--pf-orange)] mb-2">100</div>
                 <p className="text-[var(--pf-text-secondary)] mb-3">merch sales a month</p>
-                <div className="text-sm text-[var(--pf-text-muted)]">$100/shirt × 100/mo × 12 mo</div>
-                <div className="text-sm text-[var(--pf-text-muted)]">= $120K/year for an active artist</div>
+                <div className="text-sm text-[var(--pf-text-muted)]">Example: $100/shirt × 100/mo × 12 mo</div>
+                <div className="text-sm text-[var(--pf-text-muted)]">= $120K/year potential for active artists</div>
               </div>
             </div>
           </div>
@@ -291,9 +291,9 @@ export default function ChallengePage() {
               {[
                 { title: 'Who Can Join', desc: 'Any artist 18+ with an active Porterful account. No location restrictions.' },
                 { title: 'What Counts', desc: 'Net revenue from tracks, albums, and merchandise sold through your Porterful page.' },
-                { title: 'How to Win', desc: 'First artist to hit $10,000 in cumulative net sales wins the $10,000 bonus.' },
-                { title: 'When You Get Paid', desc: 'Within 30 days of hitting $10K. Wire, ACH, or platform credit — your choice.' },
-                { title: 'Challenge End Date', desc: 'Ongoing. We close registration with 30 days notice. Prize available until then.' },
+                { title: 'How to Qualify', desc: 'Artists reaching $10,000 in cumulative net sales may be recognized in future programs.' },
+                { title: 'Recognition Details', desc: 'Program details and eligibility will be announced when official challenge rules are active.' },
+                { title: 'Challenge Timeline', desc: 'Ongoing. Check dashboard for current status. Timeline subject to change with notice.' },
               ].map((rule, i) => (
                 <div key={i} className="bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-xl p-5 flex items-start gap-4">
                   <CheckCircle2 className="text-[var(--pf-orange)] shrink-0 mt-0.5" size={20} />
@@ -314,13 +314,16 @@ export default function ChallengePage() {
           <div className="text-center">
             <div className="inline-flex items-center gap-2 px-5 py-2 bg-white/20 rounded-full text-white text-sm font-semibold mb-8">
               <Trophy size={16} className="fill-current" />
-              First to $10K wins $10K
+              Reach the $10K Sales Goal. Get Recognized.
             </div>
             <h2 className="text-4xl md:text-6xl font-bold text-white mb-6">
               Your Fans Are Ready.<br />Are You?
             </h2>
-            <p className="text-xl text-white/80 mb-12 max-w-xl mx-auto">
-              Free to join. Artist-first sales can help you qualify for the $10K bonus.
+            <p className="text-xl text-white/80 mb-8 max-w-xl mx-auto">
+              Free to join. Artist-first sales can help you reach recognition milestones.
+            </p>
+            <p className="text-xs text-white/60 mb-8 max-w-md mx-auto">
+              Recognition is subject to verification, eligibility, and active challenge rules. This is not a guaranteed payout or prize.
             </p>
             <Link href="/signup?role=artist" className="inline-flex items-center gap-3 bg-white text-[var(--pf-orange)] font-bold text-lg px-12 py-5 rounded-2xl hover:bg-white/90 transition-colors shadow-2xl">
               <Zap size={24} />

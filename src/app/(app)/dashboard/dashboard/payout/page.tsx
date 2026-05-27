@@ -154,7 +154,7 @@ export default function PayoutPage() {
             </div>
             <h1 className="text-2xl font-bold mb-2">Likeness Verification Required</h1>
             <p className="text-[var(--pf-text-secondary)] mb-6 max-w-md mx-auto">
-              Verification required to withdraw funds. Complete identity verification to enable payouts.
+              Payouts are not live yet. Stripe Connect activation is required. Complete identity verification to prepare for payouts.
             </p>
             <a
               href={LIKENESS_REGISTRATION_URL}
@@ -189,8 +189,8 @@ export default function PayoutPage() {
           </div>
           <h1 className="text-2xl font-bold mb-2">Payout Requested!</h1>
           <p className="text-[var(--pf-text-secondary)] mb-6">
-            Your payout of ${(balance?.available || 0).toFixed(2)} has been submitted. 
-            Expect it to arrive in 2-3 business days.
+            Your payout of ${(balance?.available || 0).toFixed(2)} has been submitted.
+            Payout timelines will be confirmed when Stripe Connect is live.
           </p>
           <Link
             href="/dashboard"
@@ -248,7 +248,7 @@ export default function PayoutPage() {
             Payout Method
           </h2>
           <p className="text-sm text-[var(--pf-text-secondary)] mb-4">
-            Payouts are processed via Stripe direct deposit. Connect your Stripe account in settings to enable withdrawals.
+            Payouts will be processed via Stripe direct deposit when Stripe Connect is activated. Currently in development.
           </p>
           <Link 
             href="/settings/settings"
@@ -310,14 +310,14 @@ export default function PayoutPage() {
                 <span className="text-sm font-bold text-[var(--pf-orange)]">1</span>
               </div>
               <p className="text-sm font-medium mb-1">Earn from Sales</p>
-              <p className="text-xs text-[var(--pf-text-muted)]">You receive 67% of each sale automatically</p>
+              <p className="text-xs text-[var(--pf-text-muted)]">Revenue-share percentages shown here are planning estimates until Stripe Connect and payout settings are fully activated. Actual payouts, thresholds, timing, and eligibility will depend on final configuration, account verification, and provider approval.</p>
             </div>
             <div className="bg-[var(--pf-surface)] rounded-xl p-4">
               <div className="w-8 h-8 rounded-full bg-[var(--pf-orange)]/20 flex items-center justify-center mb-3">
                 <span className="text-sm font-bold text-[var(--pf-orange)]">2</span>
               </div>
               <p className="text-sm font-medium mb-1">Build Balance</p>
-              <p className="text-xs text-[var(--pf-text-muted)]">Balance updates in real-time as orders complete</p>
+              <p className="text-xs text-[var(--pf-text-muted)]">Balance updates as orders are processed</p>
             </div>
             <div className="bg-[var(--pf-surface)] rounded-xl p-4">
               <div className="w-8 h-8 rounded-full bg-[var(--pf-orange)]/20 flex items-center justify-center mb-3">

@@ -74,10 +74,10 @@ export default function PrivacyPage() {
               We implement industry-standard security measures:
             </p>
             <ul className="list-disc list-inside text-[var(--pf-text-secondary)] mt-2 space-y-1">
-              <li>End-to-end encryption for all data transmission</li>
-              <li>Encrypted databases (AES-256)</li>
-              <li>Regular security audits</li>
-              <li>Two-factor authentication available</li>
+              <li>Secure HTTPS connections for data transmission</li>
+              <li>Industry-standard database protection</li>
+              <li>Security practices under continuous improvement</li>
+              <li>Two-factor authentication planned for future release</li>
               <li>Stripe for PCI-compliant payment processing</li>
             </ul>
           </section>
