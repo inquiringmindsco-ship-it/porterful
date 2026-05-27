@@ -1,11 +1,11 @@
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: '$10K Challenge | Porterful',
-  description: 'First artist to earn $10K in sales on Porterful gets a $10K bonus. No cap, no tricks. Just real support for real artists.',
+  title: 'Sales Challenge | Porterful',
+  description: 'Track verified sales progress, build momentum, and qualify for Porterful recognition through active challenge rules.',
   openGraph: {
-    title: '$10K Challenge | Porterful',
-    description: 'First artist to earn $10K in sales gets a $10K bonus. artist-first payout, 20% matched by Porterful.',
+    title: 'Sales Challenge | Porterful',
+    description: 'Track verified sales progress, build momentum, and qualify for Porterful recognition through active challenge rules.',
     url: '/challenge',
   },
 }
