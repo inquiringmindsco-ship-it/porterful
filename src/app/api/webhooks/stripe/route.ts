@@ -124,8 +124,9 @@ export async function POST(req: NextRequest) {
           buyer_email: customerEmail || null,
           activation_code_id: activationCodeId,
           discount_cents: discountCents,
+          payment_method: paymentMethod,
           // Store Likeness™ identity in metadata fields
-          user_id: profileId || user_id || null,
+          user_id: buyerId || profileId || user_id || null,
         })
         .select()
         .single();
@@ -280,6 +281,8 @@ export async function POST(req: NextRequest) {
     }
 
     // ── MUSIC PURCHASE: record entitlement + derive real storage path ──
+    // CRITICAL FIX: Ensure music_purchases.amount_paid matches the Stripe session amount
+    // (cents, not dollars). The orders row is already written above for all sessions.
     const itemsJson = metadata.items;
     if (itemsJson && customerEmail) {
       try {
@@ -326,6 +329,15 @@ export async function POST(req: NextRequest) {
             const recoveryToken = crypto.randomUUID();
             const recoveryExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
 
+            // Use session.amount_total (cents) as the canonical amount.
+            // Fall back to item.price_cents, then item.price*100, then 0.
+            const itemAmountCents = item.price_cents
+              ? Math.round(item.price_cents)
+              : item.price
+                ? Math.round(Number(item.price) * 100)
+                : 0;
+            const canonicalAmountCents = session.amount_total || itemAmountCents || 0;
+
             const { error: musicError } = await supabase
               .from('music_purchases')
               .upsert({
@@ -335,7 +347,7 @@ export async function POST(req: NextRequest) {
                 track_title: item.name || item.title || 'Unknown Track',
                 artist_name: item.artist || 'Unknown Artist',
                 stripe_session_id: session.id,
-                amount_paid: Math.round((item.price_cents || item.price || 0)),
+                amount_paid: canonicalAmountCents,
                 storage_bucket: storageBucket,
                 storage_path: storagePath,
                 recovery_token: recoveryToken,
@@ -349,7 +361,7 @@ export async function POST(req: NextRequest) {
             if (musicError) {
               console.error('[stripe-webhook] Music purchase insert failed:', musicError.message, { code: musicError.code });
             } else {
-              console.log('[stripe-webhook] Music purchase recorded:', item.name, '| bucket:', storageBucket, '| path:', storagePath, '| token:', recoveryToken.substring(0, 8) + '...');
+              console.log('[stripe-webhook] Music purchase recorded:', item.name, '| amount_cents:', canonicalAmountCents, '| bucket:', storageBucket, '| path:', storagePath, '| token:', recoveryToken.substring(0, 8) + '...');
             }
           }
         }

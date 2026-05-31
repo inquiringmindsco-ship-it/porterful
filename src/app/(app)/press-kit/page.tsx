@@ -48,7 +48,7 @@ export default function PressKitPage() {
             </p>
             <p className="text-[var(--pf-text-secondary)] mb-4">
               The platform's "Proud to Pay" model lets fans directly support artists with transparent pricing. 
-              Superfans can earn referral income by sharing artists they love when supported products are purchased. Businesses can list products 
+              Superfan referral activity can be tracked for supported purchases when the feature is enabled. Payout features are in development and will be announced when live. Businesses can list products 
               in the marketplace with artist support built into the flow.
             </p>
             <p className="text-[var(--pf-text-secondary)]">
@@ -97,7 +97,7 @@ export default function PressKitPage() {
               <div>
                 <h3 className="font-semibold mb-1">Superfan Referrals</h3>
                 <p className="text-sm text-[var(--pf-text-secondary)]">
-                  Fans can earn referral income on supported merch and marketplace items.
+                  Fans can track referral activity on supported merch and marketplace items when the feature is enabled. Payout processing is in development.
                 </p>
               </div>
             </div>

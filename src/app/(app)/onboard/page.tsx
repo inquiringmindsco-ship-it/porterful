@@ -176,7 +176,7 @@ export default function OnboardPage() {
 
           <h1 className="text-3xl font-bold mb-3">Your page is live.</h1>
           <p className="text-[var(--pf-text-secondary)] mb-8">
-            Your artist page is ready. Complete your profile to unlock payouts and start selling from the catalog.
+            Your artist page is ready. Complete your profile to activate your storefront and prepare for future payout features.
           </p>
 
           {/* Page link */}
@@ -217,7 +217,7 @@ export default function OnboardPage() {
                     <div className="w-4 h-4 rounded-full bg-yellow-500/20 flex items-center justify-center">
                       <span className="text-yellow-400 text-xs">→</span>
                     </div>
-                    <p className="text-xs text-[var(--pf-text-secondary)]">Complete your profile to unlock payouts</p>
+                    <p className="text-xs text-[var(--pf-text-secondary)]">Complete your profile to activate your storefront</p>
                   </div>
                 </div>
                 <div className="flex gap-2 flex-wrap">
@@ -255,7 +255,7 @@ export default function OnboardPage() {
               href="/dashboard"
               className="w-full py-3.5 bg-[var(--pf-surface)] border border-[var(--pf-border)] text-white font-medium rounded-xl hover:border-[var(--pf-orange)] transition-colors flex items-center justify-center gap-2"
             >
-              Complete Profile → Unlock Payouts
+              Complete Profile → Activate Storefront
               <ArrowRight size={18} />
             </Link>
           </div>
@@ -263,7 +263,7 @@ export default function OnboardPage() {
           {/* Locked features note — encouraging rewrite */}
           <div className="mt-6 p-4 bg-[var(--pf-surface)] rounded-xl border border-[var(--pf-border)] text-center">
             <p className="text-sm text-[var(--pf-text-secondary)]">
-              💡 <span className="text-white font-medium">Want to earn more?</span> Choose products from the catalog or connect Stripe to receive payments directly.
+              💡 <span className="text-white font-medium">Want to earn more?</span> Choose products from the catalog. Stripe Connect for direct payments is coming soon.
             </p>
             <p className="text-xs text-[var(--pf-text-muted)] mt-1">
               Your page earns a share of all platform merch sales automatically.

@@ -66,6 +66,21 @@ type Metric = {
   status: 'ok' | 'warning' | 'error' | 'info'
 }
 
+type RevenueTransaction = {
+  source: string
+  id: string
+  stripe_session_id: string | null
+  buyer_email: string | null
+  buyer_user_id: string | null
+  amount_cents: number
+  amount_dollars: string
+  status: string
+  payment_method: string
+  created_at: string
+  track_title?: string
+  artist_name?: string
+}
+
 export default function FounderDashboard() {
   const router = useRouter()
   const { user, supabase } = useSupabase()
@@ -75,6 +90,9 @@ export default function FounderDashboard() {
   const [tracks, setTracks] = useState<TrackWithArtist[]>([])
   const [needsAttention, setNeedsAttention] = useState<any[]>([])
   const [purchases, setPurchases] = useState<Purchase[]>([])
+  const [revenueTransactions, setRevenueTransactions] = useState<RevenueTransaction[]>([])
+  const [revenueMetrics, setRevenueMetrics] = useState<any>(null)
+  const [revenueLoading, setRevenueLoading] = useState(false)
   const [purchaseSearch, setPurchaseSearch] = useState('')
   const [purchaseArtistFilter, setPurchaseArtistFilter] = useState<string>('all')
   const [purchaseDateFilter, setPurchaseDateFilter] = useState<string>('all')
@@ -150,12 +168,14 @@ export default function FounderDashboard() {
   async function loadData() {
     if (!supabase) return
     setLoading(true)
+    setError('')
 
     try {
+      const { data: { session } } = await supabase.auth.getSession()
+
       // Get accurate user counts from admin API
       let adminCounts = null
       try {
-        const { data: { session } } = await supabase.auth.getSession()
         const adminRes = await fetch('/api/admin/users', {
           headers: { 'Authorization': `Bearer ${session?.access_token || ''}` },
         })
@@ -167,31 +187,37 @@ export default function FounderDashboard() {
         console.error('Failed to load admin counts:', e)
       }
 
-      // Parallel queries for efficiency
-      const [
-        { data: profilesData },
-        { data: artistsData },
-        { data: tracksData },
-        { data: ordersData },
-        { data: musicPurchasesData }
-      ] = await Promise.all([
-        supabase.from('profiles').select('id, role, created_at'),
-        supabase.from('artists').select('*'),
-        supabase.from('tracks').select('*'),
-        supabase.from('orders').select('*'),
-        supabase.from('music_purchases').select('*')
-      ])
+      const revenueRes = await fetch('/api/dashboard/revenue', {
+        headers: { 'Authorization': `Bearer ${session?.access_token || ''}` },
+        cache: 'no-store',
+      })
+      if (!revenueRes.ok) {
+        throw new Error(await revenueRes.text() || 'Failed to load revenue report')
+      }
+      const revenueData = await revenueRes.json()
+
+      const { data: profilesData } = await supabase.from('profiles').select('id, role, created_at')
+      const { data: artistsData } = await supabase.from('artists').select('*')
+      const { data: tracksData } = await supabase.from('tracks').select('*')
 
       // Calculate metrics
       const totalUsers = adminCounts?.total || profilesData?.length || 0
       const totalArtists = adminCounts?.artists || artistsData?.length || 0
       const totalTracks = tracksData?.length || 0
       const liveTracks = tracksData?.filter(t => t.status === 'live' || t.is_active).length || 0
-      const totalOrders = ordersData?.length || 0
-      const totalMusicPurchases = musicPurchasesData?.length || 0
+      const totalOrders = revenueData?.totals?.transactions_count || 0
+      const totalMusicPurchases = revenueData?.totals?.matched_purchases || 0
 
-      // Calculate revenue
-      const totalRevenue = ordersData?.reduce((sum: number, o: any) => sum + (o.amount || 0), 0) || 0
+      // Calculate revenue from the canonical report.
+      const totalRevenue = (revenueData?.totals?.revenue_cents || 0) / 100
+
+      // Revenue by time range
+      const revenueToday = revenueData?.metrics?.revenue_today_dollars
+        ? parseFloat(revenueData.metrics.revenue_today_dollars)
+        : 0
+      const revenueWeek = revenueData?.metrics?.revenue_week_dollars
+        ? parseFloat(revenueData.metrics.revenue_week_dollars)
+        : 0
 
       // Calculate potential catalog value
       const trackPrices = tracksData?.map((t: any) => t.price || t.proud_to_pay_min || 0) || []
@@ -271,9 +297,12 @@ export default function FounderDashboard() {
       setArtists(enrichedArtists)
       setTracks(enrichedTracks)
       setNeedsAttention(attentionItems)
-      setPurchases(musicPurchasesData || [])
+      setRevenueMetrics(revenueData?.metrics || null)
+      setRevenueTransactions(revenueData?.transactions || [])
+      setPurchases(revenueData?.transactions || [])
     } catch (error) {
       console.error('Error loading founder data:', error)
+      setError(error instanceof Error ? error.message : 'Failed to load founder data')
     } finally {
       setLoading(false)
     }
@@ -1331,7 +1360,7 @@ export default function FounderDashboard() {
           </div>
         )}
 
-        {/* Revenue Tab */}
+        {/* Revenue Tab — PHASE D: Canonical unified reporting */}
         {activeTab === 'revenue' && (
           <div className="space-y-6">
             {/* Revenue Metrics */}
@@ -1342,39 +1371,65 @@ export default function FounderDashboard() {
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="p-4 rounded-lg bg-[var(--pf-surface)]">
-                  <p className="text-xs text-[var(--pf-text-muted)]">Total Purchases</p>
-                  <p className="text-2xl font-bold">{purchases.length}</p>
-                </div>
-                <div className="p-4 rounded-lg bg-[var(--pf-surface)]">
                   <p className="text-xs text-[var(--pf-text-muted)]">Total Revenue</p>
                   <p className="text-2xl font-bold">
-                    ${(purchases.reduce((sum, p) => sum + (p.amount_paid || 0), 0) / 100).toFixed(2)}
+                    ${revenueMetrics?.total_revenue_dollars || '0.00'}
+                  </p>
+                </div>
+                <div className="p-4 rounded-lg bg-[var(--pf-surface)]">
+                  <p className="text-xs text-[var(--pf-text-muted)]">Total Transactions</p>
+                  <p className="text-2xl font-bold">
+                    {revenueMetrics?.total_transactions || 0}
+                  </p>
+                </div>
+                <div className="p-4 rounded-lg bg-[var(--pf-surface)]">
+                  <p className="text-xs text-[var(--pf-text-muted)]">Orders</p>
+                  <p className="text-2xl font-bold">
+                    {revenueMetrics?.total_orders || 0}
+                  </p>
+                </div>
+                <div className="p-4 rounded-lg bg-[var(--pf-surface)]">
+                  <p className="text-xs text-[var(--pf-text-muted)]">Music Purchases</p>
+                  <p className="text-2xl font-bold">
+                    {revenueMetrics?.total_music_purchases || 0}
                   </p>
                 </div>
                 <div className="p-4 rounded-lg bg-[var(--pf-surface)]">
                   <p className="text-xs text-[var(--pf-text-muted)]">Unique Buyers</p>
                   <p className="text-2xl font-bold">
-                    {new Set(purchases.map(p => p.buyer_email)).size}
+                    {revenueMetrics?.unique_buyers || 0}
                   </p>
                 </div>
                 <div className="p-4 rounded-lg bg-[var(--pf-surface)]">
                   <p className="text-xs text-[var(--pf-text-muted)]">Downloaded</p>
                   <p className="text-2xl font-bold">
-                    {purchases.filter(p => (p.download_count || 0) > 0).length}
+                    {revenueMetrics?.downloaded_count || 0}
+                  </p>
+                </div>
+                <div className="p-4 rounded-lg bg-[var(--pf-surface)]">
+                  <p className="text-xs text-[var(--pf-text-muted)]">Today</p>
+                  <p className="text-2xl font-bold text-[var(--pf-orange)]">
+                    ${revenueMetrics?.revenue_today_dollars || '0.00'}
+                  </p>
+                </div>
+                <div className="p-4 rounded-lg bg-[var(--pf-surface)]">
+                  <p className="text-xs text-[var(--pf-text-muted)]">This Week</p>
+                  <p className="text-2xl font-bold text-[var(--pf-orange)]">
+                    ${revenueMetrics?.revenue_week_dollars || '0.00'}
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Purchase Table */}
+            {/* Transaction Table — CANONICAL */}
             <div className="pf-card p-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold flex items-center gap-2">
                   <Package className="text-[var(--pf-orange)]" />
-                  Purchase History
+                  Transaction History
                 </h2>
                 <span className="text-sm text-[var(--pf-text-muted)]">
-                  {purchases.length} total
+                  {revenueTransactions.length} total
                 </span>
               </div>
 
@@ -1395,10 +1450,10 @@ export default function FounderDashboard() {
                   onChange={(e) => setPurchaseArtistFilter(e.target.value)}
                   className="px-3 py-2 rounded-lg bg-[var(--pf-surface)] border border-[var(--pf-border)] text-sm focus:border-[var(--pf-orange)] outline-none"
                 >
-                  <option value="all">All Artists</option>
-                  {Array.from(new Set(purchases.map(p => p.artist_name))).sort().map(artist => (
-                    <option key={artist} value={artist}>{artist}</option>
-                  ))}
+                  <option value="all">All Sources</option>
+                  <option value="orders">Orders</option>
+                  <option value="music_purchases">Music Purchases</option>
+                  <option value="offer_transactions">Offer Transactions</option>
                 </select>
                 <select
                   value={purchaseDateFilter}
@@ -1417,13 +1472,13 @@ export default function FounderDashboard() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-[var(--pf-border)] text-left text-[var(--pf-text-muted)]">
-                      <th className="pb-3 px-3 font-medium">Track</th>
-                      <th className="pb-3 px-3 font-medium">Artist</th>
+                      <th className="pb-3 px-3 font-medium">Source</th>
                       <th className="pb-3 px-3 font-medium">Buyer</th>
+                      <th className="pb-3 px-3 font-medium">Track/Item</th>
                       <th className="pb-3 px-3 font-medium">Amount</th>
-                      <th className="pb-3 px-3 font-medium">Date</th>
                       <th className="pb-3 px-3 font-medium">Status</th>
-                      <th className="pb-3 px-3 font-medium">Downloads</th>
+                      <th className="pb-3 px-3 font-medium">Method</th>
+                      <th className="pb-3 px-3 font-medium">Date</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1433,74 +1488,77 @@ export default function FounderDashboard() {
                       const weekStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
                       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
 
-                      const filtered = purchases.filter(p => {
+                      const filtered = revenueTransactions.filter((t: RevenueTransaction) => {
                         const matchesSearch = !purchaseSearch ||
-                          p.track_title?.toLowerCase().includes(purchaseSearch.toLowerCase()) ||
-                          p.artist_name?.toLowerCase().includes(purchaseSearch.toLowerCase()) ||
-                          p.buyer_email?.toLowerCase().includes(purchaseSearch.toLowerCase())
-                        const matchesArtist = purchaseArtistFilter === 'all' || p.artist_name === purchaseArtistFilter
-                        const purchaseDate = new Date(p.purchased_at)
+                          t.buyer_email?.toLowerCase().includes(purchaseSearch.toLowerCase()) ||
+                          t.track_title?.toLowerCase().includes(purchaseSearch.toLowerCase()) ||
+                          t.artist_name?.toLowerCase().includes(purchaseSearch.toLowerCase()) ||
+                          t.stripe_session_id?.toLowerCase().includes(purchaseSearch.toLowerCase())
+                        const matchesSource = purchaseArtistFilter === 'all' || t.source === purchaseArtistFilter
+                        const txDate = new Date(t.created_at)
                         const matchesDate = purchaseDateFilter === 'all' ||
-                          (purchaseDateFilter === 'today' && purchaseDate >= todayStart) ||
-                          (purchaseDateFilter === 'week' && purchaseDate >= weekStart) ||
-                          (purchaseDateFilter === 'month' && purchaseDate >= monthStart)
-                        return matchesSearch && matchesArtist && matchesDate
+                          (purchaseDateFilter === 'today' && txDate >= todayStart) ||
+                          (purchaseDateFilter === 'week' && txDate >= weekStart) ||
+                          (purchaseDateFilter === 'month' && txDate >= monthStart)
+                        return matchesSearch && matchesSource && matchesDate
                       })
 
                       if (filtered.length === 0) {
                         return (
                           <tr>
                             <td colSpan={7} className="py-8 text-center text-[var(--pf-text-muted)]">
-                              No purchases match your filters.
+                              No transactions match your filters.
                             </td>
                           </tr>
                         )
                       }
 
-                      return filtered
-                        .sort((a, b) => new Date(b.purchased_at).getTime() - new Date(a.purchased_at).getTime())
-                        .map(p => {
-                          const isTokenValid = p.recovery_token &&
-                            (!p.recovery_token_expires_at || new Date(p.recovery_token_expires_at) > new Date())
-                          const hasDownloaded = (p.download_count || 0) > 0
+                      return filtered.map((t: RevenueTransaction) => {
+                        const sourceColor = t.source === 'orders' ? 'bg-blue-500/20 text-blue-400' :
+                          t.source === 'music_purchases' ? 'bg-purple-500/20 text-purple-400' :
+                          t.source === 'offer_transactions' ? 'bg-green-500/20 text-green-400' :
+                          'bg-gray-500/20 text-gray-400'
 
-                          return (
-                            <tr key={p.id} className="border-b border-[var(--pf-border)] last:border-0 hover:bg-[var(--pf-surface-hover)]">
-                              <td className="py-3 px-3">
-                                <p className="font-medium">{p.track_title}</p>
-                                <p className="text-xs text-[var(--pf-text-muted)] truncate max-w-[200px]">
-                                  {p.stripe_session_id ? p.stripe_session_id.slice(0, 12) + '...' : 'No session'}
+                        return (
+                          <tr key={`${t.source}-${t.id}`} className="border-b border-[var(--pf-border)] last:border-0 hover:bg-[var(--pf-surface-hover)]">
+                            <td className="py-3 px-3">
+                              <span className={`text-xs px-2 py-1 rounded ${sourceColor}`}>
+                                {t.source}
+                              </span>
+                            </td>
+                            <td className="py-3 px-3">
+                              <p className="text-[var(--pf-text-secondary)]">{t.buyer_email || '—'}</p>
+                              {t.stripe_session_id && (
+                                <p className="text-xs text-[var(--pf-text-muted)] truncate max-w-[150px]">
+                                  {t.stripe_session_id.slice(0, 12)}...
                                 </p>
-                              </td>
-                              <td className="py-3 px-3 text-[var(--pf-text-secondary)]">{p.artist_name}</td>
-                              <td className="py-3 px-3">
-                                <p className="text-[var(--pf-text-secondary)]">{p.buyer_email}</p>
-                              </td>
-                              <td className="py-3 px-3 font-medium">${(p.amount_paid / 100).toFixed(2)}</td>
-                              <td className="py-3 px-3 text-[var(--pf-text-muted)]">
-                                {new Date(p.purchased_at).toLocaleDateString('en-US', {
-                                  month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
-                                })}
-                              </td>
-                              <td className="py-3 px-3">
-                                <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
-                                  isTokenValid
-                                    ? 'bg-green-500/20 text-green-400'
-                                    : 'bg-yellow-500/20 text-yellow-400'
-                                }`}>
-                                  {isTokenValid ? 'Ready' : 'Token Expired'}
-                                </span>
-                              </td>
-                              <td className="py-3 px-3">
-                                <span className={`text-xs font-medium ${
-                                  hasDownloaded ? 'text-green-400' : 'text-[var(--pf-text-muted)]'
-                                }`}>
-                                  {hasDownloaded ? `${p.download_count}×` : '—'}
-                                </span>
-                              </td>
-                            </tr>
-                          )
-                        })
+                              )}
+                            </td>
+                            <td className="py-3 px-3">
+                              <p className="font-medium">{t.track_title || '—'}</p>
+                              {t.artist_name && (
+                                <p className="text-xs text-[var(--pf-text-muted)]">{t.artist_name}</p>
+                              )}
+                            </td>
+                            <td className="py-3 px-3 font-medium">${t.amount_dollars}</td>
+                            <td className="py-3 px-3">
+                              <span className={`text-xs px-2 py-1 rounded ${
+                                t.status === 'completed' ? 'bg-green-500/20 text-green-400' :
+                                t.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400' :
+                                'bg-gray-500/20 text-gray-400'
+                              }`}>
+                                {t.status}
+                              </span>
+                            </td>
+                            <td className="py-3 px-3 text-[var(--pf-text-muted)]">{t.payment_method}</td>
+                            <td className="py-3 px-3 text-[var(--pf-text-muted)]">
+                              {new Date(t.created_at).toLocaleDateString('en-US', {
+                                month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                              })}
+                            </td>
+                          </tr>
+                        )
+                      })
                     })()}
                   </tbody>
                 </table>

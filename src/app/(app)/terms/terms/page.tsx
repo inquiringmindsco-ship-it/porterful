@@ -29,7 +29,7 @@ export default function TermsPage() {
             </p>
             <ul className="list-disc list-inside text-[var(--pf-text-secondary)] mt-2 space-y-1">
               <li>Artists to sell merchandise and music</li>
-              <li>Superfans to earn referral commissions</li>
+              <li>Superfans to track referral activity where supported; payout features are in development.</li>
               <li>Businesses to list products in our marketplace</li>
               <li>Brands to sponsor and partner with artists</li>
             </ul>
@@ -107,7 +107,7 @@ export default function TermsPage() {
           <section className="mb-8">
             <h2 className="text-2xl font-bold mb-4">10. Termination</h2>
             <p className="text-[var(--pf-text-secondary)]">
-              We may suspend or terminate your account for violations of these Terms. You may close your account at any time. Upon termination, any pending payouts will be processed within 30 days.
+              We may suspend or terminate your account for violations of these Terms. You may close your account at any time. Upon termination, any tracked activity or pending balances remain subject to verification, eligibility, applicable terms, and the availability of active payout features. Payout features are not live unless expressly stated.
             </p>
           </section>
 

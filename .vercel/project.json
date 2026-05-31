@@ -1,1 +1,16 @@
-{"projectId":"prj_WTDTDRhVtON6ROzD5VAP2xDqzZxa","orgId":"team_SgVobhtThOM1FwJ86K9cYrRg","projectName":"porterful"}
+{
+  "projectId": "prj_WTDTDRhVtON6ROzD5VAP2xDqzZxa",
+  "orgId": "team_SgVobhtThOM1FwJ86K9cYrRg",
+  "projectName": "porterful",
+  "settings": {
+    "createdAt": 1775338021405,
+    "framework": "nextjs",
+    "devCommand": null,
+    "installCommand": null,
+    "buildCommand": null,
+    "outputDirectory": null,
+    "rootDirectory": null,
+    "directoryListing": false,
+    "nodeVersion": "24.x"
+  }
+}

@@ -50,7 +50,7 @@ const SUPERFAN_TIERS = [
     perks: [
       'Everything in Advocate',
       'Top referral rewards on referrals',
-      'Monthly payout',
+      'Payout feature updates when available',
       'Direct artist connection',
       'Exclusive Legend events',
       'Custom badge + portfolio',
@@ -65,7 +65,7 @@ const FAQS = [
   },
   {
     q: 'When do I get paid?',
-    a: 'Commissions are calculated monthly and paid out when your balance reaches $25 via Stripe.',
+    a: 'Payout features are in development. When Stripe Connect launches, commission schedules and thresholds will be announced.',
   },
   {
     q: 'What counts as a successful referral?',
@@ -207,7 +207,7 @@ export default function SuperfanPage() {
               </div>
             </div>
             <p className="text-xs text-[var(--pf-text-muted)]">
-              Reach ${PAYOUT_THRESHOLD.toFixed(2)} to receive your first payout via Stripe.
+              Payout features coming soon with Stripe Connect. Track your referral activity below.
             </p>
           </section>
 

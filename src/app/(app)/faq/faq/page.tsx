@@ -8,8 +8,8 @@ export default function FAQPage() {
       title: 'For Artists',
       faqs: [
         { q: 'How much do I earn from my merch?', a: 'You keep a large share of each sale. The rest covers payment processing and platform operations.' },
-        { q: 'How do I get paid?', a: 'Payments are processed via Stripe. You can withdraw when eligible, with a $10 minimum.' },
-        { q: 'Can I use a dropship supplier?', a: 'Yes! We integrate with Printful, Zendrop, and CJ Dropshipping. You can also self-fulfill if you prefer.' },
+        { q: 'How do I get paid?', a: 'Payout features are in development. When Stripe Connect launches, you will be able to withdraw earnings. Minimum thresholds and timing will be announced when the feature is live.' },
+        { q: 'Can I use a dropship supplier?', a: 'Planned integrations with Printful, Zendrop, and CJ Dropshipping are in development. For now, artists can self-fulfill or use manual order management.' },
         { q: 'Do I earn from marketplace purchases?', a: 'Yes! When your superfans shop marketplace items from other businesses, you can earn a share when supported products are sold.' },
         { q: 'How do referrals work for artists?', a: 'Share your artist page link. When fans sign up through it, they become your superfans and can help generate income for you.' },
       ]
@@ -21,7 +21,7 @@ export default function FAQPage() {
         { q: 'How much can I earn?', a: 'Earnings vary by product and program. Check the program details for supported rates.' },
         { q: 'Do I need to buy anything first?', a: 'No. You can start sharing after signing up.' },
         { q: 'How long does a referral last?', a: '30 days. When someone uses your code, their purchases count for you for 30 days.' },
-        { q: 'How do I cash out?', a: 'Connect your Stripe account and withdraw when eligible. Minimum withdrawal is $10.' },
+        { q: 'How do I cash out?', a: 'Cash-out features are coming soon with Stripe Connect. Minimum withdrawal thresholds and eligibility will be announced when the feature launches.' },
       ]
     },
     {
@@ -68,11 +68,11 @@ export default function FAQPage() {
               {category.faqs.map((faq, j) => (
                 <details key={j} className="group bg-[var(--pf-surface)] rounded-lg border border-[var(--pf-border)]">
                   <summary className="cursor-pointer p-4 font-semibold flex justify-between items-center">
-                    {faq.q}
+                    {faq?.q}
                     <span className="text-[var(--pf-orange)] group-open:rotate-180 transition-transform">▼</span>
                   </summary>
                   <div className="px-4 pb-4 text-[var(--pf-text-secondary)]">
-                    {faq.a}
+                    {faq?.a}
                   </div>
                 </details>
               ))}
