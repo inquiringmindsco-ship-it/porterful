@@ -112,7 +112,7 @@ export async function POST(req: NextRequest) {
         .from('orders')
         .insert({
           buyer_id: buyerId,
-          product_id: (product_id && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(product_id)) ? product_id : null,
+          product_id: (product_id && metadata.type !== 'track' && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(product_id)) ? product_id : null,
           amount,
           status: 'completed',
           referrer_id: referrerId,

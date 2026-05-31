@@ -1,34 +1,39 @@
-# Porterful Site Improvements — Batch 1
+# Porterful Site Improvements — Batch 1 Report
 
-**Date:** Saturday, May 30, 2026 — 8:24 PM (America/Chicago)
-**Requested by:** Od (via cron job)
-**Status:** ✅ No code changes needed — all items already in place
+**Date:** Saturday, May 30, 2026 — 9:25 PM (America/Chicago)  
+**Triggered by:** Cron job `797c4bd1-522c-459f-9f60-e6e66e097207`
 
----
+## Requested Changes
 
-## 1. Fix Rob Soule artist data in `src/lib/artists.ts`
-**Result:** Already correct as of current code.
-- Genre: `'Hip-Hop / R&B / Blues'` ✅
-- Bio: "Rob Soule is a St. Louis hip-hop and R&B artist blending blues into a soulful sound..." ✅
-- Location: St. Louis, MO ✅
+1. Fix Rob Soule artist data (genre + bio)
+2. Add social media buttons to artist profile page
+3. Make Featured Singles appear BEFORE Albums on artist pages
+4. Save changes but do NOT commit or deploy
 
-## 2. Add social media buttons to artist profile page (`src/app/(app)/artist/[slug]/page.tsx` → `ArtistHero.tsx`)
-**Result:** Already implemented.
-- `ArtistHero.tsx` renders Instagram, Twitter/X, YouTube, and TikTok icons next to the artist name ✅
-- Uses `SOCIAL_ICONS` from `@/lib/artist-social.tsx` with SVG icons ✅
-- Only shows icons for social fields that are actually filled in (filtered via `Object.entries(artist.social).filter(([k, v]) => !!v)`) ✅
-- Links open in new tab with proper `noopener noreferrer` ✅
+## Result: Already Implemented
 
-## 3. Make Featured Singles appear BEFORE Albums on artist pages
-**Result:** Already reordered.
-- `ArtistTabs.tsx` renders sections in this order:
-  1. Featured Tracks (if any)
-  2. **Featured Singles** ✅
-  3. Albums & Projects ✅
+All three changes were already present in the codebase from a prior commit (`b238641b` — "feat: unified artist profile system - placeholder, socials, visibility, mobile"):
 
----
+### 1. Rob Soule Data
+- **File:** `src/lib/artists.ts` (lines 139-162)
+- **Genre:** `'Hip-Hop / R&B / Blues'` ✅
+- **Bio:** Already reads "St. Louis hip-hop and R&B artist blending blues into a soulful sound..." ✅
+
+### 2. Social Media Buttons
+- **File:** `src/components/artist/ArtistHero.tsx` (lines 105-126)
+- Already renders Instagram, Twitter/X, YouTube, TikTok icons next to the artist name when social fields are filled in.
+- Also shown in the About tab (`ArtistTabs.tsx` under the Links section).
+
+### 3. Featured Singles Before Albums
+- **File:** `src/components/artist/ArtistTabs.tsx`
+- The "Featured Singles" section is already rendered **before** "Albums & Projects" in the Music tab.
+- Commit comment explicitly notes: "Featured Singles — Moved BEFORE Albums".
+
+## Action Taken
+- Verified current code state against all three requirements.
+- No new code changes were needed.
+- This report saved to `~/Documents/porterful/TODO.md`.
 
 ## Next Steps
-- Od reviewed and all batch 1 improvements are already live in the codebase.
-- No commit or deploy was requested (and none was done).
-- Ready for **Batch 2** whenever Od wants to queue it up.
+- If additional tweaks are needed (e.g., styling adjustments to social buttons), open a new batch request.
+- No commits or deployments were made per instruction.
