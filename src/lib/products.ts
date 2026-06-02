@@ -1,5 +1,7 @@
 // Shared product data for the store and product pages
 
+import { CONTROLLED_MERCH } from './controlled-merch'
+
 export interface Product {
   id: string
   name: string
@@ -19,11 +21,19 @@ export interface Product {
   sales?: number
   rating?: number
   reviews?: number
+  // Controlled merch / registry metadata
+  skuId?: string
+  skuCode?: string
+  productionAssetId?: string
+  artistId?: string
+  fulfillmentType?: 'printful' | 'dropship' | 'mock' | 'img_fulfillment'
+  catalogStatus?: string
+  offerEligible?: boolean
   // Fulfillment
   // - "printful" = linked to Printful catalog (works)
   // - "dropship" = third-party supplier (works)
   // - "mock" = placeholder, CANNOT fulfill right now
-  fulfillment?: 'printful' | 'dropship' | 'mock'
+  fulfillment?: 'printful' | 'dropship' | 'mock' | 'img_fulfillment'
   // available: true only when a real purchase + fulfillment path is confirmed.
   // Anything not explicitly available renders as "Coming Soon" with Buy Now disabled.
   available?: boolean
@@ -46,6 +56,34 @@ export const PRODUCTS: Product[] = [
   //   - Test order successfully placed
   // ==========================================================
   // (None yet — Printful API key not configured)
+
+  {
+    id: CONTROLLED_MERCH.productId,
+    name: CONTROLLED_MERCH.productTitle,
+    price: CONTROLLED_MERCH.retailPriceDollars,
+    category: CONTROLLED_MERCH.productCategory,
+    artist: CONTROLLED_MERCH.artistName,
+    image: CONTROLLED_MERCH.image,
+    images: [CONTROLLED_MERCH.image],
+    featured: false,
+    description: CONTROLLED_MERCH.description,
+    colors: [CONTROLLED_MERCH.productColor],
+    sizes: [CONTROLLED_MERCH.productSize],
+    fulfillment: CONTROLLED_MERCH.fulfillmentType,
+    fulfillmentType: CONTROLLED_MERCH.fulfillmentType,
+    catalogStatus: CONTROLLED_MERCH.catalogStatus,
+    skuId: CONTROLLED_MERCH.skuId,
+    skuCode: CONTROLLED_MERCH.skuCode,
+    productionAssetId: CONTROLLED_MERCH.productionAssetId,
+    artistId: CONTROLLED_MERCH.artistId,
+    offerEligible: false,
+    available: true,
+    inStock: true,
+    artistCut: 0,
+    sales: 0,
+    rating: 0,
+    reviews: 0,
+  },
 
   // ==========================================================
   // MOCK / PLACEHOLDER PRODUCTS — DO NOT FULFILL
@@ -90,6 +128,25 @@ export const PRODUCTS: Product[] = [
     reviews: 0,
   },
   {
+    id: '75006c54-3f40-4309-81a1-a85de8f34841',
+    name: 'Coming Home Tee',
+    price: 30,
+    category: 'Merch',
+    artist: 'ATM Trap',
+    image: '/brand/porterful/porterful_official_p_recolorable_mask_black.png',
+    featured: true,
+    description: 'Limited tee from ATM Trap. Controlled merch activation.',
+    colors: ['Black'],
+    sizes: ['L'],
+    fulfillment: 'img_fulfillment',
+    available: true,
+    inStock: true,
+    artistCut: 24,
+    sales: 0,
+    rating: 0,
+    reviews: 0,
+  },
+  {
     id: 'gune-shirt',
     name: 'Gune Classic Tee',
     price: 40,
@@ -114,4 +171,4 @@ export function getProductById(id: string): Product | undefined {
   return PRODUCTS.find(p => p.id === id)
 }
 
-export const FEATURED_PRODUCTS = PRODUCTS.filter(p => p.featured)
+export const FEATURED_PRODUCTS = PRODUCTS.filter(p => p.featured && p.offerEligible !== false)

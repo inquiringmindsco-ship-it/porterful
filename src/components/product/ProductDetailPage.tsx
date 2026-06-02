@@ -109,7 +109,7 @@ export function ProductDetailPage() {
               </div>
             )}
 
-            <div className="text-4xl font-bold text-[var(--pf-orange)] mb-6">${product.price}</div>
+            <div className="text-4xl font-bold text-[var(--pf-orange)] mb-6">${product.price.toFixed(2)}</div>
 
             {product.description && (
               <p className="text-[var(--pf-text-secondary)] mb-6 leading-relaxed">{product.description}</p>
@@ -175,7 +175,7 @@ export function ProductDetailPage() {
               {added ? (
                 <><Check size={20} /> Added to Cart</>
               ) : (
-                <>Add to Cart — ${product.price}</>
+                <>Add to Cart — ${product.price.toFixed(2)}</>
               )}
             </button>
 

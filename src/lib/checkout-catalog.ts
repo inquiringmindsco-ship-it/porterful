@@ -20,6 +20,7 @@ export type CheckoutResolvedItemKind = 'track' | 'product' | 'wallet' | 'support
 export type CheckoutResolvedItem = {
   kind: CheckoutResolvedItemKind
   id: string
+  productId: string | null
   name: string
   artist: string | null
   image: string | null
@@ -28,6 +29,12 @@ export type CheckoutResolvedItem = {
   unitAmountCents: number
   quantity: number
   requiresShipping: boolean
+  skuId: string | null
+  skuCode: string | null
+  productionAssetId: string | null
+  artistId: string | null
+  fulfillmentType: string | null
+  catalogStatus: string | null
 }
 
 export type CheckoutResolution = {
@@ -82,6 +89,7 @@ function resolveItemId(item: CheckoutInputItem): string {
 function buildResolvedItem(params: {
   kind: CheckoutResolvedItemKind
   id: string
+  productId?: string | null
   name: string
   artist?: string | null
   image?: string | null
@@ -90,10 +98,17 @@ function buildResolvedItem(params: {
   unitAmountCents: number
   quantity: number
   requiresShipping?: boolean
+  skuId?: string | null
+  skuCode?: string | null
+  productionAssetId?: string | null
+  artistId?: string | null
+  fulfillmentType?: string | null
+  catalogStatus?: string | null
 }): CheckoutResolvedItem {
   return {
     kind: params.kind,
     id: params.id,
+    productId: params.productId ?? null,
     name: params.name,
     artist: params.artist ?? null,
     image: params.image ?? null,
@@ -102,6 +117,12 @@ function buildResolvedItem(params: {
     unitAmountCents: params.unitAmountCents,
     quantity: params.quantity,
     requiresShipping: params.requiresShipping ?? false,
+    skuId: params.skuId ?? null,
+    skuCode: params.skuCode ?? null,
+    productionAssetId: params.productionAssetId ?? null,
+    artistId: params.artistId ?? null,
+    fulfillmentType: params.fulfillmentType ?? null,
+    catalogStatus: params.catalogStatus ?? null,
   }
 }
 
@@ -116,6 +137,7 @@ function resolveTrack(item: CheckoutInputItem, id: string, quantity: number): Ch
     return buildResolvedItem({
       kind: 'track',
       id: track.id,
+      productId: null,
       name: track.title,
       artist: track.artist,
       image: track.image ?? null,
@@ -135,6 +157,7 @@ function resolveTrack(item: CheckoutInputItem, id: string, quantity: number): Ch
   return buildResolvedItem({
     kind: 'track',
     id,
+    productId: null,
     name,
     artist,
     image: item.image ?? null,
@@ -158,6 +181,7 @@ function resolveProduct(item: CheckoutInputItem, id: string, quantity: number): 
   return buildResolvedItem({
     kind: 'product',
     id: product.id,
+    productId: product.id,
     name: product.name,
     artist: product.artist,
     image: product.image ?? null,
@@ -165,6 +189,12 @@ function resolveProduct(item: CheckoutInputItem, id: string, quantity: number): 
     unitAmountCents: Math.round(Number(product.price || 0) * 100),
     quantity,
     requiresShipping: true,
+    skuId: product.skuId || null,
+    skuCode: product.skuCode || null,
+    productionAssetId: product.productionAssetId || null,
+    artistId: product.artistId || null,
+    fulfillmentType: product.fulfillmentType || product.fulfillment || null,
+    catalogStatus: product.catalogStatus || null,
   })
 }
 
@@ -176,12 +206,13 @@ function resolveWallet(item: CheckoutInputItem, id: string, quantity: number): C
     throw new CheckoutCatalogError(`Unknown wallet package: ${id}`)
   }
 
-  return buildResolvedItem({
-    kind: 'wallet',
-    id,
-    name: toStringValue(item.name) || `Wallet Credit: ${walletPackage.label}`,
-    artist: toStringValue(item.artist) || 'Porterful',
-    image: item.image ? toStringValue(item.image) : '/logo.svg',
+    return buildResolvedItem({
+      kind: 'wallet',
+      id,
+      productId: null,
+      name: toStringValue(item.name) || `Wallet Credit: ${walletPackage.label}`,
+      artist: toStringValue(item.artist) || 'Porterful',
+      image: item.image ? toStringValue(item.image) : '/logo.svg',
     description: 'Wallet funding',
     unitAmountCents: walletPackage.priceCents,
     quantity,
@@ -199,12 +230,13 @@ function resolveSupport(item: CheckoutInputItem, id: string, quantity: number): 
     throw new CheckoutCatalogError('Support contributions must be at least $1.00.')
   }
 
-  return buildResolvedItem({
-    kind: 'support',
-    id,
-    name: toStringValue(item.name) || 'Support',
-    artist: toStringValue(item.artist) || 'Various Artists',
-    image: item.image ? toStringValue(item.image) : '/logo.svg',
+    return buildResolvedItem({
+      kind: 'support',
+      id,
+      productId: null,
+      name: toStringValue(item.name) || 'Support',
+      artist: toStringValue(item.artist) || 'Various Artists',
+      image: item.image ? toStringValue(item.image) : '/logo.svg',
     description: 'Direct support contribution',
     unitAmountCents: Math.round(amount * 100),
     quantity,
@@ -222,6 +254,7 @@ function resolveDigital(item: CheckoutInputItem, id: string, quantity: number): 
     return buildResolvedItem({
       kind: 'digital',
       id: 'full-access',
+      productId: null,
       name: 'Full Access - All Music Unlocked',
       artist: toStringValue(item.artist) || 'Porterful',
       image: item.image ? toStringValue(item.image) : '/logo.svg',

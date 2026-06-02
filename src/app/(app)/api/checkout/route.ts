@@ -135,6 +135,7 @@ export async function POST(request: NextRequest) {
 
     const resolvedCart = resolveCheckoutCart(items)
     const { items: resolvedItems, subtotalCents: subtotal, requiresShipping } = resolvedCart
+    const primaryItem = resolvedItems[0] || null
     const shippingCost = requiresShipping ? (subtotal >= 5000 ? 0 : 500) : 0
     const total = subtotal + shippingCost
 
@@ -269,20 +270,35 @@ export async function POST(request: NextRequest) {
       referral_code: effectiveReferralCode || '',
       artist_fund: artistFund.toString(),
       superfan_share: superfanShare.toString(),
-      type: resolvedItems[0]?.kind || 'product',
-      product_id: resolvedItems[0]?.id || '',
-      audio_url: resolvedItems[0]?.audioUrl || '',
-      track_name: resolvedItems[0]?.name || '',
-      track_artist: resolvedItems[0]?.artist || '',
-      track_image: resolvedItems[0]?.image || '',
+      type: primaryItem?.kind || 'product',
+      product_id: primaryItem?.productId || primaryItem?.id || '',
+      sku_id: primaryItem?.skuId || '',
+      sku_code: primaryItem?.skuCode || '',
+      production_asset_id: primaryItem?.productionAssetId || '',
+      artist_id: primaryItem?.artistId || '',
+      fulfillment_type: primaryItem?.fulfillmentType || '',
+      catalog_status: primaryItem?.catalogStatus || '',
+      audio_url: primaryItem?.audioUrl || '',
+      track_name: primaryItem?.name || '',
+      track_artist: primaryItem?.artist || '',
+      track_image: primaryItem?.image || '',
       // Store minimal items — Stripe metadata values have 500-char limit per key.
       // Full item data is recovered server-side via /api/session/{id} using catalog lookup.
       items: JSON.stringify(resolvedItems.map((item) => ({
         id: item.id,
+        productId: item.productId || '',
         name: item.name,
         artist: item.artist,
         price: (item.unitAmountCents || 0) / 100,
         type: item.kind,
+        quantity: item.quantity,
+        unitAmountCents: item.unitAmountCents,
+        skuId: item.skuId || '',
+        skuCode: item.skuCode || '',
+        productionAssetId: item.productionAssetId || '',
+        artistId: item.artistId || '',
+        fulfillmentType: item.fulfillmentType || '',
+        catalogStatus: item.catalogStatus || '',
         audioUrl: item.audioUrl || '',
       }))),
       activation_code_value: activationCodeValue || '',

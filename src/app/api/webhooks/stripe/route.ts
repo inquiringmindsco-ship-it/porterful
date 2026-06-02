@@ -1,9 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase';
 import Stripe from 'stripe';
+import { CONTROLLED_MERCH } from '@/lib/controlled-merch';
 import { resolveReferrerId, normalizeReferralHandle } from '@/lib/referral';
 import { getActivationCodeByValue, normalizeActivationCode } from '@/lib/activation';
 import { resolveMeasurementLocation } from '@/lib/measurement';
+
+function isControlledMerchCheckoutItem(item: any) {
+  const productId = item?.productId || item?.product_id || item?.id || null;
+  const skuId = item?.skuId || item?.sku_id || null;
+  const skuCode = item?.skuCode || item?.sku_code || null;
+  const fulfillmentType = item?.fulfillmentType || item?.fulfillment_type || null;
+
+  return (
+    productId === CONTROLLED_MERCH.productId
+    || skuId === CONTROLLED_MERCH.skuId
+    || skuCode === CONTROLLED_MERCH.skuCode
+    || fulfillmentType === CONTROLLED_MERCH.fulfillmentType
+  );
+}
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
@@ -37,6 +52,23 @@ export async function POST(req: NextRequest) {
       state: metadata.measurement_state || null,
     });
     const measurementSessionId = metadata.measurement_session_id || null;
+    let parsedItems: any[] = []
+    if (metadata.items) {
+      try {
+        const items = JSON.parse(metadata.items)
+        if (Array.isArray(items)) {
+          parsedItems = items
+        }
+      } catch (error) {
+        console.error('[stripe-webhook] Failed to parse metadata.items:', error)
+      }
+    }
+    const controlledMerchItems = parsedItems.filter(isControlledMerchCheckoutItem)
+    const isControlledMerchSession =
+      controlledMerchItems.length > 0
+      || metadata.product_id === CONTROLLED_MERCH.productId
+      || metadata.sku_code === CONTROLLED_MERCH.skuCode
+      || metadata.fulfillment_type === CONTROLLED_MERCH.fulfillmentType
 
     let activationCodeId: string | null = metadata.activation_code_id || null;
     if (!activationCodeId && activationCodeValue) {
@@ -145,7 +177,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    if (customerEmail && product_id) {
+    if (customerEmail && product_id && !isControlledMerchSession) {
       const normalizedEmail = customerEmail.toLowerCase();
       const { data: existingEntitlement } = await supabase
         .from('entitlements')
@@ -182,6 +214,110 @@ export async function POST(req: NextRequest) {
           order_id: order.id,
         })
         .eq('id', activationCodeId);
+    }
+
+    if (controlledMerchItems.length > 0) {
+      const merchActorId = buyerId || user_id || CONTROLLED_MERCH.artistId;
+      const shippingDetails = (session as any).shipping_details || null;
+      const shippingAddress = shippingDetails?.address
+        ? {
+            name: session.customer_details?.name || null,
+            ...shippingDetails.address,
+          }
+        : null;
+
+      for (const item of controlledMerchItems) {
+        const skuId = item.skuId || item.sku_id || CONTROLLED_MERCH.skuId;
+        const skuCode = item.skuCode || item.sku_code || CONTROLLED_MERCH.skuCode;
+        const productIdValue = item.productId || item.product_id || product_id || CONTROLLED_MERCH.productId;
+        const productName = item.name || CONTROLLED_MERCH.productTitle;
+        const quantity = Math.max(1, Math.trunc(Number(item.quantity || 1)));
+        const priceCents = Number(item.unitAmountCents || item.unit_amount_cents || Math.round(Number(item.price || 0) * 100));
+        const fulfillmentNotes = `Controlled merch activation | sku:${skuCode} | stripe_session_id:${session.id}`;
+
+        const { data: existingOrderItem } = await supabase
+          .from('order_items')
+          .select('id')
+          .eq('order_id', order?.id || null)
+          .eq('product_id', productIdValue)
+          .maybeSingle();
+
+        if (!existingOrderItem && order?.id) {
+          const { error: orderItemError } = await supabase
+            .from('order_items')
+            .insert({
+              order_id: order.id,
+              product_id: productIdValue,
+              product_name: productName,
+              quantity,
+              price: priceCents / 100,
+              seller_id: CONTROLLED_MERCH.artistId,
+              artist_id: null,
+              superfan_id: referrerId || null,
+            });
+
+          if (orderItemError) {
+            console.error('[stripe-webhook] Controlled merch order item insert failed:', orderItemError.message);
+          }
+        }
+
+        const { data: existingJob } = await supabase
+          .from('fulfillment_jobs')
+          .select('id, status')
+          .eq('sku_id', skuId)
+          .eq('notes', fulfillmentNotes)
+          .maybeSingle();
+
+        if (!existingJob) {
+          const { data: createdJob, error: jobError } = await supabase
+            .from('fulfillment_jobs')
+            .insert({
+              sku_id: skuId,
+              production_asset_id: item.productionAssetId || item.production_asset_id || CONTROLLED_MERCH.productionAssetId,
+              artist_id: CONTROLLED_MERCH.artistId,
+              quantity,
+              status: 'pending',
+              priority: 'normal',
+              customer_name: session.customer_details?.name || null,
+              customer_email: customerEmail || null,
+              shipping_address: shippingAddress,
+              notes: fulfillmentNotes,
+              created_by: merchActorId,
+              assigned_to: null,
+            })
+            .select('id, status')
+            .single();
+
+          if (jobError) {
+            console.error('[stripe-webhook] Controlled merch fulfillment job insert failed:', jobError.message);
+            continue;
+          }
+
+          if (createdJob?.id) {
+            const { error: reserveError } = await supabase.rpc('advance_fulfillment_job_status', {
+              p_job_id: createdJob.id,
+              p_actor_id: merchActorId,
+              p_next_status: 'reserved',
+              p_notes: fulfillmentNotes,
+            });
+
+            if (reserveError) {
+              console.error('[stripe-webhook] Controlled merch fulfillment reservation failed:', reserveError.message);
+            }
+          }
+        } else if (existingJob.status === 'pending') {
+          const { error: reserveError } = await supabase.rpc('advance_fulfillment_job_status', {
+            p_job_id: existingJob.id,
+            p_actor_id: merchActorId,
+            p_next_status: 'reserved',
+            p_notes: fulfillmentNotes,
+          });
+
+          if (reserveError) {
+            console.error('[stripe-webhook] Existing controlled merch fulfillment reservation failed:', reserveError.message);
+          }
+        }
+      }
     }
 
     // Also record in payments table if tier-based
@@ -289,14 +425,12 @@ export async function POST(req: NextRequest) {
     // ── MUSIC PURCHASE: record entitlement + derive real storage path ──
     // CRITICAL FIX: Ensure music_purchases.amount_paid matches the Stripe session amount
     // (cents, not dollars). The orders row is already written above for all sessions.
-    const itemsJson = metadata.items;
-    if (itemsJson && customerEmail) {
+    if (parsedItems.length > 0 && customerEmail) {
       try {
-        const items = JSON.parse(itemsJson);
-        for (const item of items) {
+        for (const item of parsedItems) {
           const isTrack = item.type === 'track' || item.kind === 'track';
-          const hasAudio = item.audioUrl || item.audio_url || item.audioUrl === '';
-          if (isTrack || hasAudio) {
+          const hasAudio = Boolean(item.audioUrl || item.audio_url);
+          if ((isTrack || hasAudio) && !isControlledMerchCheckoutItem(item)) {
             // Derive real Supabase storage path from the public audio URL
             // e.g.  https://...supabase.co/storage/v1/object/public/music/audio/613a.../c345....mp3
             //   →  audio/613a.../c345....mp3  (relative to 'music' bucket)
