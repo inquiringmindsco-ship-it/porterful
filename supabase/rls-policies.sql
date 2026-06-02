@@ -86,6 +86,46 @@ CREATE POLICY "Authenticated users can upload objects" ON storage.objects FOR IN
 DROP POLICY IF EXISTS "Users can delete own objects" ON storage.objects;
 CREATE POLICY "Users can delete own objects" ON storage.objects FOR DELETE USING (auth.uid() IS NOT NULL);
 
+-- RETURN AUTHORIZATIONS
+DROP POLICY IF EXISTS "Founder/admin can read returns" ON return_authorizations;
+CREATE POLICY "Founder/admin can read returns" ON return_authorizations
+FOR SELECT USING (
+  EXISTS (
+    SELECT 1
+    FROM profiles
+    WHERE profiles.id = auth.uid()
+      AND profiles.role IN ('founder', 'admin')
+  )
+);
+
+DROP POLICY IF EXISTS "Founder/admin can insert returns" ON return_authorizations;
+CREATE POLICY "Founder/admin can insert returns" ON return_authorizations
+FOR INSERT WITH CHECK (
+  EXISTS (
+    SELECT 1
+    FROM profiles
+    WHERE profiles.id = auth.uid()
+      AND profiles.role IN ('founder', 'admin')
+  )
+);
+
+DROP POLICY IF EXISTS "Founder/admin can update returns" ON return_authorizations;
+CREATE POLICY "Founder/admin can update returns" ON return_authorizations
+FOR UPDATE USING (
+  EXISTS (
+    SELECT 1
+    FROM profiles
+    WHERE profiles.id = auth.uid()
+      AND profiles.role IN ('founder', 'admin')
+  )
+);
+
+DROP POLICY IF EXISTS "Artists can read own returns" ON return_authorizations;
+CREATE POLICY "Artists can read own returns" ON return_authorizations
+FOR SELECT USING (
+  artist_id = auth.uid()
+);
+
 -- SHIPMENT EVENTS
 DROP POLICY IF EXISTS "Founder/admin can read shipment events" ON shipment_events;
 CREATE POLICY "Founder/admin can read shipment events" ON shipment_events

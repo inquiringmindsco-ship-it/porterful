@@ -307,6 +307,9 @@ export default function ArtistDashboardPage() {
               <Link href="/dashboard/artist/fulfillment" className="pf-btn pf-btn-secondary flex items-center gap-2">
                 <Icon.Package /> Fulfillment Queue
               </Link>
+              <Link href="/dashboard/artist/returns" className="pf-btn pf-btn-secondary flex items-center gap-2">
+                <Icon.Package /> Returns
+              </Link>
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
