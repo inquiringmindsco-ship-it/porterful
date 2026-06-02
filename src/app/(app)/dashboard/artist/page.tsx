@@ -122,6 +122,11 @@ export default function ArtistDashboardPage() {
           <div>
             <h1 className="text-2xl font-bold">My Catalog</h1>
             <p className="text-sm text-[var(--pf-text-secondary)]">Music and products</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Link href="/dashboard/artist/assets" className="pf-btn pf-btn-secondary flex items-center gap-2">
+                <Icon.Package /> Production Assets
+              </Link>
+            </div>
           </div>
           <div className="flex flex-wrap gap-2">
             <Link href="/dashboard/upload" className="pf-btn pf-btn-primary flex items-center gap-2">

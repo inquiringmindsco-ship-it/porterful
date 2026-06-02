@@ -619,6 +619,12 @@ export default function FounderDashboard() {
             Founder Dashboard
           </h1>
           <p className="text-[var(--pf-text-muted)] mt-1">Platform control and oversight</p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Link href="/dashboard/founder/assets" className="pf-btn pf-btn-secondary inline-flex items-center gap-2">
+              <Package size={16} />
+              Production Assets
+            </Link>
+          </div>
         </div>
 
         {/* Tabs */}
