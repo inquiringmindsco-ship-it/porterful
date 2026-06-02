@@ -51,7 +51,7 @@ function buildTrackUpdates(body: Record<string, any>) {
   if (body.proud_to_pay_min !== undefined || body.price !== undefined) {
     const price = body.proud_to_pay_min ?? body.price
     const numericPrice = Number(price)
-    updates.proud_to_pay_min = Number.isFinite(numericPrice) ? Math.max(0, numericPrice) : 1
+    updates.proud_to_pay_min = Number.isFinite(numericPrice) ? Math.max(0, numericPrice) : 0.50
   }
 
   if (body.album !== undefined) {

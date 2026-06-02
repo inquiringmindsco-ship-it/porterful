@@ -262,6 +262,128 @@
             gap: 14px;
             margin: 16px 0;
         }
+
+        .leadership-grid {
+            display: grid;
+            grid-template-columns: 1.95in minmax(0, 1fr);
+            gap: 16px;
+            margin: 16px 0;
+            align-items: start;
+        }
+
+        .leadership-photo-card {
+            background: #fafafa;
+            border: 1px solid #e5e5e5;
+            padding: 12px;
+            break-inside: avoid;
+        }
+
+        .leadership-photo-card img {
+            display: block;
+            width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+        }
+
+        .leadership-caption {
+            margin-top: 10px;
+        }
+
+        .leadership-caption strong {
+            display: block;
+            font-size: 11pt;
+            color: #222;
+            margin-bottom: 4px;
+        }
+
+        .leadership-caption span,
+        .leadership-caption p {
+            display: block;
+            font-size: 9pt;
+            line-height: 1.35;
+            color: #555;
+            margin: 0;
+        }
+
+        .leadership-caption p {
+            margin-top: 8px;
+        }
+
+        .leadership-content {
+            min-width: 0;
+        }
+
+        .leadership-content .fit-grid {
+            margin-top: 0;
+        }
+
+        .vision-spread {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            height: 100%;
+        }
+
+        .vision-spread-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            align-items: stretch;
+            flex: 1;
+        }
+
+        .vision-panel {
+            display: flex;
+            flex-direction: column;
+            background: #fafafa;
+            border: 1px solid #e5e5e5;
+            overflow: hidden;
+            min-width: 0;
+        }
+
+        .vision-panel-label {
+            padding: 12px 14px 0;
+            font-size: 8.5pt;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+            color: #777;
+        }
+
+        .vision-media {
+            width: 100%;
+            height: 4.9in;
+            overflow: hidden;
+            margin-top: 10px;
+            background: #eee;
+        }
+
+        .vision-media img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .vision-media img.current-property-shot {
+            transform: rotate(-90deg) scale(1.38);
+            transform-origin: center center;
+        }
+
+        .vision-panel-caption {
+            padding: 12px 14px 14px;
+            font-size: 9pt;
+            line-height: 1.38;
+            color: #444;
+        }
+
+        .vision-spread-note {
+            padding-top: 6px;
+            border-top: 1px solid #ece8de;
+            text-align: center;
+            font-size: 8.5pt;
+            color: #666;
+            font-style: italic;
+        }
         
         .fit-column {
             display: flex;
@@ -464,6 +586,7 @@
             text-transform: uppercase;
             color: #777;
             margin-bottom: 4px;
+            white-space: nowrap;
         }
 
         .timeline-month .milestone {
@@ -515,14 +638,226 @@
         }
         
         /* Print Styles */
+        @page {
+            size: letter;
+            margin: 0.2in;
+        }
+
         @media print {
-            .page {
-                margin: 0;
-                padding: 0.55in;
-            }
-            
             body {
                 background: #fff;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .page {
+                margin: 0;
+                padding: 0.3in;
+                width: 8.1in;
+                min-height: 0;
+                height: 10.25in;
+                overflow: hidden;
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+
+            .page:last-child {
+                page-break-after: auto;
+            }
+
+            h1 {
+                font-size: 18pt;
+                margin-bottom: 12px;
+                padding-bottom: 8px;
+            }
+
+            h2 {
+                font-size: 12pt;
+                margin: 12px 0 8px 0;
+            }
+
+            h3 {
+                font-size: 10.5pt;
+                margin: 10px 0 6px 0;
+            }
+
+            p {
+                font-size: 9pt;
+                line-height: 1.28;
+                margin-bottom: 8px;
+            }
+
+            ul {
+                font-size: 8.5pt;
+                margin: 6px 0 6px 18px;
+            }
+
+            li {
+                margin-bottom: 3px;
+            }
+
+            table {
+                font-size: 8pt;
+                margin: 10px 0;
+            }
+
+            th,
+            td {
+                padding: 6px 8px;
+            }
+
+            .fit-grid {
+                gap: 10px;
+                margin: 12px 0;
+            }
+
+            .fit-box {
+                padding: 10px;
+            }
+
+            .fit-box h4 {
+                font-size: 10pt;
+                margin-bottom: 6px;
+            }
+
+            .fit-box p,
+            .fit-box li {
+                font-size: 8.5pt;
+                line-height: 1.25;
+            }
+
+            .fit-box ul {
+                margin: 6px 0 0 14px;
+            }
+
+            .leadership-grid {
+                grid-template-columns: 1.7in minmax(0, 1fr);
+                gap: 12px;
+                margin: 12px 0;
+            }
+
+            .leadership-caption strong {
+                font-size: 10pt;
+            }
+
+            .leadership-caption span,
+            .leadership-caption p {
+                font-size: 8pt;
+                line-height: 1.25;
+            }
+
+            .risk-box,
+            .phase,
+            .photo-card,
+            .timeline-panel,
+            .lease-highlight,
+            .occupancy-box {
+                padding: 10px;
+                margin: 10px 0;
+            }
+
+            .risk-box {
+                padding: 8px;
+                margin: 8px 0;
+            }
+
+            .risk-box h4 {
+                font-size: 9.5pt;
+                margin: 0 0 4px 0;
+            }
+
+            .risk-box ul {
+                margin: 4px 0 4px 16px;
+            }
+
+            .risk-box li {
+                font-size: 7.8pt;
+                line-height: 1.15;
+                margin-bottom: 2px;
+            }
+
+            .risk-box .note-box {
+                font-size: 7.2pt;
+                line-height: 1.15;
+                margin-top: 4px;
+            }
+
+            .photo-card img {
+                height: 120px;
+            }
+
+            .photo-card.featured img {
+                height: 170px;
+            }
+
+            .photo-caption strong {
+                font-size: 9.5pt;
+            }
+
+            .photo-caption span {
+                font-size: 7.5pt;
+            }
+
+            .photo-source,
+            .note-box {
+                font-size: 7.5pt;
+            }
+
+            .timeline-grid {
+                gap: 6px;
+            }
+
+            .timeline-month {
+                padding: 7px;
+                min-height: 66px;
+            }
+
+            .timeline-month .month {
+                font-size: 6.5pt;
+                white-space: nowrap;
+            }
+
+            .timeline-month .milestone {
+                font-size: 8pt;
+            }
+
+            .timeline-month .detail {
+                font-size: 7pt;
+                line-height: 1.2;
+            }
+
+            .utilization-node {
+                padding: 8px 10px;
+            }
+
+            .utilization-node strong {
+                font-size: 9pt;
+            }
+
+            .utilization-node span {
+                font-size: 7.8pt;
+            }
+
+            .utilization-arrow {
+                font-size: 12pt;
+                margin: 0;
+            }
+
+            .photo-grid {
+                gap: 8px;
+                margin: 12px 0 8px 0;
+            }
+
+            .revenue-grid,
+            .occupancy-grid,
+            .lease-option-grid {
+                gap: 10px;
+            }
+
+            .footer {
+                margin-top: 18px;
+                padding-top: 8px;
+                font-size: 7pt;
             }
         }
 
@@ -570,7 +905,7 @@
         <div class="cover-company">Inquiring Minds Group</div>
         <div style="font-size: 11pt; color: #666; letter-spacing: 2px; text-transform: uppercase;">St. Louis, Missouri</div>
         
-        <div class="cover-date">May 2026</div>
+        <div class="cover-date">June 2026</div>
     </div>
 
     <!-- EXECUTIVE SUMMARY -->
@@ -578,6 +913,8 @@
         <h1>Executive Summary</h1>
 
         <p><strong>Inquiring Minds Group (IMG)</strong> is a St. Louis-based operator seeking to lease and activate 1724 N. 13th Street as a long-term headquarters for storage, fulfillment, creator support, and business services. The ask is designed to reduce vacancy risk for ownership while IMG phases into stable occupancy.</p>
+
+        <p>St. Louis is the natural location for HQ-1 because it sits between IMG’s existing relationships in Chicago, Kansas City, Dallas-Fort Worth, and New Orleans, and founder leadership maintains longstanding ties to the region, making it a practical base for storage, coordination, and operations.</p>
 
         <p>We are not asking the owner to underwrite a speculative redevelopment story. We are asking for a practical lease structure that gives the building daily use, a responsible occupant, and a clear path to full rent.</p>
 
@@ -615,80 +952,133 @@
         </div>
     </div>
 
-    <!-- FOUNDER & BUSINESS PROOF -->
+    <!-- LEADERSHIP & ACCOUNTABILITY -->
     <div class="page">
-        <h1>Founder &amp; Business Proof</h1>
+        <h1>Leadership &amp; Accountability</h1>
 
-        <div class="fit-grid">
-            <div class="fit-column">
-                <div class="fit-box">
-                    <h4>Founder Execution</h4>
-                    <p>O D Jonathan Porter is a United States Army veteran with more than 15 years of experience across sales, business development, recruiting, training, and operations. The record here is execution, not hype.</p>
-                    <ul>
-                        <li>Walgreens - sales operations and customer-facing execution</li>
-                        <li>Mutual of Omaha - business development and client relationships</li>
-                        <li>Spectrum - recruiting, training, and team development at scale</li>
-                        <li>School and community outreach initiatives</li>
-                        <li>Marketing, recruiting, and product launch work</li>
-                        <li>Website and platform development</li>
-                    </ul>
-                </div>
-
-                <div class="fit-box">
-                    <h4>Operational Footprint</h4>
-                    <ul>
-                        <li>Porterful - music commerce platform with live sales infrastructure</li>
-                        <li>CreditKlimb - credit education platform</li>
-                        <li>Land Data Systems - land and acquisition support system</li>
-                        <li>Existing storage opportunities and creator network</li>
-                        <li>Live payment processing, database systems, and event workflows</li>
-                    </ul>
-                    <p class="note-box">These assets already exist and are being consolidated into HQ-1.</p>
+        <div class="leadership-grid">
+            <div class="leadership-photo-card">
+                <img src="public/hq1-proposal/porter-headshot.jpg" alt="O D Jonathan Porter, Founder of Inquiring Minds Group">
+                <div class="leadership-caption">
+                    <strong>O D Jonathan Porter</strong>
+                    <span>Founder, Inquiring Minds Group</span>
+                    <span>U.S. Army Veteran | Business Development | Operations &amp; Community Activation</span>
+                    <p>O D Jonathan Porter founded Inquiring Minds Group to develop practical business systems, support entrepreneurs, and create sustainable operational infrastructure. His founder-led work includes business development, brand growth, marketing support, creator/vendor assistance, barber and salon business support, outreach, and multi-market relationship management.</p>
+                    <p class="note-box">My objective is to establish a permanent operational headquarters in St. Louis where existing business activities can be consolidated, expanded, and managed from a single accountable location.</p>
                 </div>
             </div>
 
-            <div class="fit-column">
-                <div class="fit-box">
-                    <h4>Business Standing</h4>
-                    <table>
-                        <tr>
-                            <th>Item</th>
-                            <th>Detail</th>
-                        </tr>
-                        <tr>
-                            <td>Business Entity</td>
-                            <td>Inquiring Minds LLC, Missouri</td>
-                        </tr>
-                        <tr>
-                            <td>SAM.gov</td>
-                            <td>Entity workspace on file</td>
-                        </tr>
-                        <tr>
-                            <td>UEI</td>
-                            <td>QR19FK13MZN8</td>
-                        </tr>
-                        <tr>
-                            <td>CAGE Code</td>
-                            <td>12RU1</td>
-                        </tr>
-                        <tr>
-                            <td>State Registration</td>
-                            <td>Current</td>
-                        </tr>
-                    </table>
-                </div>
+            <div class="leadership-content">
+                <p class="note-box">The purpose of HQ-1 is to consolidate existing physical assets, product workflows, business support systems, and regional relationships into one accountable operating location.</p>
+                <div class="fit-grid">
+                    <div class="fit-column">
+                        <div class="fit-box">
+                            <h4>Founder Execution</h4>
+                            <p>O D Jonathan Porter is a United States Army veteran with more than 15 years of experience across sales, business development, recruiting, training, and operations. The record here is execution, not hype.</p>
+                            <ul>
+                                <li>Walgreens - sales operations and customer-facing execution</li>
+                                <li>Mutual of Omaha - business development and client relationships</li>
+                                <li>Spectrum - recruiting, training, and team development at scale</li>
+                                <li>School and community outreach initiatives</li>
+                                <li>Marketing, recruiting, and product launch work</li>
+                                <li>Business systems development</li>
+                            </ul>
+                        </div>
 
-                <div class="fit-box">
-                    <h4>Regional Network</h4>
-                    <ul>
-                        <li>St. Louis - HQ and primary operations</li>
-                        <li>Chicago - fulfillment and events</li>
-                        <li>Kansas City - distribution and partners</li>
-                        <li>Dallas-Fort Worth - business development</li>
-                        <li>New Orleans - creator partnerships</li>
-                    </ul>
-                    <p class="note-box">These are existing relationships and operational capabilities, not guaranteed contracts or committed revenue streams.</p>
+                        <div class="fit-box">
+                            <h4>Existing Operating Activities</h4>
+                            <ul>
+                                <li>Product Packing &amp; Distribution - storage, packing, labeling coordination, order preparation, barber/salon outreach, and wholesale/distribution support for consumer product lines including Noble Naturals.</li>
+                                <li>Event Activation Assets - storage, staging, cleaning, maintenance, and deployment of event rental equipment including Bubble Lux.</li>
+                                <li>Creative Programming Assets - Color Kicks and other creative activation concepts that support youth, family, vendor, and creator-facing programming.</li>
+                                <li>Business Activation Systems - websites, dashboards, QR/NFC campaigns, lead capture, creator profiles, business profiles, and marketing support.</li>
+                                <li>Creator / Vendor Inventory - merchandise, product supplies, vendor inventory, event materials, and fulfillment preparation.</li>
+                                <li>Property and Research Services - land research, data management, and acquisition support.</li>
+                            </ul>
+                            <p class="note-box">These activities already exist and are being consolidated into HQ-1.</p>
+                        </div>
+                    </div>
+
+                    <div class="fit-column">
+                        <div class="fit-box">
+                            <h4>Business Standing</h4>
+                            <table>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Detail</th>
+                                </tr>
+                                <tr>
+                                    <td>Business Entity</td>
+                                    <td>Inquiring Minds LLC, Missouri</td>
+                                </tr>
+                                <tr>
+                                    <td>SAM.gov</td>
+                                    <td>Entity workspace on file</td>
+                                </tr>
+                                <tr>
+                                    <td>UEI</td>
+                                    <td>QR19FK13MZN8</td>
+                                </tr>
+                                <tr>
+                                    <td>CAGE Code</td>
+                                    <td>12RU1</td>
+                                </tr>
+                                <tr>
+                                    <td>State Registration</td>
+                                    <td>Current</td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div class="fit-box">
+                            <h4>Regional Network</h4>
+                            <ul>
+                                <li>St. Louis - HQ and primary operations</li>
+                                <li>Chicago - fulfillment and events</li>
+                                <li>Kansas City - distribution and partners</li>
+                                <li>Dallas-Fort Worth - business development</li>
+                                <li>New Orleans - creator partnerships</li>
+                            </ul>
+                            <p class="note-box">These are existing relationships and operational capabilities, not guaranteed contracts or committed revenue streams.</p>
+                        </div>
+                    </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WHY IMG IS DIFFERENT -->
+    <div class="page">
+        <h1>Why IMG Is Different</h1>
+
+        <p>IMG is not trying to start from zero. The proposal is built around existing operating systems, physical assets, product lines, and digital systems that can be consolidated into one headquarters.</p>
+
+        <div class="fit-grid">
+            <div class="fit-box">
+                <h4>What Makes IMG Different</h4>
+                <ul>
+                    <li>Veteran-led leadership with a record of execution.</li>
+                    <li>SAM.gov workspace on file with assigned UEI and CAGE.</li>
+                    <li>Existing administrative systems and payment infrastructure already in use.</li>
+                    <li>Existing regional network across St. Louis, Chicago, Kansas City, Dallas-Fort Worth, and New Orleans.</li>
+                    <li>IMG is not only proposing programming; it has physical assets, product lines, brand-support activity, and digital systems that require space to store, prepare, fulfill, and deploy.</li>
+                    <li>The property supports practical operations first: storage, product handling, distribution support, rental staging, creator/vendor services, and business activation.</li>
+                </ul>
+            </div>
+
+            <div class="fit-box">
+                <h4>Existing Demand Channels</h4>
+                <ul>
+                    <li>3D printing inventory storage.</li>
+                    <li>Art and maker supply storage.</li>
+                    <li>Creator merchandise fulfillment.</li>
+                    <li>Vendor inventory holding.</li>
+                    <li>Event equipment storage.</li>
+                    <li>Contractor equipment storage.</li>
+                    <li>Regional inventory coordination.</li>
+                </ul>
+                <p>Several of these needs originate from existing relationships across St. Louis, New Orleans, Dallas-Fort Worth, Kansas City, and Chicago.</p>
+                <p class="note-box">These channels represent existing relationships and identified needs, not guaranteed contracts or revenue.</p>
             </div>
         </div>
     </div>
@@ -751,15 +1141,57 @@
         <div class="risk-box">
             <h4>Why This Structure Works</h4>
             <ul>
-                <li>Deposit provided: the proposed $5,000 deposit gives the owner an immediate layer of protection.</li>
-                <li>Long-term lease: a five-year term supports continuity instead of short-cycle turnover.</li>
-                <li>Phased activation: operations begin small, then expand only after the site is stable.</li>
-                <li>Multiple revenue streams reduce dependency on any single activity.</li>
-                <li>No major construction initially; the plan begins with occupancy and cleanup.</li>
-                <li>Responsible occupancy: the property is treated as an operating asset, not a temporary experiment.</li>
+                <li>Deposit and phased occupancy reduce vacancy risk.</li>
+                <li>Five-year term supports continuity instead of turnover.</li>
+                <li>No major construction is required before occupancy begins.</li>
+                <li>Responsible occupancy treats the property as an operating asset, not a temporary experiment.</li>
             </ul>
             <p class="note-box">Tenant will maintain insurance and pay its agreed share of NNN pass-throughs, including taxes, insurance, and common-area or exterior maintenance as negotiated.</p>
+            <p class="note-box">IMG acknowledges responsibility for utilities, insurance requirements, and operational costs associated with occupancy.</p>
         </div>
+    </div>
+
+    <!-- EXISTING ASSETS -->
+    <div class="page">
+        <h1>Existing Assets That Support Occupancy</h1>
+
+        <p>IMG is not proposing an empty office concept. HQ-1 would support a combination of product inventory, packing workflows, rental equipment, creative programming assets, creator/vendor operations, and digital business systems that benefit from a central, secure, and accountable location.</p>
+
+        <div class="photo-grid">
+            <div class="photo-card">
+                <img src="public/hq1-proposal/occupancy-assets/bubble-lux-occupancy.jpg" alt="Bubble Lux event activation equipment">
+                <div class="photo-caption">
+                    <strong>Event Activation Equipment</strong>
+                    <span>Portable event equipment requiring secure storage, cleaning, staging, and deployment space.</span>
+                </div>
+            </div>
+
+            <div class="photo-card">
+                <img src="public/hq1-proposal/occupancy-assets/color-kicks-creative.jpg" alt="Color Kicks creative programming assets">
+                <div class="photo-caption">
+                    <strong>Creative Programming Assets</strong>
+                    <span>Creative materials and product concepts supporting workshops, family programming, creator showcases, and brand activations.</span>
+                </div>
+            </div>
+
+            <div class="photo-card">
+                <img src="public/hq1-proposal/occupancy-assets/noble-naturals-distribution.jpg" alt="Noble Naturals product packing and distribution">
+                <div class="photo-caption">
+                    <strong>Product Packing &amp; Distribution</strong>
+                    <span>Product inventory and sample materials supporting packing, labeling, barber/salon outreach, and fulfillment workflows.</span>
+                </div>
+            </div>
+
+            <div class="photo-card">
+                <img src="public/hq1-proposal/occupancy-assets/outreach-business-support.jpg" alt="Outreach and business support work">
+                <div class="photo-caption">
+                    <strong>Business Support &amp; Outreach</strong>
+                    <span>Outreach activity supporting business development, vendor relationships, and community-facing activation.</span>
+                </div>
+            </div>
+        </div>
+
+        <p class="photo-source">Images shown are current IMG-owned or IMG-controlled operational assets, included solely to demonstrate storage, staging, packing, programming, and occupancy use cases for the proposed premises.</p>
     </div>
 
     <!-- PROPERTY STRENGTHS -->
@@ -773,44 +1205,44 @@
                 <img src="public/hq1-proposal/photos/photo-0.jpg" alt="Front exterior of 1724 N. 13th Street">
                 <div class="photo-caption">
                     <strong>Front Exterior</strong>
-                    <span>Clear street-facing presence and a building footprint that can be occupied responsibly from day one.</span>
+                    <span>Main street facade with loading-bay access and office windows.</span>
                 </div>
             </div>
 
             <div class="photo-card">
                 <img src="public/hq1-proposal/photos/photo-1.jpg" alt="Corner exterior and side access at 1724 N. 13th Street">
                 <div class="photo-caption">
-                    <strong>Corner / Side Access</strong>
-                    <span>Shows the side elevation and open access area that support staging and controlled circulation.</span>
+                    <strong>Side Elevation / Access</strong>
+                    <span>Shows the corner and paved side access area available for staging and circulation.</span>
                 </div>
             </div>
 
             <div class="photo-card">
                 <img src="public/hq1-proposal/photos/photo-5.jpg" alt="Dock and bay access at 1724 N. 13th Street">
                 <div class="photo-caption">
-                    <strong>Dock / Bay Access</strong>
-                    <span>Supports loading, unloading, receiving, and storage movement.</span>
+                    <strong>Loading Bay Access</strong>
+                    <span>Open bay access suitable for receiving, loading, and move-in or move-out.</span>
                 </div>
             </div>
 
             <div class="photo-card">
                 <img src="public/hq1-proposal/photos/photo-2.jpg" alt="Existing office area inside 1724 N. 13th Street">
                 <div class="photo-caption">
-                    <strong>Office Area</strong>
-                    <span>Provides a ready-made administrative and client-intake space.</span>
+                    <strong>Interior Support Room</strong>
+                    <span>Enclosed room suited to administration, prep, or storage support.</span>
                 </div>
             </div>
 
             <div class="photo-card">
-                <img src="public/hq1-proposal/photos/photo-3.jpg" alt="Warehouse floor inside 1724 N. 13th Street">
+                <img src="public/hq1-proposal/photos/photo-3.jpg" alt="Office area inside 1724 N. 13th Street">
                 <div class="photo-caption">
-                    <strong>Warehouse Floor</strong>
-                    <span>Large open area suitable for storage, fulfillment, and controlled production activity.</span>
+                    <strong>Office Area</strong>
+                    <span>Dedicated office space for administration and client intake.</span>
                 </div>
             </div>
         </div>
 
-        <p class="photo-source">Photos sourced from public listing materials and shown for property identification and planning only.</p>
+        <p class="photo-source">Photos are included to identify the property and illustrate existing conditions.</p>
     </div>
 
     <!-- PROPERTY ACTIVATION PLAN -->
@@ -882,37 +1314,38 @@
         <div class="revenue-grid">
             <div class="revenue-item">
                 <h4>Storage Services</h4>
-                <p>Business inventory storage, contractor equipment storage, and vendor inventory holding with month-to-month or annual terms.</p>
+                <p>Business inventory storage, contractor equipment storage, vendor inventory holding, and product storage for packing and distribution workflows.</p>
             </div>
 
             <div class="revenue-item">
                 <h4>Fulfillment Support</h4>
-                <p>Product handling, packaging, shipping coordination, and inbound receiving for e-commerce sellers.</p>
+                <p>Product handling, packing, labeling, shipping coordination, order prep, and barber/salon distribution assistance.</p>
             </div>
 
             <div class="revenue-item">
                 <h4>Event Hosting</h4>
-                <p>Network gatherings, vendor markets, creator showcases, and practical workshops.</p>
+                <p>Network gatherings, vendor markets, creator showcases, practical workshops, and permitted event-support equipment use.</p>
             </div>
 
             <div class="revenue-item">
                 <h4>Membership Programs</h4>
-                <p>Workspace access, programming access, and event discounts for creators and small operators.</p>
+                <p>Workspace access, programming access, and event discounts for creators, vendors, and small operators.</p>
             </div>
 
             <div class="revenue-item">
                 <h4>Business Activation Program</h4>
-                <p>Marketing support, vendor introductions, collaborative promotions, and business development help.</p>
+                <p>Marketing support, vendor introductions, collaborative promotions, barber/salon brand support, and QR-based outreach.</p>
             </div>
 
             <div class="revenue-item">
                 <h4>IMG Operations</h4>
-                <p>Consolidation of existing IMG activity into one operating hub with lower overhead.</p>
+                <p>Consolidation of existing IMG activity, digital systems, and support services into one operating hub with lower overhead.</p>
             </div>
         </div>
 
         <h2>Sustainability Through Diversification</h2>
         <p>Multiple revenue streams reduce dependency on any single activity. If one stream underperforms in a given quarter, others continue to support operational costs. That diversification is central to the long-term occupancy strategy.</p>
+        <p>Additional support areas include product packing and distribution, event-support equipment use, creative programming and workshops, and barber / salon brand support.</p>
     </div>
 
     <!-- COMMUNITY IMPACT -->
@@ -920,6 +1353,7 @@
         <h1>Community Impact &amp; Stewardship</h1>
 
         <p>We describe our intended role with measured language. We do not claim transformation, neighborhood revitalization, or large-scale economic impact.</p>
+        <p>IMG's physical assets and programming concepts can support controlled family-friendly events, vendor markets, creator showcases, barber/salon business support, youth programming, and small business activations when appropriate, permitted, insured, and aligned with property rules.</p>
 
         <div class="fit-grid">
             <div class="fit-box">
@@ -955,7 +1389,7 @@
             <h4>Immediate Neighborhood Effect</h4>
             <ul>
                 <li>Regular foot traffic during business hours.</li>
-                <li>Lighting and activity during evening events.</li>
+                <li>Lighting and activity during approved business and community programming.</li>
                 <li>Reduced vacancy visibility on the street.</li>
                 <li>A point of contact for neighborhood coordination.</li>
             </ul>
@@ -966,15 +1400,16 @@
     <div class="page">
         <h1>Lease Request</h1>
 
-        <p>We present the following lease structure as a partnership approach to property activation. The terms are designed to reduce vacancy risk while allowing IMG to invest in cleanup, organization, and operational revenue before reaching full rent obligations.</p>
+        <p>We present the following requested lease structure as a partnership approach to property activation. The terms are designed to reduce vacancy risk while allowing IMG to invest in cleanup, organization, and operational revenue before reaching full rent obligations.</p>
+        <p>The phased structure gives IMG time to organize product inventory, activation equipment, packing workflows, storage clients, rental systems, and business-support operations before full rent begins.</p>
 
         <div class="lease-option-grid">
             <div class="lease-option-card">
-                <h3>Proposed Lease Structure</h3>
+                <h3>Requested Lease Structure</h3>
                 <table>
                     <tr>
                         <th>Term</th>
-                        <th>Proposed Structure</th>
+                        <th>Requested Structure</th>
                     </tr>
                     <tr>
                         <td>Lease Duration</td>
@@ -999,39 +1434,6 @@
                 </table>
             </div>
 
-            <div class="lease-option-card">
-                <h3>Option B</h3>
-                <table>
-                    <tr>
-                        <th>Term</th>
-                        <th>Proposed Structure</th>
-                    </tr>
-                    <tr>
-                        <td>Lease Duration</td>
-                        <td>Five (5) years</td>
-                    </tr>
-                    <tr>
-                        <td>Security Deposit</td>
-                        <td>$10,000</td>
-                    </tr>
-                    <tr>
-                        <td>Months 1-3</td>
-                        <td>Rent abatement (no rent due)</td>
-                    </tr>
-                    <tr>
-                        <td>Months 4-6</td>
-                        <td>50% of full market rent</td>
-                    </tr>
-                    <tr>
-                        <td>Months 7-12</td>
-                        <td>Full market rent (to be negotiated)</td>
-                    </tr>
-                    <tr>
-                        <td>Year 2-5</td>
-                        <td>Full market rent (to be negotiated)</td>
-                    </tr>
-                </table>
-            </div>
         </div>
 
         <h2>Why This Structure Works</h2>
@@ -1059,7 +1461,7 @@
     <div class="page">
         <h1>Proof Appendix</h1>
 
-        <p>Source references: SAM.gov entity workspace export, Missouri LLC record, and live operating websites.</p>
+        <p>Source references: SAM.gov entity workspace export and Missouri LLC record.</p>
 
         <div class="fit-grid">
             <div class="fit-box">
@@ -1092,36 +1494,39 @@
                 </table>
             </div>
 
-            <div class="fit-box">
-                <h4>Operating Proof</h4>
-                <table>
-                    <tr>
-                        <th>Platform</th>
-                        <th>URL</th>
-                        <th>Status</th>
-                    </tr>
-                    <tr>
-                        <td>Porterful</td>
-                        <td>porterful.com</td>
-                        <td>Live</td>
-                    </tr>
-                    <tr>
-                        <td>CreditKlimb</td>
-                        <td>creditklimb.com</td>
-                        <td>Live</td>
-                    </tr>
-                    <tr>
-                        <td>Land Data System</td>
-                        <td>national-land-data-system.vercel.app</td>
-                        <td>Live</td>
-                    </tr>
-                    <tr>
-                        <td>G-Body Finder</td>
-                        <td>gbodyfinder.com</td>
-                        <td>Live</td>
-                    </tr>
-                </table>
-            </div>
+        <div class="fit-box">
+            <h4>Existing Operating Activities</h4>
+            <table>
+                <tr>
+                    <th>Area</th>
+                    <th>Details</th>
+                </tr>
+                <tr>
+                    <td>Business Development &amp; Marketing</td>
+                    <td>Lead generation, outreach, and implementation support.</td>
+                </tr>
+                <tr>
+                    <td>Product Packing &amp; Distribution</td>
+                    <td>Storage, packing, labeling, order prep, and distribution coordination.</td>
+                </tr>
+                <tr>
+                    <td>Event Activation Assets</td>
+                    <td>Storage, staging, cleaning, maintenance, and deployment of event equipment.</td>
+                </tr>
+                <tr>
+                    <td>Creative Programming Assets</td>
+                    <td>Workshops, youth / family activations, creator showcases, and vendor-facing concepts.</td>
+                </tr>
+                <tr>
+                    <td>Business Activation Systems</td>
+                    <td>Websites, dashboards, QR / NFC campaigns, lead capture, and payment workflows.</td>
+                </tr>
+                <tr>
+                    <td>Creator / Vendor Support</td>
+                    <td>Inventory holding, content production, and business activation support.</td>
+                </tr>
+            </table>
+        </div>
         </div>
 
         <div class="fit-box">
@@ -1133,33 +1538,30 @@
                 </tr>
                 <tr>
                     <td>Primary Contact</td>
-                    <td>O D Jonathan Porter, Founder</td>
+                    <td>O D Jonathan Porter</td>
                 </tr>
                 <tr>
                     <td>Email</td>
-                    <td>porter@porterful.com</td>
+                    <td>porter.jonathanj@gmail.com</td>
                 </tr>
                 <tr>
-                    <td>Support</td>
-                    <td>support@porterful.com</td>
+                    <td>Primary Phone</td>
+                    <td>504-408-1177</td>
                 </tr>
                 <tr>
-                    <td>Mailing Address</td>
-                    <td>612 Brotherton Ln, Saint Louis, MO 63135-3113 USA</td>
+                    <td>Secondary Phone</td>
+                    <td>314-302-3906</td>
                 </tr>
                 <tr>
                     <td>Website</td>
-                    <td>porterful.com</td>
+                    <td>imglikeness.com</td>
                 </tr>
             </table>
         </div>
 
         <div style="margin-top: 28px; padding: 18px; background: #fafafa; border-left: 4px solid #c9a96e;">
-            <p style="font-style: italic; font-size: 10pt; color: #555; margin: 0;">
-                "If I owned this building, would this document make me believe IMG has a realistic path to occupying, activating, and sustaining operations in this property?"
-            </p>
-            <p style="font-size: 10pt; color: #333; margin: 10px 0 0 0; font-weight: 600;">
-                We believe the answer is yes. We welcome the opportunity to discuss this proposal in detail.
+            <p style="font-size: 10pt; color: #333; margin: 0; font-weight: 600;">
+                IMG appreciates the opportunity to present this proposal and welcomes further discussion regarding lease structure, activation strategy, and occupancy timing.
             </p>
         </div>
 

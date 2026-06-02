@@ -84,7 +84,7 @@ export default function HomePage() {
       cover_url: nt.cover_url,
       image: nt.cover_url || '/album-art/default.jpg',
       audio_url: `/api/tracks/${nt.id}/audio`, // Dynamic audio endpoint
-      price: 1,
+      price: Number(nt.proud_to_pay_min ?? nt.price ?? 0.50),
       status: nt.status, // PHASE C: pass through status for eligibility checks
     } as Track
   }
@@ -193,7 +193,7 @@ export default function HomePage() {
               id: track.id,
               name: track.title,
               artist: track.artist,
-              price: track.price || 1,
+              price: track.price ?? 0.50,
               quantity: 1,
               type: 'track',
             },
@@ -400,7 +400,7 @@ export default function HomePage() {
                       onClick={() => { const track = featuredTracks?.[0] ?? spotlightTrack; if (track) buyTrack(track); }}
                       className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-[var(--pf-border)] bg-[var(--pf-bg)] px-6 py-3 text-base font-semibold text-[var(--pf-text)] transition-transform duration-200 hover:-translate-y-0.5 hover:border-[var(--pf-text-muted)]"
                     >
-                      Buy — ${featuredTracks?.[0]?.price ?? spotlightTrack?.price ?? 1}
+                      Buy — ${Number(featuredTracks?.[0]?.price ?? spotlightTrack?.price ?? 0.50).toFixed(2)}
                     </button>
                   </div>
                 </div>
@@ -453,7 +453,7 @@ export default function HomePage() {
                             onClick={() => buyTrack(track)}
                             className="inline-flex h-9 items-center justify-center rounded-full border border-[var(--pf-border)] bg-[var(--pf-bg)] px-3 text-xs font-semibold text-[var(--pf-text)] transition-transform duration-200 hover:-translate-y-0.5 hover:border-[var(--pf-text-muted)]"
                           >
-                            ${track.price || 1}
+                            ${Number(track.price ?? 0.50).toFixed(2)}
                           </button>
                         </div>
                       </div>

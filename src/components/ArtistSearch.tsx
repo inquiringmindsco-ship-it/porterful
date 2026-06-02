@@ -249,7 +249,7 @@ export function ArtistSearch() {
                         <div className="text-xs text-[var(--pf-text-muted)]">{track.artist}</div>
                       </div>
                       <div className="font-bold text-[var(--pf-orange)]">
-                        ${track.price}
+                        ${Number(track.price ?? 0.50).toFixed(2)}
                       </div>
                     </Link>
                   ))}

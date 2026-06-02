@@ -170,7 +170,7 @@ export default function MusicPage() {
           cover_url: t.cover_url,
           image: t.cover_url,
           plays: t.play_count || 0,
-          price: t.proud_to_pay_min || 1,
+          price: Number(t.proud_to_pay_min ?? t.price ?? 0.50),
           is_active: t.is_active,
           status: t.status, // PHASE C: include status for hasPlayableAudio check
           track_number: t.track_number,

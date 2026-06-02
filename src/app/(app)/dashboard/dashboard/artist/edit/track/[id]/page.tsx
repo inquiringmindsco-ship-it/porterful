@@ -44,7 +44,7 @@ export default function EditTrackPage() {
   // Form state
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
-  const [proudToPayMin, setProudToPayMin] = useState('1.00')
+  const [proudToPayMin, setProudToPayMin] = useState('0.50')
   const [isActive, setIsActive] = useState(true)
   const [featured, setFeatured] = useState(false)
   const [coverUrl, setCoverUrl] = useState('')
@@ -100,7 +100,7 @@ export default function EditTrackPage() {
       // Initialize form state
       setTitle(data.track.title || '')
       setDescription(data.track.description || '')
-      setProudToPayMin((data.track.proud_to_pay_min ?? data.track.price ?? 1).toFixed(2))
+      setProudToPayMin(Number(data.track.proud_to_pay_min ?? data.track.price ?? 0.50).toFixed(2))
       setIsActive(data.track.is_active ?? true)
       setFeatured(data.track.featured ?? false)
       setCoverUrl(data.track.cover_url || '')
@@ -130,7 +130,9 @@ export default function EditTrackPage() {
         body: JSON.stringify({
           title: title.trim(),
           description: description.trim() || null,
-          proud_to_pay_min: Math.max(0, parseFloat(proudToPayMin) || 0) || 1.00,
+          proud_to_pay_min: Number.isFinite(Number(proudToPayMin))
+            ? Math.max(0, Number(proudToPayMin))
+            : 0.50,
           is_active: isActive,
           featured: featured,
           cover_url: coverUrl.trim() || null,
@@ -359,7 +361,7 @@ export default function EditTrackPage() {
                   placeholder="0.00"
                 />
               </div>
-              <p className="text-xs text-[var(--pf-text-muted)] mt-1">Set to 0.00 for free downloads. Defaults to $1.00.</p>
+              <p className="text-xs text-[var(--pf-text-muted)] mt-1">Set to 0.00 for free downloads. Defaults to $0.50.</p>
             </div>
           </div>
 

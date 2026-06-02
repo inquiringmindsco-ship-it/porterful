@@ -121,7 +121,7 @@ function resolveTrack(item: CheckoutInputItem, id: string, quantity: number): Ch
       image: track.image ?? null,
       audioUrl: track.audio_url ?? null,
       description: 'Digital track purchase',
-      unitAmountCents: Math.round(Number(track.price || 0) * 100),
+      unitAmountCents: Math.round(Number(track.price ?? 0) * 100),
       quantity,
     })
   }

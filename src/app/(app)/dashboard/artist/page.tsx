@@ -249,7 +249,9 @@ export default function ArtistDashboardPage() {
                       <div className="flex-1 min-w-0">
                         <p className="font-medium truncate">{track.title}</p>
                         <p className="text-sm text-[var(--pf-text-muted)]">
-                          {(track.proud_to_pay_min ?? track.price) === 0 ? 'Free' : `$${track.proud_to_pay_min ?? track.price ?? 1}`}
+                          {(track.proud_to_pay_min ?? track.price) === 0
+                            ? 'Free'
+                            : `$${Number(track.proud_to_pay_min ?? track.price ?? 0.50).toFixed(2)}`}
                           {track.description && ` • ${track.description.slice(0, 50)}${track.description.length > 50 ? '...' : ''}`}
                         </p>
                       </div>

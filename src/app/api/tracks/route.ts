@@ -105,7 +105,10 @@ export async function POST(request: NextRequest) {
         cover_url: cover_url?.trim() || null,
         album: album?.trim() || null,
         duration: canonicalDuration,
-        proud_to_pay_min: price ? parseFloat(price) : 1,
+        proud_to_pay_min: (() => {
+          const numericPrice = Number(price)
+          return Number.isFinite(numericPrice) ? Math.max(0, numericPrice) : 0.50
+        })(),
         is_active: true,
       })
       .select()

@@ -12,7 +12,7 @@ interface TrackEditForm {
   preview_duration_seconds: number
   unlock_required: boolean
   is_active: boolean
-  proud_to_pay_min: number
+  proud_to_pay_min: string
 }
 
 export default function TrackEditPage() {
@@ -30,7 +30,7 @@ export default function TrackEditPage() {
     preview_duration_seconds: 60,
     unlock_required: false,
     is_active: true,
-    proud_to_pay_min: 1.00,
+    proud_to_pay_min: '0.50',
   })
 
   useEffect(() => {
@@ -78,7 +78,7 @@ export default function TrackEditPage() {
         preview_duration_seconds: track.preview_duration_seconds || 60,
         unlock_required: track.unlock_required || false,
         is_active: track.is_active !== false,
-        proud_to_pay_min: track.proud_to_pay_min || track.price || 1.00,
+        proud_to_pay_min: Number(track.proud_to_pay_min ?? track.price ?? 0.50).toFixed(2),
       })
       setLoading(false)
     } catch (err) {
@@ -102,7 +102,9 @@ export default function TrackEditPage() {
           preview_duration_seconds: form.preview_duration_seconds,
           unlock_required: form.unlock_required,
           is_active: form.is_active,
-          proud_to_pay_min: form.proud_to_pay_min,
+          proud_to_pay_min: Number.isFinite(Number(form.proud_to_pay_min))
+            ? Math.max(0, Number(form.proud_to_pay_min))
+            : 0.50,
         }),
         credentials: 'include',
       })
@@ -252,18 +254,29 @@ export default function TrackEditPage() {
           {/* Price */}
           <div>
             <label className="block text-sm font-medium mb-2">Price (USD)</label>
-            <div className="flex items-center gap-3">
-              <div className="relative flex-1">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--pf-text-muted)] text-base z-10 pointer-events-none">$</span>
-                <input
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={form.proud_to_pay_min}
-                  onChange={(e) => setForm({ ...form, proud_to_pay_min: parseFloat(e.target.value) || 0 })}
-                  className="w-full pl-10 pr-4 py-3 bg-[var(--pf-bg-secondary)] border border-[var(--pf-border)] rounded-xl text-white text-base"
-                />
-              </div>
+            <div className="flex items-center rounded-xl border border-[var(--pf-border)] bg-[var(--pf-bg-secondary)] px-4 py-3 focus-within:border-[var(--pf-orange)] focus-within:ring-2">
+              <span className="pr-2 text-[var(--pf-text-muted)] text-base select-none">$</span>
+              <input
+                type="text"
+                inputMode="decimal"
+                value={form.proud_to_pay_min}
+                onChange={(e) => {
+                  const nextValue = e.target.value
+                  if (nextValue === '' || /^\d*(?:\.\d{0,2})?$/.test(nextValue)) {
+                    setForm({ ...form, proud_to_pay_min: nextValue })
+                  }
+                }}
+                onBlur={() => {
+                  const normalizedPrice = Number.parseFloat(form.proud_to_pay_min)
+                  setForm({
+                    ...form,
+                    proud_to_pay_min: Number.isFinite(normalizedPrice)
+                      ? normalizedPrice.toFixed(2)
+                      : '0.50',
+                  })
+                }}
+                className="w-full border-0 bg-transparent p-0 text-white text-base focus:outline-none focus:ring-0"
+              />
             </div>
             <p className="text-xs text-[var(--pf-text-muted)] mt-1">Set to 0 for free download</p>
           </div>

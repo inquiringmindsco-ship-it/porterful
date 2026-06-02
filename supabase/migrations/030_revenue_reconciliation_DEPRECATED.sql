@@ -1,0 +1,20 @@
+-- DEPRECATED: Migration 030 — Revenue Reconciliation Fix
+-- Status: ARCHIVED — replaced by 030_revenue_reconciliation_fixed.sql
+-- Date: 2026-05-31
+-- Reason: Original migration referenced columns `total` and `subtotal` that do not exist in production.
+-- Production schema already has `amount` (INTEGER, NOT NULL) and all revenue split columns.
+-- This migration was never applied to production due to ERROR 42703.
+--
+-- What was wrong:
+-- - Lines 17-19: `UPDATE public.orders SET amount = COALESCE((total * 100)::INTEGER, (subtotal * 100)::INTEGER, 0)`
+-- - Columns `total` and `subtotal` were never in production schema.
+-- - Migration assumed a different schema evolution path than what exists.
+--
+-- What replaced it:
+-- - 030_revenue_reconciliation_fixed.sql
+-- - Uses IF NOT EXISTS guards for all column additions
+-- - Removes broken total/subtotal references
+-- - Only adds missing columns if they don't exist
+-- - Production only needs: indexes + user_id backfill from buyer_id
+
+-- DO NOT RUN THIS FILE. Use 030_revenue_reconciliation_fixed.sql instead.

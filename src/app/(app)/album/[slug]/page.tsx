@@ -167,7 +167,7 @@ export default async function AlbumPage({ params }: PageProps) {
               
               {/* Price */}
               <span className="text-sm font-medium text-[var(--pf-orange)]">
-                ${track.price}
+                ${Number(track.price ?? 0.50).toFixed(2)}
               </span>
             </div>
           ))}

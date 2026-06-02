@@ -15,7 +15,7 @@ export default function UploadPage() {
   // Form state
   const [title, setTitle] = useState('')
   const [album, setAlbum] = useState('')
-  const [price, setPrice] = useState('1.00')
+  const [price, setPrice] = useState('0.50')
   const [description, setDescription] = useState('')
   const [audioFile, setAudioFile] = useState<File | null>(null)
   const [audioDuration, setAudioDuration] = useState<number | null>(null)
@@ -479,16 +479,24 @@ export default function UploadPage() {
 
             <div>
               <label className="block text-sm font-medium mb-2">Price (USD)</label>
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--pf-text-muted)]">$</span>
+              <div className="flex items-center rounded-xl border border-[var(--pf-border)] bg-[var(--pf-bg)] px-4 py-3 focus-within:border-[var(--pf-orange)] focus-within:ring-2">
+                <span className="pr-2 text-[var(--pf-text-muted)] select-none">$</span>
                 <input
-                  type="number"
+                  type="text"
+                  inputMode="decimal"
                   value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                  className="pf-input pl-8"
-                  placeholder="1.00"
-                  min="0"
-                  step="0.01"
+                  onChange={(e) => {
+                    const nextValue = e.target.value
+                    if (nextValue === '' || /^\d*(?:\.\d{0,2})?$/.test(nextValue)) {
+                      setPrice(nextValue)
+                    }
+                  }}
+                  onBlur={() => {
+                    const normalizedPrice = Number.parseFloat(price)
+                    setPrice(Number.isFinite(normalizedPrice) ? normalizedPrice.toFixed(2) : '0.50')
+                  }}
+                  className="w-full border-0 bg-transparent p-0 text-[var(--pf-text)] focus:outline-none focus:ring-0"
+                  placeholder="0.50"
                 />
               </div>
               <p className="text-xs text-[var(--pf-text-muted)] mt-1">Set to 0 for free download</p>

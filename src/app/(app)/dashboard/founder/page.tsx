@@ -57,6 +57,7 @@ type TrackWithArtist = {
   duration?: number
   audio_url?: string
   price: number
+  proud_to_pay_min?: number
   created_at: string
 }
 
@@ -220,7 +221,7 @@ export default function FounderDashboard() {
         : 0
 
       // Calculate potential catalog value
-      const trackPrices = tracksData?.map((t: any) => t.price || t.proud_to_pay_min || 0) || []
+      const trackPrices = tracksData?.map((t: any) => Number(t.proud_to_pay_min ?? t.price ?? 0)) || []
       const catalogValue = trackPrices.reduce((sum: number, p: number) => sum + p, 0)
 
       // Tracks needing attention
@@ -1065,7 +1066,7 @@ export default function FounderDashboard() {
                       <td className="p-3">
                         {track.duration ? `${Math.floor(track.duration / 60)}:${(track.duration % 60).toString().padStart(2, '0')}` : '0:00'}
                       </td>
-                      <td className="p-3">${track.price || 0}</td>
+                      <td className="p-3">${Number(track.proud_to_pay_min ?? track.price ?? 0).toFixed(2)}</td>
                       <td className="p-3">
                         {track.audio_url ? (
                           <span className="text-green-400 text-xs">✓</span>
@@ -1128,7 +1129,7 @@ export default function FounderDashboard() {
                   </div>
                   <div className="flex items-center gap-4 text-xs text-[var(--pf-text-muted)]">
                     <span>{track.duration ? `${Math.floor(track.duration / 60)}:${(track.duration % 60).toString().padStart(2, '0')}` : '0:00'}</span>
-                    <span>${track.price || 0}</span>
+                    <span>${Number(track.proud_to_pay_min ?? track.price ?? 0).toFixed(2)}</span>
                     <span>{track.audio_url ? '✓ Audio' : '✗ No audio'}</span>
                   </div>
                   <div className="flex gap-2">

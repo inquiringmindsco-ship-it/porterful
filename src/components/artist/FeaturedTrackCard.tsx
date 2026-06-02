@@ -44,7 +44,7 @@ export function FeaturedTrackCard({ track, queue }: FeaturedTrackCardProps) {
             id: track.id,
             name: track.title,
             artist: track.artist,
-            price: track.price || 1,
+            price: track.price ?? 0.50,
             quantity: 1,
             type: 'track',
           }],
@@ -102,10 +102,10 @@ export function FeaturedTrackCard({ track, queue }: FeaturedTrackCardProps) {
         <button
           onClick={handleBuy}
           disabled={purchasing}
-          aria-label={purchasing ? 'Processing purchase' : `Buy for $${track.price || 1}`}
+          aria-label={purchasing ? 'Processing purchase' : `Buy for $${Number(track.price ?? 0.50).toFixed(2)}`}
           className="hidden sm:flex items-center gap-1 px-3 py-2 bg-[var(--pf-bg)] border border-[var(--pf-border)] hover:border-[var(--pf-text-muted)] disabled:opacity-50 disabled:cursor-not-allowed text-[var(--pf-text)] text-sm font-semibold rounded-lg transition-colors"
         >
-          {purchasing ? <Loader2 size={12} className="animate-spin" /> : <span>${track.price || 1}</span>}
+          {purchasing ? <Loader2 size={12} className="animate-spin" /> : <span>${Number(track.price ?? 0.50).toFixed(2)}</span>}
         </button>
 
         <button
