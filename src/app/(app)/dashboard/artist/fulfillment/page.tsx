@@ -3,10 +3,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Package, RefreshCw, Shield } from 'lucide-react'
+import { ArrowLeft, Package, RefreshCw, Shield, Truck } from 'lucide-react'
 import { useSupabase } from '@/app/providers'
 import { FULFILLMENT_JOB_STATUSES, FulfillmentJob, formatFulfillmentJobStatus } from '@/lib/fulfillment-jobs'
+import { ShipmentEventRecord } from '@/lib/shipment-events'
 import { StageTracker, NextStepCard, EmptyState } from '@/components/guidance/GuidedExperience'
+import { ShipmentEventTimeline } from '@/components/fulfillment/ShipmentEventTimeline'
 
 type FulfillmentJobsApiResponse = {
   jobs: FulfillmentJob[]
@@ -44,7 +46,9 @@ export default function ArtistFulfillmentQueuePage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [jobs, setJobs] = useState<FulfillmentJob[]>([])
+  const [shipmentEvents, setShipmentEvents] = useState<ShipmentEventRecord[]>([])
   const [statusFilter, setStatusFilter] = useState('all')
+  const [selectedShipmentJobId, setSelectedShipmentJobId] = useState('')
 
   const getAuthToken = useCallback(async () => {
     if (!supabase) return ''
@@ -75,6 +79,36 @@ export default function ArtistFulfillmentQueuePage() {
     }
   }, [getAuthToken, supabase])
 
+  const loadShipmentEvents = useCallback(
+    async (fulfillmentJobId?: string) => {
+      if (!supabase || !fulfillmentJobId) {
+        setShipmentEvents([])
+        return
+      }
+
+      try {
+        const token = await getAuthToken()
+        const params = new URLSearchParams({ limit: '300', fulfillment_job_id: fulfillmentJobId })
+        const res = await fetch(`/api/shipment-events?${params.toString()}`, {
+          headers: { Authorization: `Bearer ${token}` },
+          cache: 'no-store',
+        })
+
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}))
+          throw new Error(data.error || 'Failed to load shipment events')
+        }
+
+        const data = await res.json()
+        setShipmentEvents(data.events || [])
+      } catch (err: any) {
+        setShipmentEvents([])
+        setError(err.message || 'Failed to load shipment events')
+      }
+    },
+    [getAuthToken, supabase]
+  )
+
   useEffect(() => {
     if (authLoading) return
     if (!user) {
@@ -103,6 +137,25 @@ export default function ArtistFulfillmentQueuePage() {
     void checkAccess()
   }, [authLoading, loadData, router, supabase, user])
 
+  useEffect(() => {
+    if (!jobs.length) {
+      setSelectedShipmentJobId('')
+      setShipmentEvents([])
+      return
+    }
+
+    setSelectedShipmentJobId((current) => {
+      if (current && jobs.some((job) => job.id === current)) {
+        return current
+      }
+      return jobs[0]?.id || ''
+    })
+  }, [jobs])
+
+  useEffect(() => {
+    void loadShipmentEvents(selectedShipmentJobId)
+  }, [loadShipmentEvents, selectedShipmentJobId])
+
   const filteredJobs = useMemo(() => {
     return jobs.filter((job) => statusFilter === 'all' || job.status === statusFilter)
   }, [jobs, statusFilter])
@@ -120,6 +173,10 @@ export default function ArtistFulfillmentQueuePage() {
       { total: 0, reserved: 0, packed: 0, shipped: 0, delivered: 0 }
     )
   }, [jobs])
+
+  const selectedShipmentJob = useMemo(() => {
+    return jobs.find((job) => job.id === selectedShipmentJobId) || null
+  }, [jobs, selectedShipmentJobId])
 
   if (authLoading || loading) {
     return (
@@ -283,6 +340,64 @@ export default function ArtistFulfillmentQueuePage() {
                   ))}
                 </tbody>
               </table>
+            )}
+          </div>
+
+          <div className="pf-card p-4 md:p-6 space-y-4">
+            <div className="flex items-center gap-2">
+              <Truck className="text-[var(--pf-orange)]" size={16} />
+              <h2 className="text-xl font-semibold">Shipment History</h2>
+            </div>
+            <p className="text-sm text-[var(--pf-text-muted)] max-w-2xl">
+              Read-only shipment timeline for jobs tied to your SKUs and approved assets.
+            </p>
+
+            {jobs.length === 0 ? (
+              <EmptyState
+                icon={<Package size={24} />}
+                title="No shipment history yet"
+                description="Shipment events appear after founders create fulfillment jobs and add shipment updates."
+                points={[
+                  { label: 'What is this?', text: 'A timeline of shipment actions for each fulfillment job.' },
+                  { label: 'Why it matters', text: 'It shows when your products are packed, shipped, and delivered.' },
+                  { label: 'Next step', text: 'Wait for a founder to create a job and add shipment history.' },
+                ]}
+              />
+            ) : (
+              <div className="space-y-4">
+                <label className="block space-y-2">
+                  <span className="text-sm font-medium">Fulfillment Job</span>
+                  <select
+                    value={selectedShipmentJobId}
+                    onChange={(e) => setSelectedShipmentJobId(e.target.value)}
+                    className="w-full rounded-lg border border-[var(--pf-border)] bg-[var(--pf-surface)] px-4 py-3"
+                  >
+                    <option value="">Select a job</option>
+                    {jobs.map((job) => (
+                      <option key={job.id} value={job.id}>
+                        {job.job_number} · {job.sku?.sku_code || 'Unknown SKU'}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                {selectedShipmentJob && (
+                  <div className="rounded-xl border border-[var(--pf-border)] bg-[var(--pf-surface)]/40 p-4 text-sm">
+                    <div className="font-medium text-[var(--pf-text)]">{selectedShipmentJob.job_number}</div>
+                    <div className="text-[var(--pf-text-muted)] mt-1">
+                      {selectedShipmentJob.sku?.sku_code || 'Unknown SKU'}
+                      {selectedShipmentJob.sku?.variant_name ? ` · ${selectedShipmentJob.sku.variant_name}` : ''}
+                      {selectedShipmentJob.asset?.title ? ` · ${selectedShipmentJob.asset.title}` : ''}
+                    </div>
+                  </div>
+                )}
+
+                <ShipmentEventTimeline
+                  events={shipmentEvents}
+                  emptyTitle="No shipment events for this job yet"
+                  emptyDescription="Shipment history will appear here after a founder adds packing, shipping, transit, or delivery updates."
+                />
+              </div>
             )}
           </div>
         </div>

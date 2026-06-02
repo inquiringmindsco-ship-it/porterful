@@ -85,3 +85,37 @@ DROP POLICY IF EXISTS "Authenticated users can upload objects" ON storage.object
 CREATE POLICY "Authenticated users can upload objects" ON storage.objects FOR INSERT WITH CHECK (auth.uid() IS NOT NULL);
 DROP POLICY IF EXISTS "Users can delete own objects" ON storage.objects;
 CREATE POLICY "Users can delete own objects" ON storage.objects FOR DELETE USING (auth.uid() IS NOT NULL);
+
+-- SHIPMENT EVENTS
+DROP POLICY IF EXISTS "Founder/admin can read shipment events" ON shipment_events;
+CREATE POLICY "Founder/admin can read shipment events" ON shipment_events
+FOR SELECT USING (
+  EXISTS (
+    SELECT 1
+    FROM profiles
+    WHERE profiles.id = auth.uid()
+      AND profiles.role IN ('founder', 'admin')
+  )
+);
+
+DROP POLICY IF EXISTS "Founder/admin can insert shipment events" ON shipment_events;
+CREATE POLICY "Founder/admin can insert shipment events" ON shipment_events
+FOR INSERT WITH CHECK (
+  EXISTS (
+    SELECT 1
+    FROM profiles
+    WHERE profiles.id = auth.uid()
+      AND profiles.role IN ('founder', 'admin')
+  )
+);
+
+DROP POLICY IF EXISTS "Artists can read own shipment events" ON shipment_events;
+CREATE POLICY "Artists can read own shipment events" ON shipment_events
+FOR SELECT USING (
+  EXISTS (
+    SELECT 1
+    FROM fulfillment_jobs
+    WHERE fulfillment_jobs.id = shipment_events.fulfillment_job_id
+      AND fulfillment_jobs.artist_id = auth.uid()
+  )
+);

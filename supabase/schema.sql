@@ -466,6 +466,45 @@ CREATE TRIGGER fulfillment_jobs_updated_at
   FOR EACH ROW EXECUTE FUNCTION update_fulfillment_jobs_updated_at();
 
 -- ============================================
+-- SHIPMENT EVENTS (Append-only shipment history)
+-- ============================================
+CREATE TABLE shipment_events (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  fulfillment_job_id UUID NOT NULL REFERENCES fulfillment_jobs(id) ON DELETE RESTRICT,
+  event_type TEXT NOT NULL CHECK (event_type IN (
+    'packed',
+    'label_created',
+    'shipped',
+    'in_transit',
+    'delivered',
+    'exception',
+    'returned'
+  )),
+  event_status TEXT NOT NULL DEFAULT 'recorded' CHECK (event_status IN (
+    'recorded',
+    'confirmed',
+    'exception',
+    'returned'
+  )),
+  carrier TEXT,
+  tracking_number TEXT,
+  tracking_url TEXT,
+  location_city TEXT,
+  location_state TEXT,
+  notes TEXT,
+  created_by UUID NOT NULL REFERENCES profiles(id) ON DELETE RESTRICT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS shipment_events_fulfillment_job_idx ON shipment_events (fulfillment_job_id);
+CREATE INDEX IF NOT EXISTS shipment_events_type_idx ON shipment_events (event_type);
+CREATE INDEX IF NOT EXISTS shipment_events_status_idx ON shipment_events (event_status);
+CREATE INDEX IF NOT EXISTS shipment_events_created_by_idx ON shipment_events (created_by);
+CREATE INDEX IF NOT EXISTS shipment_events_created_at_idx ON shipment_events (created_at);
+
+ALTER TABLE shipment_events ENABLE ROW LEVEL SECURITY;
+
+-- ============================================
 -- USER TRACKS (Proud to Pay)
 -- ============================================
 CREATE TABLE user_tracks (

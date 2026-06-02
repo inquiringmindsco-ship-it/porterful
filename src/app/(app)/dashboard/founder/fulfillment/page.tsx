@@ -24,7 +24,13 @@ import {
   FulfillmentJob,
   formatFulfillmentJobStatus,
 } from '@/lib/fulfillment-jobs'
+import {
+  SHIPMENT_EVENT_TYPES,
+  ShipmentEventRecord,
+  formatShipmentEventType,
+} from '@/lib/shipment-events'
 import { StageTracker, NextStepCard, EmptyState, AttentionCard } from '@/components/guidance/GuidedExperience'
+import { ShipmentEventTimeline } from '@/components/fulfillment/ShipmentEventTimeline'
 
 type ProductSkuOption = {
   sku_id: string
@@ -92,7 +98,9 @@ export default function FounderFulfillmentQueuePage() {
   const [notice, setNotice] = useState('')
   const [jobs, setJobs] = useState<FulfillmentJob[]>([])
   const [skus, setSkus] = useState<ProductSkuOption[]>([])
+  const [shipmentEvents, setShipmentEvents] = useState<ShipmentEventRecord[]>([])
   const [statusFilter, setStatusFilter] = useState('all')
+  const [selectedShipmentJobId, setSelectedShipmentJobId] = useState('')
 
   const [skuId, setSkuId] = useState('')
   const [quantity, setQuantity] = useState('1')
@@ -102,6 +110,13 @@ export default function FounderFulfillmentQueuePage() {
   const [shippingAddress, setShippingAddress] = useState('')
   const [notes, setNotes] = useState('')
   const [reserveOnCreate, setReserveOnCreate] = useState(false)
+  const [shipmentEventType, setShipmentEventType] = useState(SHIPMENT_EVENT_TYPES[1])
+  const [shipmentCarrier, setShipmentCarrier] = useState('')
+  const [shipmentTrackingNumber, setShipmentTrackingNumber] = useState('')
+  const [shipmentTrackingUrl, setShipmentTrackingUrl] = useState('')
+  const [shipmentLocationCity, setShipmentLocationCity] = useState('')
+  const [shipmentLocationState, setShipmentLocationState] = useState('')
+  const [shipmentNotes, setShipmentNotes] = useState('')
 
   const getAuthToken = useCallback(async () => {
     if (!supabase) return ''
@@ -146,6 +161,36 @@ export default function FounderFulfillmentQueuePage() {
     }
   }, [getAuthToken, supabase])
 
+  const loadShipmentEvents = useCallback(
+    async (fulfillmentJobId?: string) => {
+      if (!supabase || !fulfillmentJobId) {
+        setShipmentEvents([])
+        return
+      }
+
+      try {
+        const token = await getAuthToken()
+        const params = new URLSearchParams({ limit: '300', fulfillment_job_id: fulfillmentJobId })
+        const res = await fetch(`/api/shipment-events?${params.toString()}`, {
+          headers: { Authorization: `Bearer ${token}` },
+          cache: 'no-store',
+        })
+
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}))
+          throw new Error(data.error || 'Failed to load shipment events')
+        }
+
+        const data = await res.json()
+        setShipmentEvents(data.events || [])
+      } catch (err: any) {
+        setShipmentEvents([])
+        setError(err.message || 'Failed to load shipment events')
+      }
+    },
+    [getAuthToken, supabase]
+  )
+
   useEffect(() => {
     if (authLoading) return
     if (!user) {
@@ -174,6 +219,25 @@ export default function FounderFulfillmentQueuePage() {
     void checkAccess()
   }, [authLoading, loadData, router, supabase, user])
 
+  useEffect(() => {
+    if (!jobs.length) {
+      setSelectedShipmentJobId('')
+      setShipmentEvents([])
+      return
+    }
+
+    setSelectedShipmentJobId((current) => {
+      if (current && jobs.some((job) => job.id === current)) {
+        return current
+      }
+      return jobs[0]?.id || ''
+    })
+  }, [jobs])
+
+  useEffect(() => {
+    void loadShipmentEvents(selectedShipmentJobId)
+  }, [loadShipmentEvents, selectedShipmentJobId])
+
   const summary = useMemo(() => {
     return {
       total: jobs.length,
@@ -192,6 +256,10 @@ export default function FounderFulfillmentQueuePage() {
   const filteredJobs = useMemo(() => {
     return jobs.filter((job) => statusFilter === 'all' || job.status === statusFilter)
   }, [jobs, statusFilter])
+
+  const selectedShipmentJob = useMemo(() => {
+    return jobs.find((job) => job.id === selectedShipmentJobId) || null
+  }, [jobs, selectedShipmentJobId])
 
   async function createJob() {
     if (!supabase) return
@@ -279,6 +347,57 @@ export default function FounderFulfillmentQueuePage() {
       await loadData()
     } catch (err: any) {
       setError(err.message || 'Failed to update fulfillment job')
+    } finally {
+      setSavingId(null)
+    }
+  }
+
+  async function createShipmentEvent() {
+    if (!supabase) return
+    if (!selectedShipmentJobId) {
+      setError('Select a fulfillment job first')
+      return
+    }
+
+    setSavingId('shipment')
+    setError('')
+    setNotice('')
+
+    try {
+      const token = await getAuthToken()
+      const res = await fetch('/api/shipment-events', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          fulfillment_job_id: selectedShipmentJobId,
+          event_type: shipmentEventType,
+          carrier: shipmentCarrier || null,
+          tracking_number: shipmentTrackingNumber || null,
+          tracking_url: shipmentTrackingUrl || null,
+          location_city: shipmentLocationCity || null,
+          location_state: shipmentLocationState || null,
+          notes: shipmentNotes || null,
+        }),
+      })
+
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to create shipment event')
+      }
+
+      setNotice(`Shipment event added: ${formatShipmentEventType(shipmentEventType)}`)
+      setShipmentCarrier('')
+      setShipmentTrackingNumber('')
+      setShipmentTrackingUrl('')
+      setShipmentLocationCity('')
+      setShipmentLocationState('')
+      setShipmentNotes('')
+      await loadShipmentEvents(selectedShipmentJobId)
+    } catch (err: any) {
+      setError(err.message || 'Failed to create shipment event')
     } finally {
       setSavingId(null)
     }
@@ -695,6 +814,161 @@ export default function FounderFulfillmentQueuePage() {
                   </table>
                 )}
               </div>
+            </div>
+
+            <div className="pf-card p-4 md:p-6 space-y-4" id="shipment-events">
+              <div className="flex items-center justify-between gap-4 flex-wrap">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <Truck size={16} className="text-[var(--pf-orange)]" />
+                    <h2 className="text-xl font-semibold">Shipment Event Ledger</h2>
+                  </div>
+                  <p className="text-sm text-[var(--pf-text-muted)] mt-2 max-w-2xl">
+                    Append-only shipment history for the selected fulfillment job.
+                  </p>
+                </div>
+                {selectedShipmentJob && (
+                  <div className="text-right text-xs text-[var(--pf-text-muted)]">
+                    <div className="font-medium text-[var(--pf-text)]">{selectedShipmentJob.job_number}</div>
+                    <div>
+                      {selectedShipmentJob.sku?.sku_code || 'Unknown SKU'}
+                      {selectedShipmentJob.sku?.variant_name ? ` · ${selectedShipmentJob.sku.variant_name}` : ''}
+                    </div>
+                    <div>{selectedShipmentJob.asset?.title || 'Unknown asset'}</div>
+                  </div>
+                )}
+              </div>
+
+              {jobs.length === 0 ? (
+                <EmptyState
+                  icon={<Truck size={24} />}
+                  title="No shipment history yet"
+                  description="Shipment events appear after a fulfillment job exists and a founder adds label, shipping, transit, or delivery history."
+                  points={[
+                    { label: 'What is this?', text: 'A read-only history of shipment actions for each fulfillment job.' },
+                    { label: 'Why it matters', text: 'It keeps packing, shipping, and delivery history visible without changing inventory math.' },
+                    { label: 'Next step', text: 'Create a fulfillment job first, then add shipment events here.' },
+                  ]}
+                />
+              ) : (
+                <div className="space-y-4">
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <label className="block space-y-2">
+                      <span className="text-sm font-medium">Fulfillment Job</span>
+                      <select
+                        value={selectedShipmentJobId}
+                        onChange={(e) => setSelectedShipmentJobId(e.target.value)}
+                        className="w-full rounded-lg border border-[var(--pf-border)] bg-[var(--pf-surface)] px-4 py-3"
+                      >
+                        <option value="">Select a job</option>
+                        {jobs.map((job) => (
+                          <option key={job.id} value={job.id}>
+                            {job.job_number} · {job.sku?.sku_code || 'Unknown SKU'}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+
+                    <label className="block space-y-2">
+                      <span className="text-sm font-medium">Event Type</span>
+                      <select
+                        value={shipmentEventType}
+                        onChange={(e) => setShipmentEventType(e.target.value as typeof shipmentEventType)}
+                        className="w-full rounded-lg border border-[var(--pf-border)] bg-[var(--pf-surface)] px-4 py-3"
+                      >
+                        {SHIPMENT_EVENT_TYPES.map((eventType) => (
+                          <option key={eventType} value={eventType}>
+                            {formatShipmentEventType(eventType)}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <label className="block space-y-2">
+                      <span className="text-sm font-medium">Carrier</span>
+                      <input
+                        type="text"
+                        value={shipmentCarrier}
+                        onChange={(e) => setShipmentCarrier(e.target.value)}
+                        placeholder="USPS, UPS, FedEx, local driver"
+                        className="w-full rounded-lg border border-[var(--pf-border)] bg-[var(--pf-surface)] px-4 py-3"
+                      />
+                    </label>
+
+                    <label className="block space-y-2">
+                      <span className="text-sm font-medium">Tracking Number</span>
+                      <input
+                        type="text"
+                        value={shipmentTrackingNumber}
+                        onChange={(e) => setShipmentTrackingNumber(e.target.value)}
+                        className="w-full rounded-lg border border-[var(--pf-border)] bg-[var(--pf-surface)] px-4 py-3"
+                      />
+                    </label>
+                  </div>
+
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <label className="block space-y-2">
+                      <span className="text-sm font-medium">Tracking URL</span>
+                      <input
+                        type="url"
+                        value={shipmentTrackingUrl}
+                        onChange={(e) => setShipmentTrackingUrl(e.target.value)}
+                        className="w-full rounded-lg border border-[var(--pf-border)] bg-[var(--pf-surface)] px-4 py-3"
+                      />
+                    </label>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <label className="block space-y-2">
+                        <span className="text-sm font-medium">City</span>
+                        <input
+                          type="text"
+                          value={shipmentLocationCity}
+                          onChange={(e) => setShipmentLocationCity(e.target.value)}
+                          className="w-full rounded-lg border border-[var(--pf-border)] bg-[var(--pf-surface)] px-4 py-3"
+                        />
+                      </label>
+                      <label className="block space-y-2">
+                        <span className="text-sm font-medium">State</span>
+                        <input
+                          type="text"
+                          value={shipmentLocationState}
+                          onChange={(e) => setShipmentLocationState(e.target.value)}
+                          className="w-full rounded-lg border border-[var(--pf-border)] bg-[var(--pf-surface)] px-4 py-3"
+                        />
+                      </label>
+                    </div>
+                  </div>
+
+                  <label className="block space-y-2">
+                    <span className="text-sm font-medium">Notes</span>
+                    <textarea
+                      value={shipmentNotes}
+                      onChange={(e) => setShipmentNotes(e.target.value)}
+                      rows={3}
+                      className="w-full rounded-lg border border-[var(--pf-border)] bg-[var(--pf-surface)] px-4 py-3"
+                    />
+                  </label>
+
+                  <button
+                    onClick={createShipmentEvent}
+                    disabled={savingId === 'shipment'}
+                    className="pf-btn pf-btn-primary inline-flex items-center gap-2 disabled:opacity-60"
+                  >
+                    <Truck size={16} />
+                    {savingId === 'shipment' ? 'Adding event...' : 'Add Shipment Event'}
+                  </button>
+
+                  <div className="rounded-xl border border-[var(--pf-border)] bg-[var(--pf-surface)]/40 p-4">
+                    <ShipmentEventTimeline
+                      events={shipmentEvents}
+                      emptyTitle="No shipment events for this job yet"
+                      emptyDescription="Add label creation, shipping, transit, or delivery history here for the selected fulfillment job."
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
