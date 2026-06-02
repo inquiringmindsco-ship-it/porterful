@@ -32,6 +32,7 @@ export type ProductSkuRecord = {
   artist?: { id: string; full_name?: string | null; username?: string | null; email?: string | null } | null
   product?: {
     id: string
+    title?: string | null
     name?: string | null
     category?: string | null
     price?: number | null

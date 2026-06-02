@@ -218,7 +218,7 @@ export default function SettingsPage() {
                       </p>
                     </div>
                     <Link
-                      href="/dashboard/dashboard/artist/edit"
+                      href="/dashboard/artist/edit"
                       className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--pf-orange)] text-white rounded-lg text-sm font-medium hover:bg-[var(--pf-orange-light)] transition-colors shrink-0"
                     >
                       <ExternalLink size={14} />

@@ -14,6 +14,7 @@ import {
   formatProductionAssetType,
   formatProductionStatus,
 } from '@/lib/production-assets'
+import { StageTracker, NextStepCard, EmptyState, AttentionCard } from '@/components/guidance/GuidedExperience'
 
 type ProductionAssetRecord = {
   asset_id: string
@@ -366,6 +367,49 @@ export default function FounderSkuPage() {
   return (
     <div className="min-h-screen pt-24 pb-12">
       <div className="pf-container max-w-7xl space-y-8">
+        <StageTracker
+          title="Founder SKU Pipeline"
+          stages={[
+            { label: 'Asset Production OK', status: summary.assets > 0 ? 'complete' : 'current' },
+            { label: 'Create SKU', status: summary.skus > 0 ? 'complete' : 'current' },
+            { label: 'Add Inventory', status: 'pending' },
+            { label: 'Fulfillment Ready', status: 'pending' },
+          ]}
+        />
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <AttentionCard
+            count={approvedAssets.length}
+            label="Assets Ready for SKU Creation"
+            href="#create-sku"
+            severity={approvedAssets.length > 0 ? 'warning' : 'success'}
+          />
+          <AttentionCard
+            count={summary.skus}
+            label="Total SKUs Created"
+            href="#sku-list"
+            severity="info"
+          />
+          <AttentionCard
+            count={summary.active}
+            label="Active SKUs"
+            href="#sku-list"
+            severity="success"
+          />
+        </div>
+
+        <NextStepCard
+          title={approvedAssets.length > 0 ? "Create SKUs from Approved Assets" : "Waiting for Production-Approved Assets"}
+          description={
+            approvedAssets.length > 0
+              ? "You have production-approved assets ready. Create SKUs to define sellable variants (size, color, price). SKUs connect assets to inventory and fulfillment."
+              : "No production-approved assets are available yet. Artists must submit assets, and you must approve them and mark them production-ready before SKUs can be created."
+          }
+          actionLabel={approvedAssets.length > 0 ? "Create SKU" : "Review Assets"}
+          actionHref={approvedAssets.length > 0 ? "#create-sku" : "/dashboard/founder/assets"}
+          variant={approvedAssets.length > 0 ? 'warning' : 'default'}
+        />
+
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <Link href="/dashboard/founder" className="inline-flex items-center gap-2 text-sm text-[var(--pf-text-muted)] hover:text-[var(--pf-text)]">
@@ -419,9 +463,18 @@ export default function FounderSkuPage() {
               <h2 className="text-xl font-semibold">Create SKU</h2>
             </div>
             {approvedAssets.length === 0 ? (
-              <div className="rounded-lg border border-dashed border-[var(--pf-border)] p-4 text-sm text-[var(--pf-text-muted)]">
-                No production-approved assets are available yet.
-              </div>
+              <EmptyState
+                icon={<CheckCircle size={24} />}
+                title="No production-approved assets available"
+                description="SKUs can only be created from assets that have been marked production-approved."
+                points={[
+                  { label: 'What is this?', text: 'A list of approved assets that are eligible for SKU creation.' },
+                  { label: 'Why it matters', text: 'No SKU should exist until an asset is production approved.' },
+                  { label: 'Next step', text: 'Review assets, then mark the right ones production approved.' },
+                ]}
+                actionLabel="Review Assets"
+                actionHref="/dashboard/founder/assets"
+              />
             ) : (
               <>
                 <div className="grid grid-cols-1 gap-3">
@@ -755,9 +808,18 @@ export default function FounderSkuPage() {
           </div>
 
           {skus.length === 0 ? (
-            <div className="p-8 text-center text-[var(--pf-text-muted)]">
-              No SKUs have been created yet.
-            </div>
+            <EmptyState
+              icon={<Shield size={24} />}
+              title="No SKUs created yet"
+              description="SKUs are the sellable product variants that connect production-approved assets to inventory and fulfillment."
+              points={[
+                { label: 'What is this?', text: 'The registry for sellable variants built from approved assets.' },
+                { label: 'Why it matters', text: 'SKUs are the bridge between an approved asset and inventory.' },
+                { label: 'Next step', text: 'Create the first SKU from a production-approved asset.' },
+              ]}
+              actionLabel="Create SKU"
+              actionHref="#create-sku"
+            />
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">

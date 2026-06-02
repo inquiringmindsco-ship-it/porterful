@@ -11,6 +11,7 @@ import {
   Star, Sparkles, LayoutTemplate, Search, Filter,
   ExternalLink, Edit3, Eye
 } from 'lucide-react'
+import { EmptyState, GuidanceRoadmap, StageTracker, NextStepCard, AttentionCard } from '@/components/guidance/GuidedExperience'
 
 type ArtistWithProfile = {
   id: string
@@ -89,6 +90,10 @@ export default function FounderDashboard() {
   const [metrics, setMetrics] = useState<Metric[]>([])
   const [artists, setArtists] = useState<ArtistWithProfile[]>([])
   const [tracks, setTracks] = useState<TrackWithArtist[]>([])
+  const [productionAssets, setProductionAssets] = useState<any[]>([])
+  const [productSkus, setProductSkus] = useState<any[]>([])
+  const [inventorySummaries, setInventorySummaries] = useState<any[]>([])
+  const [fulfillmentJobs, setFulfillmentJobs] = useState<any[]>([])
   const [needsAttention, setNeedsAttention] = useState<any[]>([])
   const [purchases, setPurchases] = useState<Purchase[]>([])
   const [revenueTransactions, setRevenueTransactions] = useState<RevenueTransaction[]>([])
@@ -216,6 +221,42 @@ export default function FounderDashboard() {
       const { data: profilesData } = await supabase.from('profiles').select('id, role, created_at')
       const { data: artistsData } = await supabase.from('artists').select('*')
       const { data: tracksData } = await supabase.from('tracks').select('*')
+
+      const [assetsRes, skusRes, inventoryRes, jobsRes] = await Promise.all([
+        fetch('/api/production-assets?current_only=true', {
+          headers: { 'Authorization': `Bearer ${session?.access_token || ''}` },
+          cache: 'no-store',
+        }),
+        fetch('/api/product-skus', {
+          headers: { 'Authorization': `Bearer ${session?.access_token || ''}` },
+          cache: 'no-store',
+        }),
+        fetch('/api/inventory-ledger?limit=200', {
+          headers: { 'Authorization': `Bearer ${session?.access_token || ''}` },
+          cache: 'no-store',
+        }),
+        fetch('/api/fulfillment-jobs?limit=200', {
+          headers: { 'Authorization': `Bearer ${session?.access_token || ''}` },
+          cache: 'no-store',
+        }),
+      ])
+
+      if (assetsRes.ok) {
+        const data = await assetsRes.json().catch(() => ({}))
+        setProductionAssets(data.assets || [])
+      }
+      if (skusRes.ok) {
+        const data = await skusRes.json().catch(() => ({}))
+        setProductSkus(data.skus || [])
+      }
+      if (inventoryRes.ok) {
+        const data = await inventoryRes.json().catch(() => ({}))
+        setInventorySummaries(data.summaries || [])
+      }
+      if (jobsRes.ok) {
+        const data = await jobsRes.json().catch(() => ({}))
+        setFulfillmentJobs(data.jobs || [])
+      }
 
       // Calculate metrics
       const totalUsers = adminCounts?.total || profilesData?.length || 0
@@ -601,6 +642,81 @@ export default function FounderDashboard() {
     })
   }, [tracks, contentTrackSearch, contentArtistFilter])
 
+  const merchGuidance = useMemo(() => {
+    const pendingAssetReviews = productionAssets.filter((asset: any) =>
+      ['submitted', 'under_review'].includes(asset.approval_status)
+    )
+    const productionApprovedAssets = productionAssets.filter((asset: any) =>
+      asset.production_status === 'production_approved'
+    )
+    const productionApprovedWithoutSku = productionApprovedAssets.filter((asset: any) =>
+      !productSkus.some((sku: any) => sku.production_asset_id === asset.asset_id)
+    )
+    const inventoryBySkuId = new Map(
+      inventorySummaries.map((summary: any) => [summary.sku_id, summary])
+    )
+    const skusWithoutInventory = productSkus.filter((sku: any) => {
+      const summary = inventoryBySkuId.get(sku.sku_id)
+      return !summary || (
+        Number(summary.on_hand || 0) === 0 &&
+        Number(summary.reserved || 0) === 0 &&
+        Number(summary.available || 0) === 0 &&
+        Number(summary.shipped || 0) === 0 &&
+        Number(summary.returned || 0) === 0
+      )
+    })
+    const jobsNeedingAction = fulfillmentJobs.filter((job: any) =>
+      ['pending', 'reserved', 'printing', 'qc', 'packed', 'exception'].includes(job.status)
+    )
+    const blockedJobs = fulfillmentJobs.filter((job: any) =>
+      ['exception', 'cancelled'].includes(job.status)
+    )
+    const inventoryReady = inventorySummaries.some((summary: any) => Number(summary.on_hand || 0) > 0)
+
+    let currentStage = 'Wait for artist submissions'
+    let nextStep = 'Review submitted assets, then move approved creative work into SKUs, stock, and fulfillment.'
+    let actionLabel = 'Review assets'
+    let actionHref = '/dashboard/founder/assets'
+
+    if (pendingAssetReviews.length > 0) {
+      currentStage = 'Review submitted assets'
+      nextStep = 'Approve, reject, or request revisions for the newest submissions.'
+    } else if (productionApprovedWithoutSku.length > 0) {
+      currentStage = 'Create SKUs from approved assets'
+      nextStep = 'Create sellable SKU variants from each production-approved asset.'
+      actionLabel = 'Create SKUs'
+      actionHref = '/dashboard/founder/skus'
+    } else if (skusWithoutInventory.length > 0 || !inventoryReady) {
+      currentStage = 'Add inventory to SKUs'
+      nextStep = 'Receive stock or adjust inventory so approved SKUs can move toward fulfillment.'
+      actionLabel = 'Add inventory'
+      actionHref = '/dashboard/founder/inventory'
+    } else if (jobsNeedingAction.length > 0 || blockedJobs.length > 0) {
+      currentStage = 'Move fulfillment jobs forward'
+      nextStep = 'Reserve, print, QC, pack, ship, and resolve any blocked jobs.'
+      actionLabel = 'Open fulfillment queue'
+      actionHref = '/dashboard/founder/fulfillment'
+    } else if (productionAssets.length > 0) {
+      currentStage = 'Monitor new activity'
+      nextStep = 'Keep an eye on new submissions and queue exceptions as they appear.'
+      actionLabel = 'Open review queue'
+      actionHref = '/dashboard/founder/assets'
+    }
+
+    return {
+      pendingAssetReviews,
+      productionApprovedAssets,
+      productionApprovedWithoutSku,
+      skusWithoutInventory,
+      jobsNeedingAction,
+      blockedJobs,
+      currentStage,
+      nextStep,
+      actionLabel,
+      actionHref,
+    }
+  }, [fulfillmentJobs, inventorySummaries, productionAssets, productSkus])
+
   if (loading) {
     return (
       <div className="min-h-screen pt-24 pb-12 flex items-center justify-center">
@@ -612,6 +728,107 @@ export default function FounderDashboard() {
   return (
     <div className="min-h-screen pt-24 pb-12">
       <div className="pf-container max-w-7xl">
+        {/* GUIDANCE: Founder Operational Path */}
+        <StageTracker
+          title="Founder Operations"
+          stages={[
+            { label: 'Review Assets', status: merchGuidance.pendingAssetReviews.length > 0 ? 'current' : productionAssets.length > 0 ? 'complete' : 'current' },
+            { label: 'Approve/Reject', status: merchGuidance.pendingAssetReviews.length > 0 ? 'current' : productionAssets.length > 0 ? 'complete' : 'pending' },
+            { label: 'Production OK', status: merchGuidance.productionApprovedAssets.length > 0 ? 'complete' : 'pending' },
+            { label: 'Create SKU', status: productSkus.length > 0 ? 'complete' : 'pending' },
+            { label: 'Add Inventory', status: inventorySummaries.some((summary: any) => Number(summary.on_hand || 0) > 0) ? 'complete' : 'pending' },
+            { label: 'Manage Jobs', status: fulfillmentJobs.length > 0 ? 'complete' : 'pending' },
+            { label: 'Track Status', status: fulfillmentJobs.some((job: any) => ['shipped', 'delivered'].includes(job.status)) ? 'complete' : 'pending' },
+          ]}
+        />
+
+        <GuidanceRoadmap
+          eyebrow="Founder ops"
+          title="Keep the asset-to-fulfillment chain moving"
+          description="Review submissions, convert approved assets into SKUs, add stock, and move jobs forward when they are ready."
+          currentStage={merchGuidance.currentStage}
+          nextStep={merchGuidance.nextStep}
+          signals={[
+            {
+              label: 'Pending asset reviews',
+              value: String(merchGuidance.pendingAssetReviews.length),
+              tone: merchGuidance.pendingAssetReviews.length > 0 ? 'warning' : 'neutral',
+            },
+            {
+              label: 'Approved assets without SKUs',
+              value: String(merchGuidance.productionApprovedWithoutSku.length),
+              tone: merchGuidance.productionApprovedWithoutSku.length > 0 ? 'info' : 'neutral',
+            },
+            {
+              label: 'SKUs without inventory',
+              value: String(merchGuidance.skusWithoutInventory.length),
+              tone: merchGuidance.skusWithoutInventory.length > 0 ? 'warning' : 'neutral',
+            },
+            {
+              label: 'Jobs needing action',
+              value: String(merchGuidance.jobsNeedingAction.length),
+              tone: merchGuidance.jobsNeedingAction.length > 0 ? 'warning' : 'neutral',
+            },
+            {
+              label: 'Blocked jobs',
+              value: String(merchGuidance.blockedJobs.length),
+              tone: merchGuidance.blockedJobs.length > 0 ? 'warning' : 'neutral',
+            },
+          ]}
+          actionLabel={merchGuidance.actionLabel}
+          actionHref={merchGuidance.actionHref}
+        />
+
+        {/* Attention Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5 gap-4">
+          <AttentionCard
+            count={merchGuidance.pendingAssetReviews.length}
+            label="Assets Waiting for Review"
+            href="/dashboard/founder/assets"
+            severity="warning"
+          />
+          <AttentionCard
+            count={merchGuidance.productionApprovedWithoutSku.length}
+            label="Approved Assets Need SKUs"
+            href="/dashboard/founder/skus"
+            severity="info"
+          />
+          <AttentionCard
+            count={merchGuidance.skusWithoutInventory.length}
+            label="SKUs Need Inventory"
+            href="/dashboard/founder/inventory"
+            severity="warning"
+          />
+          <AttentionCard
+            count={merchGuidance.jobsNeedingAction.length}
+            label="Jobs Need Action"
+            href="/dashboard/founder/fulfillment"
+            severity="warning"
+          />
+          <AttentionCard
+            count={merchGuidance.blockedJobs.length}
+            label="Blocked Jobs"
+            href="/dashboard/founder/fulfillment"
+            severity="error"
+          />
+        </div>
+
+        <NextStepCard
+          title={merchGuidance.currentStage}
+          description={merchGuidance.nextStep}
+          actionLabel={merchGuidance.actionLabel}
+          actionHref={merchGuidance.actionHref}
+          variant={
+            merchGuidance.pendingAssetReviews.length > 0 ||
+            merchGuidance.productionApprovedWithoutSku.length > 0 ||
+            merchGuidance.skusWithoutInventory.length > 0 ||
+            merchGuidance.jobsNeedingAction.length > 0 ||
+            merchGuidance.blockedJobs.length > 0
+              ? 'warning'
+              : 'default'
+          }
+        />
+
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold flex items-center gap-3">
@@ -631,6 +848,10 @@ export default function FounderDashboard() {
             <Link href="/dashboard/founder/inventory" className="pf-btn pf-btn-secondary inline-flex items-center gap-2">
               <Package size={16} />
               Inventory
+            </Link>
+            <Link href="/dashboard/founder/fulfillment" className="pf-btn pf-btn-secondary inline-flex items-center gap-2">
+              <Package size={16} />
+              Fulfillment Queue
             </Link>
           </div>
         </div>
@@ -1680,7 +1901,16 @@ export default function FounderDashboard() {
                       </div>
                     ))
                   ) : (
-                    <p className="text-sm text-[var(--pf-text-muted)]">No play activity yet.</p>
+                    <EmptyState
+                      icon={<Music size={24} />}
+                      title="No play activity yet"
+                      description="Play totals show which songs listeners are starting to engage with."
+                      points={[
+                        { label: 'What is this?', text: 'A list of tracks that have actually been played.' },
+                        { label: 'Why it matters', text: 'It shows which songs are starting to attract listeners.' },
+                        { label: 'Next step', text: 'Wait for plays, then review the top tracks list again.' },
+                      ]}
+                    />
                   )}
                 </div>
               </div>
@@ -1706,7 +1936,16 @@ export default function FounderDashboard() {
                       </div>
                     ))
                   ) : (
-                    <p className="text-sm text-[var(--pf-text-muted)]">No artist activity yet.</p>
+                    <EmptyState
+                      icon={<Star size={24} />}
+                      title="No artist activity yet"
+                      description="Artist activity rolls up plays, downloads, and purchases by creator."
+                      points={[
+                        { label: 'What is this?', text: 'A summary of how each artist’s catalog is performing.' },
+                        { label: 'Why it matters', text: 'It helps you spot which creators are getting traction first.' },
+                        { label: 'Next step', text: 'Wait for more activity, then review the top artists list.' },
+                      ]}
+                    />
                   )}
                 </div>
               </div>
@@ -1734,7 +1973,16 @@ export default function FounderDashboard() {
                       </div>
                     ))
                   ) : (
-                    <p className="text-sm text-[var(--pf-text-muted)]">No city traction yet.</p>
+                    <EmptyState
+                      icon={<Search size={24} />}
+                      title="No city traction yet"
+                      description="City traction shows where listeners are starting to engage, using city and state only."
+                      points={[
+                        { label: 'What is this?', text: 'A city-level rollup of plays, downloads, and purchases.' },
+                        { label: 'Why it matters', text: 'It shows where your audience is starting to cluster.' },
+                        { label: 'Next step', text: 'Wait for location data to accumulate, then review the top cities list.' },
+                      ]}
+                    />
                   )}
                 </div>
               </div>
@@ -1760,7 +2008,16 @@ export default function FounderDashboard() {
                       </div>
                     ))
                   ) : (
-                    <p className="text-sm text-[var(--pf-text-muted)]">No state traction yet.</p>
+                    <EmptyState
+                      icon={<Filter size={24} />}
+                      title="No state traction yet"
+                      description="State traction shows regional activity without exposing precise location data."
+                      points={[
+                        { label: 'What is this?', text: 'A state-level rollup of listener activity and purchases.' },
+                        { label: 'Why it matters', text: 'It helps you compare regions without showing PII or exact addresses.' },
+                        { label: 'Next step', text: 'Wait for more activity, then review the top states list.' },
+                      ]}
+                    />
                   )}
                 </div>
               </div>

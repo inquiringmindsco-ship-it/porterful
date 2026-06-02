@@ -11,6 +11,7 @@ import {
   formatProductionStatus,
   PRODUCTION_ASSET_TYPES,
 } from '@/lib/production-assets'
+import { StageTracker, NextStepCard, EmptyState } from '@/components/guidance/GuidedExperience'
 
 type ProductionAssetRecord = {
   asset_id: string
@@ -212,6 +213,28 @@ export default function ArtistProductionAssetsPage() {
   return (
     <div className="min-h-screen pt-24 pb-12">
       <div className="pf-container max-w-6xl space-y-8">
+        {/* GUIDANCE: Artist Asset Path */}
+        <StageTracker
+          title="Your Asset Journey"
+          stages={[
+            { label: 'Submit', status: assets.length > 0 ? 'complete' : 'current' },
+            { label: 'Review', status: assets.some((a) => a.approval_status === 'under_review') ? 'current' : assets.some((a) => ['approved', 'production_approved'].includes(a.approval_status)) ? 'complete' : 'pending' },
+            { label: 'Approved', status: assets.some((a) => a.approval_status === 'approved') ? 'current' : assets.some((a) => a.production_status === 'production_approved') ? 'complete' : 'pending' },
+            { label: 'Production OK', status: assets.some((a) => a.production_status === 'production_approved') ? 'complete' : 'pending' },
+          ]}
+        />
+
+        <NextStepCard
+          title={assets.length === 0 ? "Submit Your First Production Asset" : "Track Your Asset Status"}
+          description={
+            assets.length === 0
+              ? "Upload artwork, designs, or music for founder review. Assets must be approved before they can become products."
+              : "Your assets are under review. Founders will approve, reject, or request revisions. Check back for status updates."
+          }
+          actionLabel={assets.length === 0 ? "Submit Asset" : undefined}
+          actionHref={assets.length === 0 ? "#submit-form" : undefined}
+        />
+
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <Link href="/dashboard/artist" className="inline-flex items-center gap-2 text-sm text-[var(--pf-text-muted)] hover:text-[var(--pf-text)]">
@@ -437,9 +460,18 @@ export default function ArtistProductionAssetsPage() {
             </div>
 
             {assets.length === 0 ? (
-              <div className="rounded-lg border border-dashed border-[var(--pf-border)] p-6 text-sm text-[var(--pf-text-muted)]">
-                No assets submitted yet.
-              </div>
+              <EmptyState
+                icon={<Send size={24} />}
+                title="No assets submitted yet"
+                description="Production assets are artwork, designs, photographs, and other creative files that founders review before they become sellable products."
+                points={[
+                  { label: 'What is this?', text: 'A registry for the creative files you want reviewed.' },
+                  { label: 'Why it matters', text: 'Founders need an approved asset before they can create a SKU.' },
+                  { label: 'Next step', text: 'Submit your first asset to start the review process.' },
+                ]}
+                actionLabel="Submit Asset"
+                actionHref="#submit-form"
+              />
             ) : (
               <div className="space-y-3">
                 {assets.map((asset) => (

@@ -13,6 +13,7 @@ import {
   PRODUCTION_APPROVAL_STATUSES,
   PRODUCTION_STATUSES,
 } from '@/lib/production-assets'
+import { StageTracker, NextStepCard, EmptyState, AttentionCard } from '@/components/guidance/GuidedExperience'
 
 type ProductionAssetRecord = {
   asset_id: string
@@ -201,6 +202,49 @@ export default function FounderProductionAssetsPage() {
   return (
     <div className="min-h-screen pt-24 pb-12">
       <div className="pf-container max-w-7xl space-y-8">
+        <StageTracker
+          title="Founder Review Pipeline"
+          stages={[
+            { label: 'Submitted', status: assets.some((a) => a.approval_status === 'submitted') ? 'current' : 'pending' },
+            { label: 'Under Review', status: assets.some((a) => a.approval_status === 'under_review') ? 'current' : 'pending' },
+            { label: 'Approved', status: assets.some((a) => a.approval_status === 'approved') ? 'current' : 'pending' },
+            { label: 'Production OK', status: assets.some((a) => a.production_status === 'production_approved') ? 'complete' : 'pending' },
+          ]}
+        />
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <AttentionCard
+            count={summary.review}
+            label="Assets in Review Queue"
+            href="#review-queue"
+            severity="warning"
+          />
+          <AttentionCard
+            count={summary.approved}
+            label="Approved — Ready for Production"
+            href="#approved"
+            severity="info"
+          />
+          <AttentionCard
+            count={summary.productionApproved}
+            label="Production Approved"
+            href="#production-approved"
+            severity="success"
+          />
+        </div>
+
+        <NextStepCard
+          title={summary.review > 0 ? "Review Assets Waiting for Approval" : "No Assets Currently in Review"}
+          description={
+            summary.review > 0
+              ? "Artists have submitted assets that need your review. Approve quality work, request revisions for issues, or reject submissions that don't meet standards."
+              : "All submitted assets have been reviewed. When artists submit new assets, they will appear here for your attention."
+          }
+          actionLabel={summary.review > 0 ? "Jump to Review Queue" : undefined}
+          actionHref="#review-queue"
+          variant={summary.review > 0 ? 'warning' : 'success'}
+        />
+
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <Link href="/dashboard/founder" className="inline-flex items-center gap-2 text-sm text-[var(--pf-text-muted)] hover:text-[var(--pf-text)]">
@@ -317,9 +361,16 @@ export default function FounderProductionAssetsPage() {
         </div>
 
         {filteredAssets.length === 0 ? (
-          <div className="pf-card p-10 text-center text-[var(--pf-text-muted)]">
-            No assets match the current filters.
-          </div>
+          <EmptyState
+            icon={<Shield size={24} />}
+            title="No assets match the current filters"
+            description="This is where artist submissions appear. Use the filters above to find assets by approval status, production status, artist, or type."
+            points={[
+              { label: 'What is this?', text: 'The review queue for creative assets submitted by artists.' },
+              { label: 'Why it matters', text: 'Approved assets are the only ones that can move into SKU creation.' },
+              { label: 'Next step', text: 'Clear the filters or review new submissions when they arrive.' },
+            ]}
+          />
         ) : (
           <div className="space-y-4">
             {filteredAssets.map((asset) => (

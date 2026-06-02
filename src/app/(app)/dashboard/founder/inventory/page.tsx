@@ -12,6 +12,7 @@ import {
   InventorySkuSummary,
 } from '@/lib/inventory-ledger'
 import { formatProductionAssetType, formatProductionStatus } from '@/lib/production-assets'
+import { StageTracker, NextStepCard, EmptyState, AttentionCard } from '@/components/guidance/GuidedExperience'
 
 type InventoryApiResponse = {
   skus: Array<{
@@ -199,6 +200,52 @@ export default function FounderInventoryPage() {
   return (
     <div className="min-h-screen pt-24 pb-12">
       <div className="pf-container max-w-7xl space-y-8">
+        <StageTracker
+          title="Founder Inventory Pipeline"
+          stages={[
+            { label: 'SKUs Created', status: skus.length > 0 ? 'complete' : 'current' },
+            { label: 'Receive Stock', status: totals.on_hand > 0 ? 'complete' : 'current' },
+            { label: 'Reserve Stock', status: totals.reserved > 0 ? 'complete' : 'pending' },
+            { label: 'Ship Orders', status: totals.shipped > 0 ? 'complete' : 'pending' },
+            { label: 'Track Returns', status: 'pending' },
+          ]}
+        />
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <AttentionCard
+            count={skus.length}
+            label="SKUs Available"
+            href="#create-event"
+            severity="info"
+          />
+          <AttentionCard
+            count={totals.on_hand}
+            label="Total On Hand"
+            href="#sku-summary"
+            severity={totals.on_hand > 0 ? 'success' : 'warning'}
+          />
+          <AttentionCard
+            count={totals.reserved}
+            label="Reserved for Orders"
+            href="#ledger-history"
+            severity="info"
+          />
+        </div>
+
+        <NextStepCard
+          title={skus.length > 0 ? totals.on_hand === 0 ? "Add Inventory to Your SKUs" : "Manage Inventory Events" : "Create SKUs First"}
+          description={
+            skus.length > 0
+              ? totals.on_hand === 0
+                ? "You have SKUs but no recorded inventory. Use the form below to receive stock, reserve units for orders, or adjust counts. Every inventory event is logged in the ledger for auditability."
+                : "Inventory is tracked through events: receive (add stock), reserve (commit to orders), release (uncommit), and adjust (correct counts). All changes are append-only and auditable."
+              : "SKUs must be created before inventory can be managed. Go to the SKU Registry to create sellable variants from production-approved assets."
+          }
+          actionLabel={skus.length > 0 ? (totals.on_hand === 0 ? "Receive Stock" : undefined) : "Go to SKU Registry"}
+          actionHref={skus.length > 0 ? "#create-event" : "/dashboard/founder/skus"}
+          variant={skus.length > 0 ? (totals.on_hand === 0 ? 'warning' : 'default') : 'warning'}
+        />
+
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <Link href="/dashboard/founder" className="inline-flex items-center gap-2 text-sm text-[var(--pf-text-muted)] hover:text-[var(--pf-text)]">
@@ -394,9 +441,18 @@ export default function FounderInventoryPage() {
                 <p className="text-sm text-[var(--pf-text-muted)]">Ledger-derived counts by verified SKU.</p>
               </div>
               {summaries.length === 0 ? (
-                <div className="p-8 text-center text-[var(--pf-text-muted)]">
-                  No inventory activity recorded yet.
-                </div>
+                <EmptyState
+                  icon={<TrendingUp size={24} />}
+                  title="No inventory activity recorded yet"
+                  description="The inventory ledger tracks every stock movement for your SKUs."
+                  points={[
+                    { label: 'What is this?', text: 'An event-based record of stock movement for verified SKUs.' },
+                    { label: 'Why it matters', text: 'It keeps on-hand, reserved, and available counts mathematically correct.' },
+                    { label: 'Next step', text: 'Create SKUs, then log your first receive event.' },
+                  ]}
+                  actionLabel="Create SKU"
+                  actionHref="/dashboard/founder/skus"
+                />
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
@@ -445,9 +501,16 @@ export default function FounderInventoryPage() {
                 <p className="text-sm text-[var(--pf-text-muted)]">Append-only event stream for founders and admins.</p>
               </div>
               {entries.length === 0 ? (
-                <div className="p-8 text-center text-[var(--pf-text-muted)]">
-                  No ledger entries have been recorded yet.
-                </div>
+                <EmptyState
+                  icon={<Save size={24} />}
+                  title="No ledger entries yet"
+                  description="The ledger is an append-only record of every inventory movement."
+                  points={[
+                    { label: 'What is this?', text: 'A history of receive, reserve, release, adjust, pack, ship, and return events.' },
+                    { label: 'Why it matters', text: 'It gives you an auditable trail for every stock change.' },
+                    { label: 'Next step', text: 'Create your first inventory event to start the log.' },
+                  ]}
+                />
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">

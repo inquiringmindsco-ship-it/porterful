@@ -98,7 +98,7 @@ const SKU_SELECT = `
     is_current_version
   ),
   artist:profiles(id, full_name, username, email),
-  product:products(id, name, category, price, is_active)
+  product:products(id, title, category, price, is_active)
 `
 
 async function skuCodeExists(supabase: any, skuCode: string, excludeSkuId?: string | null) {

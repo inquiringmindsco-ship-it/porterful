@@ -240,6 +240,21 @@ That gives Porterful traceability and auditability.
 - Return
 - Adjust
 
+### Ship behavior rule
+
+When Fulfillment Queue ships quantity `X` from reserved inventory, the system must **automatically reduce the reserved quantity** connected to that fulfillment job.
+
+Reserve → Pick/Print → Pack → Ship → Auto-clear shipped reserved quantity
+
+This means:
+- The queue must not require a manual release before ship
+- A `ship` event records the shipped quantity and increments `shipped`
+- The shipped quantity must automatically close the matching reservation for the same fulfillment job
+- The `reserved` count decreases by the shipped quantity
+- `available` remains mathematically correct as `on_hand - reserved`
+- Implementations may represent the reservation close-out as an automatic release event or an equivalent internal reservation close action, but the operator should never do this manually before shipping
+- This behavior is owned by Fulfillment Queue logic and does not require checkout changes
+
 ### Ledger rules
 
 - Every movement must reference a SKU.
@@ -320,6 +335,28 @@ The queue should advance only when:
 - print or pack action is complete
 - QC passes
 - label is created
+
+The queue must also enforce the ship-time reservation rule:
+
+- when a fulfillment job moves to shipped, the job's reserved quantity must be consumed automatically
+- shipped units must not remain fully reserved after ship
+- any reservation rollback before ship is reserved for cancellation or correction flows, not for normal shipping
+
+### Fulfillment Queue MVP
+
+The MVP queue is manual-first:
+
+- jobs are created by founder/admin, not checkout
+- jobs are tied to a specific SKU and production asset
+- jobs start as `pending`
+- founder/admin may reserve inventory by moving a job to `reserved`
+- founder/admin then advances the job through `printing`, `qc`, `packed`, `shipped`, and `delivered`
+- `exception` and `cancelled` are terminal management states
+- when the job ships, the queue must write a `ship` inventory movement and automatically close the matching reserved quantity in the same operational step
+- the queue must never require an operator to manually release reserved inventory before shipping
+- artists may view jobs tied to their own SKUs/assets, but they may not mutate job state
+
+This keeps fulfillment operationally clean while preserving inventory truth.
 
 ## 5. Shipment Event Ledger
 

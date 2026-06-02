@@ -413,6 +413,59 @@ CREATE INDEX IF NOT EXISTS inventory_ledger_created_at_idx ON inventory_ledger (
 ALTER TABLE inventory_ledger ENABLE ROW LEVEL SECURITY;
 
 -- ============================================
+-- FULFILLMENT JOBS (IMG Fulfillment Queue MVP)
+-- ============================================
+CREATE TABLE fulfillment_jobs (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  job_number TEXT NOT NULL UNIQUE DEFAULT ('FQ-' || UPPER(SUBSTRING(MD5(RANDOM()::TEXT) FROM 1 FOR 8))),
+  sku_id UUID NOT NULL REFERENCES product_skus(sku_id) ON DELETE RESTRICT,
+  production_asset_id UUID NOT NULL REFERENCES production_assets(asset_id) ON DELETE RESTRICT,
+  artist_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
+  quantity INTEGER NOT NULL CHECK (quantity > 0),
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'reserved', 'printing', 'qc', 'packed', 'shipped', 'delivered', 'exception', 'cancelled')),
+  priority TEXT NOT NULL DEFAULT 'normal' CHECK (priority IN ('low', 'normal', 'high', 'rush')),
+  customer_name TEXT,
+  customer_email TEXT,
+  shipping_address JSONB,
+  notes TEXT,
+  created_by UUID NOT NULL REFERENCES profiles(id) ON DELETE RESTRICT,
+  assigned_to UUID REFERENCES profiles(id) ON DELETE SET NULL,
+  reserved_at TIMESTAMPTZ,
+  printing_at TIMESTAMPTZ,
+  qc_at TIMESTAMPTZ,
+  packed_at TIMESTAMPTZ,
+  shipped_at TIMESTAMPTZ,
+  delivered_at TIMESTAMPTZ,
+  cancelled_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS fulfillment_jobs_sku_idx ON fulfillment_jobs (sku_id);
+CREATE INDEX IF NOT EXISTS fulfillment_jobs_asset_idx ON fulfillment_jobs (production_asset_id);
+CREATE INDEX IF NOT EXISTS fulfillment_jobs_artist_idx ON fulfillment_jobs (artist_id);
+CREATE INDEX IF NOT EXISTS fulfillment_jobs_status_idx ON fulfillment_jobs (status);
+CREATE INDEX IF NOT EXISTS fulfillment_jobs_priority_idx ON fulfillment_jobs (priority);
+CREATE INDEX IF NOT EXISTS fulfillment_jobs_assigned_idx ON fulfillment_jobs (assigned_to);
+CREATE INDEX IF NOT EXISTS fulfillment_jobs_created_by_idx ON fulfillment_jobs (created_by);
+CREATE INDEX IF NOT EXISTS fulfillment_jobs_created_at_idx ON fulfillment_jobs (created_at);
+
+ALTER TABLE fulfillment_jobs ENABLE ROW LEVEL SECURITY;
+
+CREATE OR REPLACE FUNCTION update_fulfillment_jobs_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS fulfillment_jobs_updated_at ON fulfillment_jobs;
+CREATE TRIGGER fulfillment_jobs_updated_at
+  BEFORE UPDATE ON fulfillment_jobs
+  FOR EACH ROW EXECUTE FUNCTION update_fulfillment_jobs_updated_at();
+
+-- ============================================
 -- USER TRACKS (Proud to Pay)
 -- ============================================
 CREATE TABLE user_tracks (

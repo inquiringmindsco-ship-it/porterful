@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useSupabase } from '@/app/providers'
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Music, Package, Upload } from 'lucide-react'
+import { GuidanceRoadmap, StageTracker, EmptyState } from '@/components/guidance/GuidedExperience'
 
 const Icon = {
   Music: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></svg>,
@@ -28,6 +29,10 @@ export default function ArtistDashboardPage() {
   const [activeTab, setActiveTab] = useState<'tracks' | 'products'>('tracks')
   const [dbTracks, setDbTracks] = useState<any[]>([])
   const [dbProducts, setDbProducts] = useState<any[]>([])
+  const [productionAssets, setProductionAssets] = useState<any[]>([])
+  const [artistSkus, setArtistSkus] = useState<any[]>([])
+  const [inventorySummaries, setInventorySummaries] = useState<any[]>([])
+  const [fulfillmentJobs, setFulfillmentJobs] = useState<any[]>([])
   const [featured, setFeatured] = useState<string[]>([])
   
   // Search and filter states
@@ -50,35 +55,6 @@ export default function ArtistDashboardPage() {
       return
     }
 
-    async function checkAccess() {
-      if (!user) return
-      try {
-        const { data: serverUser, error: profileError } = await supabase!
-          .from('profiles')
-          .select('id, role')
-          .eq('id', user!.id)
-          .single()
-
-        if (profileError || !serverUser) {
-          router.push('/login')
-          return
-        }
-
-        if (!['artist', 'admin', 'founder'].includes(serverUser.role)) {
-          router.push('/dashboard')
-          return
-        }
-
-        setProfile(serverUser)
-        await Promise.all([loadTracks(), loadProducts()])
-      } catch {
-        router.push('/login')
-        return
-      }
-
-      setLoading(false)
-    }
-
     async function loadTracks() {
       const { data } = await supabase!
         .from('tracks')
@@ -97,8 +73,149 @@ export default function ArtistDashboardPage() {
       setDbProducts(data || [])
     }
 
-    checkAccess()
+    async function loadGuidance() {
+      const { data: { session } } = await supabase!.auth.getSession()
+      const headers = { Authorization: `Bearer ${session?.access_token || ''}` }
+
+      const [assetsRes, skusRes, inventoryRes, jobsRes] = await Promise.all([
+        fetch('/api/production-assets?current_only=true', {
+          headers,
+          cache: 'no-store',
+        }),
+        fetch('/api/product-skus', {
+          headers,
+          cache: 'no-store',
+        }),
+        fetch('/api/inventory-ledger?limit=200', {
+          headers,
+          cache: 'no-store',
+        }),
+        fetch('/api/fulfillment-jobs?limit=200', {
+          headers,
+          cache: 'no-store',
+        }),
+      ])
+
+      if (assetsRes.ok) {
+        const data = await assetsRes.json().catch(() => ({}))
+        setProductionAssets(data.assets || [])
+      }
+
+      if (skusRes.ok) {
+        const data = await skusRes.json().catch(() => ({}))
+        setArtistSkus(data.skus || [])
+      }
+
+      if (inventoryRes.ok) {
+        const data = await inventoryRes.json().catch(() => ({}))
+        setInventorySummaries(data.summaries || [])
+      }
+
+      if (jobsRes.ok) {
+        const data = await jobsRes.json().catch(() => ({}))
+        setFulfillmentJobs(data.jobs || [])
+      }
+    }
+
+    async function checkAccess() {
+      if (!supabase || !user) return
+      try {
+        const { data: serverUser, error: profileError } = await supabase
+          .from('profiles')
+          .select('id, role')
+          .eq('id', user.id)
+          .single()
+
+        if (profileError || !serverUser) {
+          router.push('/login')
+          return
+        }
+
+        if (!['artist', 'admin', 'founder'].includes(serverUser.role)) {
+          router.push('/dashboard')
+          return
+        }
+
+        setProfile(serverUser)
+        await Promise.all([loadTracks(), loadProducts(), loadGuidance()])
+      } catch {
+        router.push('/login')
+        return
+      }
+
+      setLoading(false)
+    }
+
+    void checkAccess()
   }, [user, supabase, authLoading, router])
+
+  const guidance = useMemo(() => {
+    const submittedAssets = productionAssets.filter((asset: any) =>
+      ['submitted', 'under_review'].includes(asset.approval_status)
+    )
+    const productionApprovedAssets = productionAssets.filter((asset: any) =>
+      asset.production_status === 'production_approved'
+    )
+    const activeSkus = artistSkus.filter((sku: any) => sku.active)
+    const availableInventory = inventorySummaries.reduce(
+      (sum: number, summary: any) => sum + Number(summary.available || 0),
+      0
+    )
+    const openJobs = fulfillmentJobs.filter((job: any) =>
+      ['pending', 'reserved', 'printing', 'qc', 'packed'].includes(job.status)
+    )
+    const shippedJobs = fulfillmentJobs.filter((job: any) =>
+      ['shipped', 'delivered'].includes(job.status)
+    )
+    const exceptionJobs = fulfillmentJobs.filter((job: any) => job.status === 'exception')
+
+    let currentStage = 'Submit a production asset'
+    let nextStep = 'Open Production Assets and submit your first asset.'
+    let actionLabel = 'Open Production Assets'
+    let actionHref = '/dashboard/artist/assets'
+
+    if (submittedAssets.length > 0) {
+      currentStage = 'Waiting for founder review'
+      nextStep = 'Check the asset review status for approval, rejection, or revision notes.'
+    } else if (productionApprovedAssets.length === 0) {
+      currentStage = productionAssets.length > 0 ? 'Awaiting production approval' : 'Submit a production asset'
+      nextStep = 'Keep your approved creative work in the asset registry so founders can review it.'
+    } else if (artistSkus.length === 0) {
+      currentStage = 'Asset approved'
+      nextStep = 'Founders can create SKUs from your production-approved assets.'
+      actionLabel = 'View SKUs'
+      actionHref = '/dashboard/artist/skus'
+    } else if (availableInventory === 0) {
+      currentStage = 'SKU created'
+      nextStep = 'Inventory appears after founders receive and log stock.'
+      actionLabel = 'View inventory'
+      actionHref = '/dashboard/artist/inventory'
+    } else if (openJobs.length === 0) {
+      currentStage = 'Inventory ready'
+      nextStep = 'Watch for a fulfillment job once orders are ready to move.'
+      actionLabel = 'View fulfillment queue'
+      actionHref = '/dashboard/artist/fulfillment'
+    } else {
+      currentStage = 'Fulfillment in progress'
+      nextStep = 'Track printing, QC, packing, shipping, and delivery updates.'
+      actionLabel = 'View fulfillment queue'
+      actionHref = '/dashboard/artist/fulfillment'
+    }
+
+    return {
+      currentStage,
+      nextStep,
+      actionLabel,
+      actionHref,
+      submittedAssets,
+      productionApprovedAssets,
+      activeSkus,
+      availableInventory,
+      openJobs,
+      shippedJobs,
+      exceptionJobs,
+    }
+  }, [artistSkus, fulfillmentJobs, inventorySummaries, productionAssets])
 
   if (authLoading || loading) {
     return (
@@ -117,6 +234,61 @@ export default function ArtistDashboardPage() {
     <div className="min-h-screen pt-24 pb-12">
       <div className="pf-container max-w-4xl">
 
+        {/* GUIDANCE: Artist Path */}
+        <StageTracker
+          title="Your Production Path"
+          stages={[
+            { label: 'Submit Asset', status: productionAssets.length > 0 ? 'complete' : 'current' },
+            { label: 'Review', status: guidance.submittedAssets.length > 0 ? 'current' : productionAssets.length > 0 ? 'complete' : 'pending' },
+            { label: 'Approved', status: guidance.productionApprovedAssets.length > 0 ? 'complete' : 'pending' },
+            { label: 'SKU', status: artistSkus.length > 0 ? 'complete' : 'pending' },
+            { label: 'Inventory', status: guidance.availableInventory > 0 ? 'complete' : 'pending' },
+            { label: 'Fulfillment', status: fulfillmentJobs.length > 0 ? 'complete' : 'pending' },
+          ]}
+        />
+
+        <GuidanceRoadmap
+          eyebrow="Artist path"
+          title="Move one asset from submission to fulfillment"
+          description="Submit an asset, wait for founder review, and watch it become production approved, turned into a SKU, stocked, and queued for fulfillment."
+          currentStage={guidance.currentStage}
+          nextStep={guidance.nextStep}
+          signals={[
+            {
+              label: 'Submitted assets',
+              value: `${guidance.submittedAssets.length} waiting`,
+              tone: guidance.submittedAssets.length > 0 ? 'warning' : 'neutral',
+            },
+            {
+              label: 'Production approved',
+              value: `${guidance.productionApprovedAssets.length}`,
+              tone: guidance.productionApprovedAssets.length > 0 ? 'success' : 'neutral',
+            },
+            {
+              label: 'SKUs connected',
+              value: `${guidance.activeSkus.length}`,
+              tone: guidance.activeSkus.length > 0 ? 'info' : 'neutral',
+            },
+            {
+              label: 'Inventory available',
+              value: `${guidance.availableInventory}`,
+              tone: guidance.availableInventory > 0 ? 'success' : 'neutral',
+            },
+            {
+              label: 'Fulfillment jobs',
+              value: `${guidance.openJobs.length + guidance.shippedJobs.length + guidance.exceptionJobs.length}`,
+              tone: guidance.openJobs.length > 0 ? 'info' : 'neutral',
+            },
+            {
+              label: 'Exceptions',
+              value: `${guidance.exceptionJobs.length}`,
+              tone: guidance.exceptionJobs.length > 0 ? 'warning' : 'neutral',
+            },
+          ]}
+          actionLabel={guidance.actionLabel}
+          actionHref={guidance.actionHref}
+        />
+
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -132,13 +304,16 @@ export default function ArtistDashboardPage() {
               <Link href="/dashboard/artist/inventory" className="pf-btn pf-btn-secondary flex items-center gap-2">
                 <Icon.Package /> Inventory
               </Link>
+              <Link href="/dashboard/artist/fulfillment" className="pf-btn pf-btn-secondary flex items-center gap-2">
+                <Icon.Package /> Fulfillment Queue
+              </Link>
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
             <Link href="/dashboard/upload" className="pf-btn pf-btn-primary flex items-center gap-2">
               <Icon.Upload /> Upload Track
             </Link>
-            <Link href="/dashboard/dashboard/artist/edit" className="pf-btn pf-btn-secondary flex items-center gap-2">
+            <Link href="/dashboard/artist/edit" className="pf-btn pf-btn-secondary flex items-center gap-2">
               <Icon.Edit /> Edit Profile
             </Link>
             <Link href="/store" className="pf-btn pf-btn-secondary flex items-center gap-2">
@@ -220,14 +395,18 @@ export default function ArtistDashboardPage() {
             </div>
 
             {dbTracks.length === 0 ? (
-              <div className="pf-card p-12 text-center">
-                <Icon.Music />
-                <p className="text-lg font-medium mt-4">No tracks yet</p>
-                <p className="text-sm text-[var(--pf-text-muted)] mb-4">Upload your first track to get started</p>
-                <Link href="/dashboard/upload" className="pf-btn pf-btn-primary">
-                  Upload Track
-                </Link>
-              </div>
+              <EmptyState
+                icon={<Music size={24} />}
+                title="No tracks yet"
+                description="Tracks are one creative input in the larger asset flow. Upload a track here, or use Production Assets for artwork and likeness submissions."
+                points={[
+                  { label: 'What is this?', text: 'A starting place for music that can later connect to the asset registry.' },
+                  { label: 'Why it matters', text: 'Founders need a submitted asset before review, SKU creation, or fulfillment can happen.' },
+                  { label: 'Next step', text: 'Upload your first track, or open Production Assets for other creative files.' },
+                ]}
+                actionLabel="Upload Track"
+                actionHref="/dashboard/upload"
+              />
             ) : (
               <div className="space-y-3">
                 {dbTracks
@@ -300,14 +479,18 @@ export default function ArtistDashboardPage() {
               </Link>
             </div>
             {dbProducts.length === 0 ? (
-              <div className="pf-card p-12 text-center">
-                <Icon.Package />
-                <p className="text-lg font-medium mt-4">No products selected</p>
-                <p className="text-sm text-[var(--pf-text-muted)] mb-4">Porterful manages the inventory. Choose a product from the catalog to start selling.</p>
-                <Link href="/dashboard/catalog" className="pf-btn pf-btn-primary">
-                  Open Catalog
-                </Link>
-              </div>
+              <EmptyState
+                icon={<Package size={24} />}
+                title="No products selected"
+                description="Products appear here when you choose items from the catalog. Founders manage inventory and fulfillment, while you review what is available to sell."
+                points={[
+                  { label: 'What is this?', text: 'A read-only view of items already available in the catalog.' },
+                  { label: 'Why it matters', text: 'It keeps your storefront aligned with what founders can support.' },
+                  { label: 'Next step', text: 'Open the catalog and review what is ready.' },
+                ]}
+                actionLabel="Open Catalog"
+                actionHref="/dashboard/catalog"
+              />
             ) : (
               <div className="space-y-3">
                 {dbProducts.map((product: any) => {

@@ -7,6 +7,7 @@ import { ArrowLeft, Package, RefreshCw } from 'lucide-react'
 import { useSupabase } from '@/app/providers'
 import { formatCurrencyFromCents, ProductSkuRecord } from '@/lib/product-skus'
 import { formatProductionAssetType, formatProductionStatus } from '@/lib/production-assets'
+import { StageTracker, NextStepCard, EmptyState } from '@/components/guidance/GuidedExperience'
 
 type ArtistSkuRecord = ProductSkuRecord
 
@@ -99,6 +100,27 @@ export default function ArtistSkuPage() {
   return (
     <div className="min-h-screen pt-24 pb-12">
       <div className="pf-container max-w-7xl space-y-8">
+        <StageTracker
+          title="Your SKU Journey"
+          stages={[
+            { label: 'Asset Approved', status: summary.productionApproved > 0 ? 'complete' : 'pending' },
+            { label: 'SKU Created', status: summary.total > 0 ? 'complete' : 'pending' },
+            { label: 'Active', status: summary.active > 0 ? 'complete' : 'pending' },
+            { label: 'Inventory', status: summary.total > 0 ? 'current' : 'pending' },
+            { label: 'Fulfillment', status: 'pending' },
+          ]}
+        />
+
+        <NextStepCard
+          title={summary.total === 0 ? "SKUs Created by Founders" : "Your SKU Registry"}
+          description={
+            summary.total === 0
+              ? "SKUs are sellable variants created by founders from your production-approved assets. Once an asset is approved and production-ready, founders create SKUs for it. Check back to see your registered products."
+              : "These are the sellable variants tied to your approved assets. Founders manage SKU creation and inventory — you have read-only visibility into what exists and its current status."
+          }
+          variant={summary.total === 0 ? 'warning' : 'default'}
+        />
+
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <Link href="/dashboard/artist" className="inline-flex items-center gap-2 text-sm text-[var(--pf-text-muted)] hover:text-[var(--pf-text)]">
@@ -149,9 +171,16 @@ export default function ArtistSkuPage() {
           </div>
 
           {skus.length === 0 ? (
-            <div className="p-8 text-center text-[var(--pf-text-muted)]">
-              No SKUs have been created for your assets yet.
-            </div>
+            <EmptyState
+              icon={<Package size={24} />}
+              title="No SKUs have been created yet"
+              description="SKUs (Stock Keeping Units) are the sellable product variants that founders create from your production-approved assets."
+              points={[
+                { label: 'What is this?', text: 'A read-only list of sellable variants tied to your assets.' },
+                { label: 'Why it matters', text: 'A SKU is the step between an approved asset and future inventory.' },
+                { label: 'Next step', text: 'Wait for founders to create a SKU from your approved asset.' },
+              ]}
+            />
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">

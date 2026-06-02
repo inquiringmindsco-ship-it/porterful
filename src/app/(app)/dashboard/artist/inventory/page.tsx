@@ -7,6 +7,7 @@ import { ArrowLeft, Package, RefreshCw, TrendingUp } from 'lucide-react'
 import { useSupabase } from '@/app/providers'
 import { InventorySkuSummary } from '@/lib/inventory-ledger'
 import { formatProductionAssetType, formatProductionStatus } from '@/lib/production-assets'
+import { StageTracker, NextStepCard, EmptyState } from '@/components/guidance/GuidedExperience'
 
 type InventoryApiResponse = {
   summaries: InventorySkuSummary[]
@@ -112,6 +113,27 @@ export default function ArtistInventoryPage() {
   return (
     <div className="min-h-screen pt-24 pb-12">
       <div className="pf-container max-w-7xl space-y-8">
+        <StageTracker
+          title="Inventory Visibility"
+          stages={[
+            { label: 'Asset Submitted', status: 'complete' },
+            { label: 'Asset Approved', status: 'complete' },
+            { label: 'SKU Created', status: 'complete' },
+            { label: 'Inventory Added', status: totals.on_hand > 0 ? 'complete' : 'current' },
+            { label: 'Ready for Fulfillment', status: totals.available > 0 ? 'complete' : 'pending' },
+          ]}
+        />
+
+        <NextStepCard
+          title={summaries.length === 0 ? "Inventory Not Yet Created" : "Your Inventory Summary"}
+          description={
+            summaries.length === 0
+              ? "Inventory is added by founders after SKUs are created. Once stock is received and logged, you will see on-hand, reserved, and available counts for your products here."
+              : "These are the inventory counts for SKUs connected to your approved assets. On Hand is total stock. Reserved is committed to fulfillment jobs. Available is what can still be sold."
+          }
+          variant={summaries.length === 0 ? 'warning' : 'default'}
+        />
+
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <Link href="/dashboard/artist" className="inline-flex items-center gap-2 text-sm text-[var(--pf-text-muted)] hover:text-[var(--pf-text)]">
@@ -163,9 +185,16 @@ export default function ArtistInventoryPage() {
           </div>
 
           {summaries.length === 0 ? (
-            <div className="p-8 text-center text-[var(--pf-text-muted)]">
-              No inventory activity recorded for your SKUs yet.
-            </div>
+            <EmptyState
+              icon={<TrendingUp size={24} />}
+              title="No inventory activity recorded yet"
+              description="Inventory appears here when founders receive stock and log it in the ledger."
+              points={[
+                { label: 'What is this?', text: 'A read-only summary of stock for SKUs tied to your assets.' },
+                { label: 'Why it matters', text: 'It shows when inventory is ready before any fulfillment can start.' },
+                { label: 'Next step', text: 'Wait for founders to receive stock and record inventory events.' },
+              ]}
+            />
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
