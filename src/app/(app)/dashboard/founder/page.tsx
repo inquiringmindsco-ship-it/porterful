@@ -93,11 +93,12 @@ export default function FounderDashboard() {
   const [purchases, setPurchases] = useState<Purchase[]>([])
   const [revenueTransactions, setRevenueTransactions] = useState<RevenueTransaction[]>([])
   const [revenueMetrics, setRevenueMetrics] = useState<any>(null)
+  const [analyticsData, setAnalyticsData] = useState<any>(null)
   const [revenueLoading, setRevenueLoading] = useState(false)
   const [purchaseSearch, setPurchaseSearch] = useState('')
   const [purchaseArtistFilter, setPurchaseArtistFilter] = useState<string>('all')
   const [purchaseDateFilter, setPurchaseDateFilter] = useState<string>('all')
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'music' | 'content' | 'revenue'>('overview')
+  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'music' | 'content' | 'revenue' | 'analytics'>('overview')
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
   
@@ -197,6 +198,21 @@ export default function FounderDashboard() {
       }
       const revenueData = await revenueRes.json()
 
+      let analyticsReport: any = null
+      try {
+        const analyticsRes = await fetch('/api/dashboard/analytics', {
+          headers: { 'Authorization': `Bearer ${session?.access_token || ''}` },
+          cache: 'no-store',
+        })
+        if (analyticsRes.ok) {
+          analyticsReport = await analyticsRes.json()
+        } else {
+          console.error('Failed to load analytics report:', await analyticsRes.text())
+        }
+      } catch (e) {
+        console.error('Failed to load analytics report:', e)
+      }
+
       const { data: profilesData } = await supabase.from('profiles').select('id, role, created_at')
       const { data: artistsData } = await supabase.from('artists').select('*')
       const { data: tracksData } = await supabase.from('tracks').select('*')
@@ -206,11 +222,18 @@ export default function FounderDashboard() {
       const totalArtists = adminCounts?.artists || artistsData?.length || 0
       const totalTracks = tracksData?.length || 0
       const liveTracks = tracksData?.filter(t => t.status === 'live' || t.is_active).length || 0
-      const totalOrders = revenueData?.totals?.transactions_count || 0
-      const totalMusicPurchases = revenueData?.totals?.matched_purchases || 0
 
       // Calculate revenue from the canonical report.
       const totalRevenue = (revenueData?.totals?.revenue_cents || 0) / 100
+      const totalPurchases = analyticsReport?.metrics?.total_purchases || revenueData?.totals?.transactions_count || 0
+      const totalPlays = analyticsReport?.metrics?.total_plays || 0
+      const totalDownloads = analyticsReport?.metrics?.total_downloads || 0
+      const totalEmailCaptures = analyticsReport?.metrics?.total_email_captures || 0
+      const visitorSessions = analyticsReport?.metrics?.visitor_count || 0
+      const visitorToPlay = analyticsReport?.metrics?.conversion_rates?.visitor_to_play || '0.0%'
+      const playToEmail = analyticsReport?.metrics?.conversion_rates?.play_to_email || '0.0%'
+      const emailToPurchase = analyticsReport?.metrics?.conversion_rates?.email_to_purchase || '0.0%'
+      const purchaseToDownload = analyticsReport?.metrics?.conversion_rates?.purchase_to_download || '0.0%'
 
       // Revenue by time range
       const revenueToday = revenueData?.metrics?.revenue_today_dollars
@@ -285,11 +308,19 @@ export default function FounderDashboard() {
       }))
 
       setMetrics([
+        { label: 'Total Plays', value: totalPlays, status: 'ok' },
+        { label: 'Total Downloads', value: totalDownloads, status: 'ok' },
+        { label: 'Email Captures', value: totalEmailCaptures, status: 'ok' },
+        { label: 'Total Purchases', value: totalPurchases, status: 'info' },
+        { label: 'Visitor Sessions', value: visitorSessions, status: 'info' },
+        { label: 'Visitor → Play', value: visitorToPlay, status: 'info' },
+        { label: 'Play → Email', value: playToEmail, status: 'info' },
+        { label: 'Email → Purchase', value: emailToPurchase, status: 'info' },
+        { label: 'Purchase → Download', value: purchaseToDownload, status: 'info' },
         { label: 'Total Artists', value: totalArtists, status: 'ok' },
         { label: 'Total Users', value: totalUsers, status: 'ok' },
         { label: 'Total Tracks', value: totalTracks, status: 'ok' },
         { label: 'Live Tracks', value: liveTracks, status: 'ok' },
-        { label: 'Total Orders', value: totalOrders, status: 'info' },
         { label: 'Total Revenue', value: `$${totalRevenue.toFixed(2)}`, status: 'info' },
         { label: 'Catalog Value', value: `$${catalogValue.toFixed(2)}`, status: 'info' },
         { label: 'Needs Attention', value: attentionItems.length, status: attentionItems.length > 0 ? 'warning' : 'ok' },
@@ -300,6 +331,7 @@ export default function FounderDashboard() {
       setNeedsAttention(attentionItems)
       setRevenueMetrics(revenueData?.metrics || null)
       setRevenueTransactions(revenueData?.transactions || [])
+      setAnalyticsData(analyticsReport)
       setPurchases(revenueData?.transactions || [])
     } catch (error) {
       console.error('Error loading founder data:', error)
@@ -591,7 +623,7 @@ export default function FounderDashboard() {
 
         {/* Tabs */}
         <div className="flex gap-2 mb-6 border-b border-[var(--pf-border)] overflow-x-auto">
-          {(['overview', 'users', 'music', 'content', 'revenue'] as const).map((tab) => (
+          {(['overview', 'users', 'music', 'content', 'revenue', 'analytics'] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -1563,6 +1595,185 @@ export default function FounderDashboard() {
                     })()}
                   </tbody>
                 </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Analytics Tab — PHASE 2 Measurement Foundation */}
+        {activeTab === 'analytics' && (
+          <div className="space-y-6">
+            <div className="pf-card p-6">
+              <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <TrendingUp className="text-[var(--pf-orange)]" />
+                Measurement Overview
+              </h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="p-4 rounded-lg bg-[var(--pf-surface)]">
+                  <p className="text-xs text-[var(--pf-text-muted)]">Total Plays</p>
+                  <p className="text-2xl font-bold">{analyticsData?.metrics?.total_plays || 0}</p>
+                </div>
+                <div className="p-4 rounded-lg bg-[var(--pf-surface)]">
+                  <p className="text-xs text-[var(--pf-text-muted)]">Total Downloads</p>
+                  <p className="text-2xl font-bold">{analyticsData?.metrics?.total_downloads || 0}</p>
+                </div>
+                <div className="p-4 rounded-lg bg-[var(--pf-surface)]">
+                  <p className="text-xs text-[var(--pf-text-muted)]">Email Captures</p>
+                  <p className="text-2xl font-bold">{analyticsData?.metrics?.total_email_captures || 0}</p>
+                </div>
+                <div className="p-4 rounded-lg bg-[var(--pf-surface)]">
+                  <p className="text-xs text-[var(--pf-text-muted)]">Total Purchases</p>
+                  <p className="text-2xl font-bold">{analyticsData?.metrics?.total_purchases || revenueMetrics?.total_transactions || 0}</p>
+                </div>
+                <div className="p-4 rounded-lg bg-[var(--pf-surface)]">
+                  <p className="text-xs text-[var(--pf-text-muted)]">Revenue</p>
+                  <p className="text-2xl font-bold">${analyticsData?.metrics?.total_revenue_dollars || revenueMetrics?.total_revenue_dollars || '0.00'}</p>
+                </div>
+                <div className="p-4 rounded-lg bg-[var(--pf-surface)]">
+                  <p className="text-xs text-[var(--pf-text-muted)]">Visitor → Play</p>
+                  <p className="text-2xl font-bold text-[var(--pf-orange)]">{analyticsData?.metrics?.conversion_rates?.visitor_to_play || '0.0%'}</p>
+                </div>
+                <div className="p-4 rounded-lg bg-[var(--pf-surface)]">
+                  <p className="text-xs text-[var(--pf-text-muted)]">Play → Email</p>
+                  <p className="text-2xl font-bold text-[var(--pf-orange)]">{analyticsData?.metrics?.conversion_rates?.play_to_email || '0.0%'}</p>
+                </div>
+                <div className="p-4 rounded-lg bg-[var(--pf-surface)]">
+                  <p className="text-xs text-[var(--pf-text-muted)]">Email → Purchase</p>
+                  <p className="text-2xl font-bold text-[var(--pf-orange)]">{analyticsData?.metrics?.conversion_rates?.email_to_purchase || '0.0%'}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid lg:grid-cols-2 gap-6">
+              <div className="pf-card p-6">
+                <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <Music className="text-[var(--pf-orange)]" />
+                  Top Tracks
+                </h2>
+                <div className="space-y-3">
+                  {(analyticsData?.top_tracks || []).length > 0 ? (
+                    analyticsData.top_tracks.map((track: any, index: number) => (
+                      <div key={`${track.key || track.track_id || index}`} className="flex items-center justify-between gap-4 rounded-lg bg-[var(--pf-surface)] p-3">
+                        <div>
+                          <p className="font-medium">{track.track_title || 'Unknown Track'}</p>
+                          <p className="text-xs text-[var(--pf-text-muted)]">{track.artist_name || 'Unknown Artist'}</p>
+                        </div>
+                        <div className="text-right text-xs text-[var(--pf-text-muted)]">
+                          <p>{track.plays || 0} plays</p>
+                          <p>{track.downloads || 0} downloads</p>
+                          <p>{track.purchases || 0} purchases</p>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-[var(--pf-text-muted)]">No play activity yet.</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="pf-card p-6">
+                <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <Star className="text-[var(--pf-orange)]" />
+                  Top Artists
+                </h2>
+                <div className="space-y-3">
+                  {(analyticsData?.top_artists || []).length > 0 ? (
+                    analyticsData.top_artists.map((artist: any, index: number) => (
+                      <div key={`${artist.key || artist.artist_id || index}`} className="flex items-center justify-between gap-4 rounded-lg bg-[var(--pf-surface)] p-3">
+                        <div>
+                          <p className="font-medium">{artist.artist_name || 'Unknown Artist'}</p>
+                          <p className="text-xs text-[var(--pf-text-muted)]">{artist.artist_id ? artist.artist_id.slice(0, 8) : '—'}</p>
+                        </div>
+                        <div className="text-right text-xs text-[var(--pf-text-muted)]">
+                          <p>{artist.plays || 0} plays</p>
+                          <p>{artist.downloads || 0} downloads</p>
+                          <p>{artist.purchases || 0} purchases</p>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-[var(--pf-text-muted)]">No artist activity yet.</p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="grid lg:grid-cols-2 gap-6">
+              <div className="pf-card p-6">
+                <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <Search className="text-[var(--pf-orange)]" />
+                  Top Cities
+                </h2>
+                <div className="space-y-3">
+                  {(analyticsData?.top_cities || []).length > 0 ? (
+                    analyticsData.top_cities.map((location: any, index: number) => (
+                      <div key={`${location.key || location.city || index}`} className="flex items-center justify-between gap-4 rounded-lg bg-[var(--pf-surface)] p-3">
+                        <div>
+                          <p className="font-medium">{location.city || 'Unknown City'}</p>
+                          <p className="text-xs text-[var(--pf-text-muted)]">{location.state || '—'}</p>
+                        </div>
+                        <div className="text-right text-xs text-[var(--pf-text-muted)]">
+                          <p>{location.plays || 0} plays</p>
+                          <p>{location.downloads || 0} downloads</p>
+                          <p>{location.purchases || 0} purchases</p>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-[var(--pf-text-muted)]">No city traction yet.</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="pf-card p-6">
+                <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <Filter className="text-[var(--pf-orange)]" />
+                  Top States
+                </h2>
+                <div className="space-y-3">
+                  {(analyticsData?.top_states || []).length > 0 ? (
+                    analyticsData.top_states.map((location: any, index: number) => (
+                      <div key={`${location.state || index}`} className="flex items-center justify-between gap-4 rounded-lg bg-[var(--pf-surface)] p-3">
+                        <div>
+                          <p className="font-medium">{location.state || 'Unknown State'}</p>
+                        </div>
+                        <div className="text-right text-xs text-[var(--pf-text-muted)]">
+                          <p>{location.plays || 0} plays</p>
+                          <p>{location.downloads || 0} downloads</p>
+                          <p>{location.email_captures || 0} email captures</p>
+                          <p>{location.purchases || 0} purchases</p>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-[var(--pf-text-muted)]">No state traction yet.</p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="pf-card p-6">
+              <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <Shield className="text-[var(--pf-orange)]" />
+                Funnel Conversion Rates
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="p-4 rounded-lg bg-[var(--pf-surface)]">
+                  <p className="text-xs text-[var(--pf-text-muted)]">Visitor → Play</p>
+                  <p className="text-2xl font-bold">{analyticsData?.metrics?.conversion_rates?.visitor_to_play || '0.0%'}</p>
+                </div>
+                <div className="p-4 rounded-lg bg-[var(--pf-surface)]">
+                  <p className="text-xs text-[var(--pf-text-muted)]">Play → Email</p>
+                  <p className="text-2xl font-bold">{analyticsData?.metrics?.conversion_rates?.play_to_email || '0.0%'}</p>
+                </div>
+                <div className="p-4 rounded-lg bg-[var(--pf-surface)]">
+                  <p className="text-xs text-[var(--pf-text-muted)]">Email → Purchase</p>
+                  <p className="text-2xl font-bold">{analyticsData?.metrics?.conversion_rates?.email_to_purchase || '0.0%'}</p>
+                </div>
+                <div className="p-4 rounded-lg bg-[var(--pf-surface)]">
+                  <p className="text-xs text-[var(--pf-text-muted)]">Purchase → Download</p>
+                  <p className="text-2xl font-bold">{analyticsData?.metrics?.conversion_rates?.purchase_to_download || '0.0%'}</p>
+                </div>
               </div>
             </div>
           </div>

@@ -3,6 +3,7 @@ import { createServerClient } from '@/lib/supabase';
 import Stripe from 'stripe';
 import { resolveReferrerId, normalizeReferralHandle } from '@/lib/referral';
 import { getActivationCodeByValue, normalizeActivationCode } from '@/lib/activation';
+import { resolveMeasurementLocation } from '@/lib/measurement';
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
@@ -31,6 +32,11 @@ export async function POST(req: NextRequest) {
     const activationCodeValue = normalizeActivationCode(metadata.activation_code_value || metadata.activation_code || null);
     const discountCents = Math.max(0, Math.round(Number(metadata.discount_cents || 0)));
     const paymentMethod = (metadata.payment_method as string) || 'stripe';
+    const measurementLocation = resolveMeasurementLocation({
+      city: metadata.measurement_city || null,
+      state: metadata.measurement_state || null,
+    });
+    const measurementSessionId = metadata.measurement_session_id || null;
 
     let activationCodeId: string | null = metadata.activation_code_id || null;
     if (!activationCodeId && activationCodeValue) {
@@ -353,6 +359,9 @@ export async function POST(req: NextRequest) {
                 recovery_token: recoveryToken,
                 recovery_token_expires_at: recoveryExpiresAt,
                 purchased_at: new Date().toISOString(),
+                measurement_session_id: measurementSessionId,
+                measurement_city: measurementLocation.city,
+                measurement_state: measurementLocation.state,
               }, {
                 onConflict: 'buyer_email,track_id',
                 ignoreDuplicates: false,

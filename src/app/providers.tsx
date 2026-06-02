@@ -1,6 +1,7 @@
 'use client'
 
 import { createContext, useContext, useEffect, useState, useRef } from 'react'
+import { usePathname } from 'next/navigation'
 import { User, Session } from '@supabase/supabase-js'
 import { AudioProvider } from '@/lib/audio-context'
 import { ThemeProvider } from '@/lib/theme-context'
@@ -11,6 +12,7 @@ import { AccentProvider } from '@/lib/accent-context'
 import { ToastProvider } from '@/components/Toast'
 import { createBrowserSupabaseClient } from '@/lib/create-browser-client'
 import { initSentry, captureAuthError } from '@/lib/sentry'
+import { ensureMeasurementSessionId } from '@/lib/measurement'
 
 // Initialize Sentry on client
 if (typeof window !== 'undefined') {
@@ -41,6 +43,23 @@ export function Providers({
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(!initialUser)
   const sessionRef = useRef<string | null>(null)
+  const pathname = usePathname()
+
+  useEffect(() => {
+    ensureMeasurementSessionId()
+  }, [])
+
+  useEffect(() => {
+    const currentPath = `${pathname}${typeof window !== 'undefined' ? window.location.search : ''}`
+
+    void fetch('/api/presence/heartbeat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ current_path: currentPath }),
+      credentials: 'include',
+      keepalive: true,
+    }).catch(() => {})
+  }, [pathname])
 
   useEffect(() => {
     const validateSession = async () => {

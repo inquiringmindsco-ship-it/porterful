@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useRef, useEffect, ReactNode, useCallback } from 'react';
 import { getTrackArtwork } from '@/lib/artwork';
 import { dedupeQueueTracks, filterPlayableTracks, hasPlayableAudio } from '@/lib/track-dedupe';
+import { ensureMeasurementSessionId } from '@/lib/measurement';
 
 // ─── DEBUG LOGGING ────────────────────────────────────────────────────────────
 const DEBUG = false;
@@ -17,6 +18,7 @@ export interface Track {
   id: string;
   title: string;
   artist: string;
+  artist_id?: string;
   album?: string | null;
   duration?: string | number;
   audio_url?: string;
@@ -99,6 +101,40 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     }
 
     return null;
+  }, []);
+
+  const recordPlayEvent = useCallback(async (track: Track) => {
+    try {
+      const sessionId = ensureMeasurementSessionId()
+      const durationSeconds =
+        typeof track.preview_duration_seconds === 'number'
+          ? track.preview_duration_seconds
+          : typeof track.duration === 'number'
+            ? track.duration
+            : null
+
+      await fetch('/api/analytics/play', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          session_id: sessionId,
+          track_id: track.id,
+          artist_id: track.artist_id || null,
+          track_title: track.title,
+          artist_name: track.artist,
+          playback_mode: track.playback_mode || 'full',
+          is_preview: (track.playback_mode || 'full') === 'preview',
+          duration_seconds: durationSeconds,
+          source: 'audio-context',
+        }),
+        credentials: 'include',
+        keepalive: true,
+      })
+    } catch (error) {
+      console.warn('[AUDIO] Failed to record play event:', error)
+    }
   }, []);
 
   // Keep refs in sync
@@ -213,12 +249,18 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 
     const playPromise = audio.play();
     if (playPromise) {
-      playPromise.catch((err) => {
+      playPromise
+        .then(() => {
+          void recordPlayEvent(track)
+        })
+        .catch((err) => {
         console.error('[AUDIO] Play failed:', err.name, err.message);
         setIsPlaying(false);
-      });
+        });
+    } else {
+      void recordPlayEvent(track)
     }
-  }, []);
+  }, [recordPlayEvent]);
 
   useEffect(() => {
     playTrackRef.current = playTrack;

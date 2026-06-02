@@ -14,6 +14,12 @@ import {
   type CheckoutResolvedItem,
   resolveCheckoutCart,
 } from '@/lib/checkout-catalog'
+import {
+  createMeasurementSessionId,
+  getMeasurementSessionCookieName,
+  readMeasurementSessionIdFromCookie,
+  resolveMeasurementLocation,
+} from '@/lib/measurement'
 
 // Dynamic Stripe import
 async function getStripe() {
@@ -113,6 +119,11 @@ export async function POST(request: NextRequest) {
     const activationCodeValue = normalizeActivationCode(body?.activationCode || body?.code || null)
     const shippingAddress = body?.shipping_address || body?.shippingAddress || null
     const shippingEmail = normalizeEmail(body?.shippingEmail || body?.shipping_email || shippingAddress?.email || null)
+    const measurementLocation = resolveMeasurementLocation({
+      headers: request.headers,
+      city: shippingAddress?.city || null,
+      state: shippingAddress?.state || null,
+    })
 
     // Read referral cookie server-side — fallback to client-passed value
     const cookieReferralCode = request.cookies.get('porterful_referral')?.value || null
@@ -153,6 +164,8 @@ export async function POST(request: NextRequest) {
     profileId = profileId || request.headers.get('x-pf-profile-id') || null
     lkId = lkId || request.headers.get('x-pf-lk-id') || null
     sessionEmail = sessionEmail || normalizeEmail(request.headers.get('x-pf-email') || null)
+    const measurementSessionCookie = request.cookies.get(getMeasurementSessionCookieName())?.value || null
+    const measurementSessionId = readMeasurementSessionIdFromCookie(measurementSessionCookie) || createMeasurementSessionId()
 
     const buyerEmail = shippingEmail || sessionEmail || null
     let activationRecord: Awaited<ReturnType<typeof getActivationCodeByValue>>['data'] | null = null
@@ -277,6 +290,9 @@ export async function POST(request: NextRequest) {
       activation_code_kind: activationRecord?.kind || '',
       payment_method: 'stripe',
       discount_cents: activationDiscountCents.toString(),
+      measurement_session_id: measurementSessionId,
+      measurement_city: measurementLocation.city || '',
+      measurement_state: measurementLocation.state || '',
     }
 
     const sessionParams: any = {
@@ -314,7 +330,7 @@ export async function POST(request: NextRequest) {
 
     const session = await stripe.checkout.sessions.create(sessionParams)
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       sessionId: session.id,
       url: session.url,
       breakdown: {
@@ -325,6 +341,17 @@ export async function POST(request: NextRequest) {
         sellerEarnings: sellerEarnings / 100,
       }
     })
+    if (!measurementSessionCookie) {
+      response.cookies.set(getMeasurementSessionCookieName(), measurementSessionId, {
+        httpOnly: false,
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+        path: '/',
+        maxAge: 60 * 60 * 24 * 365,
+      })
+    }
+
+    return response
   } catch (error: any) {
     if (error instanceof CheckoutCatalogError) {
       return NextResponse.json({ error: error.message }, { status: 400 })

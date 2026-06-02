@@ -5,6 +5,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase';
 import { Resend } from 'resend';
 import { buildPurchaseEmailHTML, buildPurchaseEmailText } from '@/lib/music-email-template';
+import { createHash } from 'crypto';
+import {
+  createMeasurementSessionId,
+  getMeasurementSessionCookieName,
+  readMeasurementSessionIdFromCookie,
+  resolveMeasurementLocation,
+} from '@/lib/measurement';
 
 function getResend(): Resend | null {
   const key = process.env.RESEND_API_KEY;
@@ -24,12 +31,34 @@ export async function POST(request: NextRequest) {
     }
 
     const supabase = createServerClient();
+    const measurementCookie = request.cookies.get(getMeasurementSessionCookieName())?.value || null
+    const measurementSessionId = readMeasurementSessionIdFromCookie(measurementCookie) || createMeasurementSessionId()
+    const measurementLocation = resolveMeasurementLocation({ headers: request.headers })
+    const normalizedEmail = email.toLowerCase()
+    const emailHash = createHash('sha256').update(normalizedEmail).digest('hex')
+    const emailDomain = normalizedEmail.split('@')[1] || null
+
+    const { error: captureError } = await supabase
+      .from('email_captures')
+      .upsert({
+        session_id: measurementSessionId,
+        email_hash: emailHash,
+        email_domain: emailDomain,
+        city: measurementLocation.city,
+        state: measurementLocation.state,
+        source: 'email-access',
+        captured_at: new Date().toISOString(),
+      }, { onConflict: 'session_id,email_hash' })
+
+    if (captureError) {
+      console.error('[email-access] Measurement capture error:', captureError)
+    }
 
     // Look up purchases by email
     const { data: purchases, error: purchaseError } = await supabase
       .from('music_purchases')
       .select('*')
-      .eq('buyer_email', email.toLowerCase());
+      .eq('buyer_email', normalizedEmail);
 
     if (purchaseError) {
       console.error('[email-access] Query error:', purchaseError);
@@ -40,7 +69,7 @@ export async function POST(request: NextRequest) {
     const { data: orders, error: orderError } = await supabase
       .from('orders')
       .select('id, buyer_email, stripe_checkout_session_id')
-      .eq('buyer_email', email.toLowerCase())
+      .eq('buyer_email', normalizedEmail)
       .eq('status', 'completed');
 
     if (orderError) {
@@ -109,7 +138,7 @@ export async function POST(request: NextRequest) {
 
         const { error: sendError } = await resend.emails.send({
           from: fromAddress,
-          to: email,
+          to: normalizedEmail,
           subject: accessLinks.length > 1 ? 'Your Porterful Tracks Are Ready' : 'Your Porterful Track Is Ready',
           html,
           text,
@@ -127,7 +156,7 @@ export async function POST(request: NextRequest) {
       console.warn('[email-access] Resend not configured — email not sent');
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: emailDelivered,
       message: emailDelivered
         ? 'Access link sent to your email'
@@ -136,6 +165,18 @@ export async function POST(request: NextRequest) {
       // Only include links in development for testing
       ...(process.env.NODE_ENV === 'development' ? { debugLinks: accessLinks } : {}),
     });
+
+    if (!measurementCookie) {
+      response.cookies.set(getMeasurementSessionCookieName(), measurementSessionId, {
+        httpOnly: false,
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+        path: '/',
+        maxAge: 60 * 60 * 24 * 365,
+      })
+    }
+
+    return response
   } catch (error) {
     console.error('[email-access] Error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
