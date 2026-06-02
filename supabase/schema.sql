@@ -318,6 +318,77 @@ CREATE TRIGGER production_assets_updated_at
   FOR EACH ROW EXECUTE FUNCTION update_production_assets_updated_at();
 
 -- ============================================
+-- PRODUCT SKUS (Registry layer only)
+-- ============================================
+CREATE TABLE product_skus (
+  sku_id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  sku_code TEXT NOT NULL UNIQUE,
+  production_asset_id UUID NOT NULL REFERENCES production_assets(asset_id) ON DELETE RESTRICT,
+  product_id UUID REFERENCES products(id) ON DELETE SET NULL,
+  artist_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
+  product_type TEXT NOT NULL,
+  variant_name TEXT NOT NULL,
+  size TEXT,
+  color TEXT,
+  unit_cost_cents INTEGER DEFAULT 0 CHECK (unit_cost_cents >= 0),
+  retail_price_cents INTEGER DEFAULT 0 CHECK (retail_price_cents >= 0),
+  weight_oz DECIMAL(10,2),
+  package_type TEXT,
+  print_location TEXT,
+  active BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS product_skus_asset_idx ON product_skus (production_asset_id);
+CREATE INDEX IF NOT EXISTS product_skus_artist_idx ON product_skus (artist_id);
+CREATE INDEX IF NOT EXISTS product_skus_product_idx ON product_skus (product_id);
+CREATE INDEX IF NOT EXISTS product_skus_active_idx ON product_skus (active);
+CREATE INDEX IF NOT EXISTS product_skus_type_idx ON product_skus (product_type);
+
+ALTER TABLE product_skus ENABLE ROW LEVEL SECURITY;
+
+CREATE OR REPLACE FUNCTION update_product_skus_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS product_skus_updated_at ON product_skus;
+CREATE TRIGGER product_skus_updated_at
+  BEFORE UPDATE ON product_skus
+  FOR EACH ROW EXECUTE FUNCTION update_product_skus_updated_at();
+
+CREATE OR REPLACE FUNCTION check_sku_production_asset_approved()
+RETURNS TRIGGER AS $$
+DECLARE
+  asset_status TEXT;
+BEGIN
+  SELECT production_status INTO asset_status
+  FROM production_assets
+  WHERE asset_id = NEW.production_asset_id;
+
+  IF asset_status IS NULL THEN
+    RAISE EXCEPTION 'Referenced production asset does not exist';
+  END IF;
+
+  IF asset_status != 'production_approved' THEN
+    RAISE EXCEPTION 'SKU can only reference production-approved assets. Asset status: %', asset_status;
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS sku_production_asset_gate ON product_skus;
+CREATE TRIGGER sku_production_asset_gate
+  BEFORE INSERT ON product_skus
+  FOR EACH ROW
+  EXECUTE FUNCTION check_sku_production_asset_approved();
+
+-- ============================================
 -- USER TRACKS (Proud to Pay)
 -- ============================================
 CREATE TABLE user_tracks (

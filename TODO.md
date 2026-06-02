@@ -1,4 +1,4 @@
-# Porterful Site Improvements — Batch 1 (2026-06-02)
+# Porterful Site Improvements — Batch 1 (2026-06-02 1:04 PM CT)
 
 ## 1. Rob Soule Artist Data Fix
 **Status: Already correct** — No changes needed.
@@ -33,6 +33,16 @@
 
 - All changes verified but nothing committed or deployed.
 - This TODO file documents the current state of the codebase.
+
+## Files Verified
+- `src/lib/artists.ts` — Artist data (Rob Soule already correct)
+- `src/components/artist/ArtistHero.tsx` — Social icons already rendered next to artist name
+- `src/components/artist/ArtistTabs.tsx` — Singles already before Albums
+- `src/lib/artist-social.tsx` — Social icon SVG components already defined
+
+## Notes
+- No code edits were required for any of the 3 tasks — they were already implemented in the codebase.
+- If Rob Soule's bio or genre needs *further* refinement, ping `@sentinel` with the exact wording.
 
 ## Files Verified
 - `src/lib/artists.ts` — Artist data (Rob Soule already correct)

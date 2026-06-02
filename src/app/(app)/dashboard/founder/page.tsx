@@ -624,6 +624,10 @@ export default function FounderDashboard() {
               <Package size={16} />
               Production Assets
             </Link>
+            <Link href="/dashboard/founder/skus" className="pf-btn pf-btn-secondary inline-flex items-center gap-2">
+              <Package size={16} />
+              SKUs
+            </Link>
           </div>
         </div>
 
