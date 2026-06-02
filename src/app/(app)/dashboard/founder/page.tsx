@@ -628,6 +628,10 @@ export default function FounderDashboard() {
               <Package size={16} />
               SKUs
             </Link>
+            <Link href="/dashboard/founder/inventory" className="pf-btn pf-btn-secondary inline-flex items-center gap-2">
+              <Package size={16} />
+              Inventory
+            </Link>
           </div>
         </div>
 

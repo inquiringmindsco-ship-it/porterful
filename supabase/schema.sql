@@ -388,6 +388,30 @@ CREATE TRIGGER sku_production_asset_gate
   FOR EACH ROW
   EXECUTE FUNCTION check_sku_production_asset_approved();
 
+CREATE TABLE inventory_ledger (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  sku_id UUID NOT NULL REFERENCES product_skus(sku_id) ON DELETE RESTRICT,
+  movement_type TEXT NOT NULL CHECK (movement_type IN ('receive', 'reserve', 'release', 'adjust', 'pack', 'ship', 'return')),
+  quantity INTEGER NOT NULL,
+  reason TEXT NOT NULL,
+  reference_type TEXT,
+  reference_id TEXT,
+  notes TEXT,
+  created_by UUID NOT NULL REFERENCES profiles(id) ON DELETE RESTRICT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  CONSTRAINT inventory_ledger_quantity_rule CHECK (
+    (movement_type = 'adjust' AND quantity <> 0)
+    OR (movement_type <> 'adjust' AND quantity > 0)
+  )
+);
+
+CREATE INDEX IF NOT EXISTS inventory_ledger_sku_idx ON inventory_ledger (sku_id);
+CREATE INDEX IF NOT EXISTS inventory_ledger_movement_idx ON inventory_ledger (movement_type);
+CREATE INDEX IF NOT EXISTS inventory_ledger_created_by_idx ON inventory_ledger (created_by);
+CREATE INDEX IF NOT EXISTS inventory_ledger_created_at_idx ON inventory_ledger (created_at);
+
+ALTER TABLE inventory_ledger ENABLE ROW LEVEL SECURITY;
+
 -- ============================================
 -- USER TRACKS (Proud to Pay)
 -- ============================================

@@ -129,6 +129,9 @@ export default function ArtistDashboardPage() {
               <Link href="/dashboard/artist/skus" className="pf-btn pf-btn-secondary flex items-center gap-2">
                 <Icon.Package /> SKUs
               </Link>
+              <Link href="/dashboard/artist/inventory" className="pf-btn pf-btn-secondary flex items-center gap-2">
+                <Icon.Package /> Inventory
+              </Link>
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
