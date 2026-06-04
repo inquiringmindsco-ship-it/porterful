@@ -179,7 +179,7 @@ export default function ArtistDashboardPage() {
     if (dbTracks.length > 0 && dbTracks.filter((t: any) => t.is_active).length === 0) {
       currentStage = 'Track uploaded'
       nextStep = 'Your track is uploaded. Make it live to start sharing.'
-      actionLabel = 'View My Work'
+      actionLabel = 'View My Files'
       actionHref = '/dashboard/artist/assets'
     } else if (dbTracks.filter((t: any) => t.is_active).length > 0) {
       currentStage = 'Music live'
@@ -243,7 +243,7 @@ export default function ArtistDashboardPage() {
           nextStep={dbTracks.length === 0 ? "Click Upload Music to get started." : guidance.nextStep}
           signals={[
             {
-              label: 'My Work',
+              label: 'My Files',
               value: `${productionAssets.length} items`,
               tone: productionAssets.length > 0 ? 'success' : 'neutral',
             },
@@ -434,7 +434,7 @@ export default function ArtistDashboardPage() {
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold">Products</h2>
               <Link href="/dashboard/catalog" className="pf-btn pf-btn-primary flex items-center gap-2">
-                <Icon.Plus /> Catalog
+                <Icon.Plus /> Products
               </Link>
             </div>
             {dbProducts.length === 0 ? (

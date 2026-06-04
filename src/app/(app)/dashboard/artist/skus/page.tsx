@@ -101,7 +101,7 @@ export default function ArtistSkuPage() {
     <div className="min-h-screen pt-24 pb-12">
       <div className="pf-container max-w-7xl space-y-8">
         <StageTracker
-          title="Your SKU Journey"
+          title="Your Product Version Journey"
           stages={[
             { label: 'Asset Approved', status: summary.productionApproved > 0 ? 'complete' : 'pending' },
             { label: 'SKU Created', status: summary.total > 0 ? 'complete' : 'pending' },
@@ -112,11 +112,11 @@ export default function ArtistSkuPage() {
         />
 
         <NextStepCard
-          title={summary.total === 0 ? "SKUs Created by Founders" : "Your SKU Registry"}
+          title={summary.total === 0 ? "Product Versions Created by Founders" : "Your Product Versions"}
           description={
             summary.total === 0
-              ? "SKUs are sellable variants created by founders from your production-approved assets. Once an asset is approved and production-ready, founders create SKUs for it. Check back to see your registered products."
-              : "These are the sellable variants tied to your approved assets. Founders manage SKU creation and inventory — you have read-only visibility into what exists and its current status."
+              ? "Product versions are sellable variants created by founders from your approved files. Once a file is approved and production-ready, founders create product versions for it. Check back to see your registered products."
+              : "These are the sellable variants tied to your approved files. Founders manage product version creation and inventory — you have read-only visibility into what exists and its current status."
           }
           variant={summary.total === 0 ? 'warning' : 'default'}
         />
@@ -129,10 +129,10 @@ export default function ArtistSkuPage() {
             </Link>
             <h1 className="text-3xl font-bold mt-3 flex items-center gap-3">
               <Package className="text-[var(--pf-orange)]" />
-              SKU Registry
+              Product Versions
             </h1>
             <p className="text-[var(--pf-text-muted)] mt-2 max-w-2xl">
-              View the sellable variants tied to your production-approved assets.
+              View the sellable variants tied to your production-approved files.
             </p>
           </div>
           <button onClick={loadSkus} className="pf-btn pf-btn-secondary inline-flex items-center gap-2">

@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 const NAV = [
-  { label: 'My Vault', href: '/dashboard' },
+  { label: 'Library', href: '/dashboard' },
   { label: 'Social', href: '/dashboard/likeness' },
   { label: 'Access', href: '/dashboard/access' },
 ]

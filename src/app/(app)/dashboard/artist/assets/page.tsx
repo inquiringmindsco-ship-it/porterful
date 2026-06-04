@@ -225,11 +225,11 @@ export default function ArtistProductionAssetsPage() {
         />
 
         <NextStepCard
-          title={assets.length === 0 ? "Submit Your First Production Asset" : "Track Your Asset Status"}
+          title={assets.length === 0 ? "Submit Your First File" : "Track Your File Status"}
           description={
             assets.length === 0
-              ? "Upload artwork, designs, or music for founder review. Assets must be approved before they can become products."
-              : "Your assets are under review. Founders will approve, reject, or request revisions. Check back for status updates."
+              ? "Upload artwork, designs, or music for founder review. Files must be approved before they can become products."
+              : "Your files are under review. Founders will approve, reject, or request revisions. Check back for status updates."
           }
           actionLabel={assets.length === 0 ? "Submit Asset" : undefined}
           actionHref={assets.length === 0 ? "#submit-form" : undefined}
@@ -241,9 +241,9 @@ export default function ArtistProductionAssetsPage() {
               <ArrowLeft size={16} />
               Back to Artist Dashboard
             </Link>
-            <h1 className="text-3xl font-bold mt-3">Production Asset Registry</h1>
+            <h1 className="text-3xl font-bold mt-3">My Files</h1>
             <p className="text-[var(--pf-text-muted)] mt-2 max-w-2xl">
-              Submit artwork, likeness, campaign, and merch assets for review before they ever become products.
+              Submit artwork, likeness, campaign, and merch files for review before they ever become products.
             </p>
           </div>
           <button

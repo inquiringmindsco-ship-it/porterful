@@ -15,7 +15,7 @@ export default function UploadPage() {
   // Form state
   const [title, setTitle] = useState('')
   const [album, setAlbum] = useState('')
-  const [price, setPrice] = useState('0.99')
+  const [price, setPrice] = useState('0.50')
   const [description, setDescription] = useState('')
   const [audioFile, setAudioFile] = useState<File | null>(null)
   const [audioDuration, setAudioDuration] = useState<number | null>(null)
@@ -409,10 +409,10 @@ export default function UploadPage() {
                   }}
                   onBlur={() => {
                     const normalizedPrice = Number.parseFloat(price)
-                    setPrice(Number.isFinite(normalizedPrice) ? normalizedPrice.toFixed(2) : '0.99')
+                    setPrice(Number.isFinite(normalizedPrice) ? normalizedPrice.toFixed(2) : '0.50')
                   }}
                   className="w-full border-0 bg-transparent p-0 text-[var(--pf-text)] focus:outline-none focus:ring-0"
-                  placeholder="0.99"
+                  placeholder="0.50"
                 />
               </div>
             </div>

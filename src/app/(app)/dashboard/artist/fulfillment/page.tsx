@@ -191,7 +191,7 @@ export default function ArtistFulfillmentQueuePage() {
       <div className="pf-container max-w-7xl space-y-8">
         <div data-tour-id="artist-fulfillment-overview">
           <StageTracker
-            title="Fulfillment Journey"
+            title="Orders & Shipping Journey"
             stages={[
               { label: 'Asset Submitted', status: 'complete' },
               { label: 'Asset Approved', status: 'complete' },
@@ -205,11 +205,11 @@ export default function ArtistFulfillmentQueuePage() {
         </div>
 
         <NextStepCard
-          title={totals.total === 0 ? "Fulfillment Not Yet Started" : "Track Your Fulfillment Jobs"}
+          title={totals.total === 0 ? "Orders & Shipping Not Yet Started" : "Track Your Orders & Shipping"}
           description={
             totals.total === 0
-              ? "Fulfillment jobs are created by founders when orders come in for your SKUs. Once a job is created, you'll see its progress through printing, quality control, packing, shipping, and delivery."
-              : "Your SKUs have active fulfillment jobs. Reserved means stock is committed. Packed means it's boxed and ready. Shipped means it's on the way. Delivered means the customer received it."
+              ? "Orders are created by founders when customers buy your product versions. Once an order is created, you'll see its progress through printing, quality control, packing, shipping, and delivery."
+              : "Your products have active orders. Reserved means stock is committed. Packed means it's boxed and ready. Shipped means it's on the way. Delivered means the customer received it."
           }
           variant={totals.total === 0 ? 'warning' : 'default'}
         />
@@ -222,10 +222,10 @@ export default function ArtistFulfillmentQueuePage() {
             </Link>
             <h1 className="text-3xl font-bold mt-3 flex items-center gap-3">
               <Package className="text-[var(--pf-orange)]" />
-              My Fulfillment Queue
+              My Orders & Shipping
             </h1>
             <p className="text-[var(--pf-text-muted)] mt-2 max-w-2xl">
-              Read-only visibility into jobs tied to your SKUs and approved assets.
+              Read-only visibility into orders tied to your product versions and approved files.
             </p>
           </div>
           <button onClick={loadData} className="pf-btn pf-btn-secondary inline-flex items-center gap-2">
