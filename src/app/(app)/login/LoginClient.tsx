@@ -10,17 +10,26 @@ interface LoginClientProps {
   nextPath: string
   initialError?: string | null
   emailExists?: boolean
+  accountCreated?: boolean
+  verificationRequired?: boolean
   prefillEmail?: string
 }
 
-export default function LoginClient({ nextPath, initialError = null, emailExists = false, prefillEmail = '' }: LoginClientProps) {
+export default function LoginClient({
+  nextPath,
+  initialError = null,
+  emailExists = false,
+  accountCreated = false,
+  verificationRequired = false,
+  prefillEmail = '',
+}: LoginClientProps) {
   const router = useRouter()
   const { supabase, user } = useSupabase()
   const [email, setEmail] = useState(prefillEmail)
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(initialError || '')
-  const [success, setSuccess] = useState(emailExists)
+  const [success, setSuccess] = useState(emailExists || accountCreated || verificationRequired)
 
   useEffect(() => {
     if (user) {
@@ -39,15 +48,19 @@ export default function LoginClient({ nextPath, initialError = null, emailExists
         return
       }
 
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
       })
 
-      if (signInError) {
-        // Show user-friendly message for common errors, system message for others
-        if (signInError.message?.includes('Invalid login')) {
+      if (!res.ok) {
+        const payload = await res.json().catch(() => ({}))
+        const message = String((payload as { error?: string }).error || '').toLowerCase()
+        if (message.includes('invalid') || message.includes('password') || message.includes('email')) {
           setError('Invalid email or password. Please try again.')
+        } else if (message.includes('confirm') || message.includes('verify')) {
+          setError('Please verify your email before signing in.')
         } else {
           setError('SYSTEM_PROCESSING')
         }
@@ -55,7 +68,10 @@ export default function LoginClient({ nextPath, initialError = null, emailExists
         return
       }
 
-      router.replace(nextPath)
+      // Force a full document navigation so the server-rendered dashboard
+      // sees the newly issued auth cookies immediately instead of relying on
+      // a stale client-side auth snapshot.
+      window.location.replace(nextPath)
     } catch (err: any) {
       setError('SYSTEM_PROCESSING')
     } finally {
@@ -90,6 +106,17 @@ export default function LoginClient({ nextPath, initialError = null, emailExists
           <div className="mb-6 p-4 rounded-lg bg-[var(--pf-orange)]/10 border border-[var(--pf-orange)]/30 text-[var(--pf-text)] text-sm">
             <p className="font-medium mb-1">This email already has an account.</p>
             <p>Sign in below to continue.</p>
+          </div>
+        )}
+
+        {(accountCreated || verificationRequired) && (
+          <div className="mb-6 p-4 rounded-lg bg-[var(--pf-orange)]/10 border border-[var(--pf-orange)]/30 text-[var(--pf-text)] text-sm">
+            <p className="font-medium mb-1">Your account is ready.</p>
+            <p>
+              {verificationRequired
+                ? 'Check your email if verification is required, then sign in to continue.'
+                : 'Sign in below to continue.'}
+            </p>
           </div>
         )}
 

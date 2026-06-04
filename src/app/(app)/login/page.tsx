@@ -37,7 +37,7 @@ function getLoginError(error: string | undefined) {
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams?: { return?: string; next?: string; error?: string; exists?: string; email?: string }
+  searchParams?: { return?: string; next?: string; error?: string; exists?: string; created?: string; verify?: string; email?: string }
 }) {
   const nextPath = getSafeNextPath(searchParams?.return || searchParams?.next)
   const user = await getServerUser()
@@ -50,6 +50,8 @@ export default async function LoginPage({
     nextPath={nextPath} 
     initialError={getLoginError(searchParams?.error)}
     emailExists={searchParams?.exists === 'true'}
+    accountCreated={searchParams?.created === 'true'}
+    verificationRequired={searchParams?.verify === 'true'}
     prefillEmail={searchParams?.email || ''}
   />
 }

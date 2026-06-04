@@ -24,9 +24,9 @@ export default async function DashboardRoot() {
   const { profile: ensuredProfile, error: ensureError } = await ensureProfile(adminSb, user)
 
   if (ensureError || !ensuredProfile) {
-    // If the profile cannot be prepared, fail closed into setup instead of
+    // If the profile cannot be prepared, fail closed back to login instead of
     // serving a broken dashboard state.
-    redirect('/signup?setup=1')
+    redirect('/login?error=profile_create_failed')
   }
 
   let profile = ensuredProfile

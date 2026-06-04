@@ -38,9 +38,9 @@ export const FOUNDING_BETA_PRODUCTS = {
     colors: ['Black', 'White'],
     sizes: ['S', 'M', 'L', 'XL'],
     description: 'Minimalist signal wave design. Premium cotton.',
-    available: true,
+    available: false,
     fulfillment: 'img_fulfillment',
-    featured: true,
+    featured: false,
   },
   
   // Noble Naturals — Wellness brand product
@@ -52,9 +52,9 @@ export const FOUNDING_BETA_PRODUCTS = {
     artist: 'Noble Naturals',
     image: '/images/products/noble-balm.png',
     description: 'All-natural healing balm. Handmade in small batches.',
-    available: true,
+    available: false,
     fulfillment: 'img_fulfillment',
-    featured: true,
+    featured: false,
   },
   
   // Porterful Essential — Platform branded
@@ -66,9 +66,9 @@ export const FOUNDING_BETA_PRODUCTS = {
     artist: 'Porterful',
     image: '/images/products/porterful-stickers.png',
     description: '5 vinyl stickers. Weatherproof. Support the platform.',
-    available: true,
+    available: false,
     fulfillment: 'img_fulfillment',
-    featured: true,
+    featured: false,
   },
 } as const
 

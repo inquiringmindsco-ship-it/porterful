@@ -2,8 +2,8 @@ import { Metadata } from 'next'
 import { Suspense } from 'react'
 
 export const metadata: Metadata = {
-  title: 'Signup - Join Porterful',
-  description: 'Join Porterful as an artist or fan. Start selling music and merchandise or discover independent artists.',
+  title: 'Signup - Porterful',
+  description: 'Create a Porterful account as an artist, fan, business, or brand.',
 }
 
 function LoadingSignup() {

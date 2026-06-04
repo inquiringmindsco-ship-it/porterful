@@ -134,7 +134,7 @@ function SuccessContent() {
     const sessionId = searchParams.get('session_id');
     const demo = searchParams.get('demo');
 
-    if (demo) {
+    if (demo && process.env.NODE_ENV !== 'production') {
       setOrder({
         orderId: `ORD-${Date.now().toString(36).toUpperCase().slice(0, 8)}`,
         customerEmail: 'demo@porterful.com',

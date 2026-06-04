@@ -91,7 +91,8 @@ jobs:
           STRIPE_SECRET_KEY: sk_test_test
           STRIPE_WEBHOOK_SECRET: whsec_test
           RESEND_API_KEY: re_test
-          TEST_USER_EMAIL: test@example.com
+          TEST_USER_EMAIL: porterful-test-user@porterful.test
+          TEST_ARTIST_EMAIL: porterful-artist@porterful.test
           TEST_USER_PASSWORD: testpassword123
 
       - name: Wait for dev server

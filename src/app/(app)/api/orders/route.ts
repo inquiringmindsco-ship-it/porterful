@@ -6,6 +6,10 @@ import { resolveReferrerId, normalizeReferralHandle } from '@/lib/referral'
 // GET /api/orders - List user's orders
 export async function GET(request: Request) {
   try {
+    if (process.env.NODE_ENV === 'production') {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    }
+
     const cookieStore = await cookies()
     
     const supabase = createServerClient(
@@ -69,6 +73,10 @@ export async function GET(request: Request) {
 // POST /api/orders - Create order (checkout)
 export async function POST(request: Request) {
   try {
+    if (process.env.NODE_ENV === 'production') {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    }
+
     const cookieStore = await cookies()
     
     const supabase = createServerClient(

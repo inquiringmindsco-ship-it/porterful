@@ -157,13 +157,10 @@ export default function SignupPage() {
       })
 
       if (loginRes.ok) {
-        if (nextPath) {
-          router.push(nextPath)
-        } else if (role === 'artist') {
-          router.push('/dashboard/artist')
-        } else {
-          router.push('/dashboard')
-        }
+        const destination = nextPath || (role === 'artist' ? '/dashboard/artist' : '/dashboard')
+        // Use a full reload here as well so the server sees the fresh session
+        // cookies right away and doesn't bounce the new user back into signup.
+        window.location.replace(destination)
       } else {
         const loginData = await loginRes.json().catch(() => ({}))
         // Account created but login failed - redirect to login with success message
@@ -210,10 +207,10 @@ export default function SignupPage() {
             Founding Beta — Limited Early Access
           </div>
           <h1 className="text-2xl font-bold mb-1">
-            {step === 1 ? 'Join Porterful' : step === 2 ? 'Create Your Account' : 'Almost Done!'}
+            {step === 1 ? 'Choose Your Role' : step === 2 ? 'Create Your Account' : 'Almost Done!'}
           </h1>
           <p className="text-[var(--pf-text-secondary)]">
-            {step === 1 ? 'Tell us who you are' : step === 2 ? 'Enter your details' : `You're signing up as a ${currentRole.label}`}
+            {step === 1 ? 'Tell us how you’ll use Porterful' : step === 2 ? 'Enter your details' : `You're signing up as a ${currentRole.label}`}
           </p>
         </div>
 

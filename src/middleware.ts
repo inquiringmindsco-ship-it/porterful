@@ -1,28 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createMiddlewareSupabaseClient } from '@/lib/supabase-auth'
 
-const PUBLIC_PATHS = [
-  '/',
-  '/music',
-  '/artists',
-  '/store',
-  '/tap',
-  '/signal',
-  '/tap-in',
-  '/systems',
-  '/login',
-  '/register',
-  '/forgot-password',
-  '/auth/callback',
-  '/api/auth/session',
-]
-
-// CRITICAL-002 FIX: Routes that require specific roles
-const PROTECTED_ROUTES = {
-  '/dashboard/founder': ['admin', 'founder'],
-  '/dashboard/admin': ['admin'],
-  '/api/admin': ['admin', 'founder'],
-} as const
+const ROLE_GATED_ROUTES = [
+  { prefix: '/dashboard/founder', roles: ['admin', 'founder'] },
+  { prefix: '/dashboard/admin', roles: ['admin'] },
+  { prefix: '/dashboard/artist', roles: ['artist', 'admin', 'founder'] },
+  { prefix: '/dashboard/upload', roles: ['artist', 'admin', 'founder'] },
+] as const
 
 async function checkUserRole(supabase: any, allowedRoles: readonly string[]) {
   const { data: { user } } = await supabase.auth.getUser()
@@ -49,13 +33,12 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // Allow public paths
-  if (PUBLIC_PATHS.some(p => pathname.startsWith(p))) {
-    return NextResponse.next()
-  }
+  // Protect authenticated application surfaces.
+  // Everything else stays public by default.
+  const requiresAuth = pathname === '/dashboard' || pathname.startsWith('/dashboard/') || pathname === '/settings' || pathname.startsWith('/settings/')
+  const requiresAdminGate = pathname === '/api/admin' || pathname.startsWith('/api/admin/')
 
-  // Protect dashboard and all sub-routes under (app)
-  if (pathname.startsWith('/dashboard') || pathname.startsWith('/api/auth/signup') || pathname.startsWith('/checkout') || pathname.startsWith('/artist') || pathname.startsWith('/superfan') || pathname.startsWith('/settings')) {
+  if (requiresAuth || requiresAdminGate) {
     // Use a single response object so that Supabase SSR can write refreshed
     // session cookies back to the browser. Passing a throwaway NextResponse.next()
     // causes the refreshed tokens to be silently discarded.
@@ -65,19 +48,22 @@ export async function middleware(request: NextRequest) {
 
     if (!session) {
       const returnUrl = encodeURIComponent(pathname + (request.nextUrl.search || ''))
-      return NextResponse.redirect(
-        new URL(`/login?return=${returnUrl}`, request.nextUrl.origin)
-      )
+      return NextResponse.redirect(new URL(`/login?return=${returnUrl}`, request.nextUrl.origin))
     }
 
-    // CRITICAL-002 FIX: Check role-based access for protected routes
-    for (const [routePrefix, allowedRoles] of Object.entries(PROTECTED_ROUTES)) {
-      if (pathname.startsWith(routePrefix)) {
-        const hasRole = await checkUserRole(supabase, allowedRoles)
+    for (const { prefix, roles } of ROLE_GATED_ROUTES) {
+      if (pathname === prefix || pathname.startsWith(`${prefix}/`)) {
+        const hasRole = await checkUserRole(supabase, roles)
         if (!hasRole) {
-          // Redirect unauthorized users to their appropriate dashboard
           return NextResponse.redirect(new URL('/dashboard', request.nextUrl.origin))
         }
+      }
+    }
+
+    if (requiresAdminGate) {
+      const hasAdminRole = await checkUserRole(supabase, ['admin', 'founder'])
+      if (!hasAdminRole) {
+        return NextResponse.redirect(new URL('/dashboard', request.nextUrl.origin))
       }
     }
 

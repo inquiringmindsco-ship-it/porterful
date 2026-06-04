@@ -162,9 +162,6 @@ export async function POST(request: NextRequest) {
       } catch {}
     }
 
-    profileId = profileId || request.headers.get('x-pf-profile-id') || null
-    lkId = lkId || request.headers.get('x-pf-lk-id') || null
-    sessionEmail = sessionEmail || normalizeEmail(request.headers.get('x-pf-email') || null)
     const measurementSessionCookie = request.cookies.get(getMeasurementSessionCookieName())?.value || null
     const measurementSessionId = readMeasurementSessionIdFromCookie(measurementSessionCookie) || createMeasurementSessionId()
 
@@ -245,10 +242,16 @@ export async function POST(request: NextRequest) {
 
     // Demo mode if no Stripe
     if (!stripe) {
+      if (process.env.NODE_ENV === 'production') {
+        return NextResponse.json({
+          error: 'Checkout is temporarily unavailable.',
+        }, { status: 503 })
+      }
+
       const demoSessionId = `demo_session_${Date.now()}`
       return NextResponse.json({
         sessionId: demoSessionId,
-        url: `https://porterful.com/checkout/success?demo=true&session_id=${demoSessionId}`,
+        url: `${request.nextUrl.origin}/checkout/success?demo=true&session_id=${demoSessionId}`,
         demo: true,
         message: 'Stripe not configured. Running in demo mode.',
         breakdown: {

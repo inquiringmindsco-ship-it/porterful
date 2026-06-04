@@ -19,7 +19,7 @@ test.describe('Authentication Flow', () => {
   });
 
   test('login with email/password succeeds and lands on /dashboard', async ({ page }) => {
-    const email = process.env.TEST_USER_EMAIL || 'test@example.com';
+    const email = process.env.TEST_USER_EMAIL || 'porterful-test-user@porterful.test';
     const password = process.env.TEST_USER_PASSWORD || 'testpassword123';
 
     await page.goto('/login');
@@ -32,7 +32,7 @@ test.describe('Authentication Flow', () => {
   });
 
   test('navbar shows authenticated state after login', async ({ page }) => {
-    const email = process.env.TEST_USER_EMAIL || 'test@example.com';
+    const email = process.env.TEST_USER_EMAIL || 'porterful-test-user@porterful.test';
     const password = process.env.TEST_USER_PASSWORD || 'testpassword123';
 
     await page.goto('/login');
@@ -47,7 +47,7 @@ test.describe('Authentication Flow', () => {
   });
 
   test('refresh on /dashboard preserves auth state', async ({ page }) => {
-    const email = process.env.TEST_USER_EMAIL || 'test@example.com';
+    const email = process.env.TEST_USER_EMAIL || 'porterful-test-user@porterful.test';
     const password = process.env.TEST_USER_PASSWORD || 'testpassword123';
 
     await page.goto('/login');
@@ -83,7 +83,7 @@ test.describe('Authentication Flow', () => {
 
 test.describe('Artist Dashboard UI', () => {
   test('artist dashboard thumbnails stay contained', async ({ page }) => {
-    const email = process.env.TEST_ARTIST_EMAIL || 'artist@example.com';
+    const email = process.env.TEST_ARTIST_EMAIL || 'porterful-artist@porterful.test';
     const password = process.env.TEST_USER_PASSWORD || 'testpassword123';
 
     await page.goto('/login');

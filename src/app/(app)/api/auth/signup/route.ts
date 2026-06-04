@@ -19,12 +19,56 @@ function isDuplicateAuthUserError(error: { message?: string; status?: number } |
 const VALID_SIGNUP_ROLES = ['supporter', 'superfan', 'artist', 'business', 'brand'] as const
 type ValidSignupRole = typeof VALID_SIGNUP_ROLES[number]
 
+const SIGNUP_WINDOW_MS = 10 * 60 * 1000
+const MAX_SIGNUP_ATTEMPTS_PER_WINDOW = 5
+const signupAttemptBuckets = new Map<string, { count: number; resetAt: number }>()
+
+function getSignupThrottleKey(request: Request, email: string) {
+  const forwardedFor = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+  const realIp = request.headers.get('x-real-ip')?.trim()
+  const ip = forwardedFor || realIp || 'unknown'
+  return `${ip}:${email.toLowerCase()}`
+}
+
+function checkSignupThrottle(request: Request, email: string) {
+  const key = getSignupThrottleKey(request, email)
+  const now = Date.now()
+  const current = signupAttemptBuckets.get(key)
+
+  if (!current || current.resetAt <= now) {
+    signupAttemptBuckets.set(key, { count: 1, resetAt: now + SIGNUP_WINDOW_MS })
+    return { limited: false as const }
+  }
+
+  if (current.count >= MAX_SIGNUP_ATTEMPTS_PER_WINDOW) {
+    const retryAfterMs = Math.max(0, current.resetAt - now)
+    return { limited: true as const, retryAfterMs }
+  }
+
+  current.count += 1
+  signupAttemptBuckets.set(key, current)
+  return { limited: false as const }
+}
+
 export async function POST(request: Request) {
   try {
     const { email, password, name, role, youtube, website, invite_artist_slug } = await request.json()
 
     if (!email || !password || !name || !role) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+    }
+
+    const throttle = checkSignupThrottle(request, String(email))
+    if (throttle.limited) {
+      return NextResponse.json(
+        { error: 'Too many signup attempts. Please wait a moment and try again.' },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': String(Math.max(1, Math.ceil(throttle.retryAfterMs / 1000))),
+          },
+        },
+      )
     }
 
     // CRITICAL-001 FIX: Reject privileged roles from public signup

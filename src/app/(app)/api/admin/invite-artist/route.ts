@@ -4,7 +4,8 @@
  * Invites an artist by email. Creates Supabase auth user and sends magic link.
  */
 
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { verifyAdminAccess } from '@/lib/admin-client'
 
 const ARTISTS = [
   { email: 'jameschapplejr@gmail.com', name: 'Gune', slug: 'gune' },
@@ -12,7 +13,12 @@ const ARTISTS = [
   { email: 'douglasrobert23@yahoo.com', name: 'Nikee Turbo', slug: 'nikee-turbo' },
 ]
 
-export async function POST() {
+export async function POST(request: NextRequest) {
+  const auth = await verifyAdminAccess(request)
+  if (!auth.authorized) {
+    return NextResponse.json({ error: auth.error || 'Forbidden' }, { status: 403 })
+  }
+
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
 
