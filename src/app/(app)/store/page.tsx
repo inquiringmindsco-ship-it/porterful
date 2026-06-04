@@ -427,8 +427,22 @@ export default function StorePage() {
           <p className="mt-3 max-w-2xl text-sm sm:text-base text-[var(--pf-text-secondary)] leading-relaxed">
             Products from independent creators — music, brands, and everything in between.
             <span className="text-[var(--pf-text)]"> Live products</span> can be purchased now.
-            <span className="text-[var(--pf-text-muted)]"> Preview products</span> are not available yet.
+            <span className="text-[var(--pf-text-muted)]"> Preview products</span> are coming soon.
           </p>
+
+          {/* Noble Naturals brand announcement */}
+          <div className="mt-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4 flex items-start gap-3">
+            <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0 mt-0.5">
+              <Sparkles size={16} className="text-emerald-400" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-emerald-400">Noble Naturals joins the Founding Beta</p>
+              <p className="text-xs text-[var(--pf-text-secondary)] mt-1">
+                Noble Naturals brings wellness and hair care products into the Porterful Store. 
+                Natural ingredients for all hair types. <span className="text-[var(--pf-text-muted)]">Preview products coming soon.</span>
+              </p>
+            </div>
+          </div>
 
           {/* Member promo box */}
           {isArtistMember && !roleLoading && (

@@ -101,7 +101,7 @@ export function Navbar() {
   const navLinks = [
     { href: '/music', label: 'Music' },
     { href: '/artists', label: 'Artists' },
-    // { href: '/store', label: 'Store' }, // Hidden: store has no real products yet
+    { href: '/store', label: 'Store' },
     ...(showGuest ? [{ href: '/apply', label: 'Apply' }] : []),
   ]
 
