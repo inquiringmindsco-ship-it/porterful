@@ -55,22 +55,22 @@ const TOUR_STEPS: Record<TourScope, TourStep[]> = {
     },
     {
       id: 'artist-assets',
-      title: 'Production Assets',
-      body: 'Upload artwork, cover art, merch designs, and other creative assets for review.',
+      title: 'My Files',
+      body: 'Upload artwork, cover art, merch designs, and other creative files for review.',
       path: '/dashboard/artist/assets',
       targetId: 'artist-assets-submit-form',
     },
     {
       id: 'artist-approval',
-      title: 'Asset Approval',
-      body: 'Approved assets can become products and future merchandise.',
+      title: 'File Approval',
+      body: 'Approved files can become products and future merchandise.',
       path: '/dashboard/artist/assets',
       targetId: 'artist-assets-list',
     },
     {
       id: 'artist-skus',
-      title: 'SKU System',
-      body: 'A SKU is a specific version of a product that can be tracked and sold.',
+      title: 'Product Versions',
+      body: 'A product version is a specific configuration that can be tracked and sold.',
       path: '/dashboard/artist/skus',
       targetId: 'artist-sku-summary',
     },
@@ -90,7 +90,7 @@ const TOUR_STEPS: Record<TourScope, TourStep[]> = {
     },
     {
       id: 'artist-fulfillment',
-      title: 'Fulfillment',
+      title: 'Orders \u0026 Shipping',
       body: 'Follow orders from purchase through delivery.',
       path: '/dashboard/artist/fulfillment',
       targetId: 'artist-fulfillment-overview',
@@ -255,16 +255,16 @@ function defaultHelpText(label: string) {
   if (value.includes('dashboard')) {
     return 'This is your command center. Use it to see what needs attention next.'
   }
-  if (value.includes('asset')) {
+  if (value.includes('asset') || value.includes('file')) {
     return 'Creative files submitted for approval before they can be used in products.'
   }
-  if (value.includes('sku')) {
+  if (value.includes('sku') || value.includes('product version')) {
     return 'A specific sellable version of a product.'
   }
   if (value.includes('inventory')) {
     return 'The quantity available to fulfill customer orders.'
   }
-  if (value.includes('fulfillment')) {
+  if (value.includes('fulfillment') || value.includes('orders') || value.includes('shipping')) {
     return 'Orders waiting to be printed, packed, or shipped.'
   }
   if (value.includes('shipment')) {

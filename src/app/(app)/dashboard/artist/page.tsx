@@ -260,11 +260,11 @@ export default function ArtistDashboardPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-bold">My Catalog</h1>
-            <p className="text-sm text-[var(--pf-text-secondary)]">Music and products</p>
+            <h1 className="text-2xl font-bold">My Music</h1>
+            <p className="text-sm text-[var(--pf-text-secondary)]">Your tracks and products</p>
             <div className="mt-3 flex flex-wrap gap-2">
               <Link href="/dashboard/artist/assets" className="pf-btn pf-btn-secondary flex items-center gap-2" data-tour-id="artist-assets-link">
-                <Icon.Package /> My Work
+                <Icon.Package /> My Files
               </Link>
               <Link href="/dashboard/artist/edit" className="pf-btn pf-btn-secondary flex items-center gap-2">
                 <Icon.Edit /> Edit Profile

@@ -68,7 +68,7 @@ export default function PorterfulDashboard({ serverProfileId, initialProfile }: 
           ) : isArtist ? (
             <>
               <ActionCard label="Upload Track" href="/dashboard/upload" icon={Upload} hint="Add a new track" />
-              <ActionCard label="Manage Catalog" href="/dashboard/artist" icon={Disc} hint="Tracks & products" />
+              <ActionCard label="My Music" href="/dashboard/artist" icon={Disc} hint="Tracks \u0026 products" />
               <ActionCard label="Edit Artist Profile" href="/dashboard/artist/edit" icon={User} hint="Public artist info" />
             </>
           ) : (

@@ -237,6 +237,12 @@ export default function HomePage() {
 
                 <div className="mt-5 sm:mt-6 flex flex-wrap gap-3">
                   <Link
+                    href="/signup?role=artist"
+                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[var(--pf-orange)] px-6 py-3 text-base font-semibold text-[#111111] transition-transform duration-200 hover:-translate-y-0.5"
+                  >
+                    Upload Your Music <ArrowRight size={18} />
+                  </Link>
+                  <Link
                     href="/music"
                     className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[var(--pf-orange)] px-6 py-3 text-base font-semibold text-[#111111] transition-transform duration-200 hover:-translate-y-0.5"
                   >

@@ -46,8 +46,15 @@ export default async function DashboardRoot() {
     }
   }
 
-  // Role-aware redirect: artists to their specific dashboard
+  // Check for first-time artist: if they have 0 tracks, send them straight to upload
   if (profile?.role === 'artist') {
+    const { count: trackCount } = await adminSb
+      .from('tracks')
+      .select('id', { count: 'exact', head: true })
+      .eq('artist_id', user.id)
+    if (!trackCount || trackCount === 0) {
+      redirect('/dashboard/upload')
+    }
     redirect('/dashboard/artist')
   }
 
