@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
+import { verifyAdminAccess } from '@/lib/admin-client'
 import { createServerClient } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
@@ -95,28 +96,16 @@ function stringifyFromLineItem(session: any): { trackTitle: string; artistName: 
 
 export async function GET(request: NextRequest) {
   try {
-    const authHeader = request.headers.get('authorization')
-    if (!authHeader?.startsWith('Bearer ')) {
-      return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
+    // Use centralized admin verification (cookie-based, more reliable)
+    const auth = await verifyAdminAccess(request)
+    if (!auth.authorized) {
+      return NextResponse.json(
+        { error: auth.error || 'Forbidden: founder or admin required' },
+        { status: 403 }
+      )
     }
 
-    const token = authHeader.replace('Bearer ', '')
     const supabase = createServerClient()
-
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
-    }
-
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    if (!profile || (profile.role !== 'founder' && profile.role !== 'admin')) {
-      return NextResponse.json({ error: 'Forbidden: founder or admin required' }, { status: 403 })
-    }
 
     const [ordersResult, purchasesResult] = await Promise.all([
       supabase

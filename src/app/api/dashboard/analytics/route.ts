@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { verifyAdminAccess } from '@/lib/admin-client'
 import { createServerClient } from '@/lib/supabase'
 import {
   normalizeCity,
@@ -100,32 +101,20 @@ function createLocationBucket(key: string, city: string | null, state: string | 
 
 export async function GET(request: NextRequest) {
   try {
-    const authHeader = request.headers.get('authorization')
-    if (!authHeader?.startsWith('Bearer ')) {
-      return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
+    // Use centralized admin verification (cookie-based, more reliable)
+    const auth = await verifyAdminAccess(request)
+    if (!auth.authorized) {
+      return NextResponse.json(
+        { error: auth.error || 'Forbidden: founder or admin required' },
+        { status: 403 }
+      )
     }
 
-    const token = authHeader.replace('Bearer ', '')
     const supabase = createServerClient()
-
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
-    }
-
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    if (!profile || (profile.role !== 'founder' && profile.role !== 'admin')) {
-      return NextResponse.json({ error: 'Forbidden: founder or admin required' }, { status: 403 })
-    }
 
     const [revenueResponse, playsResult, downloadsResult, emailCapturesResult, purchasesResult, anonymousVisitorsResult, authenticatedSessionsResult] = await Promise.all([
       fetch(new URL('/api/dashboard/revenue', request.url).toString(), {
-        headers: { authorization: authHeader },
+        headers: { cookie: request.headers.get('cookie') || '' },
         cache: 'no-store',
       }),
       supabase
