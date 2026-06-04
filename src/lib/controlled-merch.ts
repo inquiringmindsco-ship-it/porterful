@@ -21,8 +21,6 @@ export const CONTROLLED_MERCH = {
   image: '/images/products/coming-home-tee-black.png',
   images: [
     '/images/products/coming-home-tee-black.png',
-    '/images/products/coming-home-tee-detail.png',
-    '/images/products/coming-home-tee-back.png',
   ],
   description: 'Controlled IMG Fulfillment test product linked to the Coming Home asset.',
 } as const
