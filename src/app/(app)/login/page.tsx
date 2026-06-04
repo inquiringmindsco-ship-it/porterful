@@ -7,7 +7,7 @@ export const revalidate = 0
 
 function getSafeNextPath(next: string | undefined) {
   if (!next || !next.startsWith('/') || next.startsWith('//')) {
-    return '/dashboard'
+    return '/onboarding'
   }
 
   return next

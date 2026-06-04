@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
 
     // Build redirect response
     const origin = request.nextUrl.origin
-    const response = NextResponse.redirect(new URL('/dashboard', origin), 307)
+    const response = NextResponse.redirect(new URL('/onboarding', origin), 307)
 
     // Create Supabase client with cookie storage that writes to response
     const supabase = createServerClient(

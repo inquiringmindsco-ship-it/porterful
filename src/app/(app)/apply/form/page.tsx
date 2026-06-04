@@ -366,7 +366,7 @@ export default function ApplyFormPage() {
                 <div className="bg-[var(--pf-orange)]/10 border border-[var(--pf-orange)]/30 rounded-xl p-4">
                   <p className="text-sm">
                     You need an account to continue.{" "}
-                    <Link href="/signup?role=artist" className="text-[var(--pf-orange)] font-medium hover:underline">
+                    <Link href="/signup?next=/apply/form" className="text-[var(--pf-orange)] font-medium hover:underline">
                       Sign up free →
                     </Link>
                   </p>

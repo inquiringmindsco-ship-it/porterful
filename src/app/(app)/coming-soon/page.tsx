@@ -132,7 +132,7 @@ export default function ComingSoonPage() {
           <h3 className="text-2xl font-bold mb-2">Want to be next?</h3>
           <p className="text-[var(--pf-text-secondary)] mb-6">Artists, brands, businesses — there's room for everyone.</p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link href="/signup?role=artist" className="px-8 py-4 bg-[var(--pf-orange)] text-white rounded-lg font-semibold hover:bg-[var(--pf-orange-dark)] transition-colors">
+            <Link href="/apply" className="px-8 py-4 bg-[var(--pf-orange)] text-white rounded-lg font-semibold hover:bg-[var(--pf-orange-dark)] transition-colors">
               Join as Artist →
             </Link>
             <Link href="/signup?role=brand" className="px-8 py-4 border border-[var(--pf-border)] rounded-lg font-medium hover:border-[var(--pf-orange)] transition-colors">

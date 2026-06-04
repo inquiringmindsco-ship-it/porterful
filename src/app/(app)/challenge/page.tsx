@@ -43,7 +43,7 @@ export default function ChallengePage() {
 
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-              <Link href="/signup?role=artist" className="pf-btn pf-btn-primary text-lg px-10 py-4 flex items-center justify-center gap-2 shadow-xl shadow-[var(--pf-orange)]/20">
+              <Link href="/apply" className="pf-btn pf-btn-primary text-lg px-10 py-4 flex items-center justify-center gap-2 shadow-xl shadow-[var(--pf-orange)]/20">
                 <Zap size={20} />
                 Join Free — Start Selling
               </Link>
@@ -325,7 +325,7 @@ export default function ChallengePage() {
             <p className="text-xs text-white/60 mb-8 max-w-md mx-auto">
               Recognition is subject to verification, eligibility, and active challenge rules. This is not a guaranteed payout or prize.
             </p>
-            <Link href="/signup?role=artist" className="inline-flex items-center gap-3 bg-white text-[var(--pf-orange)] font-bold text-lg px-12 py-5 rounded-2xl hover:bg-white/90 transition-colors shadow-2xl">
+            <Link href="/apply" className="inline-flex items-center gap-3 bg-white text-[var(--pf-orange)] font-bold text-lg px-12 py-5 rounded-2xl hover:bg-white/90 transition-colors shadow-2xl">
               <Zap size={24} />
               Start Your Free Page Now
             </Link>

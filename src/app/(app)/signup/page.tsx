@@ -47,6 +47,7 @@ export default function SignupPage() {
   const [youtube, setYoutube] = useState('')
   const [website, setWebsite] = useState('')
   const [industry, setIndustry] = useState('')
+  const [inviteArtistSlug, setInviteArtistSlug] = useState('')
   const nextPath = (() => {
     const next = searchParams.get('next')
     if (!next || !next.startsWith('/') || next.startsWith('//')) return ''
@@ -56,6 +57,18 @@ export default function SignupPage() {
   // Pre-select role from URL param
   useEffect(() => {
     const roleParam = searchParams.get('role')
+    const artistSlug = searchParams.get('artist') || sessionStorage.getItem('invite_artist_slug') || ''
+    if (artistSlug) {
+      setInviteArtistSlug(artistSlug)
+      // Store in session/state for later use
+      sessionStorage.setItem('invite_artist_slug', artistSlug)
+    }
+
+    if (roleParam === 'artist' && !artistSlug) {
+      router.replace('/apply')
+      return
+    }
+
     if (roleParam && ROLES[roleParam as keyof typeof ROLES]) {
       setRole(roleParam)
     }
@@ -64,13 +77,7 @@ export default function SignupPage() {
     if (emailParam && emailParam.includes('@')) {
       setEmail(emailParam)
     }
-    // Store artist slug for claim flow
-    const artistSlug = searchParams.get('artist')
-    if (artistSlug) {
-      // Store in session/state for later use
-      sessionStorage.setItem('invite_artist_slug', artistSlug)
-    }
-  }, [searchParams])
+  }, [router, searchParams])
 
   const validateStep = () => {
     if (step === 1) {
@@ -114,8 +121,11 @@ export default function SignupPage() {
     setError('')
 
     try {
-      // Get invite artist slug from sessionStorage if present
-      const inviteArtistSlug = sessionStorage.getItem('invite_artist_slug')
+      if (role === 'artist' && !inviteArtistSlug) {
+        setError('Artists apply separately. Use the artist application to get started.')
+        setLoading(false)
+        return
+      }
       
       // Create account via API (skips email confirmation)
       const res = await fetch('/api/auth/signup', {
@@ -157,7 +167,7 @@ export default function SignupPage() {
       })
 
       if (loginRes.ok) {
-        const destination = nextPath || (role === 'artist' ? '/dashboard/artist' : '/dashboard')
+        const destination = nextPath || '/onboarding'
         // Use a full reload here as well so the server sees the fresh session
         // cookies right away and doesn't bounce the new user back into signup.
         window.location.replace(destination)
@@ -178,7 +188,10 @@ export default function SignupPage() {
     }
   }
 
-  const currentRole = ROLES[role as keyof typeof ROLES]
+  const currentRole = ROLES[role as keyof typeof ROLES] || ROLES.supporter
+  const visibleRoles = inviteArtistSlug
+    ? Object.entries(ROLES)
+    : Object.entries(ROLES).filter(([value]) => value !== 'artist')
 
   return (
     <div className="min-h-screen pt-20 pb-12 px-4">
@@ -242,8 +255,29 @@ export default function SignupPage() {
           {/* STEP 1: Role Selection */}
           {step === 1 && (
             <div className="space-y-3">
-              <p className="text-sm text-[var(--pf-text-secondary)] mb-4">Select the option that describes you best:</p>
-              {Object.entries(ROLES).map(([value, config]) => {
+              {!inviteArtistSlug ? (
+                <div className="mb-4 rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-4">
+                  <p className="text-sm font-medium text-[var(--pf-text)]">Artists apply separately.</p>
+                  <p className="mt-1 text-sm text-[var(--pf-text-secondary)]">
+                    Want a public artist page? Start with the application so we can review and prepare your profile.
+                  </p>
+                  <Link href="/apply" className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-[var(--pf-orange)] hover:underline">
+                    Apply as Artist <ArrowRight size={16} />
+                  </Link>
+                </div>
+              ) : (
+                <div className="mb-4 rounded-2xl border border-[var(--pf-orange)]/30 bg-[var(--pf-orange)]/10 p-4">
+                  <p className="text-sm font-medium text-[var(--pf-orange)]">Artist invite detected</p>
+                  <p className="mt-1 text-sm text-[var(--pf-text-secondary)]">
+                    Complete your account to claim the artist page you were invited to join.
+                  </p>
+                </div>
+              )}
+
+              <p className="text-sm text-[var(--pf-text-secondary)] mb-4">
+                {inviteArtistSlug ? 'Select the account type that fits your use case:' : 'Select the option that describes you best:'}
+              </p>
+              {visibleRoles.map(([value, config]) => {
                 const Icon = config.icon
                 return (
                   <button

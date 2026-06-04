@@ -245,7 +245,7 @@ export default function HomePage() {
 
                 <div className="mt-5 sm:mt-6 flex flex-wrap gap-3">
                   <Link
-                    href="/signup?role=artist"
+                    href="/apply"
                     className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[var(--pf-orange)] px-6 py-3 text-base font-semibold text-[#111111] transition-transform duration-200 hover:-translate-y-0.5"
                   >
                     Upload Your Music <ArrowRight size={18} />
@@ -581,7 +581,7 @@ export default function HomePage() {
               </p>
               <div className="mt-6 flex flex-wrap justify-center gap-3">
                 <Link
-                  href="/signup?role=artist"
+                  href="/apply"
                   className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[var(--pf-orange)] px-6 py-3 text-base font-semibold text-[#111111] transition-transform duration-200 hover:-translate-y-0.5"
                 >
                   Join as Artist
@@ -901,7 +901,7 @@ export default function HomePage() {
               </h2>
               <div className="mt-6 flex flex-wrap justify-center gap-3">
                 <Link
-                  href="/signup?role=artist"
+                  href="/apply"
                   className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[var(--pf-orange)] px-6 py-3 text-base font-semibold text-[#111111] transition-transform duration-200 hover:-translate-y-0.5"
                 >
                   Join as Artist

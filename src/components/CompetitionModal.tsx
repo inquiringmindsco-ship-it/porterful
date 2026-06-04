@@ -167,7 +167,7 @@ export function CompetitionModal({ onClose }: { onClose?: () => void }) {
           {/* CTA */}
           <div className="flex flex-col gap-3">
             <Link 
-              href="/signup?role=artist" 
+              href="/apply"
               onClick={handleClose}
               className="w-full py-3 px-4 bg-[var(--pf-orange)] text-white rounded-xl font-bold text-center hover:bg-[var(--pf-orange)]/90 transition-colors"
             >

@@ -133,7 +133,7 @@ export default function DemoPage() {
             Ready to join for real?
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link href="/signup?role=artist" className="px-6 py-3 bg-[var(--pf-orange)] text-white rounded-lg font-semibold hover:bg-[var(--pf-orange-dark)] transition-colors">
+            <Link href="/apply" className="px-6 py-3 bg-[var(--pf-orange)] text-white rounded-lg font-semibold hover:bg-[var(--pf-orange-dark)] transition-colors">
               Create Your Account
             </Link>
             <Link href="/" className="px-6 py-3 border border-[var(--pf-border)] rounded-lg font-medium hover:border-[var(--pf-orange)] transition-colors">

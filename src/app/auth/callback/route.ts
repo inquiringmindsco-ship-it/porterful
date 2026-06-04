@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
   const errorParam = searchParams.get('error')
   const origin = request.nextUrl.origin
 
-  const safeNext = next?.startsWith('/') && !next.startsWith('//') ? next : '/dashboard'
+  const safeNext = next?.startsWith('/') && !next.startsWith('//') ? next : '/onboarding'
 
   if (errorParam) {
     return NextResponse.redirect(new URL(`/login?error=${encodeURIComponent(errorParam)}`, origin))

@@ -287,7 +287,7 @@ export default function SuperfanSignupPage() {
         <div className="mt-8 text-center">
           <p className="text-[var(--pf-text-muted)] mb-4">Looking to join as something else?</p>
           <div className="flex flex-wrap justify-center gap-3">
-            <Link href="/signup?role=artist" className="px-4 py-2 rounded-full bg-[var(--pf-surface)] hover:bg-[var(--pf-surface-hover)] transition-colors text-sm">
+            <Link href="/apply" className="px-4 py-2 rounded-full bg-[var(--pf-surface)] hover:bg-[var(--pf-surface-hover)] transition-colors text-sm">
               🎤 Artist
             </Link>
             <Link href="/signup?role=business" className="px-4 py-2 rounded-full bg-[var(--pf-surface)] hover:bg-[var(--pf-surface-hover)] transition-colors text-sm">

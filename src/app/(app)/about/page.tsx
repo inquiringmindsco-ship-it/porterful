@@ -238,7 +238,7 @@ export default async function AboutPage() {
             Join Porterful as an artist or supporter. Either way, artists win.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/signup?role=artist" className="pf-btn pf-btn-primary text-lg px-8 py-4">
+            <Link href="/apply" className="pf-btn pf-btn-primary text-lg px-8 py-4">
               Start as Artist
             </Link>
             <Link href="/digital" className="pf-btn pf-btn-secondary text-lg px-8 py-4">

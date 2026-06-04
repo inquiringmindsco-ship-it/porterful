@@ -22,7 +22,7 @@ type MutableCookieStore = ReadonlyCookieStore & {
 }
 
 const DEFAULT_SITE_URL = 'http://localhost:3000'
-export const DEFAULT_AUTH_REDIRECT_PATH = '/dashboard'
+export const DEFAULT_AUTH_REDIRECT_PATH = '/onboarding'
 
 function getSupabaseEnv() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL

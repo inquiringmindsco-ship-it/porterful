@@ -79,6 +79,15 @@ export async function POST(request: Request) {
       )
     }
 
+    if (role === 'artist' && !invite_artist_slug) {
+      return NextResponse.json(
+        {
+          error: 'Artists apply separately. Use the artist application or an invite link to claim an existing page.',
+        },
+        { status: 403 },
+      )
+    }
+
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
 
