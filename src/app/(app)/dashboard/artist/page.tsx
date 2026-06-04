@@ -171,19 +171,19 @@ export default function ArtistDashboardPage() {
     )
     const exceptionJobs = fulfillmentJobs.filter((job: any) => job.status === 'exception')
 
-    let currentStage = 'Upload your music'
-    let nextStep = 'Click Upload Music and add your first track.'
-    let actionLabel = 'Upload Music'
+    let currentStage = 'Ready to upload'
+    let nextStep = 'Upload your first track.'
+    let actionLabel = 'Upload'
     let actionHref = '/dashboard/upload'
 
     if (dbTracks.length > 0 && dbTracks.filter((t: any) => t.is_active).length === 0) {
       currentStage = 'Track uploaded'
-      nextStep = 'Your track is uploaded. Make it live to start sharing.'
-      actionLabel = 'View My Files'
+      nextStep = 'Make it live when you are ready.'
+      actionLabel = 'Files'
       actionHref = '/dashboard/artist/assets'
     } else if (dbTracks.filter((t: any) => t.is_active).length > 0) {
       currentStage = 'Music live'
-      nextStep = 'Your music is live. Share your link and track your results.'
+      nextStep = 'Share your link and track results.'
       actionLabel = 'View Store'
       actionHref = '/store'
     }
@@ -234,13 +234,13 @@ export default function ArtistDashboardPage() {
 
         <GuidanceRoadmap
           eyebrow="Next step"
-          title={dbTracks.length === 0 ? "Upload your first song" : "Share your music with the world"}
+          title={dbTracks.length === 0 ? "Start with one song" : "Your music is live"}
           description={dbTracks.length === 0 
-            ? "Upload your music, add cover art, and set your price. Founders handle the rest."
-            : "Your music is live. Share your link and track your results."
+            ? "Upload a track, add cover art, and set a price."
+            : "Share your link and watch activity come in."
           }
           currentStage={guidance.currentStage}
-          nextStep={dbTracks.length === 0 ? "Click Upload Music to get started." : guidance.nextStep}
+          nextStep={dbTracks.length === 0 ? "Upload your first track." : guidance.nextStep}
           signals={[
             {
               label: 'My Files',
@@ -253,15 +253,15 @@ export default function ArtistDashboardPage() {
               tone: dbTracks.filter((t: any) => t.is_active).length > 0 ? 'success' : 'neutral',
             },
           ]}
-          actionLabel={dbTracks.length === 0 ? "Upload Music" : guidance.actionLabel}
+          actionLabel={dbTracks.length === 0 ? "Upload" : guidance.actionLabel}
           actionHref={dbTracks.length === 0 ? "/dashboard/upload" : guidance.actionHref}
         />
 
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-bold">My Music</h1>
-            <p className="text-sm text-[var(--pf-text-secondary)]">Your tracks and products</p>
+            <h1 className="text-2xl font-bold">Music</h1>
+            <p className="text-sm text-[var(--pf-text-secondary)]">Tracks, products, and status</p>
             <div className="mt-3 flex flex-wrap gap-2">
               <Link href="/dashboard/artist/assets" className="pf-btn pf-btn-secondary flex items-center gap-2" data-tour-id="artist-assets-link">
                 <Icon.Package /> My Files
@@ -273,7 +273,7 @@ export default function ArtistDashboardPage() {
           </div>
           <div className="flex flex-wrap gap-2">
             <Link href="/dashboard/upload" className="pf-btn pf-btn-primary flex items-center gap-2 text-lg px-6 py-3">
-              <Icon.Upload /> Upload Music
+              <Icon.Upload /> Upload
             </Link>
             <Link href="/store" className="pf-btn pf-btn-secondary flex items-center gap-2">
               <Icon.Package /> View Store
@@ -357,13 +357,13 @@ export default function ArtistDashboardPage() {
               <EmptyState
                 icon={<Music size={24} />}
                 title="No tracks yet"
-                description="Upload your first song to get started. Add cover art, set your price, and share it with the world."
+                description="Upload one track to get started. Add cover art and a price."
                 points={[
-                  { label: 'What is this?', text: 'A space for your music, artwork, and anything you create.' },
-                  { label: 'Why it matters', text: 'Your work is how listeners discover and connect with you.' },
-                  { label: 'Next step', text: 'Click Upload Music to add your first track.' },
+                  { label: 'What is this?', text: 'Your music library and product view.' },
+                  { label: 'Why it matters', text: 'This is where your work becomes visible.' },
+                  { label: 'Next step', text: 'Upload your first track.' },
                 ]}
-                actionLabel="Upload Music"
+                actionLabel="Upload"
                 actionHref="/dashboard/upload"
               />
             ) : (
@@ -441,13 +441,13 @@ export default function ArtistDashboardPage() {
               <EmptyState
                 icon={<Package size={24} />}
                 title="No products selected"
-                description="Products appear here when founders create them from your work. You'll see what's available to sell and how it's performing."
+                description="Products appear here when founders create them from your work."
                 points={[
-                  { label: 'What is this?', text: 'A read-only view of items created from your work.' },
-                  { label: 'Why it matters', text: 'It keeps your storefront aligned with what founders can support.' },
-                  { label: 'Next step', text: 'Upload music first — products follow.' },
+                  { label: 'What is this?', text: 'A read-only view of items made from your work.' },
+                  { label: 'Why it matters', text: 'It keeps your storefront aligned with founder approval.' },
+                  { label: 'Next step', text: 'Upload music first.' },
                 ]}
-                actionLabel="Upload Music"
+                actionLabel="Upload"
                 actionHref="/dashboard/upload"
               />
             ) : (

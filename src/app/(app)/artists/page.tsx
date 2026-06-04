@@ -29,9 +29,9 @@ export default function ArtistsPage() {
   const [artists, setArtists] = useState<ArtistFromDb[]>([])
   const [artistsLoading, setArtistsLoading] = useState(true)
   const [ctaReady, setCtaReady] = useState(false)
-  const [ctaHref, setCtaHref] = useState('/signup?role=supporter')
-  const [ctaLabel, setCtaLabel] = useState('Join Porterful')
-  const [ctaDescription, setCtaDescription] = useState('Checking account...')
+  const [ctaHref, setCtaHref] = useState('/artists')
+  const [ctaLabel, setCtaLabel] = useState('Explore Artists')
+  const [ctaDescription, setCtaDescription] = useState('Loading your view...')
 
   // Load artists from DB
   useEffect(() => {
@@ -129,7 +129,7 @@ export default function ArtistsPage() {
                 disabled
                 className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[var(--pf-orange)] px-5 py-3 font-semibold text-white opacity-70"
               >
-                Checking account...
+                Loading...
                 <ArrowRight size={16} />
               </button>
             )}
