@@ -84,7 +84,7 @@ async function createCashOrder(params: {
   const orderItems = params.items.map((item) => ({
     order_id: order.id,
     product_id: isUuid(item.id) ? item.id : null,
-    product_name: item.name || 'Product',
+    product_name: item.variantLabel || item.name || 'Product',
     quantity: Number(item.quantity || 1),
     price: Number(item.unitAmountCents || 0) / 100,
     seller_id: null,
@@ -292,6 +292,9 @@ export async function POST(request: NextRequest) {
         productId: item.productId || '',
         name: item.name,
         artist: item.artist,
+        size: item.size || '',
+        color: item.color || '',
+        variantLabel: item.variantLabel || '',
         price: (item.unitAmountCents || 0) / 100,
         type: item.kind,
         quantity: item.quantity,

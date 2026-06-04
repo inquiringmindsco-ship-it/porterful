@@ -8,9 +8,11 @@ import { useCart } from '@/lib/cart-context';
 import { useAudio } from '@/lib/audio-context';
 import { savePlaybackSnapshot } from '@/lib/playback-persistence';
 import { usePathname } from 'next/navigation';
+import { getProductById, getCartLineKey, requiresSizeSelection } from '@/lib/products';
 
 interface CartItem {
   productId: string;
+  variantKey?: string;
   quantity: number;
   size?: string;
   color?: string;
@@ -46,7 +48,17 @@ export default function CheckoutPage() {
     } else {
       const saved = localStorage.getItem('porterful-checkout-items');
       if (saved) {
-        setCartItems(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        setCartItems(Array.isArray(parsed)
+          ? parsed.map((item) => ({
+              ...item,
+              variantKey: item.variantKey || getCartLineKey({
+                productId: item.productId,
+                size: item.size,
+                color: item.color,
+              }),
+            }))
+          : []);
       }
     }
   }, [cartContextItems]);
@@ -55,8 +67,17 @@ export default function CheckoutPage() {
   const artistCut = cartItems.reduce((sum, item) => sum + item.artistCut * item.quantity, 0);
   const shippingCost = subtotal >= 50 ? 0 : 5;
   const total = subtotal + shippingCost;
+  const missingSizeItems = cartItems.filter((item) => {
+    const product = getProductById(item.productId)
+    return Boolean(product && requiresSizeSelection(product) && !item.size)
+  })
 
   const handleFinalSubmit = async () => {
+    if (missingSizeItems.length > 0) {
+      setShippingErrors({ variant: 'Pick a size for each shirt before checking out.' })
+      return
+    }
+
     // Validate shipping
     const newErrors: Record<string, string> = {};
     if (!shipping.name.trim() || shipping.name.trim().length < 2) newErrors.name = 'Enter your full name';
@@ -253,6 +274,12 @@ export default function CheckoutPage() {
           <div className="lg:col-span-2">
             <div className="pf-card p-6">
               <h2 className="text-xl font-bold mb-6">Review & Pay</h2>
+
+              {missingSizeItems.length > 0 && (
+                <div className="mb-6 rounded-lg border border-red-500/25 bg-red-500/10 p-4 text-sm text-red-200">
+                  Pick a size for each shirt before checking out.
+                </div>
+              )}
               
               {/* Guest account nudge */}
               {!user && showSupportTip && (
@@ -420,7 +447,7 @@ export default function CheckoutPage() {
 
               <button 
                 onClick={handleFinalSubmit} 
-                disabled={processing}
+                disabled={processing || missingSizeItems.length > 0}
                 className="w-full py-4 rounded-xl font-bold text-lg bg-[var(--pf-orange)] hover:bg-[var(--pf-orange-dark)] text-white shadow-lg shadow-[var(--pf-orange)]/20 transition-all flex items-center justify-center gap-2"
               >
                 {processing ? (
@@ -442,7 +469,7 @@ export default function CheckoutPage() {
               <div className="border-t border-[var(--pf-border)] pt-4 mt-6">
                 <h3 className="text-sm font-semibold text-[var(--pf-text-muted)] uppercase tracking-wider mb-3">Items</h3>
                 {cartItems.map((item) => (
-                  <div key={item.productId} className="flex justify-between mb-2 text-sm">
+                  <div key={item.variantKey || item.productId} className="flex justify-between mb-2 text-sm">
                     <div>
                       <p className="font-medium">{item.name}</p>
                       <p className="text-[var(--pf-text-muted)]">{item.artist} × {item.quantity}</p>
@@ -461,7 +488,7 @@ export default function CheckoutPage() {
               
               <div className="space-y-3 mb-4">
                 {cartItems.map((item) => (
-                  <div key={item.productId} className="flex gap-3">
+                  <div key={item.variantKey || item.productId} className="flex gap-3">
                     <div className="w-12 h-12 bg-[var(--pf-surface)] rounded-lg overflow-hidden shrink-0 relative">
                       <img src={item.image} alt={item.name} className="object-cover w-full h-full" />
                       <span className="absolute -top-1 -right-1 bg-[var(--pf-orange)] text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">

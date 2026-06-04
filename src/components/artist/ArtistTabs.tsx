@@ -235,7 +235,7 @@ export function ArtistTabs({
             </section>
           )}
 
-          {/* Featured Singles — shown BEFORE Albums */}
+          {/* Featured Singles */}
           {playableSingles.length > 0 && (
             <section>
               <h2 className="text-base font-semibold mb-3">Featured Singles</h2>
@@ -243,7 +243,7 @@ export function ArtistTabs({
             </section>
           )}
 
-          {/* Albums / Projects — shown AFTER Singles */}
+          {/* Albums / Projects */}
           {albumGroups.length > 0 && (
             <section>
               <div className="flex items-center gap-2 mb-3">

@@ -6,7 +6,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Star, Heart, Shield, Truck, ArrowLeft, Check, Clock, Ruler, Package, Info } from 'lucide-react'
 import { CONTROLLED_MERCH } from '@/lib/controlled-merch'
-import { getProductById, isPurchasable } from '@/lib/products'
+import { getProductById, getProductGallery, getCartLineKey, isPurchasable, requiresSizeSelection } from '@/lib/products'
 import { useCart } from '@/lib/cart-context'
 
 export function ProductDetailPage() {
@@ -36,12 +36,20 @@ export function ProductDetailPage() {
 
   const colors = product.colors || []
   const sizes = product.sizes || []
-  const images = product.images || [product.image]
+  const images = getProductGallery(product)
+  const needsSize = requiresSizeSelection(product)
+  const selectedVariantKey = getCartLineKey({
+    productId: product.id,
+    size: selectedSize || null,
+    color: selectedColor || null,
+  })
+  const canAddToCart = purchasable && (!needsSize || Boolean(selectedSize))
 
   const handleAddToCart = () => {
-    if (!purchasable) return
+    if (!canAddToCart) return
     addItem({
       productId: product.id,
+      variantKey: selectedVariantKey,
       name: product.name,
       price: product.price,
       image: product.image,
@@ -174,7 +182,7 @@ export function ProductDetailPage() {
 
             {sizes.length > 0 && (
               <div className="mb-6">
-                <p className="text-sm font-medium mb-2">Size: {selectedSize}</p>
+                <p className="text-sm font-medium mb-2">Size: {selectedSize || 'Select a size'}</p>
                 <div className="flex gap-2">
                   {sizes.map(size => (
                     <button
@@ -190,14 +198,21 @@ export function ProductDetailPage() {
                     </button>
                   ))}
                 </div>
+                {needsSize && !selectedSize && (
+                  <p className="mt-2 text-xs text-[var(--pf-text-muted)]">
+                    Pick a size before adding this shirt to your cart.
+                  </p>
+                )}
               </div>
             )}
 
             <button
               onClick={handleAddToCart}
-              disabled={!purchasable}
+              disabled={!canAddToCart}
               className={`w-full py-4 rounded-xl font-bold text-lg transition-all mb-4 flex items-center justify-center gap-2 ${
                 !purchasable
+                  ? 'bg-[var(--pf-surface)] border border-[var(--pf-border)] text-[var(--pf-text-muted)] cursor-not-allowed'
+                  : !canAddToCart
                   ? 'bg-[var(--pf-surface)] border border-[var(--pf-border)] text-[var(--pf-text-muted)] cursor-not-allowed'
                   : added
                   ? 'bg-green-500 text-white'
@@ -207,6 +222,10 @@ export function ProductDetailPage() {
               {!purchasable ? (
                 <>
                   <Clock size={20} /> Preview — Not Available Yet
+                </>
+              ) : !canAddToCart ? (
+                <>
+                  <Clock size={20} /> Choose a Size to Continue
                 </>
               ) : added ? (
                 <><Check size={20} /> Added to Cart</>

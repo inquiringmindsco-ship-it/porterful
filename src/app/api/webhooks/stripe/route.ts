@@ -230,10 +230,10 @@ export async function POST(req: NextRequest) {
         const skuId = item.skuId || item.sku_id || CONTROLLED_MERCH.skuId;
         const skuCode = item.skuCode || item.sku_code || CONTROLLED_MERCH.skuCode;
         const productIdValue = item.productId || item.product_id || product_id || CONTROLLED_MERCH.productId;
-        const productName = item.name || CONTROLLED_MERCH.productTitle;
+        const productName = item.variantLabel || item.name || CONTROLLED_MERCH.productTitle;
         const quantity = Math.max(1, Math.trunc(Number(item.quantity || 1)));
         const priceCents = Number(item.unitAmountCents || item.unit_amount_cents || Math.round(Number(item.price || 0) * 100));
-        const fulfillmentNotes = `Controlled merch activation | sku:${skuCode} | stripe_session_id:${session.id}`;
+        const fulfillmentNotes = `Controlled merch activation | sku:${skuCode} | size:${item.size || 'n/a'} | stripe_session_id:${session.id}`;
 
         const { data: existingOrderItem } = await supabase
           .from('order_items')

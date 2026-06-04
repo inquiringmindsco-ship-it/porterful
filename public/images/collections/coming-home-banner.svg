@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">Coming Home banner</title>
+  <desc id="desc">A warm, premium banner for the Coming Home collection.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1c1511" />
+      <stop offset="100%" stop-color="#080708" />
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f0d0a7" />
+      <stop offset="100%" stop-color="#c4956a" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="720" rx="48" fill="url(#bg)" />
+  <circle cx="250" cy="180" r="180" fill="#c4956a" opacity="0.12" />
+  <circle cx="1000" cy="220" r="220" fill="#fff" opacity="0.04" />
+  <circle cx="820" cy="560" r="220" fill="#000" opacity="0.18" />
+
+  <path d="M194 468c0-22 18-40 40-40h232c22 0 40 18 40 40v88H194z" fill="url(#accent)" opacity="0.9" />
+  <path d="M286 412l106-82 106 82v154c0 16-13 28-28 28H314c-16 0-28-13-28-28z" fill="url(#accent)" />
+  <path d="M314 470h164v104H314z" fill="#120c09" opacity="0.26" />
+  <rect x="380" y="510" width="34" height="64" rx="3" fill="#120c09" opacity="0.72" />
+  <path d="M286 412l106-82 106 82" fill="none" stroke="#f7efdf" stroke-opacity="0.22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <text x="620" y="286" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="64" font-weight="800" letter-spacing="0.18em" fill="#f5e7d4">COMING HOME</text>
+  <text x="620" y="344" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="600" letter-spacing="0.24em" fill="#c4956a">RESILIENCE · NEW BEGINNINGS</text>
+  <rect x="516" y="394" width="208" height="4" rx="2" fill="url(#accent)" opacity="0.75" />
+  <text x="620" y="455" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="27" font-weight="500" fill="#f4ebdf" opacity="0.8">Products inspired by rebuilding, second chances, and the road back home.</text>
+</svg>

@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import { createServerComponentSupabaseClient } from '@/lib/supabase-auth'
-import { createServerClient } from '@/lib/supabase'
+import { getAdminClient } from '@/lib/admin-client'
 import { ensureProfile } from '@/lib/server/ensure-profile'
 import PorterfulDashboard from './PorterfulDashboard'
 
@@ -20,16 +20,15 @@ export default async function DashboardRoot() {
 
   const inferredRole = user.user_metadata?.role === 'artist' ? 'artist' : 'supporter'
 
-  const adminSb = createServerClient()
-  const { profile: ensuredProfile, error: ensureError } = await ensureProfile(adminSb, user)
+  const adminSb = getAdminClient()
+  const { profile: ensuredProfile } = await ensureProfile(adminSb, user)
 
-  if (ensureError || !ensuredProfile) {
-    // If the profile cannot be prepared, fail closed back to login instead of
-    // serving a broken dashboard state.
-    redirect('/login?error=profile_create_failed&next=/dashboard')
+  let profile = ensuredProfile || {
+    id: user.id,
+    email: user.email,
+    full_name: user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'Porterful User',
+    role: inferredRole,
   }
-
-  let profile = ensuredProfile
 
   const elevatedRoles = new Set(['artist', 'admin', 'founder'])
 

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowRight, Heart, Headphones, Pause, Play, Shirt, Music, Package, DollarSign, BarChart3 } from 'lucide-react'
 import { Footer } from '@/components/Footer'
+import { useSupabase } from '@/app/providers'
 import { useAudio, type Track } from '@/lib/audio-context'
 import { TRACKS } from '@/lib/data'
 import { ARTISTS, type ArtistData } from '@/lib/artists'
@@ -16,10 +17,16 @@ const PUBLIC_ARTISTS_FALLBACK = ARTISTS.filter((artist) => artist.trackCount && 
 
 export default function HomePage() {
   const { currentTrack, isPlaying, playTrack, togglePlay, setQueue, setMode } = useAudio()
+  const { user, loading: authLoading } = useSupabase()
   const revealScopeRef = useRef<HTMLElement | null>(null)
+  const [mounted, setMounted] = useState(false)
   const [publicArtists, setPublicArtists] = useState<ArtistData[]>(PUBLIC_ARTISTS_FALLBACK)
   const [homepageData, setHomepageData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -60,6 +67,17 @@ export default function HomePage() {
   // Get real counts from API
   const artistCount = homepageData?.counts?.publicArtists || publicArtists.length || 0
   const trackCount = homepageData?.counts?.activeTracks || 0
+  const authReady = mounted && !authLoading
+  const rawRole = (user?.user_metadata as { role?: unknown } | undefined)?.role
+  const role = typeof rawRole === 'string' ? rawRole.toLowerCase() : ''
+  const isCreatorRole = role === 'artist' || role === 'admin' || role === 'founder'
+  const heroPrimaryAction = !authReady
+    ? { href: '/onboarding', label: 'Loading...', disabled: true }
+    : !user
+      ? { href: '/apply', label: 'Upload Your Music', disabled: false }
+      : isCreatorRole
+        ? { href: '/dashboard/upload', label: 'Upload Music', disabled: false }
+        : { href: '/onboarding', label: 'Open Dashboard', disabled: false }
 
   // Build a Track-like object from DB data with proper duration formatting
   function buildTrackFromDb(nt: any): Track {
@@ -244,12 +262,22 @@ export default function HomePage() {
                 </p>
 
                 <div className="mt-5 sm:mt-6 flex flex-wrap gap-3">
-                  <Link
-                    href="/apply"
-                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[var(--pf-orange)] px-6 py-3 text-base font-semibold text-[#111111] transition-transform duration-200 hover:-translate-y-0.5"
-                  >
-                    Upload Your Music <ArrowRight size={18} />
-                  </Link>
+                  {heroPrimaryAction.disabled ? (
+                    <button
+                      type="button"
+                      disabled
+                      className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[var(--pf-orange)] px-6 py-3 text-base font-semibold text-[#111111] opacity-75"
+                    >
+                      Loading... <ArrowRight size={18} />
+                    </button>
+                  ) : (
+                    <Link
+                      href={heroPrimaryAction.href}
+                      className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[var(--pf-orange)] px-6 py-3 text-base font-semibold text-[#111111] transition-transform duration-200 hover:-translate-y-0.5"
+                    >
+                      {heroPrimaryAction.label} <ArrowRight size={18} />
+                    </Link>
+                  )}
                   <Link
                     href="/store"
                     className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-[var(--pf-border)] bg-[var(--pf-surface)] px-6 py-3 text-base font-semibold text-[var(--pf-text)] transition-transform duration-200 hover:-translate-y-0.5 hover:border-[var(--pf-text-muted)]"

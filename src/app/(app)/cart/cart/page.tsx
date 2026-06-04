@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
 import { useCart } from '@/lib/cart-context';
+import { getProductById, requiresSizeSelection } from '@/lib/products';
 
 export default function CartPage() {
   const router = useRouter();
@@ -14,8 +15,17 @@ export default function CartPage() {
   const [appliedReferral, setAppliedReferral] = useState(false);
   const total = subtotal + (subtotal >= 50 ? 0 : 5);
   const itemCount = items.reduce((s, i) => s + i.quantity, 0);
+  const missingSizeItems = items.filter((item) => {
+    const product = getProductById(item.productId)
+    return Boolean(product && requiresSizeSelection(product) && !item.size)
+  });
 
   const handleCheckout = () => {
+    if (missingSizeItems.length > 0) {
+      alert('Please pick a size for each shirt before checking out.')
+      return
+    }
+
     // Store cart in localStorage for checkout page
     localStorage.setItem('porterful-checkout-items', JSON.stringify(items));
     router.push('/checkout/checkout');
@@ -41,8 +51,13 @@ export default function CartPage() {
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Cart Items */}
             <div className="lg:col-span-2 space-y-4">
-              {items.map((item) => (
-                <div key={item.productId} className="pf-card p-4 flex gap-4">
+              {items.map((item) => {
+                const lineKey = item.variantKey || item.productId
+                const product = getProductById(item.productId)
+                const sizeRequired = Boolean(product && requiresSizeSelection(product) && !item.size)
+
+                return (
+                <div key={lineKey} className="pf-card p-4 flex gap-4">
                   <div className="w-24 h-24 bg-[var(--pf-surface)] rounded-lg overflow-hidden shrink-0 relative">
                     <Image 
                       src={item.image}
@@ -61,6 +76,9 @@ export default function CartPage() {
                     {item.size && (
                       <p className="text-sm text-[var(--pf-text-muted)]">Size: {item.size}</p>
                     )}
+                    {sizeRequired && !item.size && (
+                      <p className="text-sm text-red-400">Select a size before checking out.</p>
+                    )}
                     {item.color && (
                       <p className="text-sm text-[var(--pf-text-muted)]">Color: {item.color}</p>
                     )}
@@ -68,7 +86,7 @@ export default function CartPage() {
                     <div className="flex items-center gap-4 mt-2">
                       <div className="flex items-center gap-2">
                         <button
-                          onClick={() => updateQuantity(item.productId, item.quantity - 1)}
+                          onClick={() => updateQuantity(lineKey, item.quantity - 1)}
                           aria-label={`Decrease quantity of ${item.name}`}
                           disabled={item.quantity <= 1}
                           className="w-12 h-12 rounded-lg border border-[var(--pf-border)] flex items-center justify-center hover:border-[var(--pf-orange)] disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation active:scale-95 transition-transform"
@@ -77,7 +95,7 @@ export default function CartPage() {
                         </button>
                         <span className="w-10 text-center font-medium" aria-label={`Quantity: ${item.quantity}`}>{item.quantity}</span>
                         <button
-                          onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+                          onClick={() => updateQuantity(lineKey, item.quantity + 1)}
                           aria-label={`Increase quantity of ${item.name}`}
                           className="w-12 h-12 rounded-lg border border-[var(--pf-border)] flex items-center justify-center hover:border-[var(--pf-orange)] touch-manipulation active:scale-95 transition-transform"
                         >
@@ -86,7 +104,7 @@ export default function CartPage() {
                       </div>
                       
                       <button
-                        onClick={() => removeItem(item.productId)}
+                        onClick={() => removeItem(lineKey)}
                         aria-label={`Remove ${item.name} from cart`}
                         className="text-[var(--pf-text-muted)] hover:text-red-400 transition-colors"
                       >
@@ -102,13 +120,20 @@ export default function CartPage() {
                     </p>
                   </div>
                 </div>
-              ))}
+                )
+              })}
             </div>
 
             {/* Summary */}
             <div className="lg:col-span-1">
               <div className="pf-card p-6 sticky top-24">
                 <h2 className="text-xl font-bold mb-4">Order Summary</h2>
+
+                {missingSizeItems.length > 0 && (
+                  <div className="mb-4 rounded-lg border border-red-500/25 bg-red-500/10 p-3 text-sm text-red-300">
+                    Pick a size for each shirt before checking out.
+                  </div>
+                )}
                 
                 {/* Referral */}
                 <div className="mb-6">
@@ -159,6 +184,7 @@ export default function CartPage() {
 
                 <button 
                   onClick={handleCheckout}
+                  disabled={missingSizeItems.length > 0}
                   className="w-full pf-btn pf-btn-primary whitespace-nowrap"
                 >
                   Proceed to Checkout
@@ -182,6 +208,7 @@ export default function CartPage() {
               </div>
               <button
                 onClick={handleCheckout}
+                disabled={missingSizeItems.length > 0}
                 className="pf-btn pf-btn-primary whitespace-nowrap px-6"
               >
                 Checkout

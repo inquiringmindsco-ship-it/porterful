@@ -64,9 +64,9 @@ export default function ArtistsPage() {
 
       if (!user || !supabase) {
         if (!active) return
-        setCtaHref('/signup?role=supporter')
-        setCtaLabel('Join Porterful')
-        setCtaDescription('Create your free fan account')
+        setCtaHref('/artists')
+        setCtaLabel('Explore Artists')
+        setCtaDescription('Browse the current lineup')
         setCtaReady(true)
         return
       }
@@ -84,9 +84,9 @@ export default function ArtistsPage() {
         setCtaLabel('Continue Setup')
         setCtaDescription('Finish your Porterful artist setup')
       } else {
-        setCtaHref('/apply/form')
-        setCtaLabel('Apply as Artist')
-        setCtaDescription('Join Porterful as a creator')
+        setCtaHref('/onboarding')
+        setCtaLabel('Open Dashboard')
+        setCtaDescription('Continue from your creator home')
       }
 
       setCtaReady(true)

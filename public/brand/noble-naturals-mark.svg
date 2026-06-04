@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" role="img" aria-labelledby="title desc">
+  <title id="title">Noble Naturals mark</title>
+  <desc id="desc">A refined leaf emblem for Noble Naturals.</desc>
+  <defs>
+    <linearGradient id="nnbg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#102118" />
+      <stop offset="100%" stop-color="#040706" />
+    </linearGradient>
+    <linearGradient id="nnleaf" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8ee36a" />
+      <stop offset="100%" stop-color="#20c18d" />
+    </linearGradient>
+  </defs>
+  <circle cx="160" cy="160" r="142" fill="url(#nnbg)" stroke="#24402f" stroke-width="4" />
+  <path d="M160 79c-31 22-49 53-49 86 0 30 20 59 49 80 29-21 49-50 49-80 0-33-18-64-49-86z" fill="url(#nnleaf)"/>
+  <path d="M160 87c-18 18-31 41-34 66 2 31 13 57 34 79 21-22 32-48 34-79-3-25-16-48-34-66z" fill="none" stroke="#f7f1df" stroke-opacity="0.14" stroke-width="3"/>
+  <path d="M160 98v129" stroke="#f7f1df" stroke-opacity="0.2" stroke-width="4" stroke-linecap="round"/>
+  <path d="M159 121c-18 5-29 17-34 31" stroke="#f7f1df" stroke-opacity="0.18" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <path d="M161 142c18 5 29 17 34 31" stroke="#f7f1df" stroke-opacity="0.18" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <text x="160" y="258" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="700" letter-spacing="0.28em" fill="#e4f2e7">NOBLE NATURALS</text>
+</svg>

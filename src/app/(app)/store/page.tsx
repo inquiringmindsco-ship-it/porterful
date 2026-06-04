@@ -21,7 +21,14 @@ import {
 } from 'lucide-react'
 import { useSupabase } from '@/app/providers'
 import { useToast } from '@/components/Toast'
-import { PRODUCTS, isPurchasable, type Product, BRANDS } from '@/lib/products'
+import {
+  PRODUCTS,
+  isPurchasable,
+  type Product,
+  BRANDS,
+  getProductGallery,
+  requiresSizeSelection,
+} from '@/lib/products'
 
 const REFERRAL_COOKIE = 'porterful_referral'
 const REFERRAL_COOKIE_MAX_AGE = 60 * 60 * 24 * 30
@@ -140,6 +147,39 @@ function ProductBadge({ product }: { product: Product }) {
   )
 }
 
+function BrandMark({
+  brand,
+  size = 'md',
+}: {
+  brand: (typeof BRANDS)[number]
+  size?: 'sm' | 'md' | 'lg'
+}) {
+  const containerClass =
+    size === 'lg'
+      ? 'h-14 w-14 rounded-2xl'
+      : size === 'sm'
+        ? 'h-10 w-10 rounded-xl'
+        : 'h-12 w-12 rounded-xl'
+
+  return (
+    <div className={`relative shrink-0 overflow-hidden border border-[var(--pf-border)] bg-[var(--pf-bg)] ${containerClass}`}>
+      {brand.logo ? (
+        <Image
+          src={brand.logo}
+          alt={`${brand.name} logo`}
+          fill
+          sizes={size === 'lg' ? '56px' : size === 'sm' ? '40px' : '48px'}
+          className="object-contain p-1.5"
+        />
+      ) : (
+        <div className="flex h-full w-full items-center justify-center text-xs font-bold uppercase tracking-[0.2em] text-[var(--pf-text-muted)]">
+          {brand.name.slice(0, 2)}
+        </div>
+      )}
+    </div>
+  )
+}
+
 function StoreProductCard({
   product,
   referralHandle,
@@ -153,6 +193,8 @@ function StoreProductCard({
   const { showToast } = useToast()
   const purchasable = isPurchasable(product)
   const isControlled = product.fulfillmentType === 'img_fulfillment' || product.fulfillment === 'img_fulfillment'
+  const needsSize = requiresSizeSelection(product)
+  const detailsHref = `/product/${product.id}`
 
   const handleBuy = async () => {
     setLoading(true)
@@ -209,6 +251,8 @@ function StoreProductCard({
   // Determine CTA set based on role + product state
   const isAdmin = userRole === 'admin' || userRole === 'founder'
   const isArtistOrMember = userRole === 'artist' || userRole === 'member'
+  const canQuickBuy = purchasable && !needsSize
+  const gallery = getProductGallery(product)
 
   return (
     <article
@@ -219,59 +263,62 @@ function StoreProductCard({
       }`}
       data-tour-id={product.skuCode === 'COMING-HOME-TEE-001' ? 'controlled-merch-card' : undefined}
     >
-      {/* Image */}
-      <div className="relative aspect-[4/5] overflow-hidden bg-[var(--pf-bg)]">
-        <Image
-          src={product.image}
-          alt={product.name}
-          fill
-          className={`object-cover transition-transform duration-300 group-hover:scale-105 ${
-            !purchasable ? 'grayscale-[20%]' : ''
-          }`}
-        />
-        <div className={`absolute inset-0 ${!purchasable ? 'bg-gradient-to-b from-black/10 via-black/20 to-black/60' : 'bg-gradient-to-t from-black/45 via-black/10 to-transparent'}`} />
-        {purchasable && (
-          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/55 to-transparent" />
-        )}
-        <ProductBadge product={product} />
-      </div>
-
-      {/* Content */}
-      <div className="space-y-4 p-5">
-        {/* Category + Title + Price */}
-        <div>
-          <div className="mb-1 flex items-center justify-between gap-2">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[var(--pf-text-muted)]">
-              {product.category}
-            </p>
-            {isControlled && purchasable && (
-              <span className="text-[10px] font-medium text-emerald-400 uppercase tracking-wider">
-                Controlled Drop
-              </span>
-            )}
-          </div>
-          <div className="flex items-start justify-between gap-3">
-            <div className="space-y-1">
-              <h2 className="text-[1.05rem] font-bold leading-tight text-[var(--pf-text)]">{product.name}</h2>
-              <p className="max-w-[18ch] text-xs leading-relaxed text-[var(--pf-text-secondary)]">
-                {purchasable ? 'Available now as a controlled drop.' : 'Preview only. Not live yet.'}
-              </p>
-            </div>
-            <span className={`shrink-0 rounded-2xl px-3 py-2 text-sm font-bold ${
-              purchasable
-                ? 'bg-[var(--pf-orange)]/12 text-[var(--pf-orange)]'
-                : 'bg-[var(--pf-bg)] text-[var(--pf-text-muted)]'
-            }`}>
-              ${product.price.toFixed(2)}
-            </span>
-          </div>
-          <p className="mt-2 text-sm leading-relaxed text-[var(--pf-text-secondary)]">
-            {product.description}
-          </p>
+      <Link href={detailsHref} className="block">
+        {/* Image */}
+        <div className="relative aspect-[4/5] overflow-hidden bg-[var(--pf-bg)]">
+          <Image
+            src={gallery[0] || product.image}
+            alt={product.name}
+            fill
+            className={`object-cover transition-transform duration-300 group-hover:scale-105 ${
+              !purchasable ? 'grayscale-[20%]' : ''
+            }`}
+          />
+          <div className={`absolute inset-0 ${!purchasable ? 'bg-gradient-to-b from-black/10 via-black/20 to-black/60' : 'bg-gradient-to-t from-black/45 via-black/10 to-transparent'}`} />
+          {purchasable && (
+            <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/55 to-transparent" />
+          )}
+          <ProductBadge product={product} />
         </div>
 
-        {/* Artist attribution */}
-        <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--pf-text-muted)]">
+        {/* Content */}
+        <div className="space-y-4 p-5 pb-4">
+          {/* Category + Title + Price */}
+          <div>
+            <div className="mb-1 flex items-center justify-between gap-2">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[var(--pf-text-muted)]">
+                {product.category}
+              </p>
+              {isControlled && purchasable && (
+                <span className="text-[10px] font-medium text-emerald-400 uppercase tracking-wider">
+                  Controlled Drop
+                </span>
+              )}
+            </div>
+            <div className="flex items-start justify-between gap-3">
+              <div className="space-y-1">
+                <h2 className="text-[1.05rem] font-bold leading-tight text-[var(--pf-text)]">{product.name}</h2>
+                <p className="max-w-[18ch] text-xs leading-relaxed text-[var(--pf-text-secondary)]">
+                  {purchasable ? 'Available now as a controlled drop.' : 'Preview only. Not live yet.'}
+                </p>
+              </div>
+              <span className={`shrink-0 rounded-2xl px-3 py-2 text-sm font-bold ${
+                purchasable
+                  ? 'bg-[var(--pf-orange)]/12 text-[var(--pf-orange)]'
+                  : 'bg-[var(--pf-bg)] text-[var(--pf-text-muted)]'
+              }`}>
+                ${product.price.toFixed(2)}
+              </span>
+            </div>
+            <p className="mt-2 text-sm leading-relaxed text-[var(--pf-text-secondary)]">
+              {product.description}
+            </p>
+          </div>
+        </div>
+      </Link>
+
+      {/* Artist attribution */}
+      <div className="flex flex-wrap items-center gap-2 px-5 text-xs text-[var(--pf-text-muted)]">
           <span className="inline-flex items-center gap-1 rounded-full border border-[var(--pf-border)] bg-[var(--pf-bg)] px-2.5 py-1.5">
             <Tag size={10} />
             {product.artist}
@@ -281,64 +328,72 @@ function StoreProductCard({
               {product.colors.length} color{product.colors.length > 1 ? 's' : ''}
             </span>
           )}
-        </div>
+      </div>
 
-        {/* CTAs — role-aware */}
-        <div className="flex flex-col gap-2 pt-1">
-          {purchasable && (
-            <button
-              type="button"
-              onClick={handleBuy}
-              disabled={loading}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--pf-orange)] px-4 py-3 text-sm font-semibold text-[#111111] transition-all hover:brightness-110 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {loading ? (
-                <>
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                  Redirecting...
-                </>
-              ) : (
-                <>
-                  Buy Now
-                  <ArrowRight size={16} />
-                </>
-              )}
-            </button>
-          )}
+      {/* CTAs — role-aware */}
+      <div className="flex flex-col gap-2 px-5 pb-5 pt-4">
+        {canQuickBuy && (
+          <button
+            type="button"
+            onClick={handleBuy}
+            disabled={loading}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--pf-orange)] px-4 py-3 text-sm font-semibold text-[#111111] transition-all hover:brightness-110 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {loading ? (
+              <>
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                Redirecting...
+              </>
+            ) : (
+              <>
+                Buy Now
+                <ArrowRight size={16} />
+              </>
+            )}
+          </button>
+        )}
 
-          {!purchasable && (
-            <button
-              type="button"
-              disabled
-              className="inline-flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl border border-[var(--pf-border)] bg-[var(--pf-surface)] px-4 py-3 text-sm font-semibold text-[var(--pf-text-muted)]"
-            >
-              <Clock size={16} />
-              Preview — Not Available Yet
-            </button>
-          )}
+        {purchasable && needsSize && (
+          <Link
+            href={detailsHref}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--pf-orange)] px-4 py-3 text-sm font-semibold text-[#111111] transition-all hover:brightness-110 active:scale-[0.98]"
+          >
+            Choose Size
+            <ArrowRight size={16} />
+          </Link>
+        )}
 
-          {/* Role-aware secondary actions */}
-          {isArtistOrMember && purchasable && (
-            <button
-              type="button"
-              onClick={handleShare}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--pf-border)] bg-[var(--pf-bg)] px-4 py-2.5 text-sm font-medium text-[var(--pf-text)] transition-colors hover:border-[var(--pf-orange)]/40 hover:bg-[var(--pf-orange)]/5"
-            >
-              <Share2 size={14} />
-              Promote
-            </button>
-          )}
+        {!purchasable && (
+          <Link
+            href={detailsHref}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--pf-border)] bg-[var(--pf-surface)] px-4 py-3 text-sm font-semibold text-[var(--pf-text-muted)] transition-colors hover:border-[var(--pf-orange)]/35 hover:text-[var(--pf-text)]"
+          >
+            <Clock size={16} />
+            Preview — Not Available Yet
+          </Link>
+        )}
 
-          {isAdmin && purchasable && (
-            <Link
-              href="/dashboard/founder/skus"
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--pf-border)] bg-[var(--pf-bg)] px-4 py-2.5 text-sm font-medium text-[var(--pf-text)] transition-colors hover:border-[var(--pf-orange)]/40 hover:bg-[var(--pf-orange)]/5"
-            >
-              <Settings size={14} />
-              Manage Product
-            </Link>
-          )}
-        </div>
+        {/* Role-aware secondary actions */}
+        {isArtistOrMember && purchasable && (
+          <button
+            type="button"
+            onClick={handleShare}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--pf-border)] bg-[var(--pf-bg)] px-4 py-2.5 text-sm font-medium text-[var(--pf-text)] transition-colors hover:border-[var(--pf-orange)]/40 hover:bg-[var(--pf-orange)]/5"
+          >
+            <Share2 size={14} />
+            Promote
+          </button>
+        )}
+
+        {isAdmin && purchasable && (
+          <Link
+            href="/dashboard/founder/skus"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--pf-border)] bg-[var(--pf-bg)] px-4 py-2.5 text-sm font-medium text-[var(--pf-text)] transition-colors hover:border-[var(--pf-orange)]/40 hover:bg-[var(--pf-orange)]/5"
+          >
+            <Settings size={14} />
+            Manage Product
+          </Link>
+        )}
       </div>
     </article>
   )
@@ -432,6 +487,30 @@ export default function StorePage() {
             <span className="text-[var(--pf-text-muted)]"> Preview products</span> are coming soon.
           </p>
 
+          <div className="mt-5">
+            <div className="mb-3 flex items-center gap-3">
+              <div className="h-px flex-1 bg-white/10" />
+              <span className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[var(--pf-text-muted)]">Founding Brands</span>
+              <div className="h-px flex-1 bg-white/10" />
+            </div>
+            <div className="grid gap-3 sm:grid-cols-3">
+              {BRANDS.filter((b) => b.foundingBrand).map((brand) => (
+                <Link
+                  key={brand.id}
+                  href={`/brands/${brand.slug}`}
+                  className="group flex items-center gap-3 rounded-2xl border border-[var(--pf-border)]/80 bg-[linear-gradient(180deg,rgba(20,20,22,0.95),rgba(12,12,13,0.92))] px-3 py-3 transition-all hover:-translate-y-0.5 hover:border-[var(--pf-orange)]/35"
+                >
+                  <BrandMark brand={brand} size="lg" />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-semibold text-white transition-colors group-hover:text-[var(--pf-orange)]">{brand.name}</p>
+                    <p className="truncate text-xs text-[var(--pf-text-muted)]">{brand.tagline}</p>
+                  </div>
+                  <ArrowRight size={16} className="shrink-0 text-[var(--pf-text-muted)] transition-colors group-hover:text-[var(--pf-orange)]" />
+                </Link>
+              ))}
+            </div>
+          </div>
+
           {/* Coming Home Collection link */}
           <Link
             href="/collections/coming-home"
@@ -487,9 +566,7 @@ export default function StorePage() {
                 href={`/brands/${brand.slug}`}
                 className="group flex items-center gap-4 rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-4 transition-all hover:border-[var(--pf-orange)]/30"
               >
-                <div className="h-14 w-14 rounded-xl bg-[var(--pf-bg)] flex items-center justify-center text-2xl shrink-0">
-                  {brand.slug === 'noble-naturals' ? '🌿' : brand.slug === 'marvelous-black' ? '⚫' : '🏠'}
-                </div>
+                <BrandMark brand={brand} size="lg" />
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-white truncate group-hover:text-[var(--pf-orange)] transition-colors">{brand.name}</p>
                   <p className="text-xs text-[var(--pf-text-muted)] truncate">{brand.tagline}</p>

@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 
 export interface CartItem {
   productId: string;
+  variantKey?: string;
   quantity: number;
   size?: string;
   color?: string;
@@ -28,6 +29,14 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | null>(null);
 
+function buildCartLineKey(item: Pick<CartItem, 'productId' | 'variantKey' | 'size' | 'color'>) {
+  if (item.variantKey?.trim()) {
+    return item.variantKey.trim();
+  }
+
+  return [item.productId, item.size?.trim() || '', item.color?.trim() || ''].join('::');
+}
+
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -38,7 +47,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const saved = localStorage.getItem('porterful-cart');
     if (saved) {
       try {
-        setItems(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        setItems(Array.isArray(parsed)
+          ? parsed.map((item) => ({
+              ...item,
+              variantKey: buildCartLineKey(item),
+            }))
+          : []);
       } catch (e) {
         console.error('Failed to load cart:', e);
       }
@@ -55,30 +70,31 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [items, isLoaded]);
 
   const addItem = (item: Omit<CartItem, 'quantity'>) => {
+    const variantKey = buildCartLineKey(item)
     setItems(prev => {
-      const existing = prev.find(i => i.productId === item.productId);
+      const existing = prev.find(i => buildCartLineKey(i) === variantKey);
       if (existing) {
         return prev.map(i => 
-          i.productId === item.productId 
-            ? { ...i, quantity: i.quantity + 1 }
+          buildCartLineKey(i) === variantKey
+            ? { ...i, quantity: i.quantity + 1, variantKey }
             : i
         );
       }
-      return [...prev, { ...item, quantity: 1 }];
+      return [...prev, { ...item, variantKey, quantity: 1 }];
     });
   };
 
-  const removeItem = (productId: string) => {
-    setItems(prev => prev.filter(i => i.productId !== productId));
+  const removeItem = (lineKey: string) => {
+    setItems(prev => prev.filter(i => buildCartLineKey(i) !== lineKey && i.productId !== lineKey));
   };
 
-  const updateQuantity = (productId: string, quantity: number) => {
+  const updateQuantity = (lineKey: string, quantity: number) => {
     if (quantity <= 0) {
-      removeItem(productId);
+      removeItem(lineKey);
       return;
     }
     setItems(prev => prev.map(i => 
-      i.productId === productId ? { ...i, quantity } : i
+      buildCartLineKey(i) === lineKey || i.productId === lineKey ? { ...i, quantity } : i
     ));
   };
 

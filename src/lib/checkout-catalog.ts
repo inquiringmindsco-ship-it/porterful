@@ -13,6 +13,8 @@ type CheckoutInputItem = {
   price?: number | string
   quantity?: number | string
   type?: string
+  size?: string | null
+  color?: string | null
 }
 
 export type CheckoutResolvedItemKind = 'track' | 'product' | 'wallet' | 'support' | 'digital'
@@ -35,6 +37,9 @@ export type CheckoutResolvedItem = {
   artistId: string | null
   fulfillmentType: string | null
   catalogStatus: string | null
+  size: string | null
+  color: string | null
+  variantLabel: string | null
 }
 
 export type CheckoutResolution = {
@@ -104,6 +109,9 @@ function buildResolvedItem(params: {
   artistId?: string | null
   fulfillmentType?: string | null
   catalogStatus?: string | null
+  size?: string | null
+  color?: string | null
+  variantLabel?: string | null
 }): CheckoutResolvedItem {
   return {
     kind: params.kind,
@@ -123,6 +131,9 @@ function buildResolvedItem(params: {
     artistId: params.artistId ?? null,
     fulfillmentType: params.fulfillmentType ?? null,
     catalogStatus: params.catalogStatus ?? null,
+    size: params.size ?? null,
+    color: params.color ?? null,
+    variantLabel: params.variantLabel ?? null,
   }
 }
 
@@ -178,6 +189,22 @@ function resolveProduct(item: CheckoutInputItem, id: string, quantity: number): 
     throw new CheckoutCatalogError(`This product is not available for purchase yet: ${product.name}`)
   }
 
+  const selectedSize = toStringValue(item.size)
+  if (product.sizes && product.sizes.length > 0) {
+    if (!selectedSize) {
+      throw new CheckoutCatalogError(`Please select a size for ${product.name} before checkout.`)
+    }
+
+    if (!product.sizes.includes(selectedSize)) {
+      throw new CheckoutCatalogError(`Invalid size selected for ${product.name}.`)
+    }
+  }
+
+  const selectedColor = toStringValue(item.color)
+  if (product.colors && product.colors.length > 0 && selectedColor && !product.colors.includes(selectedColor)) {
+    throw new CheckoutCatalogError(`Invalid color selected for ${product.name}.`)
+  }
+
   return buildResolvedItem({
     kind: 'product',
     id: product.id,
@@ -195,6 +222,9 @@ function resolveProduct(item: CheckoutInputItem, id: string, quantity: number): 
     artistId: product.artistId || null,
     fulfillmentType: product.fulfillmentType || product.fulfillment || null,
     catalogStatus: product.catalogStatus || null,
+    size: selectedSize || null,
+    color: selectedColor || null,
+    variantLabel: selectedSize ? `${product.name} · ${selectedSize}` : product.name,
   })
 }
 

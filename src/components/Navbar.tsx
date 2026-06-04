@@ -95,7 +95,7 @@ export function Navbar() {
   const ready = mounted && !loading
   const showUser = ready && !!user
   const showGuest = ready && !user
-  const homeHref = showUser ? '/onboarding' : '/'
+  const homeHref = showUser ? '/dashboard' : '/'
 
   const isFounder = userRole === 'admin' || userRole === 'founder'
 

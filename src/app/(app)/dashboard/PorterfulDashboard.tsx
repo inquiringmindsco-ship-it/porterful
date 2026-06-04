@@ -42,7 +42,7 @@ export default function PorterfulDashboard({ serverProfileId, initialProfile }: 
         {/* Header */}
         <header className="mb-6">
           <div className="flex flex-wrap items-center gap-2 mb-2">
-            <h1 className="text-2xl sm:text-3xl font-bold">Dashboard</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold">Your dashboard</h1>
             {isFounder && (
               <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-[var(--pf-orange)]/30 bg-[var(--pf-orange)]/10 text-[var(--pf-orange)] text-xs font-semibold uppercase tracking-wide">
                 <ShieldCheck size={12} />
@@ -59,21 +59,21 @@ export default function PorterfulDashboard({ serverProfileId, initialProfile }: 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
           {isFounder ? (
             <>
-              <ActionCard label="Founder View" href="/dashboard/founder" icon={ShieldCheck} hint="Platform control" />
-              <ActionCard label="Review Artists" href="/dashboard/founder/artists" icon={Users} hint="Approvals and access" />
-              <ActionCard label="Upload Track" href="/dashboard/upload" icon={Upload} hint="Add a release" />
+              <ActionCard label="Control" href="/dashboard/founder" icon={ShieldCheck} hint="Approvals" />
+              <ActionCard label="Artists" href="/dashboard/founder/artists" icon={Users} hint="Access" />
+              <ActionCard label="Upload" href="/dashboard/upload" icon={Upload} hint="Release" />
             </>
           ) : isArtist ? (
             <>
-              <ActionCard label="Upload Track" href="/dashboard/upload" icon={Upload} hint="Add a release" />
-              <ActionCard label="My Music" href="/dashboard/artist" icon={Disc} hint="Tracks and products" />
-              <ActionCard label="Assets" href="/dashboard/artist/assets" icon={User} hint="Creative files" />
+              <ActionCard label="Upload" href="/dashboard/upload" icon={Upload} hint="Track" />
+              <ActionCard label="Music" href="/dashboard/artist" icon={Disc} hint="Catalog" />
+              <ActionCard label="Assets" href="/dashboard/artist/assets" icon={User} hint="Files" />
             </>
           ) : (
             <>
-              <ActionCard label="Music" href="/music" icon={Headphones} hint="Tracks you own" />
-              <ActionCard label="Store" href="/store" icon={Store} hint="Live products" />
-              <ActionCard label="Settings" href="/settings/settings" icon={Settings} hint="Profile and account" />
+              <ActionCard label="Music" href="/music" icon={Headphones} hint="Listen" />
+              <ActionCard label="Store" href="/store" icon={Store} hint="Shop" />
+              <ActionCard label="Settings" href="/settings/settings" icon={Settings} hint="Account" />
             </>
           )}
         </div>

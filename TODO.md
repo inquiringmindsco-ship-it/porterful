@@ -1,39 +1,39 @@
-# Porterful Site Improvements — Batch 1
-Date: Thursday, June 4th, 2026 - 12:37 AM (America/Chicago)
+# Porterful TODO
 
-## Changes Requested vs. Actual State
+## Site Improvements Batch 1 - Completed June 4, 2026
 
-### 1. Fix Rob Soule artist data in `src/lib/artists.ts`
-- **Genre:** `'Hip-Hop / R&B / Blues'` ✅ Already correct
-- **Bio:** St. Louis hip-hop and R&B artist blending blues into soulful sound ✅ Already correct
-- **Tracks "Love Jones" and "2B" referenced** ✅ Already present
-- **Result:** No changes needed — data was already accurate.
+### 1. ✅ Rob Soule artist data fix (src/lib/artists.ts)
+**Status:** Already correct — no change needed  
+- Genre: `Hip-Hop / R&B / Blues` (correct)
+- Bio: "St. Louis hip-hop and R&B artist blending blues into a soulful sound" (correct)
+- Short bio and social links also already correct
 
-### 2. Add social media buttons to artist profile page
-- **File:** `src/components/artist/ArtistHero.tsx` (lines ~109–127)
-- **Status:** ✅ Already implemented
-- Instagram, Twitter/X, YouTube, TikTok icons render as circular buttons next to the artist name (inline with verified badge)
-- Conditionally shown only when artist has social fields filled in
-- Uses `SOCIAL_ICONS` from `src/lib/artist-social.tsx`
-- **Result:** No changes needed — feature was already built.
+### 2. ✅ Social media buttons on artist profile page
+**File:** `src/components/artist/ArtistHero.tsx`  
+**Status:** Already implemented and working  
+- Social icons (Instagram, Twitter/X, YouTube, TikTok) are displayed next to the artist name in the profile header
+- Uses the `SOCIAL_ICONS` map and `normalizeSocialUrl()` helper from `src/lib/artist-social.tsx`
+- Buttons only appear when the artist has that social field filled in
+- Styled as circular buttons with hover effects
 
-### 3. Featured Singles before Albums on artist pages
-- **File:** `src/components/artist/ArtistTabs.tsx`
-- **Status:** ✅ Already correct
-- Current order in Music tab: Featured Tracks → Featured Singles → Albums & Projects
-- Singles section (line ~211) renders BEFORE Albums section (line ~226)
-- Comment explicitly says `/* Featured Singles — shown BEFORE Albums */`
-- **Result:** No changes needed — order was already correct.
+### 3. ✅ Singles before Albums on artist pages
+**File:** `src/components/artist/ArtistTabs.tsx`  
+**Status:** Already correct — verified order  
+- The "Featured Singles" section renders BEFORE the "Albums & Projects" section
+- Comments in code explicitly note: "shown BEFORE Albums" / "shown AFTER Singles"
+- This is the desired order: Featured → Singles → Albums
 
-## Deploy Status
-- **NO DEPLOYMENT** — as requested, no commit or deploy performed.
+### 4. ✅ Pass singles before albumTracks to ArtistTabs
+**File:** `src/app/(app)/artist/[slug]/page.tsx`  
+**Change:** Reordered props in the `<ArtistTabs>` component so `singles` appears before `albumTracks` for consistency with the display order.
 
-## Files Inspected
-- `src/lib/artists.ts` — Rob Soule entry verified
-- `src/app/(app)/artist/[slug]/page.tsx` — page structure
-- `src/components/artist/ArtistHero.tsx` — social icons placement
-- `src/components/artist/ArtistTabs.tsx` — Singles/Albums order
-- `src/lib/artist-social.tsx` — icon components
+---
 
-## Note
-All requested changes were already implemented in the codebase. This was a verification-only batch.
+## Summary
+All requested changes were either already implemented correctly or verified. Only one minor prop-order adjustment was made in the page component for consistency. No deployment needed — changes saved locally.
+
+**Next batch ideas:**
+- Add "Latest Release" banner on artist cards
+- Improve mobile responsive spacing on artist profiles
+- Add share button to artist pages
+- Consider adding `website` social link support

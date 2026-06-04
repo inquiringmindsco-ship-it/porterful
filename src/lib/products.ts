@@ -36,6 +36,7 @@ export const BRANDS: Brand[] = [
     tagline: 'Wellness & Hair Care',
     description: 'Natural hair care products crafted with premium ingredients for all hair types.',
     category: 'Wellness & Hair Care',
+    logo: '/brand/noble-naturals-mark.svg',
     featured: true,
     foundingBrand: true,
   },
@@ -46,6 +47,7 @@ export const BRANDS: Brand[] = [
     tagline: 'Premium Apparel',
     description: 'Premium apparel designed for those who set the standard.',
     category: 'Apparel',
+    logo: '/brand/marvelous-black-mark.svg',
     featured: true,
     foundingBrand: true,
   },
@@ -56,7 +58,7 @@ export const BRANDS: Brand[] = [
     tagline: 'Resilience & New Beginnings',
     description: 'Products inspired by resilience, rebuilding, second chances, and new beginnings.',
     category: 'Collection',
-    logo: '/images/collections/coming-home-badge.png',
+    logo: '/images/collections/coming-home-badge.svg',
     featured: true,
     foundingBrand: true,
   },
@@ -99,7 +101,7 @@ For now, we hope you wear them as a reminder: every day is a new beginning.`,
   color: '#C4956A',       // warm copper/gold
   textColor: '#1a1a1a',
   badge: '🏠 Coming Home™',
-  image: '/images/collections/coming-home-banner.png',
+  image: '/images/collections/coming-home-banner.svg',
   featured: true,
 }
 
@@ -163,6 +165,51 @@ export function isPurchasable(product: Pick<Product, 'available' | 'fulfillment'
   return product.available === true && product.fulfillment !== 'mock'
 }
 
+function dedupeImages(images: string[]) {
+  return Array.from(new Set(images.filter(Boolean)))
+}
+
+function withGeneratedVariants(image: string) {
+  const match = image.match(/^(.+)(\.[a-z0-9]+)$/i)
+  if (!match) {
+    return [image]
+  }
+
+  const [, base, ext] = match
+  return [image, `${base}-alt-1${ext}`, `${base}-alt-2${ext}`]
+}
+
+export function getProductGallery(product: Pick<Product, 'image' | 'images'>) {
+  const images = dedupeImages((product.images || []).filter(Boolean))
+  if (images.length > 1) {
+    return images
+  }
+
+  return dedupeImages(withGeneratedVariants(product.image))
+}
+
+export function requiresSizeSelection(product: Pick<Product, 'sizes'>) {
+  return Boolean(product.sizes && product.sizes.length > 0)
+}
+
+export function getCartLineKey(params: {
+  productId: string
+  size?: string | null
+  color?: string | null
+  variantKey?: string | null
+}) {
+  const explicit = params.variantKey?.trim()
+  if (explicit) {
+    return explicit
+  }
+
+  return [
+    params.productId,
+    params.size?.trim() || '',
+    params.color?.trim() || '',
+  ].join('::')
+}
+
 export const PRODUCTS: Product[] = [
   // ==========================================================
   // ACTIVE / FULFILLABLE PRODUCTS
@@ -204,15 +251,9 @@ export const PRODUCTS: Product[] = [
   },
 
   // ==========================================================
-  // MOCK / PLACEHOLDER PRODUCTS — DO NOT FULFILL
+  // MOCK / PREVIEW PRODUCTS — DO NOT FULFILL
   // These show as "Coming Soon" on the store.
   // Checkout is blocked by isPurchasable() guard.
-  //
-  // To activate a product:
-  //   1. Set fulfillment: 'printful' or 'dropship'
-  //   2. Set available: true
-  //   3. Add real Printful/dropship product IDs
-  //   4. Test checkout end-to-end
   // ==========================================================
 
   {
@@ -241,82 +282,6 @@ export const PRODUCTS: Product[] = [
     available: false,
     inStock: true,
     artistCut: 0,
-    sales: 0,
-    rating: 0,
-    reviews: 0,
-  },
-  {
-    id: 'gune-shirt',
-    name: 'Gune Classic Tee',
-    price: 40,
-    category: 'Merch',
-    artist: 'Gune',
-    image: '/artist-images/gune/gune-shirt.jpg',
-    featured: true,
-    description: 'Preview merch. Not live yet.',
-    colors: ['Black', 'White'],
-    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-    fulfillment: 'mock',
-    available: false,
-    inStock: true,
-    artistCut: 32,
-    sales: 0,
-    rating: 0,
-    reviews: 0,
-  },
-  // Founding Beta products — demonstrating platform breadth beyond music
-  {
-    id: 'signal-shirt-001',
-    name: 'Signal Shirt',
-    price: 35,
-    category: 'Brand',
-    artist: 'Signal',
-    image: '/images/products/signal-shirt-black.png',
-    images: ['/images/products/signal-shirt-black.png'],
-    description: 'Minimalist signal wave design. Premium cotton. Ships in 3-5 days.',
-    colors: ['Black', 'White'],
-    sizes: ['S', 'M', 'L', 'XL'],
-    fulfillment: 'img_fulfillment',
-    available: false,
-    inStock: true,
-    featured: false,
-    artistCut: 28,
-    sales: 0,
-    rating: 0,
-    reviews: 0,
-  },
-  {
-    id: 'noble-naturals-balm-001',
-    name: 'Noble Naturals™ Premium Hair Growth Oil – 1 oz',
-    price: 29.99,
-    category: 'Wellness & Hair Care',
-    artist: 'Noble Naturals',
-    image: '/images/products/noble-naturals-1oz.png',
-    images: ['/images/products/noble-naturals-1oz.png'],
-    description: 'Premium hair growth oil from Noble Naturals. Natural ingredients for all hair types.',
-    fulfillment: 'img_fulfillment',
-    available: false,
-    inStock: true,
-    featured: false,
-    artistCut: 22,
-    sales: 0,
-    rating: 0,
-    reviews: 0,
-  },
-  {
-    id: 'porterful-sticker-pack-001',
-    name: 'Porterful Sticker Pack',
-    price: 8,
-    category: 'Essential',
-    artist: 'Porterful',
-    image: '/images/products/porterful-stickers.png',
-    images: ['/images/products/porterful-stickers.png'],
-    description: '5 vinyl stickers. Weatherproof. Support the platform.',
-    fulfillment: 'img_fulfillment',
-    available: false,
-    inStock: true,
-    featured: false,
-    artistCut: 6,
     sales: 0,
     rating: 0,
     reviews: 0,
@@ -459,8 +424,8 @@ export const PRODUCTS: Product[] = [
     price: 55,
     category: 'Apparel',
     artist: 'Marvelous Black™',
-    image: '/images/products/marvelous-black-standard-hoodie.png',
-    images: ['/images/products/marvelous-black-standard-hoodie.png'],
+    image: '/images/products/marvelous-black-standard-hoodie.svg',
+    images: ['/images/products/marvelous-black-standard-hoodie.svg'],
     description: 'The Standard Hoodie by Marvelous Black™. Premium weight, clean lines. Preview — coming soon.',
     fulfillment: 'img_fulfillment',
     available: false,
@@ -477,8 +442,8 @@ export const PRODUCTS: Product[] = [
     price: 28,
     category: 'Apparel',
     artist: 'Marvelous Black™',
-    image: '/images/products/marvelous-black-blackline-cap.png',
-    images: ['/images/products/marvelous-black-blackline-cap.png'],
+    image: '/images/products/marvelous-black-blackline-cap.svg',
+    images: ['/images/products/marvelous-black-blackline-cap.svg'],
     description: 'Blackline Cap by Marvelous Black™. Structured, premium build. Preview — coming soon.',
     fulfillment: 'img_fulfillment',
     available: false,
@@ -495,8 +460,8 @@ export const PRODUCTS: Product[] = [
     price: 48,
     category: 'Apparel',
     artist: 'Marvelous Black™',
-    image: '/images/products/marvelous-black-centerline-crewneck.png',
-    images: ['/images/products/marvelous-black-centerline-crewneck.png'],
+    image: '/images/products/marvelous-black-centerline-crewneck.svg',
+    images: ['/images/products/marvelous-black-centerline-crewneck.svg'],
     description: 'Centerline Crewneck by Marvelous Black™. Relaxed fit, premium fabric. Preview — coming soon.',
     fulfillment: 'img_fulfillment',
     available: false,
