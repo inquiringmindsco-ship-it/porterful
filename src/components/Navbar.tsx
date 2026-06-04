@@ -102,6 +102,8 @@ export function Navbar() {
     { href: '/music', label: 'Music' },
     { href: '/artists', label: 'Artists' },
     { href: '/store', label: 'Store' },
+    { href: '/brands', label: 'Brands' },
+    { href: '/collections/coming-home', label: 'Collections' },
     ...(showGuest ? [{ href: '/apply', label: 'Apply' }] : []),
   ]
 

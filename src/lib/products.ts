@@ -16,6 +16,73 @@ export interface Collection {
   featured: boolean
 }
 
+export interface Brand {
+  id: string
+  slug: string
+  name: string
+  tagline: string
+  description: string
+  category: string
+  logo?: string
+  featured: boolean
+  foundingBrand: boolean
+}
+
+export const BRANDS: Brand[] = [
+  {
+    id: 'noble-naturals',
+    slug: 'noble-naturals',
+    name: 'Noble Naturals™',
+    tagline: 'Wellness & Hair Care',
+    description: 'Natural hair care products crafted with premium ingredients for all hair types.',
+    category: 'Wellness & Hair Care',
+    featured: true,
+    foundingBrand: true,
+  },
+  {
+    id: 'marvelous-black',
+    slug: 'marvelous-black',
+    name: 'Marvelous Black™',
+    tagline: 'Premium Apparel',
+    description: 'Premium apparel designed for those who set the standard.',
+    category: 'Apparel',
+    featured: true,
+    foundingBrand: true,
+  },
+  {
+    id: 'coming-home',
+    slug: 'coming-home',
+    name: 'Coming Home Collection™',
+    tagline: 'Resilience & New Beginnings',
+    description: 'Products inspired by resilience, rebuilding, second chances, and new beginnings.',
+    category: 'Collection',
+    logo: '/images/collections/coming-home-badge.png',
+    featured: true,
+    foundingBrand: true,
+  },
+]
+
+export function getBrandBySlug(slug: string): Brand | undefined {
+  return BRANDS.find(b => b.slug === slug)
+}
+
+export function getBrandProducts(products: Product[], brandSlug: string): Product[] {
+  // Match by artist name or collection
+  const brand = getBrandBySlug(brandSlug)
+  if (!brand) return []
+  
+  if (brandSlug === 'coming-home') {
+    return products.filter(p => p.collection === 'coming-home')
+  }
+  
+  return products.filter(p => 
+    p.artist.toLowerCase().includes(brand.name.toLowerCase().replace('™', '')) ||
+    p.category === brand.category
+  )
+}
+
+export const FOUNDING_BRANDS = BRANDS.filter(b => b.foundingBrand)
+
 export const COMING_HOME_COLLECTION: Collection = {
   id: 'coming-home',
   slug: 'coming-home',
@@ -366,6 +433,79 @@ export const PRODUCTS: Product[] = [
     rating: 0,
     reviews: 0,
     collection: 'coming-home',
+  },
+  // Marvelous Black™ — Founding Brand (Preview)
+  {
+    id: 'marvelous-black-standard-tee',
+    name: 'The Standard Tee',
+    price: 32,
+    category: 'Apparel',
+    artist: 'Marvelous Black™',
+    image: '/images/products/marvelous-black-standard-tee.png',
+    images: ['/images/products/marvelous-black-standard-tee.png'],
+    description: 'The Standard Tee by Marvelous Black™. Premium cotton, timeless design. Preview — coming soon.',
+    fulfillment: 'img_fulfillment',
+    available: false,
+    inStock: false,
+    featured: false,
+    artistCut: 0,
+    sales: 0,
+    rating: 0,
+    reviews: 0,
+  },
+  {
+    id: 'marvelous-black-standard-hoodie',
+    name: 'The Standard Hoodie',
+    price: 55,
+    category: 'Apparel',
+    artist: 'Marvelous Black™',
+    image: '/images/products/marvelous-black-standard-hoodie.png',
+    images: ['/images/products/marvelous-black-standard-hoodie.png'],
+    description: 'The Standard Hoodie by Marvelous Black™. Premium weight, clean lines. Preview — coming soon.',
+    fulfillment: 'img_fulfillment',
+    available: false,
+    inStock: false,
+    featured: false,
+    artistCut: 0,
+    sales: 0,
+    rating: 0,
+    reviews: 0,
+  },
+  {
+    id: 'marvelous-black-blackline-cap',
+    name: 'Blackline Cap',
+    price: 28,
+    category: 'Apparel',
+    artist: 'Marvelous Black™',
+    image: '/images/products/marvelous-black-blackline-cap.png',
+    images: ['/images/products/marvelous-black-blackline-cap.png'],
+    description: 'Blackline Cap by Marvelous Black™. Structured, premium build. Preview — coming soon.',
+    fulfillment: 'img_fulfillment',
+    available: false,
+    inStock: false,
+    featured: false,
+    artistCut: 0,
+    sales: 0,
+    rating: 0,
+    reviews: 0,
+  },
+  {
+    id: 'marvelous-black-centerline-crewneck',
+    name: 'Centerline Crewneck',
+    price: 48,
+    category: 'Apparel',
+    artist: 'Marvelous Black™',
+    image: '/images/products/marvelous-black-centerline-crewneck.png',
+    images: ['/images/products/marvelous-black-centerline-crewneck.png'],
+    description: 'Centerline Crewneck by Marvelous Black™. Relaxed fit, premium fabric. Preview — coming soon.',
+    fulfillment: 'img_fulfillment',
+    available: false,
+    inStock: false,
+    featured: false,
+    artistCut: 0,
+    sales: 0,
+    rating: 0,
+    reviews: 0,
   },
 ]
 

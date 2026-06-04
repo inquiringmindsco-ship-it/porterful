@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutGrid, Music, Store, Users, ShieldCheck } from 'lucide-react'
+import { LayoutGrid, Music, Store, Users, ShieldCheck, Star } from 'lucide-react'
 import { useAudio } from '@/lib/audio-context'
 import { useSupabase } from '@/app/providers'
 import { useEffect, useState } from 'react'
@@ -16,6 +16,7 @@ const BASE_ITEMS = [
   { href: '/music', label: 'Music', icon: Music },
   { href: '/artists', label: 'Artists', icon: Users },
   { href: '/store', label: 'Store', icon: Store },
+  { href: '/brands', label: 'Brands', icon: Star },
   { href: '/dashboard', label: 'Dashboard', icon: LayoutGrid },
 ]
 
@@ -46,11 +47,20 @@ export function MobileBottomNav() {
   }, [user, supabase])
 
   const isFounder = userRole === 'admin' || userRole === 'founder'
+  const isArtist = userRole === 'artist' || userRole === 'member'
 
-  // Build items array: base + founder link if applicable
-  const items = isFounder
-    ? [...BASE_ITEMS, { href: '/dashboard/founder', label: 'Founder', icon: ShieldCheck }]
-    : BASE_ITEMS
+  // Build items array with role-appropriate dashboard link
+  const items = BASE_ITEMS.map(item => {
+    // Override dashboard link based on role
+    if (item.href === '/dashboard') {
+      if (isFounder) {
+        return { ...item, href: '/dashboard/founder' }
+      } else if (isArtist) {
+        return { ...item, href: '/dashboard/artist' }
+      }
+    }
+    return item
+  })
 
   // Hide on tap routes (existing convention) so the nav doesn't bleed into
   // standalone tap-in flows.

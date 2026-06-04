@@ -17,10 +17,11 @@ import {
   Shield,
   Package,
   Home,
+  Star,
 } from 'lucide-react'
 import { useSupabase } from '@/app/providers'
 import { useToast } from '@/components/Toast'
-import { PRODUCTS, isPurchasable, type Product } from '@/lib/products'
+import { PRODUCTS, isPurchasable, type Product, BRANDS } from '@/lib/products'
 
 const REFERRAL_COOKIE = 'porterful_referral'
 const REFERRAL_COOKIE_MAX_AGE = 60 * 60 * 24 * 30
@@ -468,6 +469,36 @@ export default function StorePage() {
             </div>
           )}
         </div>
+
+        {/* FEATURED BRANDS SECTION */}
+        <section className="mb-12">
+          <div className="mb-5 flex items-center gap-3">
+            <div className="h-px flex-1 bg-[var(--pf-orange)]/20" />
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--pf-orange)]">
+              <Star size={12} />
+              Featured Brands
+            </span>
+            <div className="h-px flex-1 bg-[var(--pf-orange)]/20" />
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {BRANDS.filter(b => b.foundingBrand).map(brand => (
+              <Link
+                key={brand.id}
+                href={`/brands/${brand.slug}`}
+                className="group flex items-center gap-4 rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-4 transition-all hover:border-[var(--pf-orange)]/30"
+              >
+                <div className="h-14 w-14 rounded-xl bg-[var(--pf-bg)] flex items-center justify-center text-2xl shrink-0">
+                  {brand.slug === 'noble-naturals' ? '🌿' : brand.slug === 'marvelous-black' ? '⚫' : '🏠'}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-white truncate group-hover:text-[var(--pf-orange)] transition-colors">{brand.name}</p>
+                  <p className="text-xs text-[var(--pf-text-muted)] truncate">{brand.tagline}</p>
+                </div>
+                <ArrowRight size={16} className="text-[var(--pf-text-muted)] group-hover:text-[var(--pf-orange)] transition-colors shrink-0" />
+              </Link>
+            ))}
+          </div>
+        </section>
 
         {/* Search + Filter */}
         <div className="mb-8 grid gap-4 lg:grid-cols-[1fr_auto] lg:items-center">
