@@ -278,6 +278,60 @@ export function ProductDetailPage() {
             </div>
           </div>
         </div>
+
+        {/* From the Creator — Value Visibility Section */}
+        <div className="mt-16 rounded-[24px] border border-[var(--pf-border)] bg-[var(--pf-surface)] p-8">
+          <div className="flex items-center gap-2 mb-6">
+            <Star size={20} className="text-[var(--pf-orange)]" />
+            <h2 className="text-xl font-bold text-white">From the Creator</h2>
+          </div>
+          <div className="grid gap-8 md:grid-cols-2">
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="h-12 w-12 rounded-full bg-[var(--pf-orange)]/10 flex items-center justify-center text-[var(--pf-orange)] font-bold">
+                  {product.artist.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <p className="font-semibold text-white">{product.artist}</p>
+                  <p className="text-sm text-[var(--pf-text-muted)]">Creator on Porterful</p>
+                </div>
+              </div>              <p className="text-sm text-[var(--pf-text-secondary)]">
+                This {product.category?.toLowerCase() || 'product'} was created by {product.artist} and 
+                is sold directly through Porterful. When you buy here, you support the creator — 
+                not a marketplace middleman.
+              </p>
+              <Link
+                href={`/artist/${product.artist.toLowerCase().replace(/\s+/g, '-')}`}
+                className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-[var(--pf-orange)] hover:underline"
+              >
+                See more from {product.artist} →
+              </Link>
+            </div>
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold text-white">Related from Porterful</h3>
+              <div className="grid gap-3">
+                <Link href="/store" className="flex items-center gap-3 rounded-xl border border-[var(--pf-border)] p-3 transition-colors hover:border-[var(--pf-orange)]/30">
+                  <div className="h-10 w-10 rounded-lg bg-[var(--pf-bg)] flex items-center justify-center">
+                    <Package size={18} className="text-[var(--pf-orange)]" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-white">Browse the Store</p>
+                    <p className="text-xs text-[var(--pf-text-muted)]">Discover more products</p>
+                  </div>
+                </Link>
+                <Link href="/collections/coming-home" className="flex items-center gap-3 rounded-xl border border-[var(--pf-border)] p-3 transition-colors hover:border-[#C4956A]/30">
+                  <div className="h-10 w-10 rounded-lg bg-[#C4956A]/10 flex items-center justify-center">
+                    <Heart size={18} className="text-[#C4956A]" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-white">Coming Home Collection™</p>
+                    <p className="text-xs text-[var(--pf-text-muted)]">Products with meaning</p>
+                  </div>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )

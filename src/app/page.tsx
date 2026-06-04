@@ -770,6 +770,129 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* HOW PORTERFUL WORKS — Value Visibility Section */}
+        <section className="pf-reveal-group border-t border-[var(--pf-border)]">
+          <div className="pf-container py-12 md:py-20">
+            <div className="pf-reveal-child mb-10 text-center">
+              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--pf-orange)]">
+                How It Works
+              </p>
+              <h2 className="mt-2 text-3xl font-bold text-white md:text-4xl">
+                Creator → Content → Commerce
+              </h2>
+              <p className="mt-3 text-[var(--pf-text-secondary)] max-w-xl mx-auto">
+                Upload once. Sell everywhere. Keep control.
+              </p>
+            </div>
+
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {[
+                {
+                  step: '1',
+                  title: 'Upload',
+                  desc: 'Music, merch, or any product you create.',
+                  icon: 'Upload',
+                },
+                {
+                  step: '2',
+                  title: 'Build Audience',
+                  desc: 'Share your work. Grow your listeners.',
+                  icon: 'Users',
+                },
+                {
+                  step: '3',
+                  title: 'Sell Direct',
+                  desc: 'Fans buy from you — not a middleman.',
+                  icon: 'ShoppingBag',
+                },
+                {
+                  step: '4',
+                  title: 'Track Results',
+                  desc: 'See what works. Grow smarter.',
+                  icon: 'TrendingUp',
+                },
+              ].map((item, idx) => (
+                <div key={item.step} className="pf-reveal-child relative">
+                  {/* Connector line */}
+                  {idx < 3 && (
+                    <div className="hidden lg:block absolute top-8 left-full w-full h-0.5 bg-[var(--pf-border)]">
+                      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-[var(--pf-orange)]" />
+                    </div>
+                  )}
+                  <div className="rounded-[24px] border border-[var(--pf-border)] bg-[var(--pf-surface)] p-6 text-center transition-all hover:border-[var(--pf-orange)]/30">
+                    <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--pf-orange)]/10 text-[var(--pf-orange)]">
+                      <span className="text-xl font-black">{item.step}</span>
+                    </div>
+                    <h3 className="text-lg font-bold text-white mb-2">{item.title}</h3>
+                    <p className="text-sm text-[var(--pf-text-secondary)]">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Measurement Preview — Future Value Visibility */}
+        <section className="pf-reveal-group border-t border-[var(--pf-border)]">
+          <div className="pf-container py-12 md:py-16">
+            <div className="pf-reveal-child mb-8 text-center">
+              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-emerald-400">
+                Creator Dashboard
+              </p>
+              <h2 className="mt-2 text-3xl font-bold text-white md:text-4xl">
+                See What Works. Grow Smarter.
+              </h2>
+              <p className="mt-3 text-[var(--pf-text-secondary)] max-w-xl mx-auto">
+                Your Porterful dashboard shows you everything that matters.
+              </p>
+            </div>
+
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              {[
+                {
+                  label: 'Top Content',
+                  value: 'See your most-played tracks',
+                  icon: '🎵',
+                  color: 'emerald',
+                },
+                {
+                  label: 'Top Products',
+                  value: 'Track your bestselling merch',
+                  icon: '📦',
+                  color: 'emerald',
+                },
+                {
+                  label: 'Audience Growth',
+                  value: 'Watch your listeners grow',
+                  icon: '📈',
+                  color: 'emerald',
+                },
+                {
+                  label: 'Engagement',
+                  value: 'Understand what fans love',
+                  icon: '💬',
+                  color: 'emerald',
+                },
+              ].map((item) => (
+                <div
+                  key={item.label}
+                  className="pf-reveal-child rounded-[24px] border border-[var(--pf-border)] bg-[var(--pf-surface)] p-6 transition-all hover:border-emerald-500/30"
+                >
+                  <div className="text-3xl mb-3">{item.icon}</div>
+                  <h3 className="text-lg font-bold text-white mb-1">{item.label}</h3>
+                  <p className="text-sm text-[var(--pf-text-secondary)]">{item.value}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="pf-reveal-child mt-8 text-center">
+              <p className="text-sm text-[var(--pf-text-muted)]">
+                Measurement features coming soon. Founding Beta members get early access.
+              </p>
+            </div>
+          </div>
+        </section>
+
         <section className="pf-reveal-group">
           <div className="pf-container py-12 md:py-16">
             <div className="pf-reveal-child rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(249,115,22,0.14),transparent_28%),linear-gradient(180deg,rgba(15,17,21,0.98),rgba(8,9,12,0.98))] px-6 py-10 text-center shadow-[0_28px_80px_rgba(0,0,0,0.3)] md:px-10 md:py-14">

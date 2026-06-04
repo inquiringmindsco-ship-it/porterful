@@ -156,6 +156,58 @@ export function ArtistTabs({
         })}
       </div>
 
+      {/* Support This Creator — Value Visibility Section */}
+      <div className="mb-8 rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <Star size={18} className="text-[var(--pf-orange)]" />
+          <h3 className="text-lg font-bold text-white">Support This Creator</h3>
+        </div>
+        <p className="text-sm text-[var(--pf-text-secondary)] mb-4">
+          When you buy from {artistName}, you support them directly. No middleman. No label taking a cut. 
+          Just you, the creator, and the work.
+        </p>
+        <div className="grid gap-3 sm:grid-cols-3">
+          <button
+            onClick={() => setActive('music')}
+            className="flex items-center gap-3 rounded-xl border border-[var(--pf-border)] p-4 text-left transition-colors hover:border-[var(--pf-orange)]/30"
+          >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--pf-orange)]/10">
+              <Disc size={20} className="text-[var(--pf-orange)]" />
+            </div>
+            <div>
+              <p className="font-medium text-white">Stream Music</p>
+              <p className="text-xs text-[var(--pf-text-muted)]">Listen & share</p>
+            </div>
+          </button>
+          
+          <button
+            onClick={() => setActive('store')}
+            className="flex items-center gap-3 rounded-xl border border-[var(--pf-border)] p-4 text-left transition-colors hover:border-[var(--pf-orange)]/30"
+          >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--pf-orange)]/10">
+              <Star size={20} className="text-[var(--pf-orange)]" />
+            </div>
+            <div>
+              <p className="font-medium text-white">Shop Products</p>
+              <p className="text-xs text-[var(--pf-text-muted)]">Buy direct</p>
+            </div>
+          </button>
+          
+          <Link
+            href="/store"
+            className="flex items-center gap-3 rounded-xl border border-[var(--pf-border)] p-4 transition-colors hover:border-[var(--pf-orange)]/30"
+          >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--pf-orange)]/10">
+              <ArrowRight size={20} className="text-[var(--pf-orange)]" />
+            </div>
+            <div>
+              <p className="font-medium text-white">Browse All</p>
+              <p className="text-xs text-[var(--pf-text-muted)]">Discover more</p>
+            </div>
+          </Link>
+        </div>
+      </div>
+
       {/* Music */}
       {active === 'music' && (
         <div className="space-y-8">
