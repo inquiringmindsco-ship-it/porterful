@@ -4,12 +4,14 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useSupabase } from '@/app/providers';
 import { useRouter } from 'next/navigation';
-import { User, Code, CreditCard, Bell, ExternalLink } from 'lucide-react';
+import { User, Code, CreditCard, Bell, ExternalLink, Play } from 'lucide-react';
 import { useAccent } from '@/lib/accent-context';
+import { useGuidedTour } from '@/components/guidance/GuidedTour';
 
 export default function SettingsPage() {
   const { supabase, user } = useSupabase();
   const { accent, presets, setAccent, resetAccent } = useAccent();
+  const { restartTour } = useGuidedTour();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'account' | 'referrals' | 'payouts' | 'notifications'>('account');
   const [loading, setLoading] = useState(true);
@@ -235,7 +237,15 @@ export default function SettingsPage() {
                         Choose the Porterful accent used across your app interface.
                       </p>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => restartTour(profile.role === 'founder' || profile.role === 'admin' ? 'founder' : 'artist')}
+                        className="inline-flex items-center gap-2 rounded-lg border border-[var(--pf-border)] px-3 py-2 text-sm font-medium text-[var(--pf-text-secondary)] transition-colors hover:border-[var(--pf-orange)] hover:text-[var(--pf-text)]"
+                      >
+                        <Play size={14} />
+                        Restart Guided Tour
+                      </button>
                       <span className="inline-flex items-center gap-2 rounded-full border border-[var(--pf-border)] bg-[var(--pf-bg)] px-3 py-1.5 text-xs font-medium text-[var(--pf-text-muted)]">
                         <span
                           className="h-3 w-3 rounded-full border border-[var(--pf-border)]"

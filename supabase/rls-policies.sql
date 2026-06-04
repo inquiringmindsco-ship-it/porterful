@@ -4,7 +4,7 @@
 
 -- PROFILES
 DROP POLICY IF EXISTS "Anyone can read profiles" ON profiles;
-CREATE POLICY "Anyone can read profiles" ON profiles FOR SELECT USING (true);
+CREATE POLICY "Authenticated users can read profiles" ON profiles FOR SELECT USING (auth.uid() IS NOT NULL);
 DROP POLICY IF EXISTS "Users can update own profile" ON profiles;
 CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.uid() = id);
 
@@ -159,3 +159,59 @@ FOR SELECT USING (
       AND fulfillment_jobs.artist_id = auth.uid()
   )
 );
+
+-- ============================================
+-- REVISED POLICIES (Migration 040)
+-- ============================================
+
+-- PRODUCT SKUS (REVISED: no public read, artist isolation + founder/admin)
+DROP POLICY IF EXISTS "Artists can read own product SKUs" ON product_skus;
+CREATE POLICY "Artists can read own product SKUs" ON product_skus
+  FOR SELECT USING (auth.uid() = artist_id);
+
+DROP POLICY IF EXISTS "Founder/admin can read all product SKUs" ON product_skus;
+CREATE POLICY "Founder/admin can read all product SKUs" ON product_skus
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM profiles
+      WHERE profiles.id = auth.uid()
+        AND profiles.role IN ('founder', 'admin')
+    )
+  );
+
+DROP POLICY IF EXISTS "Founder/admin can manage product SKUs" ON product_skus;
+CREATE POLICY "Founder/admin can manage product SKUs" ON product_skus
+  FOR ALL USING (
+    EXISTS (
+      SELECT 1 FROM profiles
+      WHERE profiles.id = auth.uid()
+        AND profiles.role IN ('founder', 'admin')
+    )
+  );
+
+-- ENTITLEMENTS (NEW: full RLS with buyer_user_id isolation)
+ALTER TABLE entitlements ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can read own entitlements" ON entitlements;
+CREATE POLICY "Users can read own entitlements" ON entitlements
+  FOR SELECT USING (auth.uid() = buyer_user_id);
+
+DROP POLICY IF EXISTS "Founder/admin can read all entitlements" ON entitlements;
+CREATE POLICY "Founder/admin can read all entitlements" ON entitlements
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM profiles
+      WHERE profiles.id = auth.uid()
+        AND profiles.role IN ('founder', 'admin')
+    )
+  );
+
+DROP POLICY IF EXISTS "Founder/admin can manage entitlements" ON entitlements;
+CREATE POLICY "Founder/admin can manage entitlements" ON entitlements
+  FOR ALL USING (
+    EXISTS (
+      SELECT 1 FROM profiles
+      WHERE profiles.id = auth.uid()
+        AND profiles.role IN ('founder', 'admin')
+    )
+  );

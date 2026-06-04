@@ -414,18 +414,20 @@ export default function FounderFulfillmentQueuePage() {
   return (
     <div className="min-h-screen pt-24 pb-12">
       <div className="pf-container max-w-7xl space-y-8">
-        <StageTracker
-          title="Founder Fulfillment Pipeline"
-          stages={[
-            { label: 'Create Job', status: summary.total > 0 ? 'complete' : 'current' },
-            { label: 'Reserve', status: summary.reserved > 0 ? 'complete' : 'pending' },
-            { label: 'Print', status: summary.printing > 0 ? 'complete' : 'pending' },
-            { label: 'QC', status: summary.qc > 0 ? 'complete' : 'pending' },
-            { label: 'Pack', status: summary.packed > 0 ? 'complete' : 'pending' },
-            { label: 'Ship', status: summary.shipped > 0 ? 'complete' : 'pending' },
-            { label: 'Deliver', status: summary.delivered > 0 ? 'complete' : 'pending' },
-          ]}
-        />
+        <div data-tour-id="founder-fulfillment-overview">
+          <StageTracker
+            title="Founder Fulfillment Pipeline"
+            stages={[
+              { label: 'Create Job', status: summary.total > 0 ? 'complete' : 'current' },
+              { label: 'Reserve', status: summary.reserved > 0 ? 'complete' : 'pending' },
+              { label: 'Print', status: summary.printing > 0 ? 'complete' : 'pending' },
+              { label: 'QC', status: summary.qc > 0 ? 'complete' : 'pending' },
+              { label: 'Pack', status: summary.packed > 0 ? 'complete' : 'pending' },
+              { label: 'Ship', status: summary.shipped > 0 ? 'complete' : 'pending' },
+              { label: 'Deliver', status: summary.delivered > 0 ? 'complete' : 'pending' },
+            ]}
+          />
+        </div>
 
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           <AttentionCard
@@ -503,7 +505,7 @@ export default function FounderFulfillmentQueuePage() {
           </div>
         )}
 
-        <div className="grid grid-cols-2 md:grid-cols-5 xl:grid-cols-9 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-5 xl:grid-cols-9 gap-4" data-tour-id="founder-fulfillment-summary">
           {[
             ['Total', summary.total],
             ['Pending', summary.pending],
@@ -523,7 +525,7 @@ export default function FounderFulfillmentQueuePage() {
         </div>
 
         <div className="grid gap-6 xl:grid-cols-[420px_minmax(0,1fr)]">
-          <div className="pf-card p-6 space-y-4">
+          <div className="pf-card p-6 space-y-4" data-tour-id="founder-fulfillment-create">
             <div className="flex items-center gap-2">
               <Plus size={16} className="text-[var(--pf-orange)]" />
               <h2 className="text-xl font-semibold">Create Fulfillment Job</h2>
@@ -637,7 +639,7 @@ export default function FounderFulfillmentQueuePage() {
           </div>
 
           <div className="space-y-4">
-            <div className="pf-card p-4 md:p-6">
+            <div className="pf-card p-4 md:p-6" data-tour-id="founder-fulfillment-queue">
               <div className="flex items-center justify-between gap-4 flex-wrap">
                 <div className="flex items-center gap-2">
                   <Filter size={16} className="text-[var(--pf-orange)]" />
@@ -816,7 +818,7 @@ export default function FounderFulfillmentQueuePage() {
               </div>
             </div>
 
-            <div className="pf-card p-4 md:p-6 space-y-4" id="shipment-events">
+            <div className="pf-card p-4 md:p-6 space-y-4" id="shipment-events" data-tour-id="founder-shipment-timeline">
               <div className="flex items-center justify-between gap-4 flex-wrap">
                 <div>
                   <div className="flex items-center gap-2">

@@ -7,6 +7,7 @@ import { useSupabase } from '@/app/providers'
 import Link from 'next/link'
 import { ArrowLeft, Music, Package, Upload } from 'lucide-react'
 import { GuidanceRoadmap, StageTracker, EmptyState } from '@/components/guidance/GuidedExperience'
+import { useGuidedTour } from '@/components/guidance/GuidedTour'
 
 const Icon = {
   Music: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></svg>,
@@ -24,6 +25,7 @@ const Icon = {
 export default function ArtistDashboardPage() {
   const router = useRouter()
   const { user, supabase, loading: authLoading } = useSupabase()
+  const { restartTour } = useGuidedTour()
   const [profile, setProfile] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'tracks' | 'products'>('tracks')
@@ -235,17 +237,19 @@ export default function ArtistDashboardPage() {
       <div className="pf-container max-w-4xl">
 
         {/* GUIDANCE: Artist Path */}
-        <StageTracker
-          title="Your Production Path"
-          stages={[
-            { label: 'Submit Asset', status: productionAssets.length > 0 ? 'complete' : 'current' },
-            { label: 'Review', status: guidance.submittedAssets.length > 0 ? 'current' : productionAssets.length > 0 ? 'complete' : 'pending' },
-            { label: 'Approved', status: guidance.productionApprovedAssets.length > 0 ? 'complete' : 'pending' },
-            { label: 'SKU', status: artistSkus.length > 0 ? 'complete' : 'pending' },
-            { label: 'Inventory', status: guidance.availableInventory > 0 ? 'complete' : 'pending' },
-            { label: 'Fulfillment', status: fulfillmentJobs.length > 0 ? 'complete' : 'pending' },
-          ]}
-        />
+        <div data-tour-id="artist-dashboard-guidance">
+          <StageTracker
+            title="Your Production Path"
+            stages={[
+              { label: 'Submit Asset', status: productionAssets.length > 0 ? 'complete' : 'current' },
+              { label: 'Review', status: guidance.submittedAssets.length > 0 ? 'current' : productionAssets.length > 0 ? 'complete' : 'pending' },
+              { label: 'Approved', status: guidance.productionApprovedAssets.length > 0 ? 'complete' : 'pending' },
+              { label: 'SKU', status: artistSkus.length > 0 ? 'complete' : 'pending' },
+              { label: 'Inventory', status: guidance.availableInventory > 0 ? 'complete' : 'pending' },
+              { label: 'Fulfillment', status: fulfillmentJobs.length > 0 ? 'complete' : 'pending' },
+            ]}
+          />
+        </div>
 
         <GuidanceRoadmap
           eyebrow="Artist path"
@@ -295,16 +299,16 @@ export default function ArtistDashboardPage() {
             <h1 className="text-2xl font-bold">My Catalog</h1>
             <p className="text-sm text-[var(--pf-text-secondary)]">Music and products</p>
             <div className="mt-3 flex flex-wrap gap-2">
-              <Link href="/dashboard/artist/assets" className="pf-btn pf-btn-secondary flex items-center gap-2">
+              <Link href="/dashboard/artist/assets" className="pf-btn pf-btn-secondary flex items-center gap-2" data-tour-id="artist-assets-link">
                 <Icon.Package /> Production Assets
               </Link>
-              <Link href="/dashboard/artist/skus" className="pf-btn pf-btn-secondary flex items-center gap-2">
+              <Link href="/dashboard/artist/skus" className="pf-btn pf-btn-secondary flex items-center gap-2" data-tour-id="artist-skus-link">
                 <Icon.Package /> SKUs
               </Link>
-              <Link href="/dashboard/artist/inventory" className="pf-btn pf-btn-secondary flex items-center gap-2">
+              <Link href="/dashboard/artist/inventory" className="pf-btn pf-btn-secondary flex items-center gap-2" data-tour-id="artist-inventory-link">
                 <Icon.Package /> Inventory
               </Link>
-              <Link href="/dashboard/artist/fulfillment" className="pf-btn pf-btn-secondary flex items-center gap-2">
+              <Link href="/dashboard/artist/fulfillment" className="pf-btn pf-btn-secondary flex items-center gap-2" data-tour-id="artist-fulfillment-link">
                 <Icon.Package /> Fulfillment Queue
               </Link>
               <Link href="/dashboard/artist/returns" className="pf-btn pf-btn-secondary flex items-center gap-2">
@@ -322,11 +326,14 @@ export default function ArtistDashboardPage() {
             <Link href="/store" className="pf-btn pf-btn-secondary flex items-center gap-2">
               <Icon.Package /> View Store
             </Link>
+            <button type="button" onClick={() => restartTour('artist')} className="pf-btn pf-btn-secondary flex items-center gap-2">
+              <Icon.Edit /> Restart Tour
+            </button>
           </div>
         </div>
 
         {/* Summary row — compact, single row, no big stat cards */}
-        <div className="rounded-xl border border-[var(--pf-border)] bg-[var(--pf-surface)] divide-x divide-[var(--pf-border)] grid grid-cols-3 mb-8 overflow-hidden">
+        <div className="rounded-xl border border-[var(--pf-border)] bg-[var(--pf-surface)] divide-x divide-[var(--pf-border)] grid grid-cols-3 mb-8 overflow-hidden" data-tour-id="artist-dashboard-summary">
           <div className="px-4 py-3">
             <p className="text-xl font-bold">{dbTracks.length}</p>
             <p className="text-xs text-[var(--pf-text-muted)]">Tracks</p>

@@ -9,9 +9,11 @@ import {
   CheckCircle, XCircle, Play, Pause,
   ChevronUp, ChevronDown, Shield, TrendingUp,
   Star, Sparkles, LayoutTemplate, Search, Filter,
+  RefreshCw,
   ExternalLink, Edit3, Eye
 } from 'lucide-react'
 import { EmptyState, GuidanceRoadmap, StageTracker, NextStepCard, AttentionCard } from '@/components/guidance/GuidedExperience'
+import { useGuidedTour } from '@/components/guidance/GuidedTour'
 
 type ArtistWithProfile = {
   id: string
@@ -86,6 +88,7 @@ type RevenueTransaction = {
 export default function FounderDashboard() {
   const router = useRouter()
   const { user, supabase } = useSupabase()
+  const { restartTour } = useGuidedTour()
   const [loading, setLoading] = useState(true)
   const [metrics, setMetrics] = useState<Metric[]>([])
   const [artists, setArtists] = useState<ArtistWithProfile[]>([])
@@ -729,18 +732,20 @@ export default function FounderDashboard() {
     <div className="min-h-screen pt-24 pb-12">
       <div className="pf-container max-w-7xl">
         {/* GUIDANCE: Founder Operational Path */}
-        <StageTracker
-          title="Founder Operations"
-          stages={[
-            { label: 'Review Assets', status: merchGuidance.pendingAssetReviews.length > 0 ? 'current' : productionAssets.length > 0 ? 'complete' : 'current' },
-            { label: 'Approve/Reject', status: merchGuidance.pendingAssetReviews.length > 0 ? 'current' : productionAssets.length > 0 ? 'complete' : 'pending' },
-            { label: 'Production OK', status: merchGuidance.productionApprovedAssets.length > 0 ? 'complete' : 'pending' },
-            { label: 'Create SKU', status: productSkus.length > 0 ? 'complete' : 'pending' },
-            { label: 'Add Inventory', status: inventorySummaries.some((summary: any) => Number(summary.on_hand || 0) > 0) ? 'complete' : 'pending' },
-            { label: 'Manage Jobs', status: fulfillmentJobs.length > 0 ? 'complete' : 'pending' },
-            { label: 'Track Status', status: fulfillmentJobs.some((job: any) => ['shipped', 'delivered'].includes(job.status)) ? 'complete' : 'pending' },
-          ]}
-        />
+        <div data-tour-id="founder-dashboard-guidance">
+          <StageTracker
+            title="Founder Operations"
+            stages={[
+              { label: 'Review Assets', status: merchGuidance.pendingAssetReviews.length > 0 ? 'current' : productionAssets.length > 0 ? 'complete' : 'current' },
+              { label: 'Approve/Reject', status: merchGuidance.pendingAssetReviews.length > 0 ? 'current' : productionAssets.length > 0 ? 'complete' : 'pending' },
+              { label: 'Production OK', status: merchGuidance.productionApprovedAssets.length > 0 ? 'complete' : 'pending' },
+              { label: 'Create SKU', status: productSkus.length > 0 ? 'complete' : 'pending' },
+              { label: 'Add Inventory', status: inventorySummaries.some((summary: any) => Number(summary.on_hand || 0) > 0) ? 'complete' : 'pending' },
+              { label: 'Manage Jobs', status: fulfillmentJobs.length > 0 ? 'complete' : 'pending' },
+              { label: 'Track Status', status: fulfillmentJobs.some((job: any) => ['shipped', 'delivered'].includes(job.status)) ? 'complete' : 'pending' },
+            ]}
+          />
+        </div>
 
         <GuidanceRoadmap
           eyebrow="Founder ops"
@@ -780,7 +785,7 @@ export default function FounderDashboard() {
         />
 
         {/* Attention Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5 gap-4" data-tour-id="founder-dashboard-actions">
           <AttentionCard
             count={merchGuidance.pendingAssetReviews.length}
             label="Assets Waiting for Review"
@@ -837,19 +842,19 @@ export default function FounderDashboard() {
           </h1>
           <p className="text-[var(--pf-text-muted)] mt-1">Platform control and oversight</p>
           <div className="mt-4 flex flex-wrap gap-2">
-            <Link href="/dashboard/founder/assets" className="pf-btn pf-btn-secondary inline-flex items-center gap-2">
+            <Link href="/dashboard/founder/assets" className="pf-btn pf-btn-secondary inline-flex items-center gap-2" data-tour-id="founder-assets-link">
               <Package size={16} />
               Production Assets
             </Link>
-            <Link href="/dashboard/founder/skus" className="pf-btn pf-btn-secondary inline-flex items-center gap-2">
+            <Link href="/dashboard/founder/skus" className="pf-btn pf-btn-secondary inline-flex items-center gap-2" data-tour-id="founder-skus-link">
               <Package size={16} />
               SKUs
             </Link>
-            <Link href="/dashboard/founder/inventory" className="pf-btn pf-btn-secondary inline-flex items-center gap-2">
+            <Link href="/dashboard/founder/inventory" className="pf-btn pf-btn-secondary inline-flex items-center gap-2" data-tour-id="founder-inventory-link">
               <Package size={16} />
               Inventory
             </Link>
-            <Link href="/dashboard/founder/fulfillment" className="pf-btn pf-btn-secondary inline-flex items-center gap-2">
+            <Link href="/dashboard/founder/fulfillment" className="pf-btn pf-btn-secondary inline-flex items-center gap-2" data-tour-id="founder-fulfillment-link">
               <Package size={16} />
               Fulfillment Queue
             </Link>
@@ -857,6 +862,10 @@ export default function FounderDashboard() {
               <Package size={16} />
               Returns
             </Link>
+            <button type="button" onClick={() => restartTour('founder')} className="pf-btn pf-btn-secondary inline-flex items-center gap-2">
+              <RefreshCw size={16} />
+              Restart Tour
+            </button>
           </div>
         </div>
 
@@ -921,7 +930,7 @@ export default function FounderDashboard() {
         {activeTab === 'overview' && (
           <div className="space-y-6">
             {/* Metrics Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4" data-tour-id="founder-analytics-metrics">
               {metrics.map((metric) => (
                 <div
                   key={metric.label}
@@ -940,7 +949,7 @@ export default function FounderDashboard() {
 
             {/* Needs Attention */}
             {needsAttention.length > 0 && (
-              <div className="pf-card p-6">
+              <div className="pf-card p-6" data-tour-id="founder-needs-attention">
                 <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                   <AlertCircle className="text-yellow-500" />
                   Needs Attention ({needsAttention.length})

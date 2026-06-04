@@ -286,7 +286,7 @@ export default function ArtistProductionAssetsPage() {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-          <div className="pf-card p-6 space-y-4">
+          <div className="pf-card p-6 space-y-4" data-tour-id="artist-assets-submit-form">
             <div>
               <h2 className="text-xl font-semibold">Submit a production asset</h2>
               <p className="text-sm text-[var(--pf-text-muted)] mt-1">
@@ -451,7 +451,7 @@ export default function ArtistProductionAssetsPage() {
             </div>
           </div>
 
-          <div className="pf-card p-6 space-y-4">
+          <div className="pf-card p-6 space-y-4" data-tour-id="artist-assets-list">
             <div>
               <h2 className="text-xl font-semibold">Your submitted assets</h2>
               <p className="text-sm text-[var(--pf-text-muted)] mt-1">

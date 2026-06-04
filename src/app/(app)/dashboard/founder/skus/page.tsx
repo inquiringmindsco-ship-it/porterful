@@ -377,7 +377,7 @@ export default function FounderSkuPage() {
           ]}
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4" data-tour-id="founder-sku-summary">
           <AttentionCard
             count={approvedAssets.length}
             label="Assets Ready for SKU Creation"
@@ -457,7 +457,7 @@ export default function FounderSkuPage() {
         </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-          <div className="pf-card p-6 space-y-4">
+          <div className="pf-card p-6 space-y-4" data-tour-id="founder-sku-create">
             <div className="flex items-center gap-2">
               <Plus size={16} className="text-[var(--pf-orange)]" />
               <h2 className="text-xl font-semibold">Create SKU</h2>
@@ -799,7 +799,7 @@ export default function FounderSkuPage() {
           </div>
         </div>
 
-        <div className="pf-card overflow-hidden">
+          <div className="pf-card overflow-hidden" data-tour-id="founder-sku-list">
           <div className="p-4 border-b border-[var(--pf-border)] flex items-center justify-between gap-3">
             <div>
               <h2 className="text-lg font-semibold">All SKUs</h2>

@@ -20,10 +20,11 @@ export const supabase: SupabaseClient = new Proxy({} as SupabaseClient, {
   }
 })
 
-// Server-side Supabase client — only created at request time, never at module load
+// Server-side Supabase client — uses ANON key to respect RLS by default
+// For admin operations, use getAdminClient() from admin-client.ts
 export function createServerClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   return createClient(url!, key!, {
     auth: { persistSession: false }
   })

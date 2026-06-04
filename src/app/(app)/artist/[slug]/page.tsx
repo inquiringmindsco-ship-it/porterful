@@ -21,11 +21,13 @@ interface PageProps {
   params: Promise<{ slug: string }>
 }
 
-// Server-side Supabase client
+// Server-side Supabase client for public reads
 function getServerSupabase() {
+  // Public artist page should use ANON key to respect RLS
+  // Service role is only for explicit admin operations
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, // ✅ FIXED: anon key, not service role
     { auth: { persistSession: false } }
   )
 }

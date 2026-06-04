@@ -17,6 +17,26 @@ const PUBLIC_PATHS = [
   '/api/auth/session',
 ]
 
+// CRITICAL-002 FIX: Routes that require specific roles
+const PROTECTED_ROUTES = {
+  '/dashboard/founder': ['admin', 'founder'],
+  '/dashboard/admin': ['admin'],
+  '/api/admin': ['admin', 'founder'],
+} as const
+
+async function checkUserRole(supabase: any, allowedRoles: readonly string[]) {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return false
+  
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+    
+  return allowedRoles.includes(profile?.role)
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
@@ -48,6 +68,17 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(
         new URL(`/login?return=${returnUrl}`, request.nextUrl.origin)
       )
+    }
+
+    // CRITICAL-002 FIX: Check role-based access for protected routes
+    for (const [routePrefix, allowedRoles] of Object.entries(PROTECTED_ROUTES)) {
+      if (pathname.startsWith(routePrefix)) {
+        const hasRole = await checkUserRole(supabase, allowedRoles)
+        if (!hasRole) {
+          // Redirect unauthorized users to their appropriate dashboard
+          return NextResponse.redirect(new URL('/dashboard', request.nextUrl.origin))
+        }
+      }
     }
 
     return response

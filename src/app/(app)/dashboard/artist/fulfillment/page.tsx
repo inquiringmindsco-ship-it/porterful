@@ -189,18 +189,20 @@ export default function ArtistFulfillmentQueuePage() {
   return (
     <div className="min-h-screen pt-24 pb-12">
       <div className="pf-container max-w-7xl space-y-8">
-        <StageTracker
-          title="Fulfillment Journey"
-          stages={[
-            { label: 'Asset Submitted', status: 'complete' },
-            { label: 'Asset Approved', status: 'complete' },
-            { label: 'SKU Created', status: 'complete' },
-            { label: 'Inventory Added', status: 'complete' },
-            { label: 'Job Created', status: totals.total > 0 ? 'complete' : 'current' },
-            { label: 'Shipped', status: totals.shipped > 0 ? 'complete' : 'pending' },
-            { label: 'Delivered', status: totals.delivered > 0 ? 'complete' : 'pending' },
-          ]}
-        />
+        <div data-tour-id="artist-fulfillment-overview">
+          <StageTracker
+            title="Fulfillment Journey"
+            stages={[
+              { label: 'Asset Submitted', status: 'complete' },
+              { label: 'Asset Approved', status: 'complete' },
+              { label: 'SKU Created', status: 'complete' },
+              { label: 'Inventory Added', status: 'complete' },
+              { label: 'Job Created', status: totals.total > 0 ? 'complete' : 'current' },
+              { label: 'Shipped', status: totals.shipped > 0 ? 'complete' : 'pending' },
+              { label: 'Delivered', status: totals.delivered > 0 ? 'complete' : 'pending' },
+            ]}
+          />
+        </div>
 
         <NextStepCard
           title={totals.total === 0 ? "Fulfillment Not Yet Started" : "Track Your Fulfillment Jobs"}
@@ -238,7 +240,7 @@ export default function ArtistFulfillmentQueuePage() {
           </div>
         )}
 
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4" data-tour-id="artist-fulfillment-summary">
           <div className="pf-card p-4">
             <p className="text-xs uppercase text-[var(--pf-text-muted)]">Total</p>
             <p className="text-2xl font-bold mt-1">{totals.total}</p>
@@ -261,7 +263,7 @@ export default function ArtistFulfillmentQueuePage() {
           </div>
         </div>
 
-        <div className="pf-card p-4 md:p-6">
+        <div className="pf-card p-4 md:p-6" data-tour-id="artist-fulfillment-queue">
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div className="flex items-center gap-2">
               <Shield size={16} className="text-[var(--pf-orange)]" />
@@ -343,7 +345,7 @@ export default function ArtistFulfillmentQueuePage() {
             )}
           </div>
 
-          <div className="pf-card p-4 md:p-6 space-y-4">
+          <div className="pf-card p-4 md:p-6 space-y-4" data-tour-id="artist-shipment-timeline">
             <div className="flex items-center gap-2">
               <Truck className="text-[var(--pf-orange)]" size={16} />
               <h2 className="text-xl font-semibold">Shipment History</h2>

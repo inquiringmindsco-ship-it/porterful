@@ -160,7 +160,7 @@ export default function ArtistInventoryPage() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4" data-tour-id="artist-inventory-summary">
           <div className="pf-card p-4">
             <p className="text-xs uppercase text-[var(--pf-text-muted)]">On Hand</p>
             <p className="text-2xl font-bold mt-1">{totals.on_hand}</p>
@@ -175,7 +175,7 @@ export default function ArtistInventoryPage() {
           </div>
         </div>
 
-        <div className="pf-card overflow-hidden">
+        <div className="pf-card overflow-hidden" data-tour-id="artist-inventory-list">
           <div className="p-4 border-b border-[var(--pf-border)]">
             <div className="flex items-center gap-2">
               <TrendingUp size={16} className="text-[var(--pf-orange)]" />

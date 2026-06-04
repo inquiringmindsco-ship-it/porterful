@@ -15,12 +15,24 @@ function isDuplicateAuthUserError(error: { message?: string; status?: number } |
   )
 }
 
+// Valid roles for public signup — 'admin' and 'founder' require manual assignment
+const VALID_SIGNUP_ROLES = ['supporter', 'superfan', 'artist', 'business', 'brand'] as const
+type ValidSignupRole = typeof VALID_SIGNUP_ROLES[number]
+
 export async function POST(request: Request) {
   try {
     const { email, password, name, role, youtube, website, invite_artist_slug } = await request.json()
 
     if (!email || !password || !name || !role) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+    }
+
+    // CRITICAL-001 FIX: Reject privileged roles from public signup
+    if (!VALID_SIGNUP_ROLES.includes(role as ValidSignupRole)) {
+      return NextResponse.json(
+        { error: `Invalid role. Must be one of: ${VALID_SIGNUP_ROLES.join(', ')}` },
+        { status: 400 }
+      )
     }
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!

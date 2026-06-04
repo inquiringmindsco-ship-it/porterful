@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { ArrowRight, Lightbulb } from 'lucide-react'
+import { HelpTip, inferHelpText } from '@/components/guidance/GuidedTour'
 
 export type Stage = {
   label: string
@@ -26,6 +27,7 @@ export function StageTracker({ stages, title }: { stages: Stage[]; title?: strin
           <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--pf-text-secondary)]">
             {title}
           </h3>
+          <HelpTip label={title} text={inferHelpText(title)} />
         </div>
       )}
 
@@ -77,12 +79,14 @@ export function NextStepCard({
   actionLabel,
   actionHref,
   variant = 'default',
+  helpText,
 }: {
   title: string
   description: string
   actionLabel?: string
   actionHref?: string
   variant?: 'default' | 'warning' | 'success'
+  helpText?: string
 }) {
   const borderColor =
     variant === 'success'
@@ -99,9 +103,12 @@ export function NextStepCard({
 
   return (
     <div className={`rounded-xl border ${borderColor} ${bgColor} p-5 space-y-3`}>
-      <div>
-        <h3 className="font-semibold text-sm">{title}</h3>
-        <p className="text-sm text-[var(--pf-text-muted)] mt-1">{description}</p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h3 className="font-semibold text-sm">{title}</h3>
+          <p className="text-sm text-[var(--pf-text-muted)] mt-1">{description}</p>
+        </div>
+        <HelpTip label={title} text={helpText || inferHelpText(title)} />
       </div>
       {actionLabel && actionHref && (
         <Link
@@ -125,6 +132,7 @@ export function GuidanceRoadmap({
   signals = [],
   actionLabel,
   actionHref,
+  helpText,
 }: {
   eyebrow?: string
   title: string
@@ -134,6 +142,7 @@ export function GuidanceRoadmap({
   signals?: GuidanceSignal[]
   actionLabel?: string
   actionHref?: string
+  helpText?: string
 }) {
   const toneClasses = {
     neutral: 'border-[var(--pf-border)] bg-[var(--pf-surface)] text-[var(--pf-text-muted)]',
@@ -149,6 +158,7 @@ export function GuidanceRoadmap({
         <span className="text-xs uppercase tracking-wide text-[var(--pf-text-secondary)]">
           {eyebrow}
         </span>
+        <HelpTip label={title} text={helpText || inferHelpText(title)} />
       </div>
 
       <div className="space-y-1">
@@ -201,6 +211,7 @@ export function EmptyState({
   actionLabel,
   actionHref,
   points,
+  helpText,
 }: {
   icon: React.ReactNode
   title: string
@@ -208,19 +219,31 @@ export function EmptyState({
   actionLabel?: string
   actionHref?: string
   points?: { label: string; text: string }[]
+  helpText?: string
 }) {
+  const displayPoints = points && points.length > 0
+    ? points
+    : [
+        { label: 'What is this?', text: description },
+        { label: 'Why it matters', text: helpText || inferHelpText(title) },
+        { label: 'Next step', text: actionLabel ? `Use “${actionLabel}” to keep moving.` : 'Keep moving to the next step.' },
+      ]
+
   return (
     <div className="pf-card p-10 text-center space-y-4">
       <div className="mx-auto w-12 h-12 rounded-full bg-[var(--pf-surface)] flex items-center justify-center text-[var(--pf-text-muted)]">
         {icon}
       </div>
-      <div>
-        <p className="text-lg font-medium">{title}</p>
-        <p className="text-sm text-[var(--pf-text-muted)] mt-1 max-w-md mx-auto">{description}</p>
+      <div className="flex items-start justify-center gap-2">
+        <div>
+          <p className="text-lg font-medium">{title}</p>
+          <p className="text-sm text-[var(--pf-text-muted)] mt-1 max-w-md mx-auto">{description}</p>
+        </div>
+        <HelpTip label={title} text={helpText || inferHelpText(title)} />
       </div>
-      {points && points.length > 0 && (
+      {displayPoints.length > 0 && (
         <div className="mx-auto max-w-2xl grid gap-3 text-left sm:grid-cols-3">
-          {points.map((point) => (
+          {displayPoints.map((point) => (
             <div key={point.label} className="rounded-xl border border-[var(--pf-border)] bg-[var(--pf-surface)]/60 p-4">
               <p className="text-[11px] uppercase tracking-wide text-[var(--pf-text-muted)]">{point.label}</p>
               <p className="mt-1 text-sm text-[var(--pf-text-secondary)]">{point.text}</p>
@@ -242,11 +265,13 @@ export function AttentionCard({
   label,
   href,
   severity = 'warning',
+  helpText,
 }: {
   count: number
   label: string
   href: string
   severity?: 'warning' | 'error' | 'info' | 'success'
+  helpText?: string
 }) {
   if (count === 0) return null
 
@@ -266,7 +291,10 @@ export function AttentionCard({
     >
       <div className="flex items-center gap-3">
         <span className="text-2xl font-bold">{count}</span>
-        <span className="text-sm">{label}</span>
+        <span className="text-sm flex items-center gap-2">
+          {label}
+          <HelpTip label={label} text={helpText || inferHelpText(label)} />
+        </span>
         <ArrowRight size={16} className="ml-auto" />
       </div>
     </Link>

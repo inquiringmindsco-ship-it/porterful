@@ -85,7 +85,10 @@ function StoreProductCard({
   }
 
   return (
-    <article className="pf-card overflow-hidden border border-[var(--pf-border)] transition-colors hover:border-[var(--pf-text-muted)]">
+    <article
+      className="pf-card overflow-hidden border border-[var(--pf-border)] transition-colors hover:border-[var(--pf-text-muted)]"
+      data-tour-id={product.skuCode === 'COMING-HOME-TEE-001' ? 'controlled-merch-card' : undefined}
+    >
       <div className="relative aspect-square bg-[var(--pf-surface)]">
         <Image src={product.image} alt={product.name} fill className="object-cover" />
         {!purchasable && (
@@ -242,7 +245,7 @@ export default function StorePage() {
           </div>
         </div>
 
-        <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3" data-tour-id="store-products-grid">
           {filteredProducts.map((product) => (
             <StoreProductCard
               key={product.id}

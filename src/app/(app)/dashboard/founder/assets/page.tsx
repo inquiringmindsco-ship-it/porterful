@@ -202,17 +202,19 @@ export default function FounderProductionAssetsPage() {
   return (
     <div className="min-h-screen pt-24 pb-12">
       <div className="pf-container max-w-7xl space-y-8">
-        <StageTracker
-          title="Founder Review Pipeline"
-          stages={[
-            { label: 'Submitted', status: assets.some((a) => a.approval_status === 'submitted') ? 'current' : 'pending' },
-            { label: 'Under Review', status: assets.some((a) => a.approval_status === 'under_review') ? 'current' : 'pending' },
-            { label: 'Approved', status: assets.some((a) => a.approval_status === 'approved') ? 'current' : 'pending' },
-            { label: 'Production OK', status: assets.some((a) => a.production_status === 'production_approved') ? 'complete' : 'pending' },
-          ]}
-        />
+        <div data-tour-id="founder-dashboard-guidance">
+          <StageTracker
+            title="Founder Review Pipeline"
+            stages={[
+              { label: 'Submitted', status: assets.some((a) => a.approval_status === 'submitted') ? 'current' : 'pending' },
+              { label: 'Under Review', status: assets.some((a) => a.approval_status === 'under_review') ? 'current' : 'pending' },
+              { label: 'Approved', status: assets.some((a) => a.approval_status === 'approved') ? 'current' : 'pending' },
+              { label: 'Production OK', status: assets.some((a) => a.production_status === 'production_approved') ? 'complete' : 'pending' },
+            ]}
+          />
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4" data-tour-id="founder-assets-review-queue">
           <AttentionCard
             count={summary.review}
             label="Assets in Review Queue"
@@ -295,7 +297,7 @@ export default function FounderProductionAssetsPage() {
           </div>
         </div>
 
-        <div className="pf-card p-4 md:p-6">
+        <div className="pf-card p-4 md:p-6" data-tour-id="founder-assets-actions">
           <div className="grid gap-3 md:grid-cols-5">
             <select
               value={approvalFilter}

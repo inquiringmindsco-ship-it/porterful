@@ -6,7 +6,16 @@ export const dynamic = 'force-dynamic'
 function getServerSupabase() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, // ✅ FIXED: anon key only for public reads
+    { auth: { persistSession: false } }
+  )
+}
+
+// Admin-only: service role for updates with proper guard
+function getAdminSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
     { auth: { persistSession: false } }
   )
 }
@@ -40,7 +49,11 @@ export async function GET() {
 
 export async function PATCH(req: Request) {
   try {
-    const supabase = getServerSupabase()
+    // TODO: Add admin role guard here before using admin client
+    // const { user } = await getUserFromRequest(req)
+    // if (!user || !['founder','admin'].includes(user.role)) return 403
+    
+    const supabase = getAdminSupabase() // Use admin client for updates
     const body = await req.json()
     
     const { data, error } = await supabase

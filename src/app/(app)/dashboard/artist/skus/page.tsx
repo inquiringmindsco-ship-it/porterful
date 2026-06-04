@@ -147,7 +147,7 @@ export default function ArtistSkuPage() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4" data-tour-id="artist-sku-summary">
           <div className="pf-card p-4">
             <p className="text-xs uppercase text-[var(--pf-text-muted)]">Total SKUs</p>
             <p className="text-2xl font-bold mt-1">{summary.total}</p>
@@ -162,7 +162,7 @@ export default function ArtistSkuPage() {
           </div>
         </div>
 
-        <div className="pf-card overflow-hidden">
+        <div className="pf-card overflow-hidden" data-tour-id="artist-sku-list">
           <div className="p-4 border-b border-[var(--pf-border)] flex items-center justify-between gap-3">
             <div>
               <h2 className="text-lg font-semibold">Your SKUs</h2>

@@ -10,6 +10,7 @@ import { PayoutProvider } from '@/lib/payout-context'
 import { CartProvider } from '@/lib/cart-context'
 import { AccentProvider } from '@/lib/accent-context'
 import { ToastProvider } from '@/components/Toast'
+import { GuidedTourProvider } from '@/components/guidance/GuidedTour'
 import { createBrowserSupabaseClient } from '@/lib/create-browser-client'
 import { initSentry, captureAuthError } from '@/lib/sentry'
 import { ensureMeasurementSessionId } from '@/lib/measurement'
@@ -167,7 +168,7 @@ export function Providers({
               <WalletProvider>
                 <PayoutProvider>
                   <ToastProvider>
-                    {children}
+                    <GuidedTourProvider>{children}</GuidedTourProvider>
                   </ToastProvider>
                 </PayoutProvider>
               </WalletProvider>

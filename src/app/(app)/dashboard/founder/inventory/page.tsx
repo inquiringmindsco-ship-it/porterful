@@ -277,7 +277,7 @@ export default function FounderInventoryPage() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4" data-tour-id="founder-inventory-summary">
           <div className="pf-card p-4">
             <p className="text-xs uppercase text-[var(--pf-text-muted)]">On Hand</p>
             <p className="text-2xl font-bold mt-1">{totals.on_hand}</p>
@@ -301,7 +301,7 @@ export default function FounderInventoryPage() {
         </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-          <div className="pf-card p-6 space-y-4">
+          <div className="pf-card p-6 space-y-4" data-tour-id="founder-inventory-actions">
             <div className="flex items-center gap-2">
               <Save size={16} className="text-[var(--pf-orange)]" />
               <h2 className="text-xl font-semibold">Create Inventory Event</h2>
@@ -402,7 +402,7 @@ export default function FounderInventoryPage() {
           </div>
 
           <div className="space-y-4">
-            <div className="pf-card p-6">
+            <div className="pf-card p-6" data-tour-id="founder-inventory-selected-summary">
               <div className="flex items-center gap-2 mb-4">
                 <TrendingUp size={16} className="text-[var(--pf-orange)]" />
                 <h2 className="text-xl font-semibold">Selected SKU Summary</h2>
@@ -435,7 +435,7 @@ export default function FounderInventoryPage() {
               )}
             </div>
 
-            <div className="pf-card overflow-hidden">
+            <div className="pf-card overflow-hidden" data-tour-id="founder-inventory-list">
               <div className="p-4 border-b border-[var(--pf-border)]">
                 <h2 className="text-lg font-semibold">SKU Inventory Summary</h2>
                 <p className="text-sm text-[var(--pf-text-muted)]">Ledger-derived counts by verified SKU.</p>

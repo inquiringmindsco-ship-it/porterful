@@ -44,7 +44,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body suppressHydrationWarning style={{ margin: 0, padding: 0, overflow: 'visible' }}>
         <Providers initialUser={initialUser}>
           <Navbar />
-          {children}
+          <div data-tour-id="porterful-shell">{children}</div>
           <AudioErrorBoundary>
             <GlobalPlayer />
           </AudioErrorBoundary>
