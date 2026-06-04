@@ -15,7 +15,7 @@ export default async function DashboardRoot() {
   const { data: { user }, error } = await supabase.auth.getUser()
 
   if (error || !user) {
-    redirect('/login')
+    redirect('/login?next=/dashboard')
   }
 
   const inferredRole = user.user_metadata?.role === 'artist' ? 'artist' : 'supporter'
@@ -26,7 +26,7 @@ export default async function DashboardRoot() {
   if (ensureError || !ensuredProfile) {
     // If the profile cannot be prepared, fail closed back to login instead of
     // serving a broken dashboard state.
-    redirect('/login?error=profile_create_failed')
+    redirect('/login?error=profile_create_failed&next=/dashboard')
   }
 
   let profile = ensuredProfile

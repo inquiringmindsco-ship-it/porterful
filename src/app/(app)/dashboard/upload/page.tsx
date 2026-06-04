@@ -49,24 +49,37 @@ export default function UploadPage() {
   }
 
   useEffect(() => {
+    let cancelled = false
     async function checkAccess() {
-      if (authLoading) return
-      if (!user) {
-        router.push('/login')
+      if (authLoading || !supabase) return
+
+      const { data: sessionData } = await supabase.auth.getUser()
+      const activeUser = sessionData.user || user
+
+      if (!activeUser) {
+        router.push('/login?next=/dashboard/upload')
         return
       }
-      const { data } = await supabase!
+
+      const { data } = await supabase
         .from('profiles')
         .select('role')
-        .eq('id', user.id)
+        .eq('id', activeUser.id)
         .single()
+
+      if (cancelled) return
+
       if (data?.role !== 'artist' && data?.role !== 'admin' && data?.role !== 'founder') {
         router.push('/dashboard')
         return
       }
+
       setLoading(false)
     }
     checkAccess()
+    return () => {
+      cancelled = true
+    }
   }, [user, supabase, authLoading, router])
 
   // Quota check silently — no UI noise

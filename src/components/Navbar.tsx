@@ -95,6 +95,7 @@ export function Navbar() {
   const ready = mounted && !loading
   const showUser = ready && !!user
   const showGuest = ready && !user
+  const homeHref = showUser ? '/dashboard' : '/'
 
   const isFounder = userRole === 'admin' || userRole === 'founder'
 
@@ -120,7 +121,7 @@ export function Navbar() {
           <div className="flex items-center justify-between h-16">
 
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-2 group">
+            <Link href={homeHref} className="flex items-center gap-2 group">
               <div 
                 className="w-8 h-8 transition-transform group-hover:scale-105"
                 style={{

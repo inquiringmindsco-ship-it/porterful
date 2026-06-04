@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useSupabase } from '@/app/providers'
-import { Disc, Music, Settings, Store, Upload, User, Headphones, Heart, Gift, Wallet, ShieldCheck, BarChart3, Users, Inbox } from 'lucide-react'
+import { Disc, Settings, Store, Upload, User, Headphones, ShieldCheck, Users } from 'lucide-react'
 
 interface PorterfulDashboardProps {
   serverProfileId: string
@@ -40,71 +40,51 @@ export default function PorterfulDashboard({ serverProfileId, initialProfile }: 
     <div className="min-h-screen pt-20 pb-32">
       <div className="max-w-3xl mx-auto px-5 sm:px-6">
         {/* Header */}
-        <header className="mb-7">
+        <header className="mb-6">
           <div className="flex flex-wrap items-center gap-2 mb-2">
-            <h1 className="text-2xl sm:text-3xl font-bold">Porterful Dashboard</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold">Dashboard</h1>
             {isFounder && (
               <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-[var(--pf-orange)]/30 bg-[var(--pf-orange)]/10 text-[var(--pf-orange)] text-xs font-semibold uppercase tracking-wide">
                 <ShieldCheck size={12} />
-                Founder Access
+                Founder
               </span>
             )}
           </div>
           <p className="text-sm text-[var(--pf-text-secondary)] mt-1">
-            Welcome back, {profile?.full_name || profile?.name || (isFounder ? 'Founder' : isArtist ? 'Artist' : 'Supporter')}
+            {profile?.full_name || profile?.name || (isFounder ? 'Founder' : isArtist ? 'Artist' : 'Supporter')}
           </p>
         </header>
 
         {/* Primary actions — role-aware */}
-        <div className={`grid grid-cols-1 ${isFounder ? 'sm:grid-cols-2 lg:grid-cols-4' : 'sm:grid-cols-3'} gap-3 mb-8`}>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
           {isFounder ? (
             <>
-              <ActionCard label="Founder View" href="/dashboard/founder" icon={ShieldCheck} hint="Control tower for the whole platform" />
-              <ActionCard label="Artist Management" href="/dashboard/founder/artists" icon={Users} hint="Toggle artist visibility" />
-              <ActionCard label="Artist Dashboard" href="/dashboard/artist" icon={Disc} hint="Your own catalog and uploads" />
-              <ActionCard label="Upload Track" href="/dashboard/upload" icon={Upload} hint="Direct Supabase upload" />
-              <ActionCard label="Review Queue" href="/dashboard/submissions" icon={Inbox} hint="Artist signups and reviews" />
+              <ActionCard label="Founder View" href="/dashboard/founder" icon={ShieldCheck} hint="Platform control" />
+              <ActionCard label="Review Artists" href="/dashboard/founder/artists" icon={Users} hint="Approvals and access" />
+              <ActionCard label="Upload Track" href="/dashboard/upload" icon={Upload} hint="Add a release" />
             </>
           ) : isArtist ? (
             <>
-              <ActionCard label="Upload Track" href="/dashboard/upload" icon={Upload} hint="Add a new track" />
-              <ActionCard label="My Music" href="/dashboard/artist" icon={Disc} hint="Tracks \u0026 products" />
-              <ActionCard label="Edit Artist Profile" href="/dashboard/artist/edit" icon={User} hint="Public artist info" />
+              <ActionCard label="Upload Track" href="/dashboard/upload" icon={Upload} hint="Add a release" />
+              <ActionCard label="My Music" href="/dashboard/artist" icon={Disc} hint="Tracks and products" />
+              <ActionCard label="Assets" href="/dashboard/artist/assets" icon={User} hint="Creative files" />
             </>
           ) : (
             <>
-              <ActionCard label="My Music" href="/music" icon={Headphones} hint="Tracks you\u0027ve purchased" />
-              <ActionCard label="Browse Artists" href="/artists" icon={Heart} hint="Discover new music" />
-              <ActionCard label="Referral Hub" href="/superfan" icon={Gift} hint="Share & earn" />
+              <ActionCard label="Music" href="/music" icon={Headphones} hint="Tracks you own" />
+              <ActionCard label="Store" href="/store" icon={Store} hint="Live products" />
+              <ActionCard label="Settings" href="/settings/settings" icon={Settings} hint="Profile and account" />
             </>
           )}
         </div>
 
-        {/* Supporting links */}
-        <div className="flex flex-wrap gap-2 mb-10">
-          <SupportLink label="Music" href="/music" icon={Music} />
-          <SupportLink label="Store" href="/store" icon={Store} />
-          <SupportLink label="Settings" href="/settings/settings" icon={Settings} />
-          {isFounder && <SupportLink label="Founder View" href="/dashboard/founder" icon={BarChart3} />}
-          {isFounder && <SupportLink label="Review Queue" href="/dashboard/submissions" icon={Inbox} />}
-          {!isArtist && !isFounder && (
-            <SupportLink label="Earnings" href="/dashboard/payout" icon={Wallet} />
-          )}
-          {isFounder && <SupportLink label="Earnings" href="/dashboard/payout" icon={Wallet} />}
-        </div>
-
-        {/* Account — quiet, below */}
-        <section>
-          <p className="text-xs uppercase tracking-widest text-[var(--pf-text-secondary)] mb-3">Account</p>
-          <div className="rounded-xl border border-[var(--pf-border)] bg-[var(--pf-surface)] divide-y divide-[var(--pf-border)]">
-            <div className="flex justify-between items-center text-sm px-4 py-3 gap-3">
-              <span className="text-[var(--pf-text-muted)]">Email</span>
-              <span className="text-[var(--pf-text)] truncate">{profile?.email}</span>
-            </div>
-            <div className="flex justify-between items-center text-sm px-4 py-3 gap-3">
-              <span className="text-[var(--pf-text-muted)]">Role</span>
-              <span className="text-[var(--pf-text)] capitalize">{role}</span>
-            </div>
+        <section className="rounded-xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-4">
+          <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
+            <span className="text-[var(--pf-text-muted)]">Account</span>
+            <span className="text-[var(--pf-text)] truncate">{profile?.email}</span>
+            <span className="rounded-full border border-[var(--pf-border)] px-2 py-1 text-xs text-[var(--pf-text-muted)] capitalize">
+              {role}
+            </span>
           </div>
         </section>
       </div>
@@ -125,18 +105,6 @@ function ActionCard({ label, href, icon: Icon, hint }: { label: string; href: st
         <p className="text-sm font-semibold text-[var(--pf-text)] truncate">{label}</p>
         <p className="text-xs text-[var(--pf-text-muted)] truncate">{hint}</p>
       </div>
-    </Link>
-  )
-}
-
-function SupportLink({ label, href, icon: Icon }: { label: string; href: string; icon: any }) {
-  return (
-    <Link
-      href={href}
-      className="inline-flex items-center gap-2 px-3 py-2 rounded-full border border-[var(--pf-border)] bg-[var(--pf-bg)] text-sm text-[var(--pf-text-secondary)] hover:text-[var(--pf-text)] hover:border-[var(--pf-text-muted)] transition-colors"
-    >
-      <Icon size={14} />
-      {label}
     </Link>
   )
 }
