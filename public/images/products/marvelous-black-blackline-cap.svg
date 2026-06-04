@@ -3,8 +3,8 @@
   <desc id="desc">A premium black cap mockup for Marvelous Black.</desc>
   <defs>
     <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0f1012" />
-      <stop offset="100%" stop-color="#060607" />
+      <stop offset="0%" stop-color="#f6f2ec" />
+      <stop offset="100%" stop-color="#e6e0d7" />
     </linearGradient>
     <linearGradient id="cap" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#232326" />
@@ -16,9 +16,9 @@
     </linearGradient>
   </defs>
   <rect width="1200" height="900" rx="48" fill="url(#bg)" />
-  <circle cx="230" cy="170" r="150" fill="#c89d4a" opacity="0.08" />
-  <circle cx="950" cy="210" r="180" fill="#ffffff" opacity="0.04" />
-  <ellipse cx="600" cy="812" rx="300" ry="44" fill="#000" opacity="0.38" />
+  <circle cx="230" cy="170" r="150" fill="#c89d4a" opacity="0.16" />
+  <circle cx="950" cy="210" r="180" fill="#ffffff" opacity="0.28" />
+  <ellipse cx="600" cy="812" rx="300" ry="44" fill="#000" opacity="0.14" />
 
   <path d="M290 470C290 315 398 205 553 182L647 176C802 204 910 315 910 470V540H290Z" fill="url(#cap)" />
   <path d="M300 476C300 330 404 223 555 200L645 195C796 222 900 330 900 476V532H300Z" fill="none" stroke="#f5eddc" stroke-opacity="0.08" stroke-width="3"/>

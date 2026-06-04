@@ -3,12 +3,12 @@
   <desc id="desc">A premium black crewneck mockup for Marvelous Black.</desc>
   <defs>
     <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#121214" />
-      <stop offset="100%" stop-color="#060607" />
+      <stop offset="0%" stop-color="#f6f2ec" />
+      <stop offset="100%" stop-color="#e4ded5" />
     </linearGradient>
     <linearGradient id="body" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#232329" />
-      <stop offset="100%" stop-color="#09090b" />
+      <stop offset="0%" stop-color="#2a2a30" />
+      <stop offset="100%" stop-color="#0d0d10" />
     </linearGradient>
     <linearGradient id="print" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#f2e7d2" />
@@ -16,9 +16,9 @@
     </linearGradient>
   </defs>
   <rect width="1200" height="1320" rx="48" fill="url(#bg)" />
-  <circle cx="250" cy="220" r="180" fill="#c89d4a" opacity="0.08" />
-  <circle cx="940" cy="260" r="210" fill="#ffffff" opacity="0.04" />
-  <ellipse cx="600" cy="1220" rx="290" ry="52" fill="#000" opacity="0.34" />
+  <circle cx="250" cy="220" r="180" fill="#c89d4a" opacity="0.16" />
+  <circle cx="940" cy="260" r="210" fill="#ffffff" opacity="0.26" />
+  <ellipse cx="600" cy="1220" rx="290" ry="52" fill="#000" opacity="0.16" />
 
   <path d="M330 292H870L930 460V1070H270V460z" fill="url(#body)" />
   <path d="M330 292H870L930 460V1070H270V460z" fill="none" stroke="#fff5e1" stroke-opacity="0.08" stroke-width="3"/>
