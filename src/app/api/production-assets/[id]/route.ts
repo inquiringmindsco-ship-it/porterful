@@ -73,6 +73,60 @@ const ASSET_SELECT = `
   approver:profiles!production_assets_approved_by_fkey(id, full_name, username, email)
 `
 
+const ARTIST_REMOVABLE_STATUSES = new Set([
+  'draft',
+  'submitted',
+  'under_review',
+  'rejected',
+  'revision_needed',
+])
+
+async function getAssetUsageCounts(supabase: any, assetId: string) {
+  const [{ count: skuCount }, { count: jobCount }] = await Promise.all([
+    supabase
+      .from('product_skus')
+      .select('sku_id', { count: 'exact', head: true })
+      .eq('production_asset_id', assetId),
+    supabase
+      .from('fulfillment_jobs')
+      .select('id', { count: 'exact', head: true })
+      .eq('production_asset_id', assetId),
+  ])
+
+  return {
+    skuCount: skuCount || 0,
+    jobCount: jobCount || 0,
+  }
+}
+
+async function restoreCurrentVersionIfNeeded(supabase: any, assetGroupId: string | null, deletedAssetId: string) {
+  if (!assetGroupId) return
+
+  const { data: remainingVersions, error } = await supabase
+    .from('production_assets')
+    .select('asset_id, version_number')
+    .eq('asset_group_id', assetGroupId)
+    .neq('asset_id', deletedAssetId)
+    .order('version_number', { ascending: false })
+    .limit(1)
+
+  if (error) {
+    throw error
+  }
+
+  const latest = remainingVersions?.[0]
+  if (!latest) return
+
+  const { error: promoteError } = await supabase
+    .from('production_assets')
+    .update({ is_current_version: true })
+    .eq('asset_id', latest.asset_id)
+
+  if (promoteError) {
+    throw promoteError
+  }
+}
+
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -216,5 +270,90 @@ export async function PATCH(
   } catch (err: any) {
     console.error('[production-assets:patch] Exception:', err)
     return NextResponse.json({ error: err.message || 'Failed to update asset' }, { status: 500 })
+  }
+}
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params
+    const { user, supabase } = await getUserFromRequest(req)
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const profile = await getProfile(supabase, user.id)
+    if (!profile) {
+      return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
+    }
+
+    const { data: asset, error: assetError } = await supabase
+      .from('production_assets')
+      .select(ASSET_SELECT)
+      .eq('asset_id', id)
+      .maybeSingle()
+
+    if (assetError) {
+      return NextResponse.json({ error: assetError.message }, { status: 500 })
+    }
+    if (!asset) {
+      return NextResponse.json({ error: 'Asset not found' }, { status: 404 })
+    }
+
+    const isFounderOrAdmin = profile.role === 'founder' || profile.role === 'admin'
+    const isOwnerArtist = profile.role === 'artist' && asset.artist_id === user.id
+    const artistCanRemove =
+      isOwnerArtist &&
+      ARTIST_REMOVABLE_STATUSES.has(String(asset.approval_status || '').toLowerCase()) &&
+      String(asset.production_status || '').toLowerCase() !== 'production_approved'
+
+    if (!isFounderOrAdmin && !artistCanRemove) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
+    const usage = await getAssetUsageCounts(supabase, id)
+    if (usage.skuCount > 0 || usage.jobCount > 0) {
+      return NextResponse.json(
+        {
+          error: 'This asset is still linked to SKUs or fulfillment jobs. Retire it instead of removing it.',
+          usage,
+        },
+        { status: 409 }
+      )
+    }
+
+    const assetGroupId = asset.asset_group_id || null
+    const wasCurrentVersion = Boolean(asset.is_current_version)
+
+    const { error: deleteError } = await supabase
+      .from('production_assets')
+      .delete()
+      .eq('asset_id', id)
+
+    if (deleteError) {
+      console.error('[production-assets:delete] Delete error:', deleteError.message)
+      return NextResponse.json({ error: deleteError.message }, { status: 500 })
+    }
+
+    if (wasCurrentVersion) {
+      try {
+        await restoreCurrentVersionIfNeeded(supabase, assetGroupId, id)
+      } catch (restoreError: any) {
+        console.warn('[production-assets:delete] Version restore warning:', restoreError?.message || restoreError)
+      }
+    }
+
+    return NextResponse.json({
+      success: true,
+      removed: {
+        asset_id: id,
+        asset_group_id: assetGroupId,
+      },
+    })
+  } catch (err: any) {
+    console.error('[production-assets:delete] Exception:', err)
+    return NextResponse.json({ error: err.message || 'Failed to remove asset' }, { status: 500 })
   }
 }

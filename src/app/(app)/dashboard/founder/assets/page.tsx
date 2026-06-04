@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, RefreshCw, Shield } from 'lucide-react'
+import { ArrowLeft, RefreshCw, Shield, Trash2 } from 'lucide-react'
 import { useSupabase } from '@/app/providers'
 import {
   formatProductionApprovalStatus,
@@ -152,6 +152,41 @@ export default function FounderProductionAssetsPage() {
       await loadAssets()
     } catch (err: any) {
       setError(err.message || 'Failed to update asset')
+    } finally {
+      setSavingId(null)
+    }
+  }
+
+  async function removeAsset(assetId: string, assetTitle: string) {
+    if (!supabase) return
+
+    const confirmed = window.confirm(
+      `Remove "${assetTitle}" from the registry? This only works if it is not linked to any SKUs or fulfillment jobs.`
+    )
+    if (!confirmed) return
+
+    setSavingId(assetId)
+    setError('')
+    setNotice('')
+
+    try {
+      const token = await getAuthToken()
+      const res = await fetch(`/api/production-assets/${assetId}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to remove asset')
+      }
+
+      setNotice(`Removed "${assetTitle}" from the registry`)
+      await loadAssets()
+    } catch (err: any) {
+      setError(err.message || 'Failed to remove asset')
     } finally {
       setSavingId(null)
     }
@@ -456,6 +491,14 @@ export default function FounderProductionAssetsPage() {
                     className="pf-btn pf-btn-secondary text-sm disabled:opacity-60"
                   >
                     Retire
+                  </button>
+                  <button
+                    onClick={() => removeAsset(asset.asset_id, asset.title)}
+                    disabled={savingId === asset.asset_id}
+                    className="pf-btn pf-btn-secondary text-sm border-red-500/30 bg-red-500/10 text-red-300 hover:bg-red-500/20 disabled:opacity-60 inline-flex items-center gap-2"
+                  >
+                    <Trash2 size={14} />
+                    Remove
                   </button>
                 </div>
               </div>

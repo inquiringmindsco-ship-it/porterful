@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, RefreshCw, Send } from 'lucide-react'
+import { ArrowLeft, RefreshCw, Send, Trash2 } from 'lucide-react'
 import { useSupabase } from '@/app/providers'
 import {
   formatProductionApprovalStatus,
@@ -50,6 +50,13 @@ function badgeClasses(status: string) {
   if (value === 'revision_needed') return 'border-amber-500/30 bg-amber-500/10 text-amber-500'
   if (value === 'rejected' || value === 'retired') return 'border-red-500/30 bg-red-500/10 text-red-500'
   return 'border-[var(--pf-border)] bg-[var(--pf-surface)] text-[var(--pf-text-muted)]'
+}
+
+function canArtistRemoveAsset(asset: ProductionAssetRecord) {
+  const approval = String(asset.approval_status || '').toLowerCase()
+  const production = String(asset.production_status || '').toLowerCase()
+  return ['draft', 'submitted', 'under_review', 'rejected', 'revision_needed'].includes(approval) &&
+    production !== 'production_approved'
 }
 
 export default function ArtistProductionAssetsPage() {
@@ -184,6 +191,41 @@ export default function ArtistProductionAssetsPage() {
       await loadAssets()
     } catch (err: any) {
       setError(err.message || 'Failed to submit asset')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  async function removeAsset(assetId: string, assetTitle: string) {
+    if (!supabase) return
+
+    const confirmed = window.confirm(
+      `Remove "${assetTitle}" from your assets? You can only remove files that are not tied to live product work.`
+    )
+    if (!confirmed) return
+
+    setSaving(true)
+    setError('')
+    setNotice('')
+
+    try {
+      const token = await getAuthToken()
+      const res = await fetch(`/api/production-assets/${assetId}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to remove asset')
+      }
+
+      setNotice(`Removed "${assetTitle}"`)
+      await loadAssets()
+    } catch (err: any) {
+      setError(err.message || 'Failed to remove asset')
     } finally {
       setSaving(false)
     }
@@ -500,6 +542,19 @@ export default function ArtistProductionAssetsPage() {
                       {asset.review_notes && <p>Founder notes: {asset.review_notes}</p>}
                       {asset.change_notes && <p>Revision notes: {asset.change_notes}</p>}
                     </div>
+
+                    {canArtistRemoveAsset(asset) && (
+                      <div className="pt-1">
+                        <button
+                          onClick={() => removeAsset(asset.asset_id, asset.title)}
+                          disabled={saving}
+                          className="pf-btn pf-btn-secondary inline-flex items-center gap-2 text-sm border-red-500/30 bg-red-500/10 text-red-300 hover:bg-red-500/20 disabled:opacity-60"
+                        >
+                          <Trash2 size={14} />
+                          Remove Asset
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
