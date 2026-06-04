@@ -416,12 +416,16 @@ export default function StorePage() {
             <span className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--pf-orange)]">
               Porterful Store
             </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--pf-orange)]/20 bg-[var(--pf-orange)]/10 px-2.5 py-0.5 text-[10px] font-medium text-[var(--pf-orange)]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[var(--pf-orange)] animate-pulse" />
+              Founding Beta
+            </span>
           </div>
           <h1 className="text-3xl font-black tracking-tight sm:text-4xl text-white">
-            Shop Music-Linked Products
+            Shop Creator Products
           </h1>
           <p className="mt-3 max-w-2xl text-sm sm:text-base text-[var(--pf-text-secondary)] leading-relaxed">
-            Music-linked products from independent artists.
+            Products from independent creators — music, brands, and everything in between.
             <span className="text-[var(--pf-text)]"> Live products</span> can be purchased now.
             <span className="text-[var(--pf-text-muted)]"> Preview products</span> are not available yet.
           </p>

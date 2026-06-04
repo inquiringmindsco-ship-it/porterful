@@ -232,11 +232,15 @@ export default function HomePage() {
           <div className="pf-container relative py-8 sm:py-10 md:py-14 lg:py-16">
             <div className="grid items-center gap-8 sm:gap-10 lg:grid-cols-[0.94fr_1.06fr]">
               <div className="max-w-2xl">
+                <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[var(--pf-orange)]/30 bg-[var(--pf-orange)]/10 px-4 py-1.5 text-sm font-medium text-[var(--pf-orange)]">
+                  <span className="h-2 w-2 rounded-full bg-[var(--pf-orange)] animate-pulse" />
+                  Founding Beta — Limited Early Access
+                </div>
                 <h1 className="text-4xl font-black leading-[0.95] tracking-[-0.06em] text-white sm:text-6xl sm:leading-[0.92] lg:text-7xl">
                   Upload. Build. Sell. Track.
                 </h1>
                 <p className="mt-4 text-base text-[var(--pf-text-secondary)] sm:text-lg">
-                  The creator platform for independent artists — music, merch, and everything that comes after.
+                  Upload music. Sell products. Build your audience. One platform.
                 </p>
 
                 <div className="mt-5 sm:mt-6 flex flex-wrap gap-3">

@@ -205,6 +205,10 @@ export default function SignupPage() {
         </div>
 
         <div className="text-center mb-6">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[var(--pf-orange)]/30 bg-[var(--pf-orange)]/10 px-4 py-1.5 text-sm font-medium text-[var(--pf-orange)]">
+            <span className="h-2 w-2 rounded-full bg-[var(--pf-orange)] animate-pulse" />
+            Founding Beta — Limited Early Access
+          </div>
           <h1 className="text-2xl font-bold mb-1">
             {step === 1 ? 'Join Porterful' : step === 2 ? 'Create Your Account' : 'Almost Done!'}
           </h1>
