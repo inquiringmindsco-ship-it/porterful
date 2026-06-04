@@ -16,6 +16,7 @@ import {
   Eye,
   Shield,
   Package,
+  Home,
 } from 'lucide-react'
 import { useSupabase } from '@/app/providers'
 import { useToast } from '@/components/Toast'
@@ -429,6 +430,17 @@ export default function StorePage() {
             <span className="text-[var(--pf-text)]"> Live products</span> can be purchased now.
             <span className="text-[var(--pf-text-muted)]"> Preview products</span> are coming soon.
           </p>
+
+          {/* Coming Home Collection link */}
+          <Link
+            href="/collections/coming-home"
+            className="mt-4 inline-flex items-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium transition-colors hover:border-[#C4956A]/50 hover:bg-[#C4956A]/5"
+            style={{ borderColor: '#C4956A30', color: '#C4956A' }}
+          >
+            <Home size={16} />
+            Explore the Coming Home Collection™ — Products inspired by resilience and new beginnings
+            <ArrowRight size={14} />
+          </Link>
 
           {/* Noble Naturals brand announcement */}
           <div className="mt-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4 flex items-start gap-3">

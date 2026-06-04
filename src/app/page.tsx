@@ -714,6 +714,62 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* Coming Home Collection™ Section */}
+        <section className="pf-reveal-group border-t border-[var(--pf-border)]">
+          <div className="pf-container py-12 md:py-16">
+            <div className="pf-reveal-child mb-8 flex items-end justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#C4956A]">
+                  Collection
+                </p>
+                <h2 className="mt-2 text-3xl font-bold text-white md:text-4xl">
+                  Coming Home Collection™
+                </h2>
+              </div>
+              <Link
+                href="/collections/coming-home"
+                className="text-sm font-medium text-[#C4956A] hover:underline"
+              >
+                View collection →
+              </Link>
+            </div>
+            <p className="pf-reveal-child mb-8 text-[var(--pf-text-secondary)] max-w-2xl">
+              Products inspired by resilience, rebuilding, second chances, and new beginnings.
+            </p>
+            
+            <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+              {PRODUCTS.filter(p => p.collection === 'coming-home' && isPurchasable(p)).slice(0, 4).map(product => (
+                <Link key={product.id} href={`/store/${product.id}`} className="group block pf-reveal-child">
+                  <article className="h-full rounded-[24px] border border-[var(--pf-border)] bg-[var(--pf-surface)] p-4 transition-all hover:border-[#C4956A]/50 hover:shadow-lg">
+                    <div className="relative aspect-square overflow-hidden rounded-[16px] bg-[var(--pf-bg-secondary)]">
+                      <Image
+                        src={product.image}
+                        alt={product.name}
+                        fill
+                        className="object-cover transition-transform group-hover:scale-105"
+                        sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 25vw"
+                      />
+                      <div className="absolute top-3 left-3 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold"
+                        style={{ backgroundColor: '#C4956A20', color: '#C4956A', border: '1px solid #C4956A30' }}
+                      >
+                        🏠 Coming Home™
+                      </div>
+                    </div>
+                    <div className="mt-4">
+                      <h3 className="font-semibold text-[var(--pf-text)] group-hover:text-[#C4956A] transition-colors">{product.name}</h3>
+                      <p className="mt-1 text-sm text-[var(--pf-text-secondary)]">{product.artist}</p>
+                      <div className="mt-2 flex items-center justify-between">
+                        <span className="font-bold text-[var(--pf-text)]">${product.price}</span>
+                        <span className="text-xs font-medium text-emerald-400">In Stock</span>
+                      </div>
+                    </div>
+                  </article>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <section className="pf-reveal-group">
           <div className="pf-container py-12 md:py-16">
             <div className="pf-reveal-child rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(249,115,22,0.14),transparent_28%),linear-gradient(180deg,rgba(15,17,21,0.98),rgba(8,9,12,0.98))] px-6 py-10 text-center shadow-[0_28px_80px_rgba(0,0,0,0.3)] md:px-10 md:py-14">

@@ -2,6 +2,52 @@
 
 import { CONTROLLED_MERCH } from './controlled-merch'
 
+export interface Collection {
+  id: string
+  slug: string
+  name: string
+  tagline: string
+  description: string
+  story: string
+  color: string          // accent color (e.g., '#D4A574' for warm gold)
+  textColor: string      // text color on accent (e.g., '#1a1a1a')
+  badge: string          // badge label
+  image?: string
+  featured: boolean
+}
+
+export const COMING_HOME_COLLECTION: Collection = {
+  id: 'coming-home',
+  slug: 'coming-home',
+  name: 'Coming Home Collection™',
+  tagline: 'Products inspired by resilience, rebuilding, second chances, and new beginnings.',
+  description: 'A curated collection of products that represent hope, resilience, and the courage to start again.',
+  story: `Everyone has a story. Some stories include setbacks. Others include second chances. The Coming Home Collection is about that moment — when you're ready to rebuild, create, and move forward.
+
+These products represent resilience. They're made for people who believe it's never too late to start again.
+
+In the future, we hope to expand this collection through our Coming Home Creator Program — giving selected creators the opportunity to design products that tell their own stories.
+
+For now, we hope you wear them as a reminder: every day is a new beginning.`,
+  color: '#C4956A',       // warm copper/gold
+  textColor: '#1a1a1a',
+  badge: '🏠 Coming Home™',
+  image: '/images/collections/coming-home-banner.png',
+  featured: true,
+}
+
+export const PRODUCT_COLLECTIONS: Record<string, Collection> = {
+  'coming-home': COMING_HOME_COLLECTION,
+}
+
+export function getCollectionBySlug(slug: string): Collection | undefined {
+  return PRODUCT_COLLECTIONS[slug]
+}
+
+export function getCollectionProducts(products: Product[], collectionSlug: string): Product[] {
+  return products.filter(p => p.collection === collectionSlug)
+}
+
 export interface Product {
   id: string
   name: string
@@ -28,6 +74,9 @@ export interface Product {
   artistId?: string
   fulfillmentType?: 'printful' | 'dropship' | 'mock' | 'img_fulfillment'
   catalogStatus?: string
+  // Collection support
+  collection?: string       // e.g., 'coming-home'
+  collectionFeatured?: boolean
   offerEligible?: boolean
   // Fulfillment
   // - "printful" = linked to Printful catalog (works)
@@ -83,6 +132,8 @@ export const PRODUCTS: Product[] = [
     sales: 0,
     rating: 0,
     reviews: 0,
+    collection: 'coming-home',
+    collectionFeatured: true,
   },
 
   // ==========================================================
@@ -257,6 +308,64 @@ export const PRODUCTS: Product[] = [
     sales: 0,
     rating: 0,
     reviews: 0,
+  },
+  // Coming Home Collection™ — Phase 1 Products
+  {
+    id: 'coming-home-hoodie',
+    name: 'Coming Home Hoodie™',
+    price: 45,
+    category: 'Merch',
+    artist: 'ATM Trap',
+    image: '/images/products/coming-home-hoodie.png',
+    images: ['/images/products/coming-home-hoodie.png'],
+    description: 'Premium hoodie featuring the Coming Home Collection™ design. Comfort and resilience in every thread.',
+    fulfillment: 'img_fulfillment',
+    available: false,
+    inStock: false,
+    featured: false,
+    artistCut: 0,
+    sales: 0,
+    rating: 0,
+    reviews: 0,
+    collection: 'coming-home',
+  },
+  {
+    id: 'coming-home-journal',
+    name: 'Coming Home Journal™',
+    price: 18,
+    category: 'Essential',
+    artist: 'Porterful',
+    image: '/images/products/coming-home-journal.png',
+    images: ['/images/products/coming-home-journal.png'],
+    description: 'A journal for new beginnings. Document your journey, one page at a time.',
+    fulfillment: 'img_fulfillment',
+    available: false,
+    inStock: false,
+    featured: false,
+    artistCut: 0,
+    sales: 0,
+    rating: 0,
+    reviews: 0,
+    collection: 'coming-home',
+  },
+  {
+    id: 'coming-home-poster',
+    name: 'Coming Home Poster™',
+    price: 25,
+    category: 'Art',
+    artist: 'Porterful',
+    image: '/images/products/coming-home-poster.png',
+    images: ['/images/products/coming-home-poster.png'],
+    description: 'Inspirational poster art from the Coming Home Collection™. A daily reminder that every day is a new beginning.',
+    fulfillment: 'img_fulfillment',
+    available: false,
+    inStock: false,
+    featured: false,
+    artistCut: 0,
+    sales: 0,
+    rating: 0,
+    reviews: 0,
+    collection: 'coming-home',
   },
 ]
 
