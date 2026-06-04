@@ -171,37 +171,21 @@ export default function ArtistDashboardPage() {
     )
     const exceptionJobs = fulfillmentJobs.filter((job: any) => job.status === 'exception')
 
-    let currentStage = 'Submit a production asset'
-    let nextStep = 'Open Production Assets and submit your first asset.'
-    let actionLabel = 'Open Production Assets'
-    let actionHref = '/dashboard/artist/assets'
+    let currentStage = 'Upload your music'
+    let nextStep = 'Click Upload Music and add your first track.'
+    let actionLabel = 'Upload Music'
+    let actionHref = '/dashboard/upload'
 
-    if (submittedAssets.length > 0) {
-      currentStage = 'Waiting for founder review'
-      nextStep = 'Check the asset review status for approval, rejection, or revision notes.'
-    } else if (productionApprovedAssets.length === 0) {
-      currentStage = productionAssets.length > 0 ? 'Awaiting production approval' : 'Submit a production asset'
-      nextStep = 'Keep your approved creative work in the asset registry so founders can review it.'
-    } else if (artistSkus.length === 0) {
-      currentStage = 'Asset approved'
-      nextStep = 'Founders can create SKUs from your production-approved assets.'
-      actionLabel = 'View SKUs'
-      actionHref = '/dashboard/artist/skus'
-    } else if (availableInventory === 0) {
-      currentStage = 'SKU created'
-      nextStep = 'Inventory appears after founders receive and log stock.'
-      actionLabel = 'View inventory'
-      actionHref = '/dashboard/artist/inventory'
-    } else if (openJobs.length === 0) {
-      currentStage = 'Inventory ready'
-      nextStep = 'Watch for a fulfillment job once orders are ready to move.'
-      actionLabel = 'View fulfillment queue'
-      actionHref = '/dashboard/artist/fulfillment'
-    } else {
-      currentStage = 'Fulfillment in progress'
-      nextStep = 'Track printing, QC, packing, shipping, and delivery updates.'
-      actionLabel = 'View fulfillment queue'
-      actionHref = '/dashboard/artist/fulfillment'
+    if (dbTracks.length > 0 && dbTracks.filter((t: any) => t.is_active).length === 0) {
+      currentStage = 'Track uploaded'
+      nextStep = 'Your track is uploaded. Make it live to start sharing.'
+      actionLabel = 'View My Work'
+      actionHref = '/dashboard/artist/assets'
+    } else if (dbTracks.filter((t: any) => t.is_active).length > 0) {
+      currentStage = 'Music live'
+      nextStep = 'Your music is live. Share your link and track your results.'
+      actionLabel = 'View Store'
+      actionHref = '/store'
     }
 
     return {
@@ -239,58 +223,38 @@ export default function ArtistDashboardPage() {
         {/* GUIDANCE: Artist Path */}
         <div data-tour-id="artist-dashboard-guidance">
           <StageTracker
-            title="Your Production Path"
+            title="Your Progress"
             stages={[
-              { label: 'Submit Asset', status: productionAssets.length > 0 ? 'complete' : 'current' },
-              { label: 'Review', status: guidance.submittedAssets.length > 0 ? 'current' : productionAssets.length > 0 ? 'complete' : 'pending' },
-              { label: 'Approved', status: guidance.productionApprovedAssets.length > 0 ? 'complete' : 'pending' },
-              { label: 'SKU', status: artistSkus.length > 0 ? 'complete' : 'pending' },
-              { label: 'Inventory', status: guidance.availableInventory > 0 ? 'complete' : 'pending' },
-              { label: 'Fulfillment', status: fulfillmentJobs.length > 0 ? 'complete' : 'pending' },
+              { label: 'Upload', status: dbTracks.length > 0 ? 'complete' : 'current' },
+              { label: 'In Review', status: guidance.submittedAssets.length > 0 ? 'current' : productionAssets.length > 0 ? 'complete' : 'pending' },
+              { label: 'Live', status: dbTracks.filter((t: any) => t.is_active).length > 0 ? 'complete' : 'pending' },
             ]}
           />
         </div>
 
         <GuidanceRoadmap
-          eyebrow="Artist path"
-          title="Move one asset from submission to fulfillment"
-          description="Submit an asset, wait for founder review, and watch it become production approved, turned into a SKU, stocked, and queued for fulfillment."
+          eyebrow="Next step"
+          title={dbTracks.length === 0 ? "Upload your first song" : "Share your music with the world"}
+          description={dbTracks.length === 0 
+            ? "Upload your music, add cover art, and set your price. Founders handle the rest."
+            : "Your music is live. Share your link and track your results."
+          }
           currentStage={guidance.currentStage}
-          nextStep={guidance.nextStep}
+          nextStep={dbTracks.length === 0 ? "Click Upload Music to get started." : guidance.nextStep}
           signals={[
             {
-              label: 'Submitted assets',
-              value: `${guidance.submittedAssets.length} waiting`,
-              tone: guidance.submittedAssets.length > 0 ? 'warning' : 'neutral',
+              label: 'My Work',
+              value: `${productionAssets.length} items`,
+              tone: productionAssets.length > 0 ? 'success' : 'neutral',
             },
             {
-              label: 'Production approved',
-              value: `${guidance.productionApprovedAssets.length}`,
-              tone: guidance.productionApprovedAssets.length > 0 ? 'success' : 'neutral',
-            },
-            {
-              label: 'SKUs connected',
-              value: `${guidance.activeSkus.length}`,
-              tone: guidance.activeSkus.length > 0 ? 'info' : 'neutral',
-            },
-            {
-              label: 'Inventory available',
-              value: `${guidance.availableInventory}`,
-              tone: guidance.availableInventory > 0 ? 'success' : 'neutral',
-            },
-            {
-              label: 'Fulfillment jobs',
-              value: `${guidance.openJobs.length + guidance.shippedJobs.length + guidance.exceptionJobs.length}`,
-              tone: guidance.openJobs.length > 0 ? 'info' : 'neutral',
-            },
-            {
-              label: 'Exceptions',
-              value: `${guidance.exceptionJobs.length}`,
-              tone: guidance.exceptionJobs.length > 0 ? 'warning' : 'neutral',
+              label: 'Tracks live',
+              value: `${dbTracks.filter((t: any) => t.is_active).length}`,
+              tone: dbTracks.filter((t: any) => t.is_active).length > 0 ? 'success' : 'neutral',
             },
           ]}
-          actionLabel={guidance.actionLabel}
-          actionHref={guidance.actionHref}
+          actionLabel={dbTracks.length === 0 ? "Upload Music" : guidance.actionLabel}
+          actionHref={dbTracks.length === 0 ? "/dashboard/upload" : guidance.actionHref}
         />
 
         {/* Header */}
@@ -300,35 +264,20 @@ export default function ArtistDashboardPage() {
             <p className="text-sm text-[var(--pf-text-secondary)]">Music and products</p>
             <div className="mt-3 flex flex-wrap gap-2">
               <Link href="/dashboard/artist/assets" className="pf-btn pf-btn-secondary flex items-center gap-2" data-tour-id="artist-assets-link">
-                <Icon.Package /> Production Assets
+                <Icon.Package /> My Work
               </Link>
-              <Link href="/dashboard/artist/skus" className="pf-btn pf-btn-secondary flex items-center gap-2" data-tour-id="artist-skus-link">
-                <Icon.Package /> SKUs
-              </Link>
-              <Link href="/dashboard/artist/inventory" className="pf-btn pf-btn-secondary flex items-center gap-2" data-tour-id="artist-inventory-link">
-                <Icon.Package /> Inventory
-              </Link>
-              <Link href="/dashboard/artist/fulfillment" className="pf-btn pf-btn-secondary flex items-center gap-2" data-tour-id="artist-fulfillment-link">
-                <Icon.Package /> Fulfillment Queue
-              </Link>
-              <Link href="/dashboard/artist/returns" className="pf-btn pf-btn-secondary flex items-center gap-2">
-                <Icon.Package /> Returns
+              <Link href="/dashboard/artist/edit" className="pf-btn pf-btn-secondary flex items-center gap-2">
+                <Icon.Edit /> Edit Profile
               </Link>
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Link href="/dashboard/upload" className="pf-btn pf-btn-primary flex items-center gap-2">
-              <Icon.Upload /> Upload Track
-            </Link>
-            <Link href="/dashboard/artist/edit" className="pf-btn pf-btn-secondary flex items-center gap-2">
-              <Icon.Edit /> Edit Profile
+            <Link href="/dashboard/upload" className="pf-btn pf-btn-primary flex items-center gap-2 text-lg px-6 py-3">
+              <Icon.Upload /> Upload Music
             </Link>
             <Link href="/store" className="pf-btn pf-btn-secondary flex items-center gap-2">
               <Icon.Package /> View Store
             </Link>
-            <button type="button" onClick={() => restartTour('artist')} className="pf-btn pf-btn-secondary flex items-center gap-2">
-              <Icon.Edit /> Restart Tour
-            </button>
           </div>
         </div>
 
@@ -408,13 +357,13 @@ export default function ArtistDashboardPage() {
               <EmptyState
                 icon={<Music size={24} />}
                 title="No tracks yet"
-                description="Tracks are one creative input in the larger asset flow. Upload a track here, or use Production Assets for artwork and likeness submissions."
+                description="Upload your first song to get started. Add cover art, set your price, and share it with the world."
                 points={[
-                  { label: 'What is this?', text: 'A starting place for music that can later connect to the asset registry.' },
-                  { label: 'Why it matters', text: 'Founders need a submitted asset before review, SKU creation, or fulfillment can happen.' },
-                  { label: 'Next step', text: 'Upload your first track, or open Production Assets for other creative files.' },
+                  { label: 'What is this?', text: 'A space for your music, artwork, and anything you create.' },
+                  { label: 'Why it matters', text: 'Your work is how listeners discover and connect with you.' },
+                  { label: 'Next step', text: 'Click Upload Music to add your first track.' },
                 ]}
-                actionLabel="Upload Track"
+                actionLabel="Upload Music"
                 actionHref="/dashboard/upload"
               />
             ) : (
@@ -492,14 +441,14 @@ export default function ArtistDashboardPage() {
               <EmptyState
                 icon={<Package size={24} />}
                 title="No products selected"
-                description="Products appear here when you choose items from the catalog. Founders manage inventory and fulfillment, while you review what is available to sell."
+                description="Products appear here when founders create them from your work. You'll see what's available to sell and how it's performing."
                 points={[
-                  { label: 'What is this?', text: 'A read-only view of items already available in the catalog.' },
+                  { label: 'What is this?', text: 'A read-only view of items created from your work.' },
                   { label: 'Why it matters', text: 'It keeps your storefront aligned with what founders can support.' },
-                  { label: 'Next step', text: 'Open the catalog and review what is ready.' },
+                  { label: 'Next step', text: 'Upload music first — products follow.' },
                 ]}
-                actionLabel="Open Catalog"
-                actionHref="/dashboard/catalog"
+                actionLabel="Upload Music"
+                actionHref="/dashboard/upload"
               />
             ) : (
               <div className="space-y-3">

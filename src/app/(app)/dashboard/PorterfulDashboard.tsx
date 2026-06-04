@@ -63,7 +63,7 @@ export default function PorterfulDashboard({ serverProfileId, initialProfile }: 
               <ActionCard label="Artist Management" href="/dashboard/founder/artists" icon={Users} hint="Toggle artist visibility" />
               <ActionCard label="Artist Dashboard" href="/dashboard/artist" icon={Disc} hint="Your own catalog and uploads" />
               <ActionCard label="Upload Track" href="/dashboard/upload" icon={Upload} hint="Direct Supabase upload" />
-              <ActionCard label="Review Queue" href="/dashboard/dashboard/submissions" icon={Inbox} hint="Artist signups and reviews" />
+              <ActionCard label="Review Queue" href="/dashboard/submissions" icon={Inbox} hint="Artist signups and reviews" />
             </>
           ) : isArtist ? (
             <>
@@ -86,11 +86,11 @@ export default function PorterfulDashboard({ serverProfileId, initialProfile }: 
           <SupportLink label="Store" href="/store" icon={Store} />
           <SupportLink label="Settings" href="/settings/settings" icon={Settings} />
           {isFounder && <SupportLink label="Founder View" href="/dashboard/founder" icon={BarChart3} />}
-          {isFounder && <SupportLink label="Review Queue" href="/dashboard/dashboard/submissions" icon={Inbox} />}
+          {isFounder && <SupportLink label="Review Queue" href="/dashboard/submissions" icon={Inbox} />}
           {!isArtist && !isFounder && (
-            <SupportLink label="Earnings" href="/dashboard/dashboard/payout" icon={Wallet} />
+            <SupportLink label="Earnings" href="/dashboard/payout" icon={Wallet} />
           )}
-          {isFounder && <SupportLink label="Earnings" href="/dashboard/dashboard/payout" icon={Wallet} />}
+          {isFounder && <SupportLink label="Earnings" href="/dashboard/payout" icon={Wallet} />}
         </div>
 
         {/* Account — quiet, below */}

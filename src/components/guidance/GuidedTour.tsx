@@ -239,6 +239,11 @@ function isDashboardPath(pathname: string) {
   return pathname.startsWith('/dashboard/artist') || pathname.startsWith('/dashboard/founder')
 }
 
+function isPublicPath(pathname: string) {
+  const publicPaths = ['/login', '/register', '/signup', '/forgot-password', '/reset-password']
+  return publicPaths.some((p) => pathname === p || pathname.startsWith(p + '/'))
+}
+
 function resolveScopeFromPath(pathname: string): TourScope | null {
   if (pathname.startsWith('/dashboard/founder')) return 'founder'
   if (pathname.startsWith('/dashboard/artist')) return 'artist'
@@ -558,7 +563,7 @@ export function GuidedTourProvider({ children }: { children: React.ReactNode }) 
 
     if (autoStartedRef.current === computedScope) return
 
-    if (isDashboardPath(pathname)) {
+    if (isDashboardPath(pathname) && !isPublicPath(pathname)) {
       autoStartedRef.current = computedScope
       const nextState: TourState = {
         status: 'active',
