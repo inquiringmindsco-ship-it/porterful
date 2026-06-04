@@ -42,6 +42,18 @@ function readReferralCookie() {
 
 type UserRole = 'artist' | 'founder' | 'admin' | 'member' | 'listener' | null
 
+function normalizeStoreRole(value: unknown): UserRole {
+  if (value === 'artist' || value === 'founder' || value === 'admin' || value === 'member' || value === 'listener') {
+    return value
+  }
+
+  if (value === 'superfan') {
+    return 'member'
+  }
+
+  return null
+}
+
 function useUserRole(): { role: UserRole; loading: boolean } {
   const { user, supabase } = useSupabase()
   const [role, setRole] = useState<UserRole>(null)
@@ -54,19 +66,24 @@ function useUserRole(): { role: UserRole; loading: boolean } {
       return
     }
 
+    const metadataRole = normalizeStoreRole((user.user_metadata as { role?: unknown } | undefined)?.role)
+    if (metadataRole) {
+      setRole(metadataRole)
+    }
+
     let cancelled = false
     supabase
       ?.from('profiles')
       .select('role')
       .eq('id', user.id)
-      .single()
+      .maybeSingle()
       .then(({ data }) => {
         if (cancelled) return
-        setRole((data?.role as UserRole) || 'listener')
+        setRole(normalizeStoreRole(data?.role) || metadataRole || 'listener')
         setLoading(false)
       }, () => {
         if (cancelled) return
-        setRole('listener')
+        setRole(metadataRole || 'listener')
         setLoading(false)
       })
 
@@ -163,19 +180,27 @@ function StoreProductCard({
       else throw new Error('Checkout URL missing')
     } catch (error) {
       console.error('Checkout error:', error)
-      alert('Checkout failed. Please try again.')
+      showToast('Checkout failed. Please try again.', 'error')
     } finally {
       setLoading(false)
     }
   }
 
-  const handleShare = () => {
+  const handleShare = async () => {
     const url = `${window.location.origin}/product/${product.id}`
-    if (navigator.share) {
-      navigator.share({ title: product.name, text: `Check out ${product.name} by ${product.artist}`, url })
-    } else {
-      navigator.clipboard.writeText(url)
+    const shareData = { title: product.name, text: `Check out ${product.name} by ${product.artist}`, url }
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData)
+        return
+      }
+
+      await navigator.clipboard.writeText(url)
       showToast('Product link copied. Share it from your dashboard.', 'success')
+    } catch (error) {
+      console.error('Share error:', error)
+      showToast('Could not share this product right now.', 'error')
     }
   }
 
@@ -185,10 +210,10 @@ function StoreProductCard({
 
   return (
     <article
-      className={`group relative overflow-hidden rounded-2xl border transition-all duration-200 hover:shadow-lg ${
+      className={`group relative overflow-hidden rounded-[28px] border transition-all duration-300 ${
         purchasable
-          ? 'border-[var(--pf-border)] hover:border-[var(--pf-orange)]/40 bg-[var(--pf-surface)]'
-          : 'border-[var(--pf-border)]/60 bg-[var(--pf-surface)]/60 opacity-90'
+          ? 'border-[var(--pf-border)]/80 bg-[radial-gradient(circle_at_top_left,rgba(249,115,22,0.08),transparent_36%),linear-gradient(180deg,rgba(18,18,20,0.98),rgba(13,13,14,0.98))] shadow-[0_18px_60px_rgba(0,0,0,0.22)] hover:-translate-y-1 hover:border-[var(--pf-orange)]/40 hover:shadow-[0_24px_80px_rgba(0,0,0,0.3)]'
+          : 'border-[var(--pf-border)]/55 bg-[linear-gradient(180deg,rgba(18,18,20,0.78),rgba(13,13,14,0.72))] opacity-85'
       }`}
       data-tour-id={product.skuCode === 'COMING-HOME-TEE-001' ? 'controlled-merch-card' : undefined}
     >
@@ -202,15 +227,18 @@ function StoreProductCard({
             !purchasable ? 'grayscale-[20%]' : ''
           }`}
         />
-        <div className={`absolute inset-0 ${!purchasable ? 'bg-black/10' : 'bg-gradient-to-t from-black/20 via-transparent to-transparent'}`} />
+        <div className={`absolute inset-0 ${!purchasable ? 'bg-gradient-to-b from-black/10 via-black/20 to-black/60' : 'bg-gradient-to-t from-black/45 via-black/10 to-transparent'}`} />
+        {purchasable && (
+          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/55 to-transparent" />
+        )}
         <ProductBadge product={product} />
       </div>
 
       {/* Content */}
-      <div className="space-y-3 p-4">
+      <div className="space-y-4 p-5">
         {/* Category + Title + Price */}
         <div>
-          <div className="flex items-center justify-between gap-2 mb-1">
+          <div className="mb-1 flex items-center justify-between gap-2">
             <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[var(--pf-text-muted)]">
               {product.category}
             </p>
@@ -221,17 +249,28 @@ function StoreProductCard({
             )}
           </div>
           <div className="flex items-start justify-between gap-3">
-            <h2 className="font-bold leading-snug text-[var(--pf-text)] text-base">{product.name}</h2>
-            <span className="shrink-0 font-bold text-[var(--pf-text)] text-lg">${product.price.toFixed(2)}</span>
+            <div className="space-y-1">
+              <h2 className="text-[1.05rem] font-bold leading-tight text-[var(--pf-text)]">{product.name}</h2>
+              <p className="max-w-[18ch] text-xs leading-relaxed text-[var(--pf-text-secondary)]">
+                {purchasable ? 'Available now as a controlled drop.' : 'Preview only. Not live yet.'}
+              </p>
+            </div>
+            <span className={`shrink-0 rounded-2xl px-3 py-2 text-sm font-bold ${
+              purchasable
+                ? 'bg-[var(--pf-orange)]/12 text-[var(--pf-orange)]'
+                : 'bg-[var(--pf-bg)] text-[var(--pf-text-muted)]'
+            }`}>
+              ${product.price.toFixed(2)}
+            </span>
           </div>
-          <p className="mt-1.5 text-sm leading-relaxed text-[var(--pf-text-secondary)]">
+          <p className="mt-2 text-sm leading-relaxed text-[var(--pf-text-secondary)]">
             {product.description}
           </p>
         </div>
 
         {/* Artist attribution */}
-        <div className="flex items-center gap-2 text-xs text-[var(--pf-text-muted)]">
-          <span className="inline-flex items-center gap-1 rounded-full border border-[var(--pf-border)] bg-[var(--pf-bg)] px-2 py-1">
+        <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--pf-text-muted)]">
+          <span className="inline-flex items-center gap-1 rounded-full border border-[var(--pf-border)] bg-[var(--pf-bg)] px-2.5 py-1.5">
             <Tag size={10} />
             {product.artist}
           </span>
@@ -290,7 +329,7 @@ function StoreProductCard({
 
           {isAdmin && purchasable && (
             <Link
-              href="/dashboard/founder"
+              href="/dashboard/founder/skus"
               className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--pf-border)] bg-[var(--pf-bg)] px-4 py-2.5 text-sm font-medium text-[var(--pf-text)] transition-colors hover:border-[var(--pf-orange)]/40 hover:bg-[var(--pf-orange)]/5"
             >
               <Settings size={14} />
@@ -308,6 +347,8 @@ export default function StorePage() {
   const queryRef = normalizeReferralHandle(searchParams.get('ref'))
   const { user } = useSupabase()
   const { role: userRole, loading: roleLoading } = useUserRole()
+  const authMetadataRole = normalizeStoreRole((user?.user_metadata as { role?: unknown } | undefined)?.role)
+  const effectiveUserRole = userRole && userRole !== 'listener' ? userRole : authMetadataRole
 
   const [referralHandle, setReferralHandle] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
@@ -362,14 +403,14 @@ export default function StorePage() {
   }, [previewProducts, activeCategory, searchTerm])
 
   const isLoggedIn = !!user
-  const isArtistMember = userRole === 'artist' || userRole === 'member'
-  const isAdmin = userRole === 'admin' || userRole === 'founder'
+  const isArtistMember = effectiveUserRole === 'artist' || effectiveUserRole === 'member'
+  const isAdmin = effectiveUserRole === 'admin' || effectiveUserRole === 'founder'
 
   return (
     <main className="min-h-screen bg-[var(--pf-bg)] pt-20 pb-16">
       <div className="pf-container max-w-6xl">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-8 rounded-[32px] border border-[var(--pf-border)]/70 bg-[radial-gradient(circle_at_top_left,rgba(249,115,22,0.12),transparent_34%),linear-gradient(180deg,rgba(18,18,20,0.96),rgba(11,11,12,0.96))] p-6 shadow-[0_24px_90px_rgba(0,0,0,0.28)] sm:p-8">
           <div className="flex items-center gap-2 mb-2">
             <Package size={20} className="text-[var(--pf-orange)]" />
             <span className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--pf-orange)]">
@@ -389,7 +430,7 @@ export default function StorePage() {
           {isArtistMember && !roleLoading && (
             <div className="mt-5 rounded-xl border border-[var(--pf-orange)]/20 bg-[var(--pf-orange)]/5 p-4">
               <p className="text-sm font-medium text-[var(--pf-text)]">
-                Promote products to your audience
+                Promote this product to your audience
               </p>
               <p className="mt-1 text-xs text-[var(--pf-text-secondary)]">
                 Share the product link from any live product card. Track activity from your dashboard.
@@ -445,7 +486,7 @@ export default function StorePage() {
                   key={product.id}
                   product={product}
                   referralHandle={referralHandle}
-                  userRole={userRole}
+                  userRole={effectiveUserRole}
                 />
               ))}
             </div>
@@ -463,13 +504,16 @@ export default function StorePage() {
               </span>
               <div className="h-px flex-1 bg-[var(--pf-border)]/60" />
             </div>
+            <div className="mb-4 rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)]/70 p-4 text-sm text-[var(--pf-text-secondary)]">
+              Preview products are visible for context only. They are not live yet and cannot be purchased.
+            </div>
             <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
               {filteredPreview.map((product) => (
                 <StoreProductCard
                   key={product.id}
                   product={product}
                   referralHandle={referralHandle}
-                  userRole={userRole}
+                  userRole={effectiveUserRole}
                 />
               ))}
             </div>

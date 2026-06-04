@@ -3,13 +3,14 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowRight, Heart, Headphones, Pause, Play, Shirt } from 'lucide-react'
+import { ArrowRight, Heart, Headphones, Pause, Play, Shirt, Music, Package, DollarSign, BarChart3 } from 'lucide-react'
 import { Footer } from '@/components/Footer'
 import { useAudio, type Track } from '@/lib/audio-context'
 import { TRACKS } from '@/lib/data'
 import { ARTISTS, type ArtistData } from '@/lib/artists'
 import { filterPublicArtists } from '@/lib/public-artists'
 import { getTrackArtwork } from '@/lib/artwork'
+import { PRODUCTS, isPurchasable } from '@/lib/products'
 
 const PUBLIC_ARTISTS_FALLBACK = ARTISTS.filter((artist) => artist.trackCount && artist.trackCount > 0)
 
@@ -232,8 +233,11 @@ export default function HomePage() {
             <div className="grid items-center gap-8 sm:gap-10 lg:grid-cols-[0.94fr_1.06fr]">
               <div className="max-w-2xl">
                 <h1 className="text-4xl font-black leading-[0.95] tracking-[-0.06em] text-white sm:text-6xl sm:leading-[0.92] lg:text-7xl">
-                  Music + Merch. Direct.
+                  Upload. Build. Sell. Track.
                 </h1>
+                <p className="mt-4 text-base text-[var(--pf-text-secondary)] sm:text-lg">
+                  The creator platform for independent artists — music, merch, and everything that comes after.
+                </p>
 
                 <div className="mt-5 sm:mt-6 flex flex-wrap gap-3">
                   <Link
@@ -243,16 +247,16 @@ export default function HomePage() {
                     Upload Your Music <ArrowRight size={18} />
                   </Link>
                   <Link
-                    href="/music"
-                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[var(--pf-orange)] px-6 py-3 text-base font-semibold text-[#111111] transition-transform duration-200 hover:-translate-y-0.5"
-                  >
-                    Listen
-                  </Link>
-                  <Link
                     href="/store"
                     className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-[var(--pf-border)] bg-[var(--pf-surface)] px-6 py-3 text-base font-semibold text-[var(--pf-text)] transition-transform duration-200 hover:-translate-y-0.5 hover:border-[var(--pf-text-muted)]"
                   >
-                    Shop
+                    Shop Store
+                  </Link>
+                  <Link
+                    href="/music"
+                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-[var(--pf-border)] bg-[var(--pf-surface)] px-6 py-3 text-base font-semibold text-[var(--pf-text)] transition-transform duration-200 hover:-translate-y-0.5 hover:border-[var(--pf-text-muted)]"
+                  >
+                    Listen
                   </Link>
                 </div>
 
@@ -336,14 +340,7 @@ export default function HomePage() {
                         </div>
                       )}
 
-                        <div className="rounded-2xl border border-white/10 bg-black/[0.72] p-3 sm:p-4 shadow-2xl backdrop-blur-xl">
-                          <h2 className="text-base sm:text-lg font-semibold leading-tight text-white">
-                            Hoodies · Tees · Vinyl
-                          </h2>
-                          <Link href="/store" className="mt-2 inline-block text-sm text-[var(--pf-orange)] hover:underline">
-                            Shop →
-                          </Link>
-                        </div>
+
                       </div>
                     </div>
                   </div>
@@ -353,6 +350,250 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* Section 2: How Porterful Works */}
+        <section className="pf-reveal-group border-b border-[var(--pf-border)]">
+          <div className="pf-container py-12 md:py-16">
+            <div className="pf-reveal-child mb-8 text-center">
+              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--pf-orange)]">
+                How it works
+              </p>
+              <h2 className="mt-2 text-3xl font-bold text-white md:text-4xl">
+                From track to store in four steps
+              </h2>
+            </div>
+
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {[
+                {
+                  step: '01',
+                  title: 'Upload Your Music',
+                  description: 'Drop your tracks. Set your price. Keep control.',
+                  icon: Music,
+                },
+                {
+                  step: '02',
+                  title: 'Build Your Products',
+                  description: 'Create merch from your music. Shirts, vinyl, more.',
+                  icon: Package,
+                },
+                {
+                  step: '03',
+                  title: 'Sell Direct',
+                  description: 'No middleman. Your fans. Your store. Your revenue.',
+                  icon: DollarSign,
+                },
+                {
+                  step: '04',
+                  title: 'Track Everything',
+                  description: 'See what sells, where, and why. Grow with data.',
+                  icon: BarChart3,
+                },
+              ].map((item) => (
+                <div
+                  key={item.step}
+                  className="pf-reveal-child rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-6 shadow-[0_12px_40px_rgba(0,0,0,0.2)]"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--pf-orange)]">
+                      {item.step}
+                    </span>
+                    <item.icon size={20} className="text-[var(--pf-text-muted)]" />
+                  </div>
+                  <h3 className="mt-3 text-lg font-semibold text-white">{item.title}</h3>
+                  <p className="mt-2 text-sm text-[var(--pf-text-secondary)]">{item.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Section 3: Featured Products */}
+        <section className="pf-reveal-group border-b border-[var(--pf-border)]">
+          <div className="pf-container py-12 md:py-16">
+            <div className="pf-reveal-child mb-6 flex items-end justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--pf-orange)]">
+                  Products
+                </p>
+                <h2 className="mt-2 text-3xl font-bold text-white md:text-4xl">
+                  Featured Products
+                </h2>
+              </div>
+              <Link href="/store" className="text-sm font-medium text-[var(--pf-orange)] hover:underline">
+                All products →
+              </Link>
+            </div>
+
+            {(() => {
+              const purchasableProducts = PRODUCTS.filter(isPurchasable)
+              if (purchasableProducts.length === 0) {
+                return (
+                  <div className="pf-reveal-child rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-8 text-center">
+                    <p className="text-lg font-semibold text-white">First drop coming soon</p>
+                    <p className="mt-2 text-sm text-[var(--pf-text-secondary)]">
+                      We&apos;re curating the first collection. Check back shortly.
+                    </p>
+                  </div>
+                )
+              }
+              return (
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                  {purchasableProducts.slice(0, 4).map((product) => (
+                    <Link
+                      key={product.id}
+                      href={`/store`}
+                      className="pf-reveal-child group rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-4 shadow-[0_12px_40px_rgba(0,0,0,0.2)] transition-transform duration-200 hover:-translate-y-0.5"
+                    >
+                      <div className="relative aspect-square overflow-hidden rounded-xl bg-[var(--pf-bg)]">
+                        {product.images?.[0] ? (
+                          <Image
+                            src={product.images[0]}
+                            alt={product.name}
+                            fill
+                            sizes="(max-width: 640px) 50vw, 25vw"
+                            className="object-cover transition-transform duration-300 group-hover:scale-105"
+                          />
+                        ) : (
+                          <div className="flex h-full items-center justify-center">
+                            <Shirt size={40} className="text-[var(--pf-text-muted)]" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="mt-3">
+                        <p className="text-xs text-[var(--pf-text-muted)]">{product.category}</p>
+                        <h3 className="mt-0.5 text-sm font-semibold text-white truncate">{product.name}</h3>
+                        <p className="mt-1 text-sm font-semibold text-[var(--pf-orange)]">
+                          ${Number(product.price ?? 0).toFixed(2)}
+                        </p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )
+            })()}
+          </div>
+        </section>
+
+        {/* Section 4: Featured Artists */}
+        <section className="pf-reveal-group border-b border-[var(--pf-border)]">
+          <div className="pf-container py-12 md:py-16">
+            <div className="pf-reveal-child mb-6 flex items-end justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--pf-orange)]">
+                  Artists
+                </p>
+                <h2 className="mt-2 text-3xl font-bold text-white md:text-4xl">
+                  Featured Artists
+                </h2>
+              </div>
+              <Link href="/artists" className="text-sm font-medium text-[var(--pf-orange)] hover:underline">
+                All artists →
+              </Link>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {publicArtists.slice(0, 4).map((artist) => (
+                <Link
+                  key={artist.slug}
+                  href={`/artist/${artist.slug}`}
+                  className="pf-reveal-child group flex items-center gap-4 rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-4 shadow-[0_12px_40px_rgba(0,0,0,0.2)] transition-transform duration-200 hover:-translate-y-0.5"
+                >
+                  <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full border border-white/10">
+                    <div className="flex h-full w-full items-center justify-center bg-[var(--pf-bg)]">
+                      <span className="text-lg font-semibold text-[var(--pf-text-muted)]">
+                        {(artist as any).name?.charAt(0)?.toUpperCase() ?? (artist as any).slug?.charAt(0)?.toUpperCase() ?? '?'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="text-sm font-semibold text-white truncate">{(artist as any).name ?? (artist as any).slug}</h3>
+                    <p className="text-xs text-[var(--pf-text-muted)]">
+                      {(artist as any).trackCount ?? 0} {(artist as any).trackCount === 1 ? 'track' : 'tracks'}
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Section 5: Why Porterful */}
+        <section className="pf-reveal-group border-b border-[var(--pf-border)]">
+          <div className="pf-container py-12 md:py-16">
+            <div className="pf-reveal-child mb-8 text-center">
+              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--pf-orange)]">
+                Why Porterful
+              </p>
+              <h2 className="mt-2 text-3xl font-bold text-white md:text-4xl">
+                Built for creators, not the middleman
+              </h2>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              {[
+                {
+                  title: 'You own your music',
+                  description: 'Keep your rights. Set your own terms. No one takes a cut of your creative work.',
+                },
+                {
+                  title: 'You own your store',
+                  description: 'Direct sales to your fans. No platform lock-in. Your storefront, your rules.',
+                },
+                {
+                  title: 'You own your data',
+                  description: 'Full attribution and analytics. Know who listens, what sells, and where to grow.',
+                },
+                {
+                  title: 'You own your relationship',
+                  description: 'Connect directly with fans. No algorithm in the way. Your community, yours to keep.',
+                },
+              ].map((item) => (
+                <div
+                  key={item.title}
+                  className="pf-reveal-child rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-6 shadow-[0_12px_40px_rgba(0,0,0,0.2)]"
+                >
+                  <div className="flex items-start gap-3">
+                    <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-[var(--pf-orange)]" />
+                    <div>
+                      <h3 className="text-base font-semibold text-white">{item.title}</h3>
+                      <p className="mt-1 text-sm text-[var(--pf-text-secondary)]">{item.description}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Section 6: Creator Commerce Platform */}
+        <section className="pf-reveal-group border-b border-[var(--pf-border)]">
+          <div className="pf-container py-12 md:py-16">
+            <div className="pf-reveal-child rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(249,115,22,0.14),transparent_28%),linear-gradient(180deg,rgba(15,17,21,0.98),rgba(8,9,12,0.98))] px-6 py-10 text-center shadow-[0_28px_80px_rgba(0,0,0,0.3)] md:px-10 md:py-14">
+              <h2 className="text-3xl font-bold tracking-[-0.05em] text-white md:text-5xl">
+                Creator Commerce Platform
+              </h2>
+              <p className="mt-4 text-base text-[var(--pf-text-secondary)] md:text-lg">
+                From upload to fulfillment, everything in one place.
+              </p>
+              <div className="mt-6 flex flex-wrap justify-center gap-3">
+                <Link
+                  href="/signup?role=artist"
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[var(--pf-orange)] px-6 py-3 text-base font-semibold text-[#111111] transition-transform duration-200 hover:-translate-y-0.5"
+                >
+                  Join as Artist
+                </Link>
+                <Link
+                  href="/store"
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-[var(--pf-border)] bg-[var(--pf-surface)] px-6 py-3 text-base font-semibold text-[var(--pf-text)] transition-transform duration-200 hover:-translate-y-0.5 hover:border-[var(--pf-text-muted)]"
+                >
+                  Explore Store
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Featured Track (moved after How It Works) */}
         <section className="pf-reveal-group border-b border-[var(--pf-border)]">
           <div className="pf-container py-12 md:py-16">
             <div className="pf-reveal-child mb-6 flex items-end justify-between gap-4">
@@ -369,7 +610,6 @@ export default function HomePage() {
               </Link>
             </div>
 
-            {/* Primary featured track (large card) */}
             <article className="pf-reveal-child overflow-hidden rounded-[2rem] border border-[var(--pf-border)] bg-[var(--pf-surface)] shadow-[0_24px_70px_rgba(0,0,0,0.28)]">
               <div className="grid gap-0 lg:grid-cols-[0.86fr_1.14fr]">
                 <div className="relative min-h-[280px] lg:min-h-[360px]">
@@ -413,7 +653,6 @@ export default function HomePage() {
               </div>
             </article>
 
-            {/* Additional featured tracks (up to 2 more, grid) */}
             {featuredTracks && featuredTracks.length > 1 && (
               <div className="mt-6 grid gap-4 sm:grid-cols-2">
                 {featuredTracks.slice(1).map((track, idx) => (
@@ -468,88 +707,6 @@ export default function HomePage() {
                 ))}
               </div>
             )}
-          </div>
-        </section>
-
-        <section className="pf-reveal-group border-b border-[var(--pf-border)]">
-          <div className="pf-container py-12 md:py-16">
-            <div className="grid gap-4 lg:grid-cols-2">
-              <article className="pf-reveal-child rounded-[2rem] border border-[var(--pf-border)] bg-[var(--pf-surface)] p-6 md:p-8 shadow-[0_24px_70px_rgba(0,0,0,0.24)]">
-                <h2 className="mt-3 text-3xl font-bold tracking-[-0.04em] text-white md:text-4xl">
-                  Listen, buy, wear.
-                </h2>
-                <div className="mt-8">
-                  <Link
-                    href="/music"
-                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-[var(--pf-border)] bg-[var(--pf-bg)] px-5 py-3 text-sm font-semibold text-[var(--pf-text)] transition-transform duration-200 hover:-translate-y-0.5 hover:border-[var(--pf-text-muted)]"
-                  >
-                    Browse Music →
-                  </Link>
-                </div>
-              </article>
-
-              <article className="pf-reveal-child rounded-[2rem] border border-[var(--pf-border)] bg-[var(--pf-surface)] p-6 md:p-8 shadow-[0_24px_70px_rgba(0,0,0,0.24)]">
-                <h2 className="mt-3 text-3xl font-bold tracking-[-0.04em] text-white md:text-4xl">
-                  Artists: upload, sell, grow.
-                </h2>
-                <div className="mt-8">
-                  <Link
-                    href="/signup?role=artist"
-                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-[var(--pf-border)] bg-[var(--pf-bg)] px-5 py-3 text-sm font-semibold text-[var(--pf-text)] transition-transform duration-200 hover:-translate-y-0.5 hover:border-[var(--pf-text-muted)]"
-                  >
-                    Join as Artist →
-                  </Link>
-                </div>
-              </article>
-            </div>
-          </div>
-        </section>
-
-        <section className="pf-reveal-group border-b border-[var(--pf-border)]">
-          <div className="pf-container py-12 md:py-16">
-            <div className="grid gap-4 lg:grid-cols-[1.12fr_0.88fr]">
-              <article className="pf-reveal-child rounded-[2rem] border border-[var(--pf-border)] bg-[var(--pf-surface)] p-6 md:p-8 shadow-[0_24px_70px_rgba(0,0,0,0.24)]">
-                <div className="mt-6 grid gap-3 sm:grid-cols-3">
-                  {[
-                    { label: 'Hoodies' },
-                    { label: 'Tees' },
-                    { label: 'Vinyl' },
-                  ].map((item) => (
-                    <div
-                      key={item.label}
-                      className="rounded-2xl border border-white/[0.08] bg-black/25 p-4"
-                    >
-                      <div className="text-lg font-semibold text-white">{item.label}</div>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-6">
-                  <Link
-                    href="/store"
-                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[var(--pf-orange)] px-5 py-3 text-sm font-semibold text-[#111111] transition-transform duration-200 hover:-translate-y-0.5"
-                  >
-                    Shop →
-                  </Link>
-                </div>
-              </article>
-
-              <article className="pf-reveal-child rounded-[2rem] border border-[var(--pf-border)] bg-[linear-gradient(180deg,rgba(17,19,24,0.95),rgba(10,11,15,0.98))] p-6 md:p-8 shadow-[0_24px_70px_rgba(0,0,0,0.24)]">
-                <ul className="mt-4 grid gap-4 text-[var(--pf-text-secondary)]">
-                  <li className="flex gap-3">
-                    <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-[var(--pf-orange)]" />
-                    Music first
-                  </li>
-                  <li className="flex gap-3">
-                    <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-[var(--pf-orange)]" />
-                    Merch supports the release
-                  </li>
-                  <li className="flex gap-3">
-                    <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-[var(--pf-orange)]" />
-                    Real inventory only
-                  </li>
-                </ul>
-              </article>
-            </div>
           </div>
         </section>
 

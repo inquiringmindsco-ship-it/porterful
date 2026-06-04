@@ -4,8 +4,9 @@ import { useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Star, Heart, Shield, Truck, ArrowLeft, Check } from 'lucide-react'
-import { getProductById } from '@/lib/products'
+import { Star, Heart, Shield, Truck, ArrowLeft, Check, Clock, Ruler, Package, Info } from 'lucide-react'
+import { CONTROLLED_MERCH } from '@/lib/controlled-merch'
+import { getProductById, isPurchasable } from '@/lib/products'
 import { useCart } from '@/lib/cart-context'
 
 export function ProductDetailPage() {
@@ -24,17 +25,21 @@ export function ProductDetailPage() {
         <div className="pf-container text-center py-20">
           <h1 className="text-3xl font-bold mb-4">Product Not Found</h1>
           <p className="text-[var(--pf-text-secondary)] mb-6">This product doesn't exist or has been removed.</p>
-          <Link href="/shop" className="pf-btn pf-btn-primary">Browse Store</Link>
+          <Link href="/store" className="pf-btn pf-btn-primary">Browse Store</Link>
         </div>
       </div>
     )
   }
+
+  const purchasable = isPurchasable(product)
+  const controlled = product.skuCode === CONTROLLED_MERCH.skuCode
 
   const colors = product.colors || []
   const sizes = product.sizes || []
   const images = product.images || [product.image]
 
   const handleAddToCart = () => {
+    if (!purchasable) return
     addItem({
       productId: product.id,
       name: product.name,
@@ -52,7 +57,7 @@ export function ProductDetailPage() {
   return (
     <div className="min-h-screen pt-20 pb-24 bg-[var(--pf-bg)]">
       <div className="pf-container">
-        <Link href="/shop" className="inline-flex items-center gap-2 text-sm text-[var(--pf-text-muted)] hover:text-white mb-6 transition-colors">
+        <Link href="/store" className="inline-flex items-center gap-2 text-sm text-[var(--pf-text-muted)] hover:text-white mb-6 transition-colors">
           <ArrowLeft size={16} /> Back to Store
         </Link>
 
@@ -91,6 +96,30 @@ export function ProductDetailPage() {
               </span>
             </div>
             <h1 className="text-3xl md:text-4xl font-bold mb-4">{product.name}</h1>
+
+            <div className="flex flex-wrap gap-2 mb-4">
+              {purchasable ? (
+                <>
+                  <span className="rounded-full border border-emerald-400/20 bg-emerald-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-300">
+                    Live
+                  </span>
+                  {controlled && (
+                    <span className="rounded-full border border-[rgba(249,115,22,0.25)] bg-[rgba(249,115,22,0.12)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--pf-orange)]">
+                      Controlled Drop
+                    </span>
+                  )}
+                </>
+              ) : (
+                <>
+                  <span className="rounded-full border border-[var(--pf-border)] bg-[var(--pf-surface)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--pf-text-muted)]">
+                    Preview
+                  </span>
+                  <span className="rounded-full border border-[var(--pf-border)] bg-[var(--pf-surface)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--pf-text-muted)]">
+                    Not live yet
+                  </span>
+                </>
+              )}
+            </div>
 
             {product.sales !== undefined && product.sales > 0 && (
               <div className="flex items-center gap-3 mb-4">
@@ -166,13 +195,20 @@ export function ProductDetailPage() {
 
             <button
               onClick={handleAddToCart}
+              disabled={!purchasable}
               className={`w-full py-4 rounded-xl font-bold text-lg transition-all mb-4 flex items-center justify-center gap-2 ${
-                added
+                !purchasable
+                  ? 'bg-[var(--pf-surface)] border border-[var(--pf-border)] text-[var(--pf-text-muted)] cursor-not-allowed'
+                  : added
                   ? 'bg-green-500 text-white'
                   : 'bg-[var(--pf-orange)] hover:bg-[var(--pf-orange-dark)] text-white shadow-lg shadow-[var(--pf-orange)]/20'
               }`}
             >
-              {added ? (
+              {!purchasable ? (
+                <>
+                  <Clock size={20} /> Preview — Not Available Yet
+                </>
+              ) : added ? (
                 <><Check size={20} /> Added to Cart</>
               ) : (
                 <>Add to Cart — ${product.price.toFixed(2)}</>
@@ -181,10 +217,50 @@ export function ProductDetailPage() {
 
             <Link
               href={`/artist/${product.artist.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/\s+/g, '-')}`}
-              className="block text-center text-sm text-[var(--pf-text-muted)] hover:text-[var(--pf-orange)] mb-6 transition-colors"
+              className="block text-center text-sm text-[var(--pf-text-muted)] hover:text-[var(--pf-orange)] mb-4 transition-colors"
             >
               More from {product.artist} →
             </Link>
+
+            {/* Size Guide */}
+            {sizes.length > 0 && (
+              <div className="mb-4 rounded-xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Ruler size={16} className="text-[var(--pf-orange)]" />
+                  <span className="text-sm font-medium">Size Guide</span>
+                </div>
+                <div className="grid grid-cols-5 gap-2 text-center text-xs">
+                  {['XS', 'S', 'M', 'L', 'XL', 'XXL'].map((sz) => (
+                    <div key={sz} className={`rounded-lg py-1.5 border ${sizes.includes(sz) ? 'border-[var(--pf-border)] bg-[var(--pf-bg)] text-[var(--pf-text)]' : 'border-transparent text-[var(--pf-text-muted)] opacity-40'}`}>
+                      {sz}
+                    </div>
+                  ))}
+                </div>
+                <p className="text-[10px] text-[var(--pf-text-muted)] mt-2">Unisex fit. Model is 5'10" wearing size L.</p>
+              </div>
+            )}
+
+            {/* Shipping Info */}
+            <div className="mb-4 rounded-xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Package size={16} className="text-[var(--pf-orange)]" />
+                <span className="text-sm font-medium">Shipping & Delivery</span>
+              </div>
+              <ul className="space-y-1.5 text-xs text-[var(--pf-text-secondary)]">
+                <li className="flex items-start gap-2">
+                  <Truck size={12} className="mt-0.5 shrink-0 text-[var(--pf-text-muted)]" />
+                  <span>Ships via USPS / UPS within 3–5 business days</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Info size={12} className="mt-0.5 shrink-0 text-[var(--pf-text-muted)]" />
+                  <span>Free shipping on orders over $75</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Shield size={12} className="mt-0.5 shrink-0 text-[var(--pf-text-muted)]" />
+                  <span>30-day return policy on unworn items</span>
+                </li>
+              </ul>
+            </div>
 
             <div className="grid grid-cols-3 gap-3 pt-6 border-t border-[var(--pf-border)]">
               <div className="text-center">
@@ -193,7 +269,7 @@ export function ProductDetailPage() {
               </div>
               <div className="text-center">
                 <Heart size={18} className="mx-auto text-[var(--pf-orange)] mb-1" />
-                <p className="text-xs text-[var(--pf-text-muted)]">earnings to Artist</p>
+                <p className="text-xs text-[var(--pf-text-muted)]">Artist-linked product</p>
               </div>
               <div className="text-center">
                 <Truck size={18} className="mx-auto text-blue-400 mb-1" />

@@ -16,7 +16,12 @@ export const CONTROLLED_MERCH = {
   unitCostCents: 750,
   fulfillmentType: 'img_fulfillment',
   catalogStatus: 'controlled_test',
-  image: '/artist-images/atm-trap/avatar.jpg',
+  image: '/images/products/coming-home-tee-black.png',
+  images: [
+    '/images/products/coming-home-tee-black.png',
+    '/images/products/coming-home-tee-detail.png',
+    '/images/products/coming-home-tee-back.png',
+  ],
   description: 'Controlled IMG Fulfillment test product linked to the Coming Home asset.',
 } as const
 
