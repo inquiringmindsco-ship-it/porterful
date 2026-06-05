@@ -1,9 +1,27 @@
 import { NextResponse } from 'next/server'
 import { getAuthenticatedClient, unauthorized } from '@/lib/auth-utils'
+import { createClient } from '@supabase/supabase-js'
 import { parsePresencePath } from '@/lib/presence-now-playing'
 
 const ACTIVE_WINDOW_SECONDS = 75
 export const dynamic = 'force-dynamic'
+
+function createServiceClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+  if (!supabaseUrl || !supabaseKey) {
+    throw new Error('Missing Supabase service credentials')
+  }
+
+  return createClient(supabaseUrl, supabaseKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+      detectSessionInUrl: false,
+    },
+  })
+}
 
 function roleLabel(role?: string | null): string {
   if (!role) return 'Supporter'
@@ -33,16 +51,17 @@ export async function GET() {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
+    const serviceSupabase = createServiceClient()
     const cutoff = new Date(Date.now() - ACTIVE_WINDOW_SECONDS * 1000).toISOString()
 
     const [sessionResult, visitorResult] = await Promise.all([
-      supabase
+      serviceSupabase
         .from('presence_sessions')
         .select('user_id, email, full_name, username, avatar_url, role, current_path, last_seen_at, created_at, updated_at')
         .gte('last_seen_at', cutoff)
         .order('last_seen_at', { ascending: false })
         .limit(200),
-      supabase
+      serviceSupabase
         .from('presence_visitors')
         .select('visitor_id, display_name, current_path, last_seen_at, created_at, updated_at')
         .gte('last_seen_at', cutoff)

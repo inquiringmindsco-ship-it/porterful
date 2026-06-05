@@ -88,6 +88,7 @@ export async function POST(request: NextRequest) {
     }
 
     const { supabase, user } = auth
+    const serviceSupabase = createServiceClient()
 
     const { data: profile } = await supabase
       .from('profiles')
@@ -109,7 +110,7 @@ export async function POST(request: NextRequest) {
       (typeof user.user_metadata?.avatar_url === 'string' ? user.user_metadata.avatar_url : null) ??
       (typeof user.user_metadata?.picture === 'string' ? user.user_metadata.picture : null)
 
-    const { error } = await supabase.from('presence_sessions').upsert(
+    const { error } = await serviceSupabase.from('presence_sessions').upsert(
       {
         user_id: user.id,
         email: user.email ?? '',
@@ -130,7 +131,6 @@ export async function POST(request: NextRequest) {
     }
 
     if (visitorCookie) {
-      const serviceSupabase = createServiceClient()
       const { error: visitorDeleteError } = await serviceSupabase
         .from('presence_visitors')
         .delete()
