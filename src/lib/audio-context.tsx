@@ -79,6 +79,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
   const currentTrackRef = useRef<Track | null>(null);
   const isPlayingRef = useRef(false);
   const playTrackRef = useRef<(track: Track) => void>(() => {});
+  const lastRecordedPlayRef = useRef<{ trackId: string; recordedAt: number } | null>(null);
 
   const setQueue = useCallback((tracks: Track[]) => {
     const normalizedQueue = dedupeQueueTracks(filterPlayableTracks(tracks));
@@ -107,6 +108,14 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 
   const recordPlayEvent = useCallback(async (track: Track) => {
     try {
+      const now = Date.now();
+      const lastRecorded = lastRecordedPlayRef.current;
+      if (lastRecorded && lastRecorded.trackId === track.id && now - lastRecorded.recordedAt < 8000) {
+        return;
+      }
+
+      lastRecordedPlayRef.current = { trackId: track.id, recordedAt: now };
+
       const sessionId = ensureMeasurementSessionId()
       const durationSeconds =
         typeof track.preview_duration_seconds === 'number'
@@ -335,6 +344,12 @@ export function AudioProvider({ children }: { children: ReactNode }) {
         console.error('[AUDIO] Play failed:', err.name, err.message);
         setIsPlaying(false);
         });
+      void playPromise.then(() => {
+        const track = currentTrackRef.current;
+        if (track) {
+          void recordPlayEvent(track);
+        }
+      })
     } else {
     }
   }, [recordPlayEvent]);
@@ -366,9 +381,15 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     if (isPlaying) {
       audioRef.current.pause();
     } else if (hasPlayableAudio(currentTrack)) {
-      audioRef.current.play().catch(() => {});
+      audioRef.current.play()
+        .then(() => {
+          if (currentTrackRef.current) {
+            void recordPlayEvent(currentTrackRef.current);
+          }
+        })
+        .catch(() => {});
     }
-  }, [isPlaying, currentTrack]);
+  }, [isPlaying, currentTrack, recordPlayEvent]);
 
   const pause = useCallback(() => {
     audioRef.current?.pause();

@@ -1,12 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdminAccess } from '@/lib/admin-client'
-import { createServerClient } from '@/lib/supabase'
+import { createClient } from '@supabase/supabase-js'
 import {
   normalizeCity,
   normalizeState,
 } from '@/lib/measurement'
 
 export const dynamic = 'force-dynamic'
+
+function createServiceClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+  if (!supabaseUrl || !supabaseKey) {
+    throw new Error('Missing Supabase service credentials')
+  }
+
+  return createClient(supabaseUrl, supabaseKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+      detectSessionInUrl: false,
+    },
+  })
+}
 
 type PlayRow = {
   session_id: string
@@ -110,7 +127,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const supabase = createServerClient()
+    const supabase = createServiceClient()
 
     const [revenueResponse, playsResult, downloadsResult, emailCapturesResult, purchasesResult, anonymousVisitorsResult, authenticatedSessionsResult] = await Promise.all([
       fetch(new URL('/api/dashboard/revenue', request.url).toString(), {

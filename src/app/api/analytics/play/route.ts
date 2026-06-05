@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@/lib/supabase'
+import { createClient } from '@supabase/supabase-js'
 import {
   createMeasurementSessionId,
   getMeasurementSessionCookieName,
@@ -8,6 +8,23 @@ import {
 } from '@/lib/measurement'
 
 export const dynamic = 'force-dynamic'
+
+function createServiceClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+  if (!supabaseUrl || !supabaseKey) {
+    throw new Error('Missing Supabase service credentials')
+  }
+
+  return createClient(supabaseUrl, supabaseKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+      detectSessionInUrl: false,
+    },
+  })
+}
 
 type PlayEventBody = {
   session_id?: string | null
@@ -58,7 +75,7 @@ export async function POST(request: NextRequest) {
       headers: request.headers,
     })
 
-    const supabase = createServerClient()
+    const supabase = createServiceClient()
     let artistId = normalizeOptionalText(body.artist_id)
 
     if (!artistId) {
