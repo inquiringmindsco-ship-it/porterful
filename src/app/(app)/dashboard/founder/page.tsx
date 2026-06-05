@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSupabase } from '@/app/providers'
 import Link from 'next/link'
@@ -102,6 +102,8 @@ export default function FounderDashboard() {
   const [revenueTransactions, setRevenueTransactions] = useState<RevenueTransaction[]>([])
   const [revenueMetrics, setRevenueMetrics] = useState<any>(null)
   const [analyticsData, setAnalyticsData] = useState<any>(null)
+  const [analyticsLastUpdated, setAnalyticsLastUpdated] = useState<string | null>(null)
+  const [analyticsRefreshing, setAnalyticsRefreshing] = useState(false)
   const [revenueLoading, setRevenueLoading] = useState(false)
   const [purchaseSearch, setPurchaseSearch] = useState('')
   const [purchaseArtistFilter, setPurchaseArtistFilter] = useState<string>('all')
@@ -153,6 +155,34 @@ export default function FounderDashboard() {
     checkAccess()
   }, [user])
 
+  const fetchAnalyticsSnapshot = useCallback(async (accessToken: string) => {
+    const [revenueRes, analyticsRes] = await Promise.all([
+      fetch('/api/dashboard/revenue', {
+        headers: { 'Authorization': `Bearer ${accessToken}` },
+        cache: 'no-store',
+      }),
+      fetch('/api/dashboard/analytics', {
+        headers: { 'Authorization': `Bearer ${accessToken}` },
+        cache: 'no-store',
+      }),
+    ])
+
+    if (!revenueRes.ok) {
+      throw new Error(await revenueRes.text() || 'Failed to load revenue report')
+    }
+
+    const revenueData = await revenueRes.json()
+    let analyticsReport: any = null
+
+    if (analyticsRes.ok) {
+      analyticsReport = await analyticsRes.json()
+    } else {
+      console.error('Failed to load analytics report:', await analyticsRes.text())
+    }
+
+    return { revenueData, analyticsReport }
+  }, [])
+
   async function checkAccess() {
     if (!supabase || !user) return
     const { data: profile } = await supabase
@@ -197,29 +227,7 @@ export default function FounderDashboard() {
         console.error('Failed to load admin counts:', e)
       }
 
-      const revenueRes = await fetch('/api/dashboard/revenue', {
-        headers: { 'Authorization': `Bearer ${session?.access_token || ''}` },
-        cache: 'no-store',
-      })
-      if (!revenueRes.ok) {
-        throw new Error(await revenueRes.text() || 'Failed to load revenue report')
-      }
-      const revenueData = await revenueRes.json()
-
-      let analyticsReport: any = null
-      try {
-        const analyticsRes = await fetch('/api/dashboard/analytics', {
-          headers: { 'Authorization': `Bearer ${session?.access_token || ''}` },
-          cache: 'no-store',
-        })
-        if (analyticsRes.ok) {
-          analyticsReport = await analyticsRes.json()
-        } else {
-          console.error('Failed to load analytics report:', await analyticsRes.text())
-        }
-      } catch (e) {
-        console.error('Failed to load analytics report:', e)
-      }
+      const { revenueData, analyticsReport } = await fetchAnalyticsSnapshot(session?.access_token || '')
 
       const { data: profilesData } = await supabase.from('profiles').select('id, role, created_at')
       const { data: artistsData } = await supabase.from('artists').select('*')
@@ -376,6 +384,7 @@ export default function FounderDashboard() {
       setRevenueMetrics(revenueData?.metrics || null)
       setRevenueTransactions(revenueData?.transactions || [])
       setAnalyticsData(analyticsReport)
+      setAnalyticsLastUpdated(new Date().toISOString())
       setPurchases(revenueData?.transactions || [])
     } catch (error) {
       console.error('Error loading founder data:', error)
@@ -412,6 +421,35 @@ export default function FounderDashboard() {
       setUsersLoading(false)
     }
   }
+
+  const refreshAnalytics = useCallback(async () => {
+    if (!supabase) return
+
+    setAnalyticsRefreshing(true)
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const { revenueData, analyticsReport } = await fetchAnalyticsSnapshot(session?.access_token || '')
+      setRevenueMetrics(revenueData?.metrics || null)
+      setAnalyticsData(analyticsReport)
+      setAnalyticsLastUpdated(new Date().toISOString())
+    } catch (error) {
+      console.error('Failed to refresh analytics report:', error)
+    } finally {
+      setAnalyticsRefreshing(false)
+    }
+  }, [fetchAnalyticsSnapshot, supabase])
+
+  useEffect(() => {
+    if (activeTab !== 'analytics') return
+
+    void refreshAnalytics()
+    const interval = window.setInterval(() => {
+      void refreshAnalytics()
+    }, 30000)
+
+    return () => window.clearInterval(interval)
+  }, [activeTab, refreshAnalytics])
 
   async function updateArtistStatus(artistId: string, status: string) {
     setError('')
@@ -1852,10 +1890,29 @@ export default function FounderDashboard() {
         {activeTab === 'analytics' && (
           <div className="space-y-6">
             <div className="pf-card p-6">
-              <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                <TrendingUp className="text-[var(--pf-orange)]" />
-                Measurement Overview
-              </h2>
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                <h2 className="text-lg font-semibold flex items-center gap-2">
+                  <TrendingUp className="text-[var(--pf-orange)]" />
+                  Measurement Overview
+                </h2>
+                <div className="flex items-center gap-2 text-xs text-[var(--pf-text-muted)]">
+                  <span>
+                    {analyticsRefreshing
+                      ? 'Refreshing now...'
+                      : analyticsLastUpdated
+                        ? `Updated ${new Date(analyticsLastUpdated).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`
+                        : 'Waiting for first refresh'}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => void refreshAnalytics()}
+                    className="inline-flex items-center gap-1 rounded-full border border-[var(--pf-border)] bg-[var(--pf-surface)] px-2.5 py-1 text-[var(--pf-text-secondary)] transition-colors hover:border-[var(--pf-orange)]/30 hover:text-[var(--pf-text)]"
+                  >
+                    <RefreshCw size={12} className={analyticsRefreshing ? 'animate-spin' : ''} />
+                    Refresh
+                  </button>
+                </div>
+              </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="p-4 rounded-lg bg-[var(--pf-surface)]">
                   <p className="text-xs text-[var(--pf-text-muted)]">Total Plays</p>
