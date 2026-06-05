@@ -1,14 +1,15 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { PRODUCTS, COMING_HOME_COLLECTION, getCollectionProducts } from '@/lib/products'
+import { COMING_HOME_COLLECTION, getCollectionProducts } from '@/lib/products'
 import { isPurchasable } from '@/lib/products'
+import { loadCatalogProducts } from '@/lib/product-visibility'
 import { Home, ArrowLeft, Play, Eye } from 'lucide-react'
 
-export default function ComingHomeCollectionPage() {
+export default async function ComingHomeCollectionPage() {
   const collection = COMING_HOME_COLLECTION
-  const products = getCollectionProducts(PRODUCTS, collection.slug)
-  const liveProducts = products.filter(p => isPurchasable(p))
-  const previewProducts = products.filter(p => !isPurchasable(p))
+  const products = getCollectionProducts(await loadCatalogProducts('store'), collection.slug)
+  const liveProducts = products.filter(p => (p.purchasable ?? isPurchasable(p)))
+  const previewProducts = products.filter(p => !(p.purchasable ?? isPurchasable(p)))
 
   return (
     <div className="min-h-screen bg-[var(--pf-bg)] pt-20 pb-16">
@@ -97,7 +98,7 @@ export default function ComingHomeCollectionPage() {
 }
 
 function ProductCard({ product, collection }: { product: any; collection: any }) {
-  const purchasable = isPurchasable(product)
+  const purchasable = product.purchasable ?? isPurchasable(product)
 
   return (
     <Link href={`/store/${product.id}`} className="group block">

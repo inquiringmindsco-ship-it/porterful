@@ -155,13 +155,21 @@ export interface Product {
   // available: true only when a real purchase + fulfillment path is confirmed.
   // Anything not explicitly available renders as "Coming Soon" with Buy Now disabled.
   available?: boolean
+  publicVisible?: boolean
+  storeVisible?: boolean
+  purchasable?: boolean
+  visibilityStatus?: 'live' | 'preview' | 'unavailable' | 'hidden' | 'controlled'
   // Dropship fields
   dropship?: boolean
   supplier?: string
   supplierPrice?: number
 }
 
-export function isPurchasable(product: Pick<Product, 'available' | 'fulfillment'>) {
+export function isPurchasable(product: Pick<Product, 'available' | 'fulfillment'> & { purchasable?: boolean }) {
+  if (typeof product.purchasable === 'boolean') {
+    return product.purchasable === true
+  }
+
   return product.available === true && product.fulfillment !== 'mock'
 }
 

@@ -14,6 +14,7 @@ import {
   type CheckoutResolvedItem,
   resolveCheckoutCart,
 } from '@/lib/checkout-catalog'
+import { loadProductVisibilityControls } from '@/lib/product-visibility'
 import {
   createMeasurementSessionId,
   getMeasurementSessionCookieName,
@@ -133,7 +134,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No items in cart.' }, { status: 400 })
     }
 
-    const resolvedCart = resolveCheckoutCart(items)
+    const requestedProductIds: string[] = Array.from(new Set(
+      items
+        .map((item: any) => String(item?.id || item?.productId || '').trim())
+        .filter(Boolean)
+    )) as string[]
+    const productVisibility = requestedProductIds.length > 0
+      ? await loadProductVisibilityControls(requestedProductIds)
+      : {}
+
+    const resolvedCart = resolveCheckoutCart(items, { productVisibility })
     const { items: resolvedItems, subtotalCents: subtotal, requiresShipping } = resolvedCart
     const primaryItem = resolvedItems[0] || null
     const shippingCost = requiresShipping ? (subtotal >= 5000 ? 0 : 500) : 0

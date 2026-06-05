@@ -1,8 +1,9 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { BRANDS, getBrandBySlug, getBrandProducts, PRODUCTS, isPurchasable } from '@/lib/products'
+import { BRANDS, getBrandBySlug, getBrandProducts, isPurchasable } from '@/lib/products'
 import { ArrowLeft, Play, Eye } from 'lucide-react'
+import { loadCatalogProducts } from '@/lib/product-visibility'
 
 interface PageProps {
   params: Promise<{ slug: string }>
@@ -16,9 +17,9 @@ export default async function BrandPage({ params }: PageProps) {
     notFound()
   }
 
-  const products = getBrandProducts(PRODUCTS, slug)
-  const liveProducts = products.filter(p => isPurchasable(p))
-  const previewProducts = products.filter(p => !isPurchasable(p))
+  const products = getBrandProducts(await loadCatalogProducts('store'), slug)
+  const liveProducts = products.filter(p => (p.purchasable ?? isPurchasable(p)))
+  const previewProducts = products.filter(p => !(p.purchasable ?? isPurchasable(p)))
 
   const brandEmoji = slug === 'noble-naturals' ? '🌿' : slug === 'marvelous-black' ? '⚫' : '🏠'
 
@@ -90,7 +91,7 @@ export default async function BrandPage({ params }: PageProps) {
 }
 
 function ProductCard({ product }: { product: any }) {
-  const purchasable = isPurchasable(product)
+  const purchasable = product.purchasable ?? isPurchasable(product)
 
   return (
     <Link href={`/store/${product.id}`} className="group block">

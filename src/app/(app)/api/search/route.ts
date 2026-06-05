@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { ALBUMS } from '@/lib/data'
-import { PRODUCTS } from '@/lib/products'
 import { isPublicTrackArtist } from '@/lib/artists'
 import { filterPublicArtists } from '@/lib/public-artists'
+import { loadCatalogProducts } from '@/lib/product-visibility'
 
 function getServerSupabase() {
   return createClient(
@@ -132,19 +132,23 @@ export async function GET(request: NextRequest) {
     // Search must return DB/public-truth tracks only.
     const tracks = liveTrackResults.slice(0, 10)
 
-    // Search static products (no canonical DB endpoint yet)
-    const products = PRODUCTS.filter((product: any) =>
-      product.name.toLowerCase().includes(searchTerm) ||
-      product.artist.toLowerCase().includes(searchTerm) ||
-      product.category.toLowerCase().includes(searchTerm)
-    ).slice(0, 5).map((product: any) => ({
-      id: product.id,
-      name: product.name,
-      artistName: product.artist,
-      price: product.price,
-      image: product.image,
-      category: product.category,
-    }))
+    const products = (await loadCatalogProducts('public', { limit: 25 }))
+      .filter((product: any) =>
+        product.name.toLowerCase().includes(searchTerm) ||
+        product.artist.toLowerCase().includes(searchTerm) ||
+        product.category.toLowerCase().includes(searchTerm) ||
+        String(product.description || '').toLowerCase().includes(searchTerm)
+      )
+      .slice(0, 5)
+      .map((product: any) => ({
+        id: product.id,
+        name: product.name,
+        artistName: product.artist,
+        price: product.price,
+        image: product.image,
+        category: product.category,
+        visibilityStatus: product.visibilityStatus,
+      }))
 
     return NextResponse.json({
       artists: liveArtistResults,

@@ -1,5 +1,6 @@
 import { TRACKS } from '@/lib/data'
 import { PRODUCTS, isPurchasable } from '@/lib/products'
+import { mergeProductVisibility, type ProductVisibilityRecord } from '@/lib/product-visibility'
 
 type CheckoutInputItem = {
   id?: string
@@ -46,6 +47,10 @@ export type CheckoutResolution = {
   items: CheckoutResolvedItem[]
   subtotalCents: number
   requiresShipping: boolean
+}
+
+export type CheckoutCatalogOptions = {
+  productVisibility?: Record<string, ProductVisibilityRecord | null | undefined>
 }
 
 export class CheckoutCatalogError extends Error {
@@ -179,52 +184,60 @@ function resolveTrack(item: CheckoutInputItem, id: string, quantity: number): Ch
   })
 }
 
-function resolveProduct(item: CheckoutInputItem, id: string, quantity: number): CheckoutResolvedItem {
+function resolveProduct(
+  item: CheckoutInputItem,
+  id: string,
+  quantity: number,
+  options?: CheckoutCatalogOptions,
+): CheckoutResolvedItem {
   const product = PRODUCTS.find((entry) => entry.id === id)
   if (!product) {
     throw new CheckoutCatalogError(`Unknown product: ${id}`)
   }
 
-  if (!isPurchasable(product)) {
+  const visibility = options?.productVisibility?.[id] || null
+  const catalogProduct = mergeProductVisibility(product, visibility)
+
+  if (!isPurchasable(catalogProduct)) {
     throw new CheckoutCatalogError(`This product is not available for purchase yet: ${product.name}`)
   }
 
   const selectedSize = toStringValue(item.size)
-  if (product.sizes && product.sizes.length > 0) {
+  if (catalogProduct.sizes && catalogProduct.sizes.length > 0) {
     if (!selectedSize) {
-      throw new CheckoutCatalogError(`Please select a size for ${product.name} before checkout.`)
+      throw new CheckoutCatalogError(`Please select a size for ${catalogProduct.name} before checkout.`)
     }
 
-    if (!product.sizes.includes(selectedSize)) {
-      throw new CheckoutCatalogError(`Invalid size selected for ${product.name}.`)
+    if (!catalogProduct.sizes.includes(selectedSize)) {
+      throw new CheckoutCatalogError(`Invalid size selected for ${catalogProduct.name}.`)
     }
   }
 
   const selectedColor = toStringValue(item.color)
-  if (product.colors && product.colors.length > 0 && selectedColor && !product.colors.includes(selectedColor)) {
-    throw new CheckoutCatalogError(`Invalid color selected for ${product.name}.`)
+  if (catalogProduct.colors && catalogProduct.colors.length > 0 && selectedColor && !catalogProduct.colors.includes(selectedColor)) {
+    throw new CheckoutCatalogError(`Invalid color selected for ${catalogProduct.name}.`)
   }
 
   return buildResolvedItem({
     kind: 'product',
-    id: product.id,
-    productId: product.id,
-    name: product.name,
-    artist: product.artist,
-    image: product.image ?? null,
-    description: product.description ?? null,
-    unitAmountCents: Math.round(Number(product.price || 0) * 100),
+    id: catalogProduct.id,
+    productId: catalogProduct.id,
+    name: catalogProduct.name,
+    artist: catalogProduct.artist,
+    image: catalogProduct.image ?? null,
+    description: catalogProduct.description ?? null,
+    unitAmountCents: Math.round(Number(catalogProduct.price || 0) * 100),
     quantity,
     requiresShipping: true,
-    skuId: product.skuId || null,
-    skuCode: product.skuCode || null,
-    productionAssetId: product.productionAssetId || null,
-    artistId: product.artistId || null,
-    fulfillmentType: product.fulfillmentType || product.fulfillment || null,
-    catalogStatus: product.catalogStatus || null,
+    skuId: catalogProduct.skuId || null,
+    skuCode: catalogProduct.skuCode || null,
+    productionAssetId: catalogProduct.productionAssetId || null,
+    artistId: catalogProduct.artistId || null,
+    fulfillmentType: catalogProduct.fulfillmentType || catalogProduct.fulfillment || null,
+    catalogStatus: catalogProduct.catalogStatus || null,
     size: selectedSize || null,
     color: selectedColor || null,
-    variantLabel: selectedSize ? `${product.name} · ${selectedSize}` : product.name,
+    variantLabel: selectedSize ? `${catalogProduct.name} · ${selectedSize}` : catalogProduct.name,
   })
 }
 
@@ -301,16 +314,16 @@ function resolveDigital(item: CheckoutInputItem, id: string, quantity: number): 
   throw new CheckoutCatalogError(`Unsupported digital checkout item: ${id || item.name || 'unknown item'}`)
 }
 
-function resolveByType(item: CheckoutInputItem, id: string, quantity: number): CheckoutResolvedItem {
+function resolveByType(item: CheckoutInputItem, id: string, quantity: number, options?: CheckoutCatalogOptions): CheckoutResolvedItem {
   const type = toStringValue(item.type).toLowerCase()
 
   if (type === 'track') return resolveTrack(item, id, quantity)
-  if (type === 'product') return resolveProduct(item, id, quantity)
+  if (type === 'product') return resolveProduct(item, id, quantity, options)
   if (type === 'wallet') return resolveWallet(item, id, quantity)
   if (type === 'digital') return resolveDigital(item, id, quantity)
 
   if (TRACKS.some((entry) => entry.id === id)) return resolveTrack(item, id, quantity)
-  if (PRODUCTS.some((entry) => entry.id === id)) return resolveProduct(item, id, quantity)
+  if (PRODUCTS.some((entry) => entry.id === id)) return resolveProduct(item, id, quantity, options)
   if (id.startsWith('wallet-')) return resolveWallet(item, id, quantity)
   if (id.startsWith('support-') || /support/i.test(`${item.name || item.title || ''}`)) {
     return resolveSupport(item, id, quantity)
@@ -322,7 +335,7 @@ function resolveByType(item: CheckoutInputItem, id: string, quantity: number): C
   throw new CheckoutCatalogError(`Unsupported checkout item: ${id || item.name || 'unknown item'}`)
 }
 
-export function resolveCheckoutCart(rawItems: unknown): CheckoutResolution {
+export function resolveCheckoutCart(rawItems: unknown, options?: CheckoutCatalogOptions): CheckoutResolution {
   if (!Array.isArray(rawItems) || rawItems.length === 0) {
     throw new CheckoutCatalogError('No items in cart.')
   }
@@ -336,7 +349,7 @@ export function resolveCheckoutCart(rawItems: unknown): CheckoutResolution {
     }
 
     const quantity = normalizeQuantity(item.quantity)
-    return resolveByType(item, id, quantity)
+    return resolveByType(item, id, quantity, options)
   })
 
   const subtotalCents = items.reduce((sum, item) => sum + item.unitAmountCents * item.quantity, 0)

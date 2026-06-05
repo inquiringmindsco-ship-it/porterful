@@ -103,8 +103,10 @@ function useUserRole(): { role: UserRole; loading: boolean } {
 }
 
 function ProductBadge({ product }: { product: Product }) {
-  const purchasable = isPurchasable(product)
-  const controlled = product.fulfillmentType === 'img_fulfillment' || product.fulfillment === 'img_fulfillment'
+  const purchasable = product.purchasable ?? isPurchasable(product)
+  const controlled = product.visibilityStatus === 'controlled'
+    || product.fulfillmentType === 'img_fulfillment'
+    || product.fulfillment === 'img_fulfillment'
 
   if (purchasable && controlled) {
     return (
@@ -191,8 +193,10 @@ function StoreProductCard({
 }) {
   const [loading, setLoading] = useState(false)
   const { showToast } = useToast()
-  const purchasable = isPurchasable(product)
-  const isControlled = product.fulfillmentType === 'img_fulfillment' || product.fulfillment === 'img_fulfillment'
+  const purchasable = product.purchasable ?? isPurchasable(product)
+  const isControlled = product.visibilityStatus === 'controlled'
+    || product.fulfillmentType === 'img_fulfillment'
+    || product.fulfillment === 'img_fulfillment'
   const needsSize = requiresSizeSelection(product)
   const detailsHref = `/product/${product.id}`
 
@@ -410,6 +414,7 @@ export default function StorePage() {
   const [referralHandle, setReferralHandle] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [activeCategory, setActiveCategory] = useState('All')
+  const [catalogProducts, setCatalogProducts] = useState<Product[]>(PRODUCTS)
 
   useEffect(() => {
     const ref = queryRef || readReferralCookie()
@@ -429,13 +434,38 @@ export default function StorePage() {
     if (stored) setReferralHandle(stored)
   }, [queryRef])
 
+  useEffect(() => {
+    let cancelled = false
+
+    async function loadCatalog() {
+      try {
+        const res = await fetch('/api/products?scope=store&limit=200', {
+          cache: 'no-store',
+        })
+        const data = await res.json().catch(() => ({}))
+        if (!cancelled && res.ok && Array.isArray(data.products)) {
+          setCatalogProducts(data.products)
+        }
+      } catch (error) {
+        console.error('[store] failed to load catalog', error)
+      }
+    }
+
+    loadCatalog()
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
   // Separate live from preview
-  const liveProducts = useMemo(() => PRODUCTS.filter((p) => isPurchasable(p)), [])
-  const previewProducts = useMemo(() => PRODUCTS.filter((p) => !isPurchasable(p)), [])
+  const visibleCatalog = catalogProducts.length > 0 ? catalogProducts : PRODUCTS
+  const liveProducts = useMemo(() => visibleCatalog.filter((p) => (p.purchasable ?? isPurchasable(p))), [visibleCatalog])
+  const previewProducts = useMemo(() => visibleCatalog.filter((p) => !(p.purchasable ?? isPurchasable(p))), [visibleCatalog])
 
   const categories = useMemo(() => {
-    return ['All', ...Array.from(new Set(PRODUCTS.map((product) => product.category)))]
-  }, [])
+    return ['All', ...Array.from(new Set(visibleCatalog.map((product) => product.category)))]
+  }, [visibleCatalog])
 
   const filteredLive = useMemo(() => {
     const term = searchTerm.trim().toLowerCase()

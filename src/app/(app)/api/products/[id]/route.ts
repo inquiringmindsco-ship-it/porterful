@@ -1,6 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+import { verifyAdminAccess } from '@/lib/admin-client'
+import { loadCatalogProductById } from '@/lib/product-visibility'
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params
+    const scope = (request.nextUrl.searchParams.get('scope') || 'store').toLowerCase()
+
+    if (scope === 'admin') {
+      const access = await verifyAdminAccess(request)
+      if (!access.authorized) {
+        return NextResponse.json({ error: access.error || 'Forbidden' }, { status: access.error === 'Authentication required' ? 401 : 403 })
+      }
+    }
+
+    const product = await loadCatalogProductById(id, scope === 'admin' ? 'admin' : scope === 'public' ? 'public' : 'store')
+    if (!product) {
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 })
+    }
+
+    return NextResponse.json({ product })
+  } catch (error) {
+    console.error('Product GET error:', error)
+    return NextResponse.json({ error: 'Failed to fetch product' }, { status: 500 })
+  }
+}
 
 // PATCH /api/products/[id]/status - Toggle status (draft ↔ live)
 export async function PATCH(

@@ -133,6 +133,10 @@ export default function HomePage() {
   }, [homepageData])
 
   const spotlightTrack = featuredTracks?.[0] ?? null
+  const homepageProducts = useMemo(() => {
+    const visibleProducts = Array.isArray(homepageData?.products) ? homepageData.products : PRODUCTS
+    return visibleProducts as typeof PRODUCTS
+  }, [homepageData])
 
   const featuredArtist = useMemo(
     () => publicArtists.find((artist) => artist.slug === 'od-porter') ?? publicArtists[0] ?? PUBLIC_ARTISTS_FALLBACK[0],
@@ -457,7 +461,7 @@ export default function HomePage() {
             </div>
 
             {(() => {
-              const purchasableProducts = PRODUCTS.filter(isPurchasable)
+              const purchasableProducts = homepageProducts.filter((product) => (product as any).purchasable ?? isPurchasable(product))
               if (purchasableProducts.length === 0) {
                 return (
                   <div className="pf-reveal-child rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-8 text-center">
@@ -766,7 +770,7 @@ export default function HomePage() {
             </p>
             
             <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-              {PRODUCTS.filter(p => p.collection === 'coming-home' && isPurchasable(p)).slice(0, 4).map(product => (
+              {homepageProducts.filter(p => p.collection === 'coming-home' && ((p as any).purchasable ?? isPurchasable(p))).slice(0, 4).map(product => (
                 <Link key={product.id} href={`/store/${product.id}`} className="group block pf-reveal-child">
                   <article className="h-full rounded-[24px] border border-[var(--pf-border)] bg-[var(--pf-surface)] p-4 transition-all hover:border-[#C4956A]/50 hover:shadow-lg">
                     <div className="relative aspect-square overflow-hidden rounded-[16px] bg-[var(--pf-bg-secondary)]">

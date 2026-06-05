@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { loadCatalogProducts } from '@/lib/product-visibility'
 
 export const dynamic = 'force-dynamic'
 
@@ -88,6 +89,7 @@ export async function GET() {
       newestTrack,
       siteSettings: siteSettingsValue,
       tracks: resolvedTracks,
+      products: await loadCatalogProducts('store', { limit: 4 }),
     })
     response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
     response.headers.set('Pragma', 'no-cache')
@@ -99,6 +101,7 @@ export async function GET() {
       counts: { totalArtists: 0, publicArtists: 0, totalTracks: 0, activeTracks: 0 },
       newestTrack: null,
       siteSettings: {},
+      products: [],
     })
     errorResponse.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
     errorResponse.headers.set('Pragma', 'no-cache')

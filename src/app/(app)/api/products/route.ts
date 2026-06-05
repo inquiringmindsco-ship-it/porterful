@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { createServerClient as createAdminClient } from '@/lib/supabase'
-import { PRODUCTS } from '@/lib/products'
+import { verifyAdminAccess } from '@/lib/admin-client'
+import { loadCatalogProducts } from '@/lib/product-visibility'
 
 async function getSessionUser() {
   const cookieStore = await cookies()
@@ -24,13 +25,14 @@ async function getSessionUser() {
 
 const LIVE_PRODUCT_LIMIT = 3
 
-// GET /api/products - List all products
-// Query params: category, search, mine (1=current user only), limit
+// GET /api/products - List products
+// Query params: category, search, mine (1=current user only), scope (public|store|admin), limit
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const category = searchParams.get('category')
   const search = searchParams.get('search')
   const mine = searchParams.get('mine') === '1'
+  const scope = (searchParams.get('scope') || 'store').toLowerCase()
   const limit = parseInt(searchParams.get('limit') || '200')
 
   // If mine=1, fetch from Supabase with auth
@@ -65,31 +67,23 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  // Public: use static PRODUCTS, filtered
-  let products = [...PRODUCTS]
-
-  if (category && category !== 'all') {
-    products = products.filter(p => p.category.toLowerCase() === category.toLowerCase())
+  if (scope === 'admin') {
+    const access = await verifyAdminAccess(request)
+    if (!access.authorized) {
+      return NextResponse.json({ error: access.error || 'Forbidden' }, { status: access.error === 'Authentication required' ? 401 : 403 })
+    }
   }
 
-  if (search) {
-    const searchLower = search.toLowerCase()
-    products = products.filter(p =>
-      p.name.toLowerCase().includes(searchLower) ||
-      p.category.toLowerCase().includes(searchLower) ||
-      p.artist?.toLowerCase().includes(searchLower)
-    )
-  }
-
-  products = products.map(p => ({
-    ...p,
-    salePrice: Math.round((p.price || 5) * 1.3 * 100) / 100,
-  }))
+  const products = await loadCatalogProducts(scope === 'admin' ? 'admin' : scope === 'public' ? 'public' : 'store', {
+    category,
+    search,
+    limit,
+  })
 
   return NextResponse.json({
-    products: products.slice(0, limit),
+    products,
     total: products.length,
-    categories: Array.from(new Set(products.map(p => p.category))),
+    categories: Array.from(new Set(products.map((product) => product.category))),
   })
 }
 

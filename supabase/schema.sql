@@ -140,6 +140,26 @@ CREATE TABLE products (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+CREATE TABLE product_visibility_controls (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  product_id TEXT NOT NULL UNIQUE,
+  public_visible BOOLEAN NOT NULL DEFAULT TRUE,
+  store_visible BOOLEAN NOT NULL DEFAULT TRUE,
+  purchasable BOOLEAN NOT NULL DEFAULT FALSE,
+  visibility_status TEXT NOT NULL DEFAULT 'preview'
+    CHECK (visibility_status IN ('live', 'preview', 'unavailable', 'hidden', 'controlled')),
+  notes TEXT,
+  updated_by UUID REFERENCES profiles(id) ON DELETE SET NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS product_visibility_controls_status_idx
+  ON product_visibility_controls (visibility_status);
+
+CREATE INDEX IF NOT EXISTS product_visibility_controls_product_idx
+  ON product_visibility_controls (product_id);
+
 -- ============================================
 -- ORDERS
 -- ============================================

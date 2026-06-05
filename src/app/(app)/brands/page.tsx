@@ -1,10 +1,12 @@
 import Link from 'next/link'
-import Image from 'next/image'
-import { BRANDS, getBrandProducts, PRODUCTS } from '@/lib/products'
+import { BRANDS, getBrandProducts } from '@/lib/products'
 import { isPurchasable } from '@/lib/products'
-import { Star, ArrowRight, Home, Heart } from 'lucide-react'
+import { loadCatalogProducts } from '@/lib/product-visibility'
+import { Star, ArrowRight } from 'lucide-react'
 
-export default function BrandsPage() {
+export default async function BrandsPage() {
+  const catalogProducts = await loadCatalogProducts('store')
+
   return (
     <div className="min-h-screen bg-[var(--pf-bg)] pt-20 pb-16">
       <div className="pf-container max-w-6xl">
@@ -27,7 +29,7 @@ export default function BrandsPage() {
         {/* Brands Grid */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {BRANDS.filter(b => b.foundingBrand).map(brand => (
-            <BrandCard key={brand.id} brand={brand} />
+            <BrandCard key={brand.id} brand={brand} catalogProducts={catalogProducts} />
           ))}
         </div>
       </div>
@@ -35,10 +37,10 @@ export default function BrandsPage() {
   )
 }
 
-function BrandCard({ brand }: { brand: any }) {
-  const brandProducts = getBrandProducts(PRODUCTS, brand.slug)
-  const liveProducts = brandProducts.filter(p => isPurchasable(p))
-  const previewProducts = brandProducts.filter(p => !isPurchasable(p))
+function BrandCard({ brand, catalogProducts }: { brand: any; catalogProducts: any[] }) {
+  const brandProducts = getBrandProducts(catalogProducts, brand.slug)
+  const liveProducts = brandProducts.filter(p => (p.purchasable ?? isPurchasable(p)))
+  const previewProducts = brandProducts.filter(p => !(p.purchasable ?? isPurchasable(p)))
 
   return (
     <Link href={`/brands/${brand.slug}`} className="group block">

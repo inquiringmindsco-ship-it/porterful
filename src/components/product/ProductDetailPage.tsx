@@ -9,9 +9,9 @@ import { CONTROLLED_MERCH } from '@/lib/controlled-merch'
 import { getProductById, getProductGallery, getCartLineKey, isPurchasable, requiresSizeSelection } from '@/lib/products'
 import { useCart } from '@/lib/cart-context'
 
-export function ProductDetailPage() {
+export function ProductDetailPage({ product: initialProduct }: { product?: any | null }) {
   const params = useParams()
-  const product = getProductById(params.id as string)
+  const product = initialProduct || getProductById(params.id as string)
   const { addItem } = useCart()
 
   const [selectedColor, setSelectedColor] = useState('')
@@ -19,7 +19,7 @@ export function ProductDetailPage() {
   const [added, setAdded] = useState(false)
   const [activeImage, setActiveImage] = useState(0)
 
-  if (!product) {
+  if (!product || (product.publicVisible === false && product.storeVisible === false)) {
     return (
       <div className="min-h-screen pt-20 pb-24">
         <div className="pf-container text-center py-20">
@@ -31,11 +31,11 @@ export function ProductDetailPage() {
     )
   }
 
-  const purchasable = isPurchasable(product)
-  const controlled = product.skuCode === CONTROLLED_MERCH.skuCode
+  const purchasable = product.purchasable ?? isPurchasable(product)
+  const controlled = product.visibilityStatus === 'controlled' || product.skuCode === CONTROLLED_MERCH.skuCode
 
-  const colors = product.colors || []
-  const sizes = product.sizes || []
+  const colors: string[] = product.colors || []
+  const sizes: string[] = product.sizes || []
   const images = getProductGallery(product)
   const needsSize = requiresSizeSelection(product)
   const selectedVariantKey = getCartLineKey({

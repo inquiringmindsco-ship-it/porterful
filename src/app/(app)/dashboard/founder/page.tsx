@@ -1063,6 +1063,10 @@ export default function FounderDashboard() {
               <Package size={16} />
               Production Assets
             </Link>
+            <Link href="/dashboard/founder/products" className="pf-btn pf-btn-secondary inline-flex items-center gap-2" data-tour-id="founder-products-link">
+              <Package size={16} />
+              Products
+            </Link>
             <Link href="/dashboard/founder/skus" className="pf-btn pf-btn-secondary inline-flex items-center gap-2" data-tour-id="founder-skus-link">
               <Package size={16} />
               SKUs

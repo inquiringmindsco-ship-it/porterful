@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
@@ -12,7 +12,7 @@ import {
   ShieldCheck,
   Sparkles,
 } from 'lucide-react'
-import { FEATURED_PRODUCTS } from '@/lib/products'
+import { FEATURED_PRODUCTS, isPurchasable, type Product } from '@/lib/products'
 
 type OfferCardState = {
   creating: boolean
@@ -21,7 +21,7 @@ type OfferCardState = {
   error: string
 }
 
-function CatalogCard({ product }: { product: (typeof FEATURED_PRODUCTS)[number] }) {
+function CatalogCard({ product }: { product: Product & { purchasable?: boolean } }) {
   const [state, setState] = useState<OfferCardState>({
     creating: false,
     offerLink: null,
@@ -171,6 +171,30 @@ function CatalogCard({ product }: { product: (typeof FEATURED_PRODUCTS)[number] 
 }
 
 export default function CatalogPage() {
+  const [catalogProducts, setCatalogProducts] = useState<Product[]>(FEATURED_PRODUCTS as Product[])
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function loadCatalog() {
+      try {
+        const res = await fetch('/api/products?scope=store&limit=200', { cache: 'no-store' })
+        const data = await res.json().catch(() => ({}))
+        if (!cancelled && res.ok && Array.isArray(data.products)) {
+          setCatalogProducts(data.products)
+        }
+      } catch (error) {
+        console.error('[catalog] failed to load products', error)
+      }
+    }
+
+    loadCatalog()
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
   return (
     <main className="min-h-screen bg-[var(--pf-bg)] pt-20 pb-16">
       <div className="pf-container max-w-6xl">
@@ -206,7 +230,9 @@ export default function CatalogPage() {
         </div>
 
         <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-          {FEATURED_PRODUCTS.map((product) => (
+          {catalogProducts
+            .filter((product) => product.purchasable ?? isPurchasable(product))
+            .map((product) => (
             <CatalogCard key={product.id} product={product} />
           ))}
         </div>
