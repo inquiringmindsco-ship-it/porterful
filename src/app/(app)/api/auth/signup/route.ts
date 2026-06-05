@@ -89,16 +89,20 @@ export async function POST(request: Request) {
     }
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
 
-    // Create auth user with service role key (bypasses RLS)
-    const supabase = createClient(supabaseUrl, supabaseServiceKey)
+    // Use the public signup flow so email verification remains part of the trust model.
+    // Service-role access is still used for the follow-up profile / artist setup.
+    const authSupabase = createClient(supabaseUrl, supabaseAnonKey)
+    const adminSupabase = createClient(supabaseUrl, supabaseServiceKey)
 
-    const { data: authData, error: signUpError } = await supabase.auth.admin.createUser({
+    const { data: authData, error: signUpError } = await authSupabase.auth.signUp({
       email,
       password,
-      email_confirm: true, // Skip email confirmation for smoother signup
-      user_metadata: { name, full_name: name, role }
+      options: {
+        data: { name, full_name: name, role },
+      },
     })
 
     if (signUpError) {
@@ -126,7 +130,7 @@ export async function POST(request: Request) {
       refCode = cookieStore.get('porterful_referral')?.value
       if (refCode) {
         // Look up referrer's profile ID by referral_code
-        const { data: referrerProfile } = await supabase
+        const { data: referrerProfile } = await adminSupabase
           .from('profiles')
           .select('id')
           .eq('referral_code', refCode)
@@ -150,11 +154,11 @@ export async function POST(request: Request) {
     // --- End Referral Logic ---
 
     // Ensure the profile exists even if the auth trigger already created it.
-    const { profile: ensuredProfile, error: ensureProfileError } = await ensureProfile(supabase, authData.user)
+    const { profile: ensuredProfile, error: ensureProfileError } = await ensureProfile(adminSupabase, authData.user)
 
     let profile = ensuredProfile
     if (!profile) {
-      const { data: existingProfile, error: existingProfileError } = await supabase
+      const { data: existingProfile, error: existingProfileError } = await adminSupabase
         .from('profiles')
         .select('id, role, referred_by')
         .eq('id', userId)
@@ -179,7 +183,7 @@ export async function POST(request: Request) {
     }
 
     if (Object.keys(profileUpdates).length > 0) {
-      const { error: profileUpdateError } = await supabase
+      const { error: profileUpdateError } = await adminSupabase
         .from('profiles')
         .update(profileUpdates)
         .eq('id', userId)
@@ -195,7 +199,7 @@ export async function POST(request: Request) {
     // Create referral record if this was a referred signup
     if (referredBy && refCode) {
       try {
-        await supabase.from('referrals').insert({
+        await adminSupabase.from('referrals').insert({
           referrer_id: referredBy,
           referred_id: userId,
           referral_code: refCode,
@@ -212,7 +216,7 @@ export async function POST(request: Request) {
       
       if (invite_artist_slug) {
         // Check if the invited slug already exists (should link to existing)
-        const { data: existingArtist } = await supabase
+        const { data: existingArtist } = await adminSupabase
           .from('artists')
           .select('id, slug')
           .eq('slug', invite_artist_slug)
@@ -221,13 +225,13 @@ export async function POST(request: Request) {
         if (existingArtist) {
           // This is a claim flow - the artist record exists but needs user_id
           // PHASE B GUARDRAIL: Keep existing status/public_profile, only update user linkage
-          await supabase.from('artists').update({ id: userId }).eq('slug', invite_artist_slug)
+          await adminSupabase.from('artists').update({ id: userId }).eq('slug', invite_artist_slug)
           artistSlug = invite_artist_slug
         } else {
           // Slug doesn't exist yet, use it as new
           // PHASE B: New artist defaults to pending/hidden until approved
           artistSlug = invite_artist_slug
-          await supabase.from('artists').insert({
+          await adminSupabase.from('artists').insert({
             id: userId,
             name: name,
             slug: artistSlug,
@@ -245,7 +249,7 @@ export async function POST(request: Request) {
           .replace(/[^a-z0-9]+/g, '-')
           .replace(/^-|-$/g, '') + '-' + Math.random().toString(36).substr(2, 4)
         
-        await supabase.from('artists').insert({
+        await adminSupabase.from('artists').insert({
           id: userId,
           name: name,
           slug: artistSlug,
@@ -260,16 +264,17 @@ export async function POST(request: Request) {
 
     // If business/brand, update with website only.
     if ((role === 'business' || role === 'brand') && website) {
-      await supabase.from('profiles').update({
+      await adminSupabase.from('profiles').update({
         website,
       }).eq('id', userId)
     }
 
-    // Return success - client will handle session creation via email/password login
+    // Return success - the client should route to login and prompt the user to verify email.
     return NextResponse.json({ 
       success: true,
       userId,
-      message: 'Account created successfully'
+      message: 'Account created successfully',
+      verificationRequired: true,
     })
 
   } catch (err: any) {

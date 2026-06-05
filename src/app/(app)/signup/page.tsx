@@ -159,28 +159,8 @@ export default function SignupPage() {
         return
       }
 
-      // Auto sign in after successful signup
-      const loginRes = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      })
-
-      if (loginRes.ok) {
-        const destination = nextPath || '/onboarding'
-        // Use a full reload here as well so the server sees the fresh session
-        // cookies right away and doesn't bounce the new user back into signup.
-        window.location.replace(destination)
-      } else {
-        const loginData = await loginRes.json().catch(() => ({}))
-        // Account created but login failed - redirect to login with success message
-        const loginError = String((loginData as { error?: string }).error || '').toLowerCase()
-        if (loginError.includes('already') || loginError.includes('registered') || loginError.includes('exists')) {
-          router.push(`/login?exists=true&email=${encodeURIComponent(email)}${nextPath ? `&next=${encodeURIComponent(nextPath)}` : ''}`)
-        } else {
-          router.push('/login?created=true')
-        }
-      }
+      const verifyNext = `/login?created=true&verify=true&email=${encodeURIComponent(email)}${nextPath ? `&next=${encodeURIComponent(nextPath)}` : ''}`
+      window.location.replace(verifyNext)
     } catch (err: any) {
       setError(err.message || 'Something went wrong')
     } finally {
