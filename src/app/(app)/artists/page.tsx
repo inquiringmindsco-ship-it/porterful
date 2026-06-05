@@ -31,7 +31,7 @@ export default function ArtistsPage() {
   const [ctaReady, setCtaReady] = useState(false)
   const [ctaHref, setCtaHref] = useState('/artists')
   const [ctaLabel, setCtaLabel] = useState('Explore Artists')
-  const [ctaDescription, setCtaDescription] = useState('Loading your view...')
+  const [ctaDescription, setCtaDescription] = useState('Browse artist profiles and upcoming releases.')
 
   // Load artists from DB
   useEffect(() => {
@@ -142,9 +142,35 @@ export default function ArtistsPage() {
 
       <section className="pf-container py-12">
         {artistsLoading ? (
-          <div className="text-center py-12 text-[var(--pf-text-muted)]">Loading artists...</div>
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-6 animate-pulse">
+                <div className="flex items-start gap-4">
+                  <div className="h-16 w-16 rounded-full bg-[var(--pf-border)]" />
+                  <div className="flex-1 space-y-3">
+                    <div className="h-5 w-3/4 rounded bg-[var(--pf-border)]" />
+                    <div className="h-4 w-1/2 rounded bg-[var(--pf-border)]" />
+                  </div>
+                </div>
+                <div className="mt-4 h-20 rounded-xl bg-[var(--pf-border)]" />
+              </div>
+            ))}
+          </div>
         ) : artists.length === 0 ? (
-          <div className="text-center py-12 text-[var(--pf-text-muted)]">No artists found.</div>
+          <div className="text-center py-20">
+            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full border border-[var(--pf-border)] bg-[var(--pf-surface)]">
+              <Music size={28} className="text-[var(--pf-text-muted)]" />
+            </div>
+            <h3 className="text-xl font-semibold text-[var(--pf-text)]">No artists yet</h3>
+            <p className="mt-2 text-[var(--pf-text-secondary)]">Be the first to join Porterful.</p>
+            <Link
+              href="/apply"
+              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[var(--pf-orange)] px-5 py-3 font-semibold text-white transition-colors hover:bg-[var(--pf-orange-dark)]"
+            >
+              Apply as Artist
+              <ArrowRight size={16} />
+            </Link>
+          </div>
         ) : (
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
             {artists.map((artist) => (
