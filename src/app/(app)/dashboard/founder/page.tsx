@@ -924,52 +924,131 @@ export default function FounderDashboard() {
           }
         />
 
-        <div className="pf-card p-6 mb-6" data-tour-id="founder-live-listening">
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <Play className="text-[var(--pf-orange)]" size={18} />
-              <h2 className="text-lg font-semibold">Live Listening</h2>
-            </div>
-            <div className="text-xs text-[var(--pf-text-muted)]">
-              {livePresenceRefreshing
-                ? 'Refreshing now...'
-                : livePresenceLastUpdated
-                  ? `Updated ${new Date(livePresenceLastUpdated).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`
-                  : 'Waiting for first refresh'}
+        <div
+          className="mb-6 overflow-hidden rounded-[32px] border border-emerald-500/20 bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.20),transparent_36%),linear-gradient(180deg,rgba(9,17,15,0.98),rgba(8,8,10,0.97))] shadow-[0_24px_90px_rgba(0,0,0,0.28)]"
+          data-tour-id="founder-live-listening"
+        >
+          <div className="border-b border-emerald-500/10 px-6 py-4 sm:px-7">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-emerald-300">
+                  <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                  Live Listening
+                </span>
+                <p className="text-sm text-[var(--pf-text-secondary)]">
+                  See what people are playing right now.
+                </p>
+              </div>
+              <div className="text-xs text-[var(--pf-text-muted)]">
+                {livePresenceRefreshing
+                  ? 'Refreshing now...'
+                  : livePresenceLastUpdated
+                    ? `Updated ${new Date(livePresenceLastUpdated).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`
+                    : 'Waiting for first refresh'}
+              </div>
             </div>
           </div>
 
-          {liveNowPlaying.length > 0 ? (
-            <div className="grid gap-3 md:grid-cols-2">
-              {liveNowPlaying.map((listener: any) => (
-                <div key={listener.id} className="rounded-xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-white truncate">
-                        {listener.now_playing?.trackTitle || 'Unknown Track'}
-                      </p>
-                      <p className="text-sm text-[var(--pf-text-secondary)] truncate">
-                        {listener.now_playing?.artistName || 'Unknown Artist'}
-                      </p>
-                      <p className="mt-1 text-xs text-[var(--pf-text-muted)] truncate">
-                        {listener.display_name || 'Listener'} · {listener.current_path || '/'}
-                      </p>
-                    </div>
-                    <span className="rounded-full border border-green-500/20 bg-green-500/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-green-300">
-                      {listener.now_playing?.playbackState || 'playing'}
-                    </span>
-                  </div>
+          <div className="grid gap-0 lg:grid-cols-[1.25fr_.85fr]">
+            <div className="p-6 sm:p-7">
+              <div className="mb-5 flex items-end justify-between gap-4">
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-emerald-300/80">Current playback</p>
+                  <h2 className="mt-2 text-2xl font-black text-white sm:text-3xl">
+                    {liveNowPlaying.length > 0 ? 'What is playing live now' : 'No track is live right now'}
+                  </h2>
                 </div>
-              ))}
+                <div className="rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] px-4 py-3 text-right">
+                  <p className="text-[11px] uppercase tracking-[0.18em] text-[var(--pf-text-muted)]">Active listeners</p>
+                  <p className="mt-1 text-3xl font-black text-white">
+                    {livePresence?.counts?.playing || 0}
+                  </p>
+                </div>
+              </div>
+
+              {liveNowPlaying.length > 0 ? (
+                <div className="space-y-3">
+                  {liveNowPlaying.map((listener: any, index: number) => {
+                    const isPrimary = index === 0
+                    return (
+                      <div
+                        key={listener.id}
+                        className={`rounded-2xl border p-4 transition-colors ${
+                          isPrimary
+                            ? 'border-emerald-400/30 bg-emerald-400/10'
+                            : 'border-[var(--pf-border)] bg-[var(--pf-surface)]/65'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="rounded-full border border-[var(--pf-border)] bg-black/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--pf-text-muted)]">
+                                #{index + 1}
+                              </span>
+                              <p className="text-lg font-semibold text-white truncate">
+                                {listener.now_playing?.trackTitle || 'Unknown Track'}
+                              </p>
+                            </div>
+                            <p className="mt-1 text-sm text-[var(--pf-text-secondary)] truncate">
+                              {listener.now_playing?.artistName || 'Unknown Artist'}
+                            </p>
+                            <p className="mt-2 text-xs text-[var(--pf-text-muted)] truncate">
+                              {listener.display_name || 'Listener'} · {listener.current_path || '/'}
+                            </p>
+                          </div>
+                          <div className="shrink-0 text-right">
+                            <span className="inline-flex rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-300">
+                              {listener.now_playing?.playbackState || 'playing'}
+                            </span>
+                            <p className="mt-2 text-[11px] uppercase tracking-[0.16em] text-[var(--pf-text-muted)]">
+                              {listener.now_playing?.playbackMode || 'full'}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)]/70 p-5">
+                  <p className="text-base font-semibold text-white">Nothing is playing live right now.</p>
+                  <p className="mt-1 text-sm text-[var(--pf-text-secondary)]">
+                    As soon as someone presses play, the track title, artist, and session will appear here.
+                  </p>
+                </div>
+              )}
             </div>
-          ) : (
-            <div className="rounded-xl border border-[var(--pf-border)] bg-[var(--pf-surface)]/70 p-4">
-              <p className="text-sm font-medium text-white">Nothing is playing live right now.</p>
-              <p className="mt-1 text-sm text-[var(--pf-text-secondary)]">
-                As soon as someone presses play, the track title, artist, and session will appear here.
+
+            <div className="border-t border-emerald-500/10 lg:border-l lg:border-t-0 lg:border-emerald-500/10 p-6 sm:p-7 bg-black/20">
+              <div className="flex items-center gap-2">
+                <Play className="text-emerald-300" size={18} />
+                <h3 className="text-sm font-semibold uppercase tracking-[0.22em] text-emerald-200">Live feed</h3>
+              </div>
+              <p className="mt-3 text-sm text-[var(--pf-text-secondary)] leading-6">
+                This panel updates automatically while Porterful is open, so you can see what song is being heard right now without hunting through analytics.
               </p>
+              <div className="mt-5 grid gap-3">
+                <div className="rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)]/70 p-4">
+                  <p className="text-[11px] uppercase tracking-[0.18em] text-[var(--pf-text-muted)]">Current song</p>
+                  <p className="mt-2 text-sm font-semibold text-white">
+                    {liveNowPlaying[0]?.now_playing?.trackTitle || 'Waiting for play activity'}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)]/70 p-4">
+                  <p className="text-[11px] uppercase tracking-[0.18em] text-[var(--pf-text-muted)]">Current artist</p>
+                  <p className="mt-2 text-sm font-semibold text-white">
+                    {liveNowPlaying[0]?.now_playing?.artistName || 'No live artist yet'}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)]/70 p-4">
+                  <p className="text-[11px] uppercase tracking-[0.18em] text-[var(--pf-text-muted)]">Where it’s playing</p>
+                  <p className="mt-2 text-sm font-semibold text-white">
+                    {liveNowPlaying[0]?.display_name || 'A live listener will appear here'}
+                  </p>
+                </div>
+              </div>
             </div>
-          )}
+          </div>
         </div>
 
         {/* Header */}
