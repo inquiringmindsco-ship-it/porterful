@@ -104,6 +104,9 @@ export default function FounderDashboard() {
   const [analyticsData, setAnalyticsData] = useState<any>(null)
   const [analyticsLastUpdated, setAnalyticsLastUpdated] = useState<string | null>(null)
   const [analyticsRefreshing, setAnalyticsRefreshing] = useState(false)
+  const [livePresence, setLivePresence] = useState<any>(null)
+  const [livePresenceLastUpdated, setLivePresenceLastUpdated] = useState<string | null>(null)
+  const [livePresenceRefreshing, setLivePresenceRefreshing] = useState(false)
   const [revenueLoading, setRevenueLoading] = useState(false)
   const [purchaseSearch, setPurchaseSearch] = useState('')
   const [purchaseArtistFilter, setPurchaseArtistFilter] = useState<string>('all')
@@ -181,6 +184,18 @@ export default function FounderDashboard() {
     }
 
     return { revenueData, analyticsReport }
+  }, [])
+
+  const fetchLivePresenceSnapshot = useCallback(async () => {
+    const response = await fetch('/api/admin/presence', {
+      cache: 'no-store',
+    })
+
+    if (!response.ok) {
+      throw new Error(await response.text() || 'Failed to load live presence')
+    }
+
+    return response.json()
   }, [])
 
   async function checkAccess() {
@@ -267,6 +282,14 @@ export default function FounderDashboard() {
       if (jobsRes.ok) {
         const data = await jobsRes.json().catch(() => ({}))
         setFulfillmentJobs(data.jobs || [])
+      }
+
+      try {
+        const presenceData = await fetchLivePresenceSnapshot()
+        setLivePresence(presenceData)
+        setLivePresenceLastUpdated(new Date().toISOString())
+      } catch (presenceError) {
+        console.error('Failed to load live presence snapshot:', presenceError)
       }
 
       // Calculate metrics
@@ -440,6 +463,20 @@ export default function FounderDashboard() {
     }
   }, [fetchAnalyticsSnapshot, supabase])
 
+  const refreshLivePresence = useCallback(async () => {
+    setLivePresenceRefreshing(true)
+
+    try {
+      const presenceData = await fetchLivePresenceSnapshot()
+      setLivePresence(presenceData)
+      setLivePresenceLastUpdated(new Date().toISOString())
+    } catch (presenceError) {
+      console.error('Failed to refresh live presence snapshot:', presenceError)
+    } finally {
+      setLivePresenceRefreshing(false)
+    }
+  }, [fetchLivePresenceSnapshot])
+
   useEffect(() => {
     if (activeTab !== 'analytics') return
 
@@ -450,6 +487,15 @@ export default function FounderDashboard() {
 
     return () => window.clearInterval(interval)
   }, [activeTab, refreshAnalytics])
+
+  useEffect(() => {
+    void refreshLivePresence()
+    const interval = window.setInterval(() => {
+      void refreshLivePresence()
+    }, 15000)
+
+    return () => window.clearInterval(interval)
+  }, [refreshLivePresence])
 
   async function updateArtistStatus(artistId: string, status: string) {
     setError('')
@@ -758,6 +804,12 @@ export default function FounderDashboard() {
     }
   }, [fulfillmentJobs, inventorySummaries, productionAssets, productSkus])
 
+  const liveNowPlaying = useMemo(() => {
+    return (livePresence?.activeUsers || [])
+      .filter((listener: any) => listener.now_playing?.trackTitle)
+      .slice(0, 6)
+  }, [livePresence])
+
   if (loading) {
     return (
       <div className="min-h-screen pt-24 pb-12 flex items-center justify-center">
@@ -867,10 +919,58 @@ export default function FounderDashboard() {
             merchGuidance.skusWithoutInventory.length > 0 ||
             merchGuidance.jobsNeedingAction.length > 0 ||
             merchGuidance.blockedJobs.length > 0
-              ? 'warning'
-              : 'default'
+            ? 'warning'
+            : 'default'
           }
         />
+
+        <div className="pf-card p-6 mb-6" data-tour-id="founder-live-listening">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <Play className="text-[var(--pf-orange)]" size={18} />
+              <h2 className="text-lg font-semibold">Live Listening</h2>
+            </div>
+            <div className="text-xs text-[var(--pf-text-muted)]">
+              {livePresenceRefreshing
+                ? 'Refreshing now...'
+                : livePresenceLastUpdated
+                  ? `Updated ${new Date(livePresenceLastUpdated).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`
+                  : 'Waiting for first refresh'}
+            </div>
+          </div>
+
+          {liveNowPlaying.length > 0 ? (
+            <div className="grid gap-3 md:grid-cols-2">
+              {liveNowPlaying.map((listener: any) => (
+                <div key={listener.id} className="rounded-xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-white truncate">
+                        {listener.now_playing?.trackTitle || 'Unknown Track'}
+                      </p>
+                      <p className="text-sm text-[var(--pf-text-secondary)] truncate">
+                        {listener.now_playing?.artistName || 'Unknown Artist'}
+                      </p>
+                      <p className="mt-1 text-xs text-[var(--pf-text-muted)] truncate">
+                        {listener.display_name || 'Listener'} · {listener.current_path || '/'}
+                      </p>
+                    </div>
+                    <span className="rounded-full border border-green-500/20 bg-green-500/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-green-300">
+                      {listener.now_playing?.playbackState || 'playing'}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-xl border border-[var(--pf-border)] bg-[var(--pf-surface)]/70 p-4">
+              <p className="text-sm font-medium text-white">Nothing is playing live right now.</p>
+              <p className="mt-1 text-sm text-[var(--pf-text-secondary)]">
+                As soon as someone presses play, the track title, artist, and session will appear here.
+              </p>
+            </div>
+          )}
+        </div>
 
         {/* Header */}
         <div className="mb-8">

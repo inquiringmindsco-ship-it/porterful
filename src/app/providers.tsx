@@ -14,6 +14,7 @@ import { GuidedTourProvider } from '@/components/guidance/GuidedTour'
 import { createBrowserSupabaseClient } from '@/lib/create-browser-client'
 import { initSentry, captureAuthError } from '@/lib/sentry'
 import { ensureMeasurementSessionId } from '@/lib/measurement'
+import { buildPresencePath } from '@/lib/presence-now-playing'
 
 // Initialize Sentry on client
 if (typeof window !== 'undefined') {
@@ -52,11 +53,16 @@ export function Providers({
 
   useEffect(() => {
     const currentPath = `${pathname}${typeof window !== 'undefined' ? window.location.search : ''}`
+    const nowPlaying = typeof window !== 'undefined'
+      ? ((window as typeof window & { __PORTERFUL_NOW_PLAYING__?: unknown }).__PORTERFUL_NOW_PLAYING__ || null)
+      : null
 
     void fetch('/api/presence/heartbeat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ current_path: currentPath }),
+      body: JSON.stringify({
+        current_path: buildPresencePath(currentPath, nowPlaying as any) || currentPath,
+      }),
       credentials: 'include',
       keepalive: true,
     }).catch(() => {})

@@ -11,7 +11,7 @@ function normalizePath(input: unknown): string | null {
   if (typeof input !== 'string') return null
   const trimmed = input.trim()
   if (!trimmed) return null
-  return trimmed.slice(0, 200)
+  return trimmed.slice(0, 500)
 }
 
 function inferRole(profileRole?: string | null, metadataRole?: unknown): string {

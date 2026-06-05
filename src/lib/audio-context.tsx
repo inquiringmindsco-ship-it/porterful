@@ -4,6 +4,7 @@ import { createContext, useContext, useState, useRef, useEffect, ReactNode, useC
 import { getTrackArtwork } from '@/lib/artwork';
 import { dedupeQueueTracks, filterPlayableTracks, hasPlayableAudio } from '@/lib/track-dedupe';
 import { ensureMeasurementSessionId } from '@/lib/measurement';
+import { buildPresencePath, PresenceNowPlaying } from '@/lib/presence-now-playing';
 
 // ─── DEBUG LOGGING ────────────────────────────────────────────────────────────
 const DEBUG = false;
@@ -76,6 +77,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
   const queueRef = useRef<Track[]>([]);
   const currentIndexRef = useRef(-1);
   const currentTrackRef = useRef<Track | null>(null);
+  const isPlayingRef = useRef(false);
   const playTrackRef = useRef<(track: Track) => void>(() => {});
 
   const setQueue = useCallback((tracks: Track[]) => {
@@ -146,6 +148,76 @@ export function AudioProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     currentTrackRef.current = currentTrack;
   }, [currentTrack]);
+
+  useEffect(() => {
+    isPlayingRef.current = isPlaying;
+  }, [isPlaying]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    if (!currentTrack) {
+      (window as typeof window & { __PORTERFUL_NOW_PLAYING__?: PresenceNowPlaying | null }).__PORTERFUL_NOW_PLAYING__ = null;
+      return;
+    }
+
+    const playbackState: PresenceNowPlaying['playbackState'] = isPlaying ? 'playing' : 'paused';
+
+    (window as typeof window & { __PORTERFUL_NOW_PLAYING__?: PresenceNowPlaying | null }).__PORTERFUL_NOW_PLAYING__ = {
+      trackId: currentTrack.id,
+      trackTitle: currentTrack.title,
+      artistName: currentTrack.artist,
+      album: currentTrack.album || null,
+      playbackMode: currentTrack.playback_mode || 'full',
+      playbackState,
+    };
+  }, [currentTrack, isPlaying]);
+
+  const syncPresence = useCallback(async () => {
+    if (typeof window === 'undefined') return;
+
+    const currentPath = `${window.location.pathname}${window.location.search}`;
+    const playbackState: PresenceNowPlaying['playbackState'] = isPlayingRef.current ? 'playing' : 'paused';
+
+    const nowPlaying = currentTrackRef.current
+      ? {
+          trackId: currentTrackRef.current.id,
+          trackTitle: currentTrackRef.current.title,
+          artistName: currentTrackRef.current.artist,
+          album: currentTrackRef.current.album || null,
+          playbackMode: currentTrackRef.current.playback_mode || 'full',
+          playbackState,
+        }
+      : null;
+
+    const encodedPath = buildPresencePath(currentPath, nowPlaying);
+
+    await fetch('/api/presence/heartbeat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        current_path: encodedPath || currentPath,
+      }),
+      credentials: 'include',
+      keepalive: true,
+    })
+  }, []);
+
+  useEffect(() => {
+    void syncPresence()
+  }, [syncPresence, currentTrack, isPlaying])
+
+  useEffect(() => {
+    if (!currentTrack) return
+
+    const interval = window.setInterval(() => {
+      void syncPresence()
+    }, 30000)
+
+    return () => window.clearInterval(interval)
+  }, [currentTrack, syncPresence])
 
   // Create audio element on mount
   useEffect(() => {

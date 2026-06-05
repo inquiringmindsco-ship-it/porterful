@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getAuthenticatedClient, unauthorized } from '@/lib/auth-utils'
+import { parsePresencePath } from '@/lib/presence-now-playing'
 
 const ACTIVE_WINDOW_SECONDS = 75
 export const dynamic = 'force-dynamic'
@@ -57,6 +58,7 @@ export async function GET() {
 
     const activeUsers = [
       ...(sessionResult.data ?? []).map((row: any) => {
+        const parsedPresence = parsePresencePath(row.current_path)
         const displayName = row.full_name || row.username || row.email?.split('@')[0] || 'Anonymous'
         return {
           id: row.user_id,
@@ -69,35 +71,41 @@ export async function GET() {
           avatar_url: row.avatar_url,
           role: row.role || 'supporter',
           role_label: roleLabel(row.role),
-          current_path: row.current_path,
+          current_path: parsedPresence.currentPath,
+          now_playing: parsedPresence.nowPlaying,
           last_seen_at: row.last_seen_at,
           created_at: row.created_at,
           updated_at: row.updated_at,
           display_name: displayName,
         }
       }),
-      ...(visitorResult.data ?? []).map((row: any) => ({
-        id: row.visitor_id,
-        kind: 'guest',
-        user_id: null,
-        visitor_id: row.visitor_id,
-        email: null,
-        full_name: null,
-        username: null,
-        avatar_url: null,
-        role: 'guest',
-        role_label: 'Guest',
-        current_path: row.current_path,
-        last_seen_at: row.last_seen_at,
-        created_at: row.created_at,
-        updated_at: row.updated_at,
-        display_name: row.display_name || 'Guest',
-      })),
+      ...(visitorResult.data ?? []).map((row: any) => {
+        const parsedPresence = parsePresencePath(row.current_path)
+        return {
+          id: row.visitor_id,
+          kind: 'guest',
+          user_id: null,
+          visitor_id: row.visitor_id,
+          email: null,
+          full_name: null,
+          username: null,
+          avatar_url: null,
+          role: 'guest',
+          role_label: 'Guest',
+          current_path: parsedPresence.currentPath,
+          now_playing: parsedPresence.nowPlaying,
+          last_seen_at: row.last_seen_at,
+          created_at: row.created_at,
+          updated_at: row.updated_at,
+          display_name: row.display_name || 'Guest',
+        }
+      }),
     ].sort((a, b) => new Date(b.last_seen_at).getTime() - new Date(a.last_seen_at).getTime())
 
     const counts = activeUsers.reduce(
       (acc, userRow) => {
         acc.total += 1
+        if (userRow.now_playing?.trackTitle) acc.playing += 1
         if (userRow.role === 'artist') acc.artists += 1
         else if (userRow.role === 'admin') acc.admins += 1
         else if (userRow.role === 'business' || userRow.role === 'brand') acc.businesses += 1
@@ -105,7 +113,7 @@ export async function GET() {
         else acc.supporters += 1
         return acc
       },
-      { total: 0, artists: 0, supporters: 0, businesses: 0, admins: 0, guests: 0 }
+      { total: 0, playing: 0, artists: 0, supporters: 0, businesses: 0, admins: 0, guests: 0 }
     )
 
     return NextResponse.json({
