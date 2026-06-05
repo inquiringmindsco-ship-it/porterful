@@ -195,6 +195,12 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     };
 
     const handlePlay = () => setIsPlaying(true);
+    const handlePlaybackStart = () => {
+      const track = currentTrackRef.current;
+      if (track) {
+        void recordPlayEvent(track);
+      }
+    };
     const handlePause = () => setIsPlaying(false);
 
     audio.addEventListener('timeupdate', handleTimeUpdate);
@@ -202,6 +208,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     audio.addEventListener('error', handleAudioError);
     audio.addEventListener('ended', handleEnded);
     audio.addEventListener('play', handlePlay);
+    audio.addEventListener('play', handlePlaybackStart);
     audio.addEventListener('pause', handlePause);
 
     return () => {
@@ -210,6 +217,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
       audio.removeEventListener('error', handleAudioError);
       audio.removeEventListener('ended', handleEnded);
       audio.removeEventListener('play', handlePlay);
+      audio.removeEventListener('play', handlePlaybackStart);
       audio.removeEventListener('pause', handlePause);
       audio.pause();
       audio.src = '';
@@ -239,6 +247,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     audio.currentTime = 0;
 
     setCurrentTrack(track);
+    currentTrackRef.current = track;
     const idx = queueRef.current.findIndex((queuedTrack) => queuedTrack.id === track.id);
     setCurrentIndex(idx >= 0 ? idx : -1);
     setProgress(0);
@@ -250,15 +259,11 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     const playPromise = audio.play();
     if (playPromise) {
       playPromise
-        .then(() => {
-          void recordPlayEvent(track)
-        })
         .catch((err) => {
         console.error('[AUDIO] Play failed:', err.name, err.message);
         setIsPlaying(false);
         });
     } else {
-      void recordPlayEvent(track)
     }
   }, [recordPlayEvent]);
 
@@ -273,6 +278,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     }
 
     setCurrentTrack(track);
+    currentTrackRef.current = track;
     const idx = queueRef.current.findIndex((queuedTrack) => queuedTrack.id === track.id);
     setCurrentIndex(idx >= 0 ? idx : -1);
 
