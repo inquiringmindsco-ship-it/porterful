@@ -23,9 +23,13 @@ export async function GET() {
       .maybeSingle()
 
     const metadataRole = typeof user.user_metadata?.role === 'string' ? user.user_metadata.role : null
-    const isAdmin = profile?.role === 'admin' || metadataRole === 'admin'
+    const isFounderOrAdmin =
+      profile?.role === 'admin' ||
+      profile?.role === 'founder' ||
+      metadataRole === 'admin' ||
+      metadataRole === 'founder'
 
-    if (!isAdmin) {
+    if (!isFounderOrAdmin) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
