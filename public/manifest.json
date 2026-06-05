@@ -1,7 +1,7 @@
 {
   "name": "Porterful - Music + Commerce",
   "short_name": "Porterful",
-  "description": "Where Artists Own Everything. Stream music, support artists, sell merch. 80% goes to artists.",
+  "description": "Where artists own everything. Stream music, support artists, and shop creator products.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0F0F0F",
@@ -10,8 +10,20 @@
   "scope": "/",
   "icons": [
     {
-      "src": "/brand/porterful_official_app_icon_option_1.png",
-      "sizes": "250x260",
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable.png",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     }

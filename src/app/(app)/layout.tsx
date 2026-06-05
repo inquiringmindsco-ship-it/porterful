@@ -37,8 +37,11 @@ export const metadata: Metadata = {
   },
   robots: { index: true, follow: true },
   icons: {
-    icon: [{ url: '/icon.svg?v=2', type: 'image/svg+xml' }],
-    apple: [{ url: '/apple-touch-icon.png?v=2', type: 'image/png', sizes: '180x180' }],
+    icon: [
+      { url: '/favicon.ico', type: 'image/x-icon' },
+      { url: '/icon.svg', type: 'image/svg+xml' },
+    ],
+    apple: [{ url: '/apple-touch-icon.png', type: 'image/png', sizes: '180x180' }],
   },
   manifest: '/manifest.json',
   appleWebApp: { capable: true, statusBarStyle: 'black-translucent', title: 'Porterful' },
