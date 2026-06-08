@@ -9,6 +9,8 @@ import { ArrowLeft, Music, Package, Upload } from 'lucide-react'
 import { GuidanceRoadmap, StageTracker, EmptyState } from '@/components/guidance/GuidedExperience'
 import { useGuidedTour } from '@/components/guidance/GuidedTour'
 import { canonicalAlbum } from '@/lib/duration-formatter'
+import { CollaboratorStack } from '@/components/artist/CollaboratorStack'
+import { buildTrackArtistCredits } from '@/lib/artist-credits'
 
 const Icon = {
   Music: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></svg>,
@@ -429,6 +431,26 @@ export default function ArtistDashboardPage() {
           actionHref={dbTracks.length === 0 ? "/dashboard/upload" : guidance.actionHref}
         />
 
+        <div className="mb-8 flex flex-wrap gap-2">
+          {[
+            { href: '/dashboard/artist', label: 'My Music' },
+            { href: '/dashboard/artist/assets', label: 'My Files' },
+            { href: '/dashboard/artist/edit', label: 'Appearance' },
+            { href: '/dashboard/artist/inventory', label: 'Inventory' },
+            { href: '/dashboard/artist/fulfillment', label: 'Fulfillment' },
+            { href: '/store', label: 'Store' },
+            { href: '/settings/settings', label: 'Settings' },
+          ].map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="rounded-full border border-[var(--pf-border)] bg-[var(--pf-surface)] px-4 py-2 text-sm font-medium text-[var(--pf-text-secondary)] transition-colors hover:border-[var(--pf-orange)] hover:text-[var(--pf-text)]"
+            >
+              {link.label}
+            </Link>
+          ))}
+        </div>
+
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -439,7 +461,7 @@ export default function ArtistDashboardPage() {
                 <Icon.Package /> My Files
               </Link>
               <Link href="/dashboard/artist/edit" className="pf-btn pf-btn-secondary flex items-center gap-2">
-                <Icon.Edit /> Edit Profile
+                <Icon.Edit /> Appearance
               </Link>
             </div>
           </div>
@@ -737,15 +759,21 @@ export default function ArtistDashboardPage() {
                               </div>
                             )}
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-medium truncate">{track.title}</p>
-                            <p className="text-sm text-[var(--pf-text-muted)]">
-                              {(track.proud_to_pay_min ?? track.price) === 0
-                                ? 'Free'
-                                : `$${Number(track.proud_to_pay_min ?? track.price ?? 0.50).toFixed(2)}`}
-                              {track.description && ` • ${track.description.slice(0, 50)}${track.description.length > 50 ? '...' : ''}`}
-                            </p>
-                          </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium truncate">{track.title}</p>
+                        <p className="text-sm text-[var(--pf-text-muted)]">
+                          {(track.proud_to_pay_min ?? track.price) === 0
+                            ? 'Free'
+                            : `$${Number(track.proud_to_pay_min ?? track.price ?? 0.50).toFixed(2)}`}
+                          {track.description && ` • ${track.description.slice(0, 50)}${track.description.length > 50 ? '...' : ''}`}
+                        </p>
+                        {(() => {
+                          const artistCredits = buildTrackArtistCredits(track)
+                          return artistCredits.length > 1 ? (
+                            <CollaboratorStack artists={artistCredits} size="xs" className="mt-2" />
+                          ) : null
+                        })()}
+                      </div>
                           <div className="flex items-center gap-2">
                             <span className={`px-2 py-1 rounded text-xs border ${track.is_active ? 'border-green-500/30 bg-green-500/10 text-green-400' : 'border-[var(--pf-border)] bg-[var(--pf-surface)] text-[var(--pf-text-muted)]'}`}>
                               {track.is_active ? 'Live' : 'Hidden'}

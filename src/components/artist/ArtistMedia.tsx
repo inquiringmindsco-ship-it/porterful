@@ -2,6 +2,8 @@
 
 import Image from 'next/image'
 import { useEffect, useMemo, useState } from 'react'
+import { ArtistAvatar } from '@/components/artist/ArtistAvatar'
+import type { ArtistAvatarShape, ArtistAvatarFocus } from '@/lib/artist-theme'
 
 type ArtistMediaVariant = 'avatar' | 'banner' | 'card'
 
@@ -10,6 +12,9 @@ interface ArtistMediaProps {
   alt: string
   name?: string
   variant?: ArtistMediaVariant
+  shape?: ArtistAvatarShape
+  focus?: ArtistAvatarFocus
+  objectPosition?: string
   className?: string
   imageClassName?: string
   priority?: boolean
@@ -41,7 +46,7 @@ function PorterfulPlaceholder({ variant, name }: { variant: ArtistMediaVariant; 
         <div className={`flex flex-col items-center justify-center text-center ${isBanner ? 'gap-2 px-6' : 'gap-0 px-2'}`}>
           <div className="relative flex items-center justify-center">
             <div
-              className={`flex items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-black/30 shadow-[0_18px_40px_rgba(0,0,0,0.35)] ${
+              className={`flex items-center justify-center overflow-hidden rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)]/80 shadow-[0_18px_40px_rgba(0,0,0,0.35)] ${
                 isBanner ? 'h-20 w-20' : variant === 'card' ? 'h-12 w-12' : 'h-10 w-10'
               }`}
             >
@@ -55,17 +60,17 @@ function PorterfulPlaceholder({ variant, name }: { variant: ArtistMediaVariant; 
               />
             </div>
             {!isBanner && (
-              <span className="absolute -bottom-1 -right-1 rounded-full border border-white/10 bg-black/80 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.18em] text-white/80">
+              <span className="absolute -bottom-1 -right-1 rounded-full border border-[var(--pf-border)] bg-[var(--pf-bg)]/90 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.18em] text-[var(--pf-text-secondary)]">
                 {initials}
               </span>
             )}
           </div>
           {isBanner && (
             <div className="flex flex-col items-center gap-1">
-              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.28em] text-white/80">
+              <span className="rounded-full border border-[var(--pf-border)] bg-[var(--pf-surface)] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.28em] text-[var(--pf-text-secondary)]">
                 Porterful
               </span>
-              {name && <p className="max-w-full truncate text-sm font-medium text-white/70">{name}</p>}
+              {name && <p className="max-w-full truncate text-sm font-medium text-[var(--pf-text-secondary)]">{name}</p>}
             </div>
           )}
         </div>
@@ -79,6 +84,9 @@ export function ArtistMedia({
   alt,
   name,
   variant = 'card',
+  shape = 'circle',
+  focus = 'center-face',
+  objectPosition,
   className = '',
   imageClassName = '',
   priority = false,
@@ -117,6 +125,23 @@ export function ArtistMedia({
     return `${base} ${className}`.trim()
   }, [className])
 
+  if (variant === 'avatar') {
+    return (
+      <ArtistAvatar
+        src={src}
+        alt={alt}
+        name={name || alt}
+        shape={shape}
+        focus={focus}
+        objectPosition={objectPosition}
+        className={className}
+        imageClassName={imageClassName}
+        priority={priority}
+        sizes={sizes}
+      />
+    )
+  }
+
   return (
     <div className={wrapperClassName}>
       {showImage ? (
@@ -124,6 +149,7 @@ export function ArtistMedia({
           src={src!}
           alt={alt}
           className={`absolute inset-0 h-full w-full ${imageClassName || 'object-cover'}`}
+          style={{ objectPosition: objectPosition || '50% 42%' }}
           sizes={sizes}
           loading={priority ? 'eager' : 'lazy'}
         />

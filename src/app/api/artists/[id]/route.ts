@@ -4,6 +4,7 @@ import { createClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 import { ARTISTS } from '@/lib/artists'
 import { isPublicArtistEligible } from '@/lib/public-artists'
+import { normalizeArtistAppearance } from '@/lib/artist-theme'
 
 export const dynamic = 'force-dynamic'
 
@@ -64,6 +65,7 @@ export async function GET(
     // If we have a DB artist, use it as primary source
     // PHASE A GUARDRAIL: Check public eligibility before returning
     if (dbArtist) {
+      const socialLinks = typeof dbArtist.social_links === 'object' && dbArtist.social_links ? dbArtist.social_links : {}
       const isPublic = isPublicArtistEligible({
         status: dbArtist.status,
         public_profile_enabled: dbArtist.public_profile_enabled,
@@ -84,6 +86,10 @@ export async function GET(
         genre: dbArtist.genre || profile?.genre || staticArtist?.genre || '',
         location: dbArtist.location || profile?.location || staticArtist?.location || '',
         slug: dbArtist.slug || profile?.username || staticArtist?.slug || params.id,
+        appearance: normalizeArtistAppearance(
+          dbArtist.appearance || dbArtist.artist_appearance || socialLinks.appearance,
+          staticArtist?.appearance || undefined,
+        ),
       }
       return NextResponse.json({ profile: mergedData })
     }
@@ -145,6 +151,16 @@ export async function PATCH(
       cover_url,
       banner_url,
       hero_image_url,
+      appearance,
+      appearance_settings,
+      primary_color,
+      secondary_color,
+      accent_color,
+      background_style,
+      color_mode,
+      profile_image_shape,
+      profile_image_focus,
+      profile_image_position,
     } = body
 
     // Use service role for update (bypasses RLS after auth check)
@@ -155,7 +171,7 @@ export async function PATCH(
     )
 
     // Update artists table
-    const artistUpdates: Record<string, string> = {}
+    const artistUpdates: Record<string, any> = {}
     if (name !== undefined) artistUpdates.name = name
     if (bio !== undefined) artistUpdates.bio = bio
     if (location !== undefined) artistUpdates.location = location
@@ -188,6 +204,48 @@ export async function PATCH(
     if (cover_url !== undefined) artistUpdates.cover_url = cover_url
     if (banner_url !== undefined && cover_url === undefined) artistUpdates.cover_url = banner_url
     if (hero_image_url !== undefined && cover_url === undefined && banner_url === undefined) artistUpdates.cover_url = hero_image_url
+
+    if (
+      appearance !== undefined ||
+      appearance_settings !== undefined ||
+      primary_color !== undefined ||
+      secondary_color !== undefined ||
+      accent_color !== undefined ||
+      background_style !== undefined ||
+      color_mode !== undefined ||
+      profile_image_shape !== undefined ||
+      profile_image_focus !== undefined ||
+      profile_image_position !== undefined
+    ) {
+      const { data: currentArtist } = await serviceSupabase
+        .from('artists')
+        .select('social_links, appearance, artist_appearance')
+        .eq('id', params.id)
+        .single()
+
+      const socialLinks = typeof currentArtist?.social_links === 'object' && currentArtist?.social_links ? { ...currentArtist.social_links } : {}
+      const currentAppearance = normalizeArtistAppearance(
+        currentArtist?.appearance || currentArtist?.artist_appearance || socialLinks.appearance,
+        null,
+      )
+
+      const nextAppearance = normalizeArtistAppearance(
+        appearance || appearance_settings || {
+          primaryColor: primary_color,
+          secondaryColor: secondary_color,
+          accentColor: accent_color,
+          backgroundStyle: background_style,
+          colorMode: color_mode,
+          profileImageShape: profile_image_shape,
+          profileImageFocus: profile_image_focus,
+          profileImagePosition: profile_image_position,
+        },
+        currentAppearance || undefined,
+      )
+
+      socialLinks.appearance = nextAppearance
+      artistUpdates.social_links = socialLinks
+    }
 
     // Update artists table
     const { data: artistData, error: artistError } = await serviceSupabase

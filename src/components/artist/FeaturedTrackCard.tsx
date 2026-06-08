@@ -4,6 +4,8 @@ import { useCallback, useState } from 'react'
 import Image from 'next/image'
 import { Play, Pause, Loader2, Star } from 'lucide-react'
 import { useAudio, type Track } from '@/lib/audio-context'
+import { CollaboratorStack } from '@/components/artist/CollaboratorStack'
+import { buildTrackArtistCredits } from '@/lib/artist-credits'
 
 interface FeaturedTrackCardProps {
   track: Track
@@ -15,6 +17,7 @@ export function FeaturedTrackCard({ track, queue }: FeaturedTrackCardProps) {
   const [purchasing, setPurchasing] = useState(false)
 
   const isActive = currentTrack?.id === track.id
+  const artistCredits = buildTrackArtistCredits(track)
 
   const handlePlay = useCallback(() => {
     if (isActive) {
@@ -95,6 +98,9 @@ export function FeaturedTrackCard({ track, queue }: FeaturedTrackCardProps) {
         </h3>
         {track.album && (
           <p className="text-xs sm:text-sm text-[var(--pf-text-muted)] truncate">{track.album}</p>
+        )}
+        {artistCredits.length > 1 && (
+          <CollaboratorStack artists={artistCredits} size="xs" className="mt-2" />
         )}
       </div>
 

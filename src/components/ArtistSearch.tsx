@@ -4,7 +4,9 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Search, Music, ShoppingBag, X, TrendingUp, Users, ArrowRight } from 'lucide-react';
-import { ArtistMedia } from '@/components/artist/ArtistMedia';
+import { ArtistAvatar } from '@/components/artist/ArtistAvatar';
+import { CollaboratorStack } from '@/components/artist/CollaboratorStack';
+import { buildTrackArtistCredits } from '@/lib/artist-credits';
 
 interface Artist {
   id: string;
@@ -109,7 +111,9 @@ export function ArtistSearch() {
       if (selectedIndex < artistsLen) {
         window.location.href = `/artist/${artists[selectedIndex].slug}`;
       } else if (selectedIndex < artistsLen + tracksLen) {
-        window.location.href = `/artist/od-porter`;
+        const trackIndex = selectedIndex - artistsLen;
+        const track = tracks[trackIndex];
+        window.location.href = track ? `/digital?track=${track.id}` : `/music`;
       } else {
         const productIndex = selectedIndex - artistsLen - tracksLen;
         if (products[productIndex]) {
@@ -192,13 +196,12 @@ export function ArtistSearch() {
                         selectedIndex === i ? 'bg-[var(--pf-bg)]' : ''
                       }`}
                     >
-                      <ArtistMedia
+                      <ArtistAvatar
                         src={artist.avatar}
                         alt={artist.name}
                         name={artist.name}
-                        variant="avatar"
-                        className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--pf-orange)] to-purple-500 text-white font-bold text-sm"
-                        imageClassName="object-cover"
+                        size="sm"
+                        className="bg-gradient-to-br from-[var(--pf-orange)] to-purple-500 text-white font-bold text-sm"
                       />
                       <div className="flex-1 min-w-0">
                         <div className="font-medium text-[var(--pf-text)] truncate">{artist.name}</div>
@@ -230,7 +233,9 @@ export function ArtistSearch() {
                     <Music size={12} />
                     TRACKS
                   </div>
-                  {results.tracks.slice(0, 5).map((track: Track, i: number) => (
+                  {results.tracks.slice(0, 5).map((track: Track, i: number) => {
+                    const credits = buildTrackArtistCredits(track)
+                    return (
                     <Link
                       key={track.id}
                       href={`/digital?track=${track.id}`}
@@ -240,19 +245,25 @@ export function ArtistSearch() {
                       }`}
                     >
                       <div className="w-10 h-10 rounded-lg bg-[var(--pf-bg)] overflow-hidden flex-shrink-0">
-                        {track.image && (
-                          <Image src={track.image} alt={track.title} width={40} height={40} className="object-cover" />
+                        {track.image ? (
+                          <Image src={track.image} alt={track.title} width={40} height={40} className="object-cover w-full h-full" />
+                        ) : (
+                          <div className="w-full h-full" />
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="font-medium text-[var(--pf-text)] truncate">{track.title}</div>
                         <div className="text-xs text-[var(--pf-text-muted)]">{track.artist}</div>
+                        {credits.length > 1 && (
+                          <CollaboratorStack artists={credits} size="xs" className="mt-1" />
+                        )}
                       </div>
                       <div className="font-bold text-[var(--pf-orange)]">
                         ${Number(track.price ?? 0.50).toFixed(2)}
                       </div>
                     </Link>
-                  ))}
+                    )
+                  })}
                 </div>
               )}
 

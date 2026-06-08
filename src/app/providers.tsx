@@ -174,7 +174,7 @@ export function Providers({
               <WalletProvider>
                 <PayoutProvider>
                   <ToastProvider>
-                    <GuidedTourProvider>{children}</GuidedTourProvider>
+                    <GuidedTourProvider userId={user?.id || initialUser?.id || null}>{children}</GuidedTourProvider>
                   </ToastProvider>
                 </PayoutProvider>
               </WalletProvider>

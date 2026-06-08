@@ -5,6 +5,8 @@ import { Footer } from '@/components/Footer'
 import { TrackLockedToast } from '@/components/TrackLockedToast'
 import { KeyboardShortcuts } from '@/lib/keyboard-shortcuts'
 
+const ICON_VERSION = '20260608a'
+
 export const metadata: Metadata = {
   title: 'Porterful',
   description: 'Stream music, shop merch, and support artists directly.',
@@ -38,12 +40,15 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
   icons: {
     icon: [
-      { url: '/favicon.ico', type: 'image/x-icon' },
-      { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: `/favicon.ico?v=${ICON_VERSION}`, type: 'image/x-icon' },
+      { url: `/favicon-porterful.ico?v=${ICON_VERSION}`, type: 'image/x-icon' },
+      { url: `/favicon-porterful-32.png?v=${ICON_VERSION}`, type: 'image/png', sizes: '32x32' },
+      { url: `/favicon-porterful-16.png?v=${ICON_VERSION}`, type: 'image/png', sizes: '16x16' },
+      { url: `/icon.svg?v=${ICON_VERSION}`, type: 'image/svg+xml' },
     ],
-    apple: [{ url: '/apple-touch-icon.png', type: 'image/png', sizes: '180x180' }],
+    apple: [{ url: `/apple-touch-icon.png?v=${ICON_VERSION}`, type: 'image/png', sizes: '180x180' }],
   },
-  manifest: '/manifest.json',
+  manifest: `/manifest.json?v=${ICON_VERSION}`,
   appleWebApp: { capable: true, statusBarStyle: 'black-translucent', title: 'Porterful' },
   formatDetection: { telephone: false, email: false, address: false },
 }

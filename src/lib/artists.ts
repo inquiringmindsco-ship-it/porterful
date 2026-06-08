@@ -1,6 +1,7 @@
 // Artist data - in production this would come from Supabase
 import { TRACKS } from './data'
 import { filterPlayableTracks } from './track-dedupe'
+import type { ArtistAppearance } from './artist-theme'
 
 export interface ArtistData {
   id: string
@@ -42,6 +43,7 @@ export interface ArtistData {
     title: string
     album?: string
   }>
+  appearance?: ArtistAppearance
 }
 
 // Array of artists for listing pages
@@ -81,6 +83,15 @@ The plan: make Porterful the artist's retirement. Build it once, let it work for
       { src: '/artist-images/od-porter/avatar.jpg', alt: 'O D Porter' },
       { src: '/artist-images/od-porter/tlf-cover.png', alt: 'O D Porter - TLF' },
     ],
+    appearance: {
+      primaryColor: '#f97316',
+      secondaryColor: '#111111',
+      accentColor: '#f4b860',
+      backgroundStyle: 'warm',
+      colorMode: 'dark',
+      profileImageShape: 'circle',
+      profileImageFocus: 'center-face',
+    },
   },
   {
     id: 'gune',
@@ -111,6 +122,15 @@ On Porterful, he's not competing with the algorithm. He's building something rea
       { src: '/artist-images/gune/ISIMG-1050533.JPG', alt: 'Gune' },
       { src: '/artist-images/gune/EL8A6131.JPG', alt: 'Gune' },
     ],
+    appearance: {
+      primaryColor: '#9f1239',
+      secondaryColor: '#111111',
+      accentColor: '#f59e0b',
+      backgroundStyle: 'midnight',
+      colorMode: 'dark',
+      profileImageShape: 'circle',
+      profileImageFocus: 'center-face',
+    },
   },
   {
     id: 'atm-trap',
@@ -134,6 +154,15 @@ On Porterful, he's not competing with the algorithm. He's building something rea
     coverSlides: [
       { src: '/artist-images/atm-trap/avatar.jpg', alt: 'ATM Trap' },
     ],
+    appearance: {
+      primaryColor: '#1a1a1a',
+      secondaryColor: '#D4A853',
+      accentColor: '#FF6B35',
+      backgroundStyle: 'charcoal',
+      colorMode: 'dark',
+      profileImageShape: 'circle',
+      profileImageFocus: 'center-face',
+    },
   },
   {
     id: 'rob-soule',
@@ -141,7 +170,13 @@ On Porterful, he's not competing with the algorithm. He's building something rea
     slug: 'rob-soule',
     genre: 'Hip-Hop / R&B / Blues',
     location: 'St. Louis, MO',
-    bio: `Rob Soule is a St. Louis hip-hop and R&B artist blending blues into a soulful sound.`,
+    bio: `Rob Soule is a St. Louis hip-hop and R&B artist blending blues into a soulful sound.
+
+Born and raised in the Lou, Rob channels the city's rich musical heritage — from the blues roots that run deep in STL to the hip-hop energy that defines its streets today. His sound sits at the crossroads: hard-hitting rap flows, smooth R&B melodies, and bluesy guitar licks that nod to the genre's origins.
+
+Tracks like "Love Jones" and "2B" showcase what Rob does best — raw storytelling wrapped in soulful production. He writes what he lives, and he lives what he writes. No gimmicks, just genuine.
+
+On Porterful, Rob's building directly with the people who resonate with his music. 80% of every sale goes straight to him. That's the way it should be.`,
     shortBio: 'St. Louis hip-hop and R&B artist blending blues into a soulful sound. Tracks like "Love Jones" and "2B" showcase his signature STL style.',
     verified: true,
     likeness_verified: false,
@@ -161,6 +196,15 @@ On Porterful, he's not competing with the algorithm. He's building something rea
     coverSlides: [
       { src: '/artist-images/rob-soule/avatar.jpg', alt: 'Rob Soule' },
     ],
+    appearance: {
+      primaryColor: '#7c3aed',
+      secondaryColor: '#111111',
+      accentColor: '#f4b860',
+      backgroundStyle: 'earth',
+      colorMode: 'dark',
+      profileImageShape: 'circle',
+      profileImageFocus: 'center-face',
+    },
   },
 ]
 

@@ -15,26 +15,15 @@ import {
   SlidersHorizontal,
 } from 'lucide-react'
 import { useAudio, Track } from '@/lib/audio-context'
-import { TRACKS as STATIC_TRACKS } from '@/lib/data'
-import { ARTISTS, type ArtistData } from '@/lib/artists'
+import type { ArtistData } from '@/lib/artists'
 import { filterPublicArtists } from '@/lib/public-artists'
 import { getTrackArtwork } from '@/lib/artwork'
-import { ArtistMedia } from '@/components/artist/ArtistMedia'
+import { ArtistAvatar } from '@/components/artist/ArtistAvatar'
+import { CollaboratorStack } from '@/components/artist/CollaboratorStack'
 import { createBrowserSupabaseClient } from '@/lib/create-browser-client'
-import { mergeCanonicalTracks, dedupeQueueTracks, sortTracksByAlbumOrder, filterPlayableTracks } from '@/lib/track-dedupe'
+import { dedupeQueueTracks } from '@/lib/track-dedupe'
 import { formatDuration, canonicalAlbum } from '@/lib/duration-formatter'
-
-// Public artists with confirmed music/catalog
-const VALID_SLUGS = ['od-porter', 'gune', 'atm-trap']
-const PUBLIC_ARTISTS_FALLBACK = ARTISTS.filter((a) => VALID_SLUGS.includes(a.slug))
-
-// Static tracks for fallback (legacy catalog)
-const LEGACY_TRACKS = STATIC_TRACKS.filter((t) =>
-  ['O D Porter', 'Gune', 'ATM Trap', 'Jai Jai', 'Jay Jay'].includes(t.artist)
-).sort((a, b) => {
-  const order: Record<string, number> = { 'O D Porter': 0, 'Gune': 1, 'ATM Trap': 2, 'Jai Jai': 3, 'Jay Jay': 3 }
-  return (order[a.artist] || 99) - (order[b.artist] || 99)
-}) as unknown as Track[]
+import { buildTrackArtistCredits } from '@/lib/artist-credits'
 
 type DisplayTrack = Track
 
@@ -53,6 +42,9 @@ function TrackRow({
   onPlay: () => void
   onTogglePlay: () => void
 }) {
+  const artistCredits = buildTrackArtistCredits(track)
+  const collaboratorCredits = artistCredits.length > 1 ? artistCredits : []
+
   return (
     <div
       onClick={onPlay}
@@ -102,6 +94,9 @@ function TrackRow({
           {track.title}
         </p>
         <p className="text-xs text-[var(--pf-text-secondary)] truncate">{track.album || 'Single'}</p>
+        {collaboratorCredits.length > 1 && (
+          <CollaboratorStack artists={collaboratorCredits} size="xs" className="mt-2" />
+        )}
       </div>
 
       {/* Duration */}
@@ -145,7 +140,8 @@ export default function MusicPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [albumFilter, setAlbumFilter] = useState<string>('all')
   const [selectedAlbum, setSelectedAlbum] = useState<string | null>(null)
-  const [publicArtists, setPublicArtists] = useState<ArtistData[]>(PUBLIC_ARTISTS_FALLBACK)
+  const [publicArtists, setPublicArtists] = useState<ArtistData[]>([])
+  const [artistsLoading, setArtistsLoading] = useState(true)
   const [dbTracks, setDbTracks] = useState<Track[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -201,12 +197,12 @@ export default function MusicPage() {
             }) as ArtistData,
         )
         if (!cancelled) {
-          setPublicArtists(publicArtists.length > 0 ? publicArtists : PUBLIC_ARTISTS_FALLBACK)
+          setPublicArtists(publicArtists)
         }
       } catch {
-        if (!cancelled) {
-          setPublicArtists(PUBLIC_ARTISTS_FALLBACK)
-        }
+        if (!cancelled) setPublicArtists([])
+      } finally {
+        if (!cancelled) setArtistsLoading(false)
       }
     }
 
@@ -217,14 +213,8 @@ export default function MusicPage() {
     }
   }, [])
 
-  // Merge DB tracks with static fallback using canonical dedupe
-  // Inactive DB tracks block matching static from public display
   const ALL_TRACKS = useMemo(() => {
-    return filterPlayableTracks(
-      sortTracksByAlbumOrder(
-        mergeCanonicalTracks(dbTracks as any[], LEGACY_TRACKS, { includeInactive: false })
-      )
-    )
+    return dbTracks
   }, [dbTracks])
 
   // Featured track: prefer featured DB track, fallback to first track
@@ -237,7 +227,9 @@ export default function MusicPage() {
   }, [dbTracks, ALL_TRACKS, currentTrack])
 
   const isHeroActive = currentTrack?.id === heroTrack?.id
-  const heroArtist = publicArtists.find((a) => a.name === heroTrack?.artist) ?? publicArtists[0] ?? PUBLIC_ARTISTS_FALLBACK[0]
+  const heroArtistCredits = useMemo(() => buildTrackArtistCredits(heroTrack), [heroTrack])
+  const heroPrimaryArtist = heroArtistCredits[0] || null
+  const heroArtist = publicArtists.find((a) => a.name === heroPrimaryArtist?.name || a.name === heroTrack?.artist) ?? null
 
   const startTrack = useCallback(
     (track: Track) => {
@@ -299,11 +291,11 @@ export default function MusicPage() {
           <p className="text-[11px] uppercase tracking-widest text-[var(--pf-text-secondary)] mb-3">Featured</p>
           <div className="flex items-center gap-4 sm:gap-5">
             <Link
-              href={heroArtist ? `/artist/${heroArtist.slug}` : '/artists'}
+              href={heroPrimaryArtist?.href || (heroArtist ? `/artist/${heroArtist.slug}` : '/artists')}
               className="relative w-20 h-20 sm:w-28 sm:h-28 rounded-xl overflow-hidden flex-shrink-0 bg-[var(--pf-surface)]"
-              aria-label={`Open ${heroArtist?.name ?? 'artist'} page`}
+              aria-label={`Open ${heroPrimaryArtist?.name ?? heroArtist?.name ?? 'artist'} page`}
             >
-              {heroTrack && (
+              {heroTrack ? (
                 <Image
                   src={getTrackArtwork(heroTrack)}
                   alt={heroTrack.title}
@@ -311,27 +303,50 @@ export default function MusicPage() {
                   sizes="(max-width: 640px) 80px, 112px"
                   className="object-cover"
                 />
+              ) : (
+                <div className="h-full w-full animate-pulse bg-white/6" />
               )}
             </Link>
 
             <div className="flex-1 min-w-0">
               <h1 className="text-lg sm:text-2xl font-bold truncate">{heroTrack?.title}</h1>
-              {heroArtist && (
-                <Link
-                  href={`/artist/${heroArtist.slug}`}
-                  className="text-sm text-[var(--pf-text-secondary)] hover:text-[var(--pf-text)] transition-colors truncate inline-block max-w-full"
-                >
-                  {heroArtist.name}
-                </Link>
-              )}
+              <div className="flex flex-wrap items-center gap-2">
+                {heroPrimaryArtist ? (
+                  heroPrimaryArtist.href ? (
+                    <Link
+                      href={heroPrimaryArtist.href}
+                      className="text-sm text-[var(--pf-text-secondary)] hover:text-[var(--pf-text)] transition-colors truncate inline-block max-w-full"
+                    >
+                      {heroPrimaryArtist.name}
+                    </Link>
+                  ) : (
+                    <p className="text-sm text-[var(--pf-text-secondary)] truncate">{heroPrimaryArtist.name}</p>
+                  )
+                ) : heroArtist ? (
+                  <Link
+                    href={`/artist/${heroArtist.slug}`}
+                    className="text-sm text-[var(--pf-text-secondary)] hover:text-[var(--pf-text)] transition-colors truncate inline-block max-w-full"
+                  >
+                    {heroArtist.name}
+                  </Link>
+                ) : heroTrack?.artist ? (
+                  <p className="text-sm text-[var(--pf-text-secondary)] truncate">{heroTrack.artist}</p>
+                ) : null}
+                {heroArtistCredits.length > 1 && (
+                  <CollaboratorStack artists={heroArtistCredits} size="xs" />
+                )}
+              </div>
               {heroTrack?.album && (
                 <p className="text-xs text-[var(--pf-text-muted)] truncate">{heroTrack.album}</p>
               )}
             </div>
 
             <button
-              onClick={() => (currentTrack ? togglePlay() : startTrack(heroTrack!))}
-              className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[var(--pf-orange)] hover:bg-[var(--pf-orange)]/90 flex items-center justify-center flex-shrink-0 transition-colors shadow-lg"
+              onClick={() => heroTrack && (currentTrack ? togglePlay() : startTrack(heroTrack))}
+              disabled={!heroTrack}
+              className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center flex-shrink-0 transition-colors shadow-lg ${
+                heroTrack ? 'bg-[var(--pf-orange)] hover:bg-[var(--pf-orange)]/90' : 'bg-[var(--pf-surface)] text-[var(--pf-text-muted)] opacity-70'
+              }`}
               aria-label={isHeroActive && isPlaying ? 'Pause featured track' : 'Play featured track'}
             >
               {isHeroActive && isPlaying ? (
@@ -353,31 +368,45 @@ export default function MusicPage() {
           </div>
 
           <div className="flex gap-3 overflow-x-auto -mx-5 sm:-mx-6 px-5 sm:px-6 scrollbar-hide pb-1">
-            {publicArtists.map((artist) => {
-              const trackCount = artist.trackCount ?? ALL_TRACKS.filter((t) => t.artist === artist.name || t.artist === artist.id).length
-              return (
-                <Link
-                  key={artist.id}
-                  href={`/artist/${artist.slug}`}
-                  className="group flex-shrink-0 w-32 sm:w-36"
-                >
-                  <ArtistMedia
-                    src={artist.image}
-                    alt={artist.name}
-                    name={artist.name}
-                    variant="card"
-                    className="w-32 h-32 sm:w-36 sm:h-36 rounded-xl bg-[var(--pf-surface)] mb-2"
-                    imageClassName="object-cover transition-transform duration-200 group-hover:scale-[1.03]"
-                    sizes="(max-width: 640px) 128px, 144px"
-                  />
-                  <div className="flex items-center gap-1">
-                    <p className="text-sm font-medium truncate">{artist.name}</p>
-                    {artist.verified && <Verified size={12} className="text-[var(--pf-text-secondary)] shrink-0" />}
-                  </div>
-                  <p className="text-xs text-[var(--pf-text-muted)] truncate">{trackCount} tracks</p>
-                </Link>
-              )
-            })}
+            {artistsLoading ? (
+              Array.from({ length: 4 }).map((_, idx) => (
+                <div key={idx} className="flex-shrink-0 w-32 sm:w-36">
+                  <div className="w-32 h-32 sm:w-36 sm:h-36 rounded-xl bg-[var(--pf-surface)] mb-2 animate-pulse" />
+                  <div className="h-4 w-20 rounded-full bg-[var(--pf-surface)] animate-pulse mb-2" />
+                  <div className="h-3 w-12 rounded-full bg-[var(--pf-surface)] animate-pulse" />
+                </div>
+              ))
+            ) : publicArtists.length > 0 ? (
+              publicArtists.map((artist) => {
+                const trackCount = artist.trackCount ?? ALL_TRACKS.filter((t) => t.artist === artist.name || t.artist === artist.id).length
+                return (
+                  <Link
+                    key={artist.id}
+                    href={`/artist/${artist.slug}`}
+                    className="group flex-shrink-0 w-32 sm:w-36"
+                  >
+                    <div className="mb-2 flex h-32 w-32 items-center justify-center rounded-[28px] border border-[var(--pf-border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(0,0,0,0.16))] sm:h-36 sm:w-36">
+                      <ArtistAvatar
+                        src={artist.image}
+                        alt={artist.name}
+                        name={artist.name}
+                        size="xl"
+                        className="transition-transform duration-200 group-hover:scale-[1.03]"
+                      />
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <p className="text-sm font-medium truncate">{artist.name}</p>
+                      {artist.verified && <Verified size={12} className="text-[var(--pf-text-secondary)] shrink-0" />}
+                    </div>
+                    <p className="text-xs text-[var(--pf-text-muted)] truncate">{trackCount} tracks</p>
+                  </Link>
+                )
+              })
+            ) : (
+              <div className="rounded-xl border border-[var(--pf-border)] bg-[var(--pf-surface)] px-4 py-3 text-sm text-[var(--pf-text-muted)]">
+                No public artists loaded yet.
+              </div>
+            )}
           </div>
         </div>
       </section>

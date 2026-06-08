@@ -95,9 +95,11 @@ export function Navbar() {
   const ready = mounted && !loading
   const showUser = ready && !!user
   const showGuest = ready && !user
-  const homeHref = showUser ? '/dashboard' : '/'
-
   const isFounder = userRole === 'admin' || userRole === 'founder'
+  const isArtist = userRole === 'artist' || userRole === 'member'
+  const homeHref = showUser
+    ? (isFounder ? '/dashboard/founder' : isArtist ? '/dashboard/artist' : '/dashboard')
+    : '/'
 
   const navLinks = [
     { href: '/music', label: 'Music' },

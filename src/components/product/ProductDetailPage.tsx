@@ -8,6 +8,10 @@ import { Star, Heart, Shield, Truck, ArrowLeft, Check, Clock, Ruler, Package, In
 import { CONTROLLED_MERCH } from '@/lib/controlled-merch'
 import { getProductById, getProductGallery, getCartLineKey, isPurchasable, requiresSizeSelection } from '@/lib/products'
 import { useCart } from '@/lib/cart-context'
+import { ArtistAvatar } from '@/components/artist/ArtistAvatar'
+import { resolveArtistAvatarSource } from '@/lib/artist-credits'
+import { ArtistThemeBridge } from '@/components/artist/ArtistThemeBridge'
+import { getArtistThemeStyles, resolveArtistAppearance } from '@/lib/artist-theme'
 
 export function ProductDetailPage({ product: initialProduct }: { product?: any | null }) {
   const params = useParams()
@@ -33,6 +37,7 @@ export function ProductDetailPage({ product: initialProduct }: { product?: any |
 
   const purchasable = product.purchasable ?? isPurchasable(product)
   const controlled = product.visibilityStatus === 'controlled' || product.skuCode === CONTROLLED_MERCH.skuCode
+  const appearance = resolveArtistAppearance(product.artistId || product.artist, null)
 
   const colors: string[] = product.colors || []
   const sizes: string[] = product.sizes || []
@@ -63,7 +68,8 @@ export function ProductDetailPage({ product: initialProduct }: { product?: any |
   }
 
   return (
-    <div className="min-h-screen pt-20 pb-24 bg-[var(--pf-bg)]">
+    <div className="min-h-screen pt-20 pb-24 bg-[var(--pf-bg)]" style={getArtistThemeStyles(appearance)}>
+      <ArtistThemeBridge appearance={appearance} />
       <div className="pf-container">
         <Link href="/store" className="inline-flex items-center gap-2 text-sm text-[var(--pf-text-muted)] hover:text-white mb-6 transition-colors">
           <ArrowLeft size={16} /> Back to Store
@@ -307,9 +313,13 @@ export function ProductDetailPage({ product: initialProduct }: { product?: any |
           <div className="grid gap-8 md:grid-cols-2">
             <div>
               <div className="flex items-center gap-3 mb-4">
-                <div className="h-12 w-12 rounded-full bg-[var(--pf-orange)]/10 flex items-center justify-center text-[var(--pf-orange)] font-bold">
-                  {product.artist.charAt(0).toUpperCase()}
-                </div>
+                <ArtistAvatar
+                  src={resolveArtistAvatarSource(product.artist)}
+                  alt={product.artist}
+                  name={product.artist}
+                  size="lg"
+                  className="ring-2 ring-white/10"
+                />
                 <div>
                   <p className="font-semibold text-white">{product.artist}</p>
                   <p className="text-sm text-[var(--pf-text-muted)]">Creator on Porterful</p>

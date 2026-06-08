@@ -20,6 +20,15 @@ export interface Track {
   title: string;
   artist: string;
   artist_id?: string;
+  artist_image?: string;
+  artist_avatar_url?: string;
+  primary_artist_name?: string;
+  primary_artist_id?: string;
+  primaryArtist?: {
+    id?: string;
+    name?: string;
+    image?: string;
+  };
   album?: string | null;
   duration?: string | number;
   audio_url?: string;
@@ -34,6 +43,15 @@ export interface Track {
   playback_mode?: 'full' | 'preview' | 'locked';
   preview_duration_seconds?: number;
   unlock_required?: boolean;
+  collaborators?: Array<Record<string, any>>;
+  featured_artists?: Array<Record<string, any>>;
+  featuredArtists?: Array<Record<string, any>>;
+  artist_credits?: Array<Record<string, any>>;
+  track_credits?: Array<Record<string, any>>;
+  credits?: Array<Record<string, any>>;
+  collaboration?: {
+    collaborators?: Array<Record<string, any>>;
+  };
 }
 
 // ─── CONTEXT TYPE ─────────────────────────────────────────────────────────────

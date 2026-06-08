@@ -24,6 +24,11 @@ export interface ProductVisibilityRecord {
   updated_at?: string | null
 }
 
+type VisibilitySettingsValue = {
+  controls?: Record<string, ProductVisibilityRecord>
+  [key: string]: unknown
+}
+
 export interface CatalogProduct extends Product {
   publicVisible: boolean
   storeVisible: boolean
@@ -46,6 +51,20 @@ function normalizeStatus(value: unknown): ProductVisibilityStatus | null {
     return status
   }
   return null
+}
+
+function isMissingVisibilityTableError(error: any) {
+  if (!error) return false
+  const code = String(error.code || '').trim()
+  const message = String(error.message || error.details || '').toLowerCase()
+
+  return (
+    code === '42P01'
+    || code === 'PGRST202'
+    || message.includes('product_visibility_controls')
+    || message.includes('schema cache')
+    || message.includes('does not exist')
+  )
 }
 
 function isProductApprovedForLive(product: Pick<Product, 'id' | 'available' | 'fulfillment' | 'skuCode' | 'catalogStatus' | 'fulfillmentType'>) {
@@ -239,18 +258,102 @@ export async function loadProductVisibilityControls(productIds?: string[]) {
 
     const { data, error } = await query
     if (error) {
-      console.error('[product-visibility] load controls error:', error)
-      return {}
+      if (!isMissingVisibilityTableError(error)) {
+        console.error('[product-visibility] load controls error:', error)
+        return {}
+      }
+
+      return await loadProductVisibilityControlsFromSettings(productIds)
     }
 
     const records = (data || []) as ProductVisibilityRecord[]
-    return records.reduce<Record<string, ProductVisibilityRecord>>((acc, record) => {
+    const mapped = records.reduce<Record<string, ProductVisibilityRecord>>((acc, record) => {
       acc[record.product_id] = record
       return acc
     }, {})
+
+    const settingsFallback = await loadProductVisibilityControlsFromSettings(productIds)
+    return filterVisibilityControlsByProductIds({
+      ...settingsFallback,
+      ...mapped,
+    }, productIds)
   } catch (error) {
-    console.error('[product-visibility] load controls exception:', error)
+    if (!isMissingVisibilityTableError(error)) {
+      console.error('[product-visibility] load controls exception:', error)
+    }
+    return await loadProductVisibilityControlsFromSettings(productIds)
+  }
+}
+
+function filterVisibilityControlsByProductIds(
+  controls: Record<string, ProductVisibilityRecord>,
+  productIds?: string[],
+) {
+  if (!productIds || productIds.length === 0) {
+    return controls
+  }
+
+  return productIds.reduce<Record<string, ProductVisibilityRecord>>((acc, productId) => {
+    const record = controls[productId]
+    if (record) {
+      acc[productId] = record
+    }
+    return acc
+  }, {})
+}
+
+async function loadProductVisibilityControlsFromSettings(productIds?: string[]) {
+  try {
+    const admin = getAdminClient()
+    const { data, error } = await admin
+      .from('site_settings')
+      .select('value')
+      .eq('key', 'product_visibility_controls')
+      .maybeSingle()
+
+    if (error) {
+      console.error('[product-visibility] settings fallback load error:', error)
+      return {}
+    }
+
+    const value = (data?.value || {}) as VisibilitySettingsValue
+    const rawControls = value.controls && typeof value.controls === 'object'
+      ? value.controls
+      : value as Record<string, ProductVisibilityRecord>
+
+    const controls = Object.entries(rawControls || {}).reduce<Record<string, ProductVisibilityRecord>>((acc, [productId, record]) => {
+      if (!record || typeof record !== 'object') return acc
+      acc[productId] = {
+        ...record,
+        product_id: record.product_id || productId,
+      } as ProductVisibilityRecord
+      return acc
+    }, {})
+
+    return filterVisibilityControlsByProductIds(controls, productIds)
+  } catch (error) {
+    console.error('[product-visibility] settings fallback exception:', error)
     return {}
+  }
+}
+
+async function saveProductVisibilityControlToSettings(record: ProductVisibilityRecord) {
+  const admin = getAdminClient()
+  const current = await loadProductVisibilityControlsFromSettings()
+  const next = {
+    ...current,
+    [record.product_id]: record,
+  }
+
+  const { error } = await admin
+    .from('site_settings')
+    .upsert({
+      key: 'product_visibility_controls',
+      value: { controls: next, updated_at: new Date().toISOString() },
+    }, { onConflict: 'key' })
+
+  if (error) {
+    throw error
   }
 }
 
@@ -361,4 +464,41 @@ export async function loadCatalogProducts(
 export async function loadCatalogProductById(id: string, scope: ProductCatalogScope = 'store') {
   const products = await loadCatalogProducts(scope)
   return products.find((product) => product.id === id) || null
+}
+
+export async function upsertProductVisibilityControl(record: ProductVisibilityRecord) {
+  const admin = getAdminClient()
+  const payload = {
+    product_id: record.product_id,
+    public_visible: record.public_visible,
+    store_visible: record.store_visible,
+    purchasable: record.purchasable,
+    visibility_status: record.visibility_status,
+    notes: record.notes,
+    updated_by: record.updated_by,
+  }
+
+  const { data, error } = await admin
+    .from('product_visibility_controls')
+    .upsert(payload, { onConflict: 'product_id' })
+    .select('id, product_id, public_visible, store_visible, purchasable, visibility_status, notes, updated_by, created_at, updated_at')
+    .single()
+
+  if (!error && data) {
+    return data as ProductVisibilityRecord
+  }
+
+  if (!isMissingVisibilityTableError(error)) {
+    throw error
+  }
+
+  await saveProductVisibilityControlToSettings({
+    ...record,
+    id: record.id,
+  })
+
+  return {
+    ...record,
+    id: record.id,
+  } as ProductVisibilityRecord
 }

@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { ArrowRight, Check, MapPin, Music } from 'lucide-react'
 import { useSupabase } from '@/app/providers'
 import { getArtistAccessContext } from '@/lib/artist-identity'
-import { ArtistMedia } from '@/components/artist/ArtistMedia'
+import { ArtistAvatar } from '@/components/artist/ArtistAvatar'
 import { filterPublicArtists } from '@/lib/public-artists'
 
 interface ArtistFromDb {
@@ -206,15 +206,18 @@ function ArtistCard({ artist }: { artist: ArtistFromDb }) {
       href={`/artist/${artist.slug}`}
       className="group overflow-hidden rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] transition hover:border-[var(--pf-orange)]/40"
     >
-      <ArtistMedia
-        src={image}
-        alt={artist.name}
-        name={artist.name}
-        variant="card"
-        className="aspect-[4/5]"
-        imageClassName="object-cover transition duration-300 group-hover:scale-105"
-        sizes="(max-width: 1280px) 50vw, 33vw"
-      />
+      <div className="relative aspect-[4/5] overflow-hidden bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(0,0,0,0.2))]">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_42%),radial-gradient(circle_at_bottom,rgba(255,137,0,0.12),transparent_35%)]" />
+        <div className="absolute inset-0 flex items-center justify-center p-6">
+          <ArtistAvatar
+            src={image}
+            alt={artist.name}
+            name={artist.name}
+            size="xl"
+            className="ring-4 ring-white/10 transition duration-300 group-hover:scale-105"
+          />
+        </div>
+      </div>
       <div className="space-y-3 p-5">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">

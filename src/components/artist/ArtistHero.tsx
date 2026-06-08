@@ -4,7 +4,9 @@ import Link from 'next/link'
 import { ChevronLeft, Pause, Play, Verified } from 'lucide-react'
 import { useAudio, Track } from '@/lib/audio-context'
 import { ArtistMedia } from '@/components/artist/ArtistMedia'
+import { ArtistAvatar } from '@/components/artist/ArtistAvatar'
 import { LikenessBadge } from '@/components/likeness/LikenessGate'
+import type { ArtistAppearance } from '@/lib/artist-theme'
 import {
   SOCIAL_ICONS,
   normalizeSocialUrl,
@@ -27,6 +29,7 @@ interface ArtistHeroProps {
     coverUrl?: string | null
     trackCount?: number | null
     social?: SocialLinks
+    appearance?: ArtistAppearance
   }
   firstTrack: Track | null
   queueTracks: Track[]
@@ -55,6 +58,18 @@ export function ArtistHero({ artist, firstTrack, queueTracks }: ArtistHeroProps)
     : []
   const artistMeta = [artist.genre, artist.location].filter(Boolean).join(' · ')
   const heroImage = artist.bannerUrl || artist.coverUrl || artist.image
+  const appearance = artist.appearance
+  const primaryColor = appearance?.primaryColor || 'var(--pf-orange)'
+  const secondaryColor = appearance?.secondaryColor || '#ffffff'
+  const accentColor = appearance?.accentColor || 'var(--pf-orange)'
+  const heroGlow = appearance
+    ? `radial-gradient(circle at top right, color-mix(in srgb, ${primaryColor} 22%, transparent), transparent 36%), radial-gradient(circle at bottom left, color-mix(in srgb, ${secondaryColor} 18%, transparent), transparent 30%), linear-gradient(180deg, rgba(0,0,0,0.08), rgba(0,0,0,0.55))`
+    : 'radial-gradient(circle at top right, rgba(255,137,0,0.18), transparent 36%), radial-gradient(circle at bottom left, rgba(255,255,255,0.08), transparent 30%), linear-gradient(180deg, rgba(0,0,0,0.12), rgba(0,0,0,0.55))'
+  const panelStyle = appearance
+    ? {
+        boxShadow: `0 0 0 1px color-mix(in srgb, ${secondaryColor} 18%, transparent), 0 30px 80px rgba(0,0,0,0.28)`,
+      }
+    : undefined
 
   return (
     <section className="relative overflow-hidden border-b border-[var(--pf-border)] bg-[var(--pf-bg)]">
@@ -67,47 +82,61 @@ export function ArtistHero({ artist, firstTrack, queueTracks }: ArtistHeroProps)
           className="absolute inset-0"
           imageClassName="object-cover scale-110 blur-3xl opacity-20"
         />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,137,0,0.18),transparent_36%),radial-gradient(circle_at_bottom_left,rgba(255,255,255,0.08),transparent_30%),linear-gradient(180deg,rgba(0,0,0,0.12),rgba(0,0,0,0.55))]" />
+        <div className="absolute inset-0" style={{ backgroundImage: heroGlow }} />
       </div>
 
       {/* Back nav */}
-      <div className="relative max-w-6xl mx-auto px-5 sm:px-6 pt-5">
+      <div className="relative max-w-6xl mx-auto px-5 sm:px-6 pt-3">
         <Link
           href="/artists"
-          className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white/75 backdrop-blur-md transition-colors hover:bg-white/10 hover:text-white"
+          className="inline-flex items-center gap-1.5 rounded-full border border-[var(--pf-border)] bg-[var(--pf-surface)] px-3 py-1.5 text-sm text-[var(--pf-text-secondary)] backdrop-blur-md transition-colors hover:bg-[var(--pf-surface-hover)] hover:text-[var(--pf-text)]"
         >
           <ChevronLeft size={16} />
           Artists
         </Link>
       </div>
 
-      <div className="relative max-w-6xl mx-auto px-5 sm:px-6 pt-5 pb-6 sm:pt-6 sm:pb-8">
-        <div className="overflow-hidden rounded-[32px] border border-white/10 bg-[rgba(12,12,12,0.72)] shadow-[0_30px_80px_rgba(0,0,0,0.28)] backdrop-blur-xl">
-          <div className="grid gap-5 p-4 sm:p-6 lg:grid-cols-[minmax(0,220px)_1fr_auto] lg:items-center">
+      <div className="relative max-w-6xl mx-auto px-5 sm:px-6 pt-3 pb-5 sm:pt-4 sm:pb-6">
+        <div
+          className="overflow-hidden rounded-[32px] border border-[var(--pf-border)] backdrop-blur-xl"
+          style={{
+            ...(panelStyle || {}),
+            backgroundColor: appearance?.colorMode === 'light' ? 'rgba(255,255,255,0.84)' : 'rgba(12,12,12,0.72)',
+          }}
+        >
+          <div className="grid gap-4 p-4 sm:p-5 lg:grid-cols-[minmax(0,180px)_1fr_auto] lg:items-center">
             {/* Artwork */}
-            <div className="relative mx-auto aspect-square w-full max-w-[220px] overflow-hidden rounded-[28px] border border-white/10 bg-white/5 shadow-2xl">
-              <ArtistMedia
+            <div
+              className="relative mx-auto flex w-full max-w-[160px] items-center justify-center overflow-hidden rounded-[24px] border border-[var(--pf-border)] px-5 py-6 shadow-xl"
+              style={{
+                backgroundImage: `linear-gradient(180deg, color-mix(in srgb, ${primaryColor} 10%, rgba(255,255,255,0.04)), color-mix(in srgb, ${secondaryColor} 18%, rgba(0,0,0,0.18)))`,
+              }}
+            >
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_42%),radial-gradient(circle_at_bottom,rgba(255,137,0,0.14),transparent_35%)]" />
+              <ArtistAvatar
                 src={artist.image}
                 alt={artist.name}
                 name={artist.name}
-                variant="card"
-                className="h-full w-full"
+                size="lg"
+                shape={appearance?.profileImageShape || 'circle'}
+                focus={appearance?.profileImageFocus || 'center-face'}
+                objectPosition={appearance?.profileImagePosition}
+                className="relative z-10 ring-4 ring-[var(--pf-border)]/20"
                 priority
-                sizes="(max-width: 640px) 220px, 220px"
+                sizes="(max-width: 640px) 56px, 56px"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
             </div>
 
             {/* Info */}
             <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-[0.32em] text-white/60">
+              <div className="flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-[0.32em] text-[var(--pf-text-muted)]">
                 <span>Artist profile</span>
               </div>
 
               <div className="mt-3 flex flex-wrap items-center gap-2">
-                <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-white lg:text-5xl break-words max-w-full">{artist.name}</h1>
+                <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-[var(--pf-text)] lg:text-4xl break-words max-w-full">{artist.name}</h1>
                 {artist.verified && (
-                  <Verified size={18} className="shrink-0 text-white/70" />
+                  <Verified size={18} className="shrink-0 text-[var(--pf-text-secondary)]" />
                 )}
                 {artist.likeness_verified && <LikenessBadge compact />}
                 {/* Social icons next to artist name */}
@@ -123,7 +152,7 @@ export function ArtistHero({ artist, firstTrack, queueTracks }: ArtistHeroProps)
                           href={href}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/70 transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[var(--pf-border)] bg-[var(--pf-surface)] text-[var(--pf-text-secondary)] transition-colors hover:border-[var(--pf-border-hover)] hover:bg-[var(--pf-surface-hover)] hover:text-[var(--pf-text)]"
                           aria-label={`${artist.name} on ${platform}`}
                         >
                           <Icon size={14} />
@@ -134,26 +163,26 @@ export function ArtistHero({ artist, firstTrack, queueTracks }: ArtistHeroProps)
                 )}
               </div>
 
-              <p className="mt-3 max-w-full text-sm leading-6 text-white/70 sm:text-base break-words">
+              <p className="mt-3 max-w-full text-sm leading-6 text-[var(--pf-text-secondary)] sm:text-base break-words">
                 {artistMeta || 'Artist page'}
               </p>
 
               <div className="mt-4 flex flex-wrap gap-2">
-                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/75 truncate max-w-full">
+                <span className="rounded-full border border-[var(--pf-border)] bg-[var(--pf-surface)] px-3 py-1 text-xs text-[var(--pf-text-secondary)] truncate max-w-full">
                   {artist.verified ? 'Verified artist' : 'Artist page'}
                 </span>
                 {typeof artist.trackCount === 'number' && (
-                  <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/75">
+                  <span className="rounded-full border border-[var(--pf-border)] bg-[var(--pf-surface)] px-3 py-1 text-xs text-[var(--pf-text-secondary)]">
                     {artist.trackCount} tracks
                   </span>
                 )}
                 {artist.likeness_verified && (
-                  <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/75">
+                  <span className="rounded-full border border-[var(--pf-border)] bg-[var(--pf-surface)] px-3 py-1 text-xs text-[var(--pf-text-secondary)]">
                     Likeness verified
                   </span>
                 )}
                 {firstTrack && (
-                  <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/75">
+                  <span className="rounded-full border border-[var(--pf-border)] bg-[var(--pf-surface)] px-3 py-1 text-xs text-[var(--pf-text-secondary)]">
                     Top track: {firstTrack.title}
                   </span>
                 )}
@@ -165,13 +194,14 @@ export function ArtistHero({ artist, firstTrack, queueTracks }: ArtistHeroProps)
               <button
                 onClick={handlePlay}
                 disabled={!firstTrack}
-                className="inline-flex items-center gap-2 rounded-full bg-[var(--pf-orange)] px-6 py-3.5 text-sm font-semibold text-[var(--pf-text)] shadow-lg transition-colors hover:bg-[var(--pf-orange)]/90 disabled:cursor-not-allowed disabled:opacity-40"
+                className="inline-flex items-center gap-2 rounded-full px-6 py-3.5 text-sm font-semibold text-[var(--pf-text)] shadow-lg transition-colors disabled:cursor-not-allowed disabled:opacity-40"
+                style={{ backgroundColor: accentColor }}
                 aria-label={showPause ? `Pause ${artist.name}` : `Play ${artist.name}`}
               >
                 {showPause ? <Pause size={18} /> : <Play size={18} className="ml-0.5" />}
                 <span>{showPause ? 'Pause' : 'Play'}</span>
               </button>
-              <p className="max-w-[14rem] text-xs leading-5 text-white/60 lg:text-right">
+              <p className="max-w-[14rem] text-xs leading-5 text-[var(--pf-text-muted)] lg:text-right">
                 {firstTrack ? `Starts with ${firstTrack.title}` : 'No playable tracks yet.'}
               </p>
             </div>

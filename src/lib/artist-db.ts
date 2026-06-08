@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { ARTISTS, ArtistData } from './artists'
+import { normalizeArtistAppearance, type ArtistAppearance } from './artist-theme'
 
 // Server-side Supabase client
 function getServerSupabase() {
@@ -63,6 +64,13 @@ function buildDbSocial(dbArtist: any, staticArtist?: ArtistData) {
   }
 }
 
+function buildDbAppearance(dbArtist: any, staticArtist?: ArtistData): ArtistAppearance | undefined {
+  const socialLinks = typeof dbArtist.social_links === 'object' && dbArtist.social_links ? dbArtist.social_links : {}
+  const dbAppearance = socialLinks.appearance || dbArtist.appearance || dbArtist.artist_appearance || null
+  const staticAppearance = staticArtist?.appearance || null
+  return normalizeArtistAppearance(dbAppearance, staticAppearance || undefined) || staticAppearance || undefined
+}
+
 function buildDbArtistData(dbArtist: any, staticArtist?: ArtistData): ArtistData {
   const name = firstNonEmpty(dbArtist.name, dbArtist.full_name, staticArtist?.name) || 'Unknown artist'
   const bio = firstNonEmpty(dbArtist.bio, staticArtist?.bio) || ''
@@ -99,6 +107,7 @@ function buildDbArtistData(dbArtist: any, staticArtist?: ArtistData): ArtistData
     social: buildDbSocial(dbArtist, staticArtist),
     coverSlides: staticArtist?.coverSlides,
     videos: staticArtist?.videos,
+    appearance: buildDbAppearance(dbArtist, staticArtist),
   }
 }
 

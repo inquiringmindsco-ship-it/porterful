@@ -193,46 +193,97 @@ function nowIso() {
   return new Date().toISOString()
 }
 
-function storageKey(scope: TourScope) {
+function tourIdentity(userId?: string | null) {
+  return userId && userId.trim() ? userId.trim() : 'anonymous'
+}
+
+function storageKey(scope: TourScope, userId?: string | null) {
+  return `${TOUR_STORAGE_PREFIX}.${tourIdentity(userId)}.${scope}`
+}
+
+function legacyStorageKey(scope: TourScope) {
   return `${TOUR_STORAGE_PREFIX}.${scope}`
 }
 
-function loadState(scope: TourScope): TourState | null {
+function seenKey(scope: TourScope, userId?: string | null) {
+  return `${TOUR_STORAGE_PREFIX}.${tourIdentity(userId)}.${scope}.seen`
+}
+
+function loadState(scope: TourScope, userId?: string | null): TourState | null {
   if (typeof window === 'undefined') return null
 
   try {
-    const raw = window.localStorage.getItem(storageKey(scope))
-    if (!raw) return null
-    const parsed = JSON.parse(raw) as TourState
+    const primaryKey = storageKey(scope, userId)
+    const raw = window.localStorage.getItem(primaryKey)
+    if (raw) {
+      const parsed = JSON.parse(raw) as TourState
+      if (!parsed || parsed.scope !== scope) return null
+      if (!['idle', 'active', 'paused', 'completed'].includes(parsed.status)) return null
+      return parsed
+    }
+
+    if (userId) {
+      const anonymousKey = storageKey(scope, null)
+      const anonymousRaw = window.localStorage.getItem(anonymousKey)
+      if (anonymousRaw) {
+        const parsed = JSON.parse(anonymousRaw) as TourState
+        if (!parsed || parsed.scope !== scope) return null
+        if (!['idle', 'active', 'paused', 'completed'].includes(parsed.status)) return null
+        window.localStorage.setItem(primaryKey, JSON.stringify(parsed))
+        if (parsed.status !== 'idle') {
+          window.localStorage.setItem(seenKey(scope, userId), 'true')
+        }
+        return parsed
+      }
+    }
+
+    const legacyRaw = window.localStorage.getItem(legacyStorageKey(scope))
+    if (!legacyRaw) return null
+    const parsed = JSON.parse(legacyRaw) as TourState
     if (!parsed || parsed.scope !== scope) return null
     if (!['idle', 'active', 'paused', 'completed'].includes(parsed.status)) return null
+    window.localStorage.setItem(primaryKey, JSON.stringify(parsed))
+    if (parsed.status !== 'idle') {
+      window.localStorage.setItem(seenKey(scope, userId), 'true')
+    }
     return parsed
   } catch {
     return null
   }
 }
 
-function loadAnyState(): TourState | null {
+function loadAnyState(userId?: string | null): TourState | null {
   if (typeof window === 'undefined') return null
 
-  const artistState = loadState('artist')
-  const founderState = loadState('founder')
+  const artistState = loadState('artist', userId)
+  const founderState = loadState('founder', userId)
 
   if (artistState?.status === 'active' || artistState?.status === 'paused') return artistState
   if (founderState?.status === 'active' || founderState?.status === 'paused') return founderState
   return artistState || founderState
 }
 
-function saveState(state: TourState | null) {
+function saveStateForUser(state: TourState | null, userId?: string | null) {
   if (typeof window === 'undefined') return
 
   if (!state) return
-  window.localStorage.setItem(storageKey(state.scope), JSON.stringify(state))
+  window.localStorage.setItem(storageKey(state.scope, userId), JSON.stringify(state))
 }
 
-function clearState(scope: TourScope) {
+function clearState(scope: TourScope, userId?: string | null) {
   if (typeof window === 'undefined') return
-  window.localStorage.removeItem(storageKey(scope))
+  window.localStorage.removeItem(storageKey(scope, userId))
+  window.localStorage.removeItem(legacyStorageKey(scope))
+}
+
+function setSeen(scope: TourScope, userId?: string | null) {
+  if (typeof window === 'undefined') return
+  window.localStorage.setItem(seenKey(scope, userId), 'true')
+}
+
+function hasSeen(scope: TourScope, userId?: string | null) {
+  if (typeof window === 'undefined') return false
+  return window.localStorage.getItem(seenKey(scope, userId)) === 'true'
 }
 
 function isDashboardPath(pathname: string) {
@@ -495,7 +546,7 @@ function TourLauncher({ onResume }: { onResume: () => void }) {
   )
 }
 
-export function GuidedTourProvider({ children }: { children: React.ReactNode }) {
+export function GuidedTourProvider({ children, userId }: { children: React.ReactNode, userId?: string | null }) {
   const pathname = usePathname()
   const router = useRouter()
   const [scope, setScope] = useState<TourScope | null>(null)
@@ -522,9 +573,20 @@ export function GuidedTourProvider({ children }: { children: React.ReactNode }) 
       setScope(routeScope)
       // Only load from localStorage if we don't already have active/paused state for this scope
       if (!state || state.scope !== routeScope || state.status === 'completed') {
-        const stored = loadState(routeScope)
+        const stored = loadState(routeScope, userId)
         if (stored && stored.status !== 'completed') {
-          setState(stored)
+          if (hasSeen(routeScope, userId) && stored.status === 'active') {
+            const pausedState: TourState = {
+              ...stored,
+              status: 'paused',
+              pausedAt: stored.pausedAt || nowIso(),
+              updatedAt: nowIso(),
+            }
+            setState(pausedState)
+            saveStateForUser(pausedState, userId)
+          } else {
+            setState(stored)
+          }
         } else if (!state) {
           setState(null)
         }
@@ -532,7 +594,7 @@ export function GuidedTourProvider({ children }: { children: React.ReactNode }) 
       return
     }
 
-    const stored = loadAnyState()
+    const stored = loadAnyState(userId)
     if (stored) {
       setScope(stored.scope)
       setState(stored)
@@ -542,17 +604,18 @@ export function GuidedTourProvider({ children }: { children: React.ReactNode }) 
     if (!scope) {
       setState(null)
     }
-  }, [pathname])
+  }, [pathname, userId])
 
   useEffect(() => {
     if (!computedScope) return
+    if (!userId) return
 
     // Don't auto-start if tour is already active or paused for this scope
     if (state?.scope === computedScope && (state?.status === 'active' || state?.status === 'paused')) {
       return
     }
 
-    const stored = loadState(computedScope)
+    const stored = loadState(computedScope, userId)
     if (stored) {
       // Only load stored state if it differs from current in-memory state
       if (!state || state.scope !== computedScope) {
@@ -561,10 +624,13 @@ export function GuidedTourProvider({ children }: { children: React.ReactNode }) 
       return
     }
 
+    if (hasSeen(computedScope, userId)) return
+
     if (autoStartedRef.current === computedScope) return
 
     if (isDashboardPath(pathname) && !isPublicPath(pathname)) {
       autoStartedRef.current = computedScope
+      setSeen(computedScope, userId)
       const nextState: TourState = {
         status: 'active',
         scope: computedScope,
@@ -573,16 +639,16 @@ export function GuidedTourProvider({ children }: { children: React.ReactNode }) 
         updatedAt: nowIso(),
       }
       setState(nextState)
-      saveState(nextState)
+      saveStateForUser(nextState, userId)
     }
   // Intentionally exclude state from deps to prevent feedback loop
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [computedScope, pathname])
+  }, [computedScope, pathname, userId])
 
   useEffect(() => {
     if (!state) return
-    saveState(state)
-  }, [state])
+    saveStateForUser(state, userId)
+  }, [state, userId])
 
   useEffect(() => {
     if (!currentStep) {
@@ -637,14 +703,15 @@ export function GuidedTourProvider({ children }: { children: React.ReactNode }) 
     }
 
     if (computedScope) {
-      clearState(computedScope)
+      clearState(computedScope, userId)
     }
     setState(null)
     setTargetRect(null)
-  }, [computedScope])
+  }, [computedScope, userId])
 
   const startTour = useCallback((nextScope?: TourScope) => {
     const resolvedScope = nextScope || computedScope || scope || resolveScopeFromPath(pathname) || 'artist'
+    setSeen(resolvedScope, userId)
     const nextState: TourState = {
       status: 'active',
       scope: resolvedScope,
@@ -657,10 +724,11 @@ export function GuidedTourProvider({ children }: { children: React.ReactNode }) 
     if (!resolveScopeFromPath(pathname)) {
       router.push(TOUR_STEPS[resolvedScope][0].path)
     }
-  }, [computedScope, pathname, router, scope, setTourState])
+  }, [computedScope, pathname, router, scope, setTourState, userId])
 
   const restartTour = useCallback((nextScope?: TourScope) => {
     const resolvedScope = nextScope || computedScope || scope || resolveScopeFromPath(pathname) || 'artist'
+    setSeen(resolvedScope, userId)
     const nextState: TourState = {
       status: 'active',
       scope: resolvedScope,
@@ -671,7 +739,7 @@ export function GuidedTourProvider({ children }: { children: React.ReactNode }) 
     autoStartedRef.current = resolvedScope
     setTourState(nextState)
     router.push(TOUR_STEPS[resolvedScope][0].path)
-  }, [computedScope, pathname, router, scope, setTourState])
+  }, [computedScope, pathname, router, scope, setTourState, userId])
 
   const pauseTour = useCallback(() => {
     if (!state) return
@@ -690,13 +758,14 @@ export function GuidedTourProvider({ children }: { children: React.ReactNode }) 
       return
     }
 
+    setSeen(state.scope, userId)
     const nextState: TourState = {
       ...state,
       status: 'active',
       updatedAt: nowIso(),
     }
     setTourState(nextState)
-  }, [computedScope, scope, startTour, state, setTourState])
+  }, [computedScope, scope, startTour, state, setTourState, userId])
 
   const skipTour = useCallback(() => {
     if (!state) return

@@ -9,8 +9,10 @@ import {
   ChevronDown
 } from 'lucide-react'
 import { useAudio } from '@/lib/audio-context'
-import { getArtistSlugByName } from '@/lib/artists'
+import { getArtistSlugByName, getArtistById } from '@/lib/artists'
 import { getTrackArtwork } from '@/lib/artwork'
+import { buildTrackArtistCredits } from '@/lib/artist-credits'
+import { CollaboratorStack } from '@/components/artist/CollaboratorStack'
 
 function formatTime(seconds: number) {
   const mins = Math.floor(seconds / 60)
@@ -63,8 +65,14 @@ export function GlobalPlayer() {
 
   if (!currentTrack) return null
 
-  const artistSlug = getArtistSlugByName(currentTrack.artist) || 'artists'
+  const artistCredits = buildTrackArtistCredits(currentTrack)
+  const primaryArtist = artistCredits[0] || null
+  const artistSlug = getArtistSlugByName(primaryArtist?.name || currentTrack.artist) || 'artists'
   const artistHref = `/artist/${artistSlug}`
+
+  // Resolve artist accent color for player theming
+  const artistForTheme = getArtistById(artistSlug)
+  const accentColor = artistForTheme?.appearance?.accentColor || 'var(--pf-orange)'
 
   const progressPercent = duration > 0 ? (progress / duration) * 100 : 0
 
@@ -115,7 +123,7 @@ export function GlobalPlayer() {
             {/* Track Info */}
             <div className="flex-1 min-w-0 cursor-pointer" onClick={() => setExpanded(true)}>
               <div className="flex items-center gap-2">
-                <p className={`font-medium truncate ${isPlaying ? 'text-[var(--pf-orange)]' : ''}`}>
+                <p className={`font-medium truncate ${isPlaying ? 'text-[var(--pf-orange)]' : ''}`} style={isPlaying ? { color: accentColor } : undefined}>
                   {currentTrack.title}
                 </p>
                 {mode !== 'track' && (
@@ -134,8 +142,11 @@ export function GlobalPlayer() {
                 className="text-sm text-[var(--pf-text-muted)] truncate hover:text-[var(--pf-text)] transition-colors"
                 onClick={(e) => e.stopPropagation()}
               >
-                {currentTrack.artist}
+                {primaryArtist?.name || currentTrack.artist}
               </Link>
+              {artistCredits.length > 1 && (
+                <CollaboratorStack artists={artistCredits} size="xs" className="mt-1" />
+              )}
             </div>
 
             {/* Controls */}
@@ -149,7 +160,8 @@ export function GlobalPlayer() {
               </button>
               <button
                 onClick={togglePlay}
-                className="w-10 h-10 rounded-full bg-[var(--pf-orange)] flex items-center justify-center hover:bg-[var(--pf-orange)]/80 transition-colors"
+                className="w-10 h-10 rounded-full flex items-center justify-center hover:opacity-80 transition-colors"
+                style={{ backgroundColor: accentColor }}
                 aria-label={isPlaying ? 'Pause' : 'Play'}
               >
                 {isPlaying ? <Pause size={20} className="text-[var(--pf-text)]" /> : <Play size={20} className="text-[var(--pf-text)] ml-0.5" />}
@@ -190,8 +202,8 @@ export function GlobalPlayer() {
               tabIndex={0}
             >
               <div
-                className="h-full bg-[var(--pf-orange)] rounded-full transition-all relative group-hover:bg-[var(--pf-orange)]/80"
-                style={{ width: `${progressPercent}%` }}
+                className="h-full rounded-full transition-all relative group-hover:opacity-80"
+                style={{ width: `${progressPercent}%`, backgroundColor: accentColor }}
               >
                 <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-[var(--pf-text)] rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-md" />
               </div>
@@ -255,8 +267,13 @@ export function GlobalPlayer() {
               href={artistHref}
               className="block truncate text-base text-[var(--pf-text-secondary)] transition-colors hover:text-[var(--pf-text)] md:text-lg"
             >
-              {currentTrack.artist}
+              {primaryArtist?.name || currentTrack.artist}
             </Link>
+            {artistCredits.length > 1 && (
+              <div className="mt-3 flex justify-center">
+                <CollaboratorStack artists={artistCredits} size="sm" />
+              </div>
+            )}
             {currentTrack.album && (
               <p className="text-sm text-[var(--pf-text-muted)] truncate">{currentTrack.album}</p>
             )}
@@ -286,8 +303,8 @@ export function GlobalPlayer() {
               tabIndex={0}
             >
               <div
-                className="h-full bg-[var(--pf-orange)] transition-all relative"
-                style={{ width: `${progressPercent}%` }}
+                className="h-full rounded-full overflow-hidden relative"
+                style={{ width: `${progressPercent}%`, backgroundColor: accentColor }}
               >
                 <div className="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-[var(--pf-text)] rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-lg" />
               </div>
@@ -308,7 +325,8 @@ export function GlobalPlayer() {
             </button>
             <button
               onClick={togglePlay}
-              className="w-16 h-16 rounded-full bg-[var(--pf-orange)] flex items-center justify-center hover:bg-[var(--pf-orange)]/80 transition-colors"
+              className="w-16 h-16 rounded-full flex items-center justify-center hover:opacity-80 transition-colors"
+              style={{ backgroundColor: accentColor }}
             >
               {isPlaying ? <Pause size={28} className="text-[var(--pf-text)]" /> : <Play size={28} className="text-[var(--pf-text)] ml-1" />}
             </button>

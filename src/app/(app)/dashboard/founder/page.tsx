@@ -4,6 +4,9 @@ import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSupabase } from '@/app/providers'
 import Link from 'next/link'
+import { ArtistAvatar } from '@/components/artist/ArtistAvatar'
+import { CollaboratorStack } from '@/components/artist/CollaboratorStack'
+import { buildTrackArtistCredits } from '@/lib/artist-credits'
 import { 
   Users, Music, Package, DollarSign, AlertCircle, 
   CheckCircle, XCircle, Play, Pause,
@@ -1552,7 +1555,29 @@ export default function FounderDashboard() {
                         <p className="font-medium">{track.title}</p>
                         <p className="text-xs text-[var(--pf-text-muted)]">{track.id.slice(0, 8)}</p>
                       </td>
-                      <td className="p-3">{track.artist}</td>
+                      <td className="p-3">
+                        {(() => {
+                          const artistCredits = buildTrackArtistCredits(track)
+                          const primaryArtist = artistCredits[0]
+                          return (
+                            <div className="flex items-center gap-3 min-w-0">
+                              <ArtistAvatar
+                                src={primaryArtist?.image || null}
+                                alt={primaryArtist?.name || track.artist}
+                                name={primaryArtist?.name || track.artist}
+                                size="sm"
+                                className="ring-1 ring-white/10"
+                              />
+                              <div className="min-w-0">
+                                <p className="font-medium truncate">{primaryArtist?.name || track.artist}</p>
+                                {artistCredits.length > 1 && (
+                                  <CollaboratorStack artists={artistCredits} size="xs" className="mt-1" />
+                                )}
+                              </div>
+                            </div>
+                          )
+                        })()}
+                      </td>
                       <td className="p-3">
                         <span className={`text-xs px-2 py-1 rounded ${
                           track.status === 'live' ? 'bg-green-500/20 text-green-400' :
@@ -1614,9 +1639,29 @@ export default function FounderDashboard() {
               {filteredTracks.map((track) => (
                 <div key={track.id} className="pf-card p-4 space-y-3">
                   <div className="flex items-start justify-between">
-                    <div>
-                      <p className="font-medium">{track.title}</p>
-                      <p className="text-xs text-[var(--pf-text-muted)]">{track.artist}</p>
+                    <div className="min-w-0">
+                      <p className="font-medium truncate">{track.title}</p>
+                      {(() => {
+                        const artistCredits = buildTrackArtistCredits(track)
+                        const primaryArtist = artistCredits[0]
+                        return (
+                          <div className="mt-1 flex items-center gap-2">
+                            <ArtistAvatar
+                              src={primaryArtist?.image || null}
+                              alt={primaryArtist?.name || track.artist}
+                              name={primaryArtist?.name || track.artist}
+                              size="xs"
+                              className="ring-1 ring-white/10"
+                            />
+                            <div className="min-w-0">
+                              <p className="text-xs text-[var(--pf-text-muted)] truncate">{primaryArtist?.name || track.artist}</p>
+                              {artistCredits.length > 1 && (
+                                <CollaboratorStack artists={artistCredits} size="xs" className="mt-1" />
+                              )}
+                            </div>
+                          </div>
+                        )
+                      })()}
                     </div>
                     <span className={`text-xs px-2 py-1 rounded ${
                       track.status === 'live' ? 'bg-green-500/20 text-green-400' :
@@ -1780,7 +1825,15 @@ export default function FounderDashboard() {
                     />
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-sm truncate">{track.title}</p>
-                      <p className="text-xs text-[var(--pf-text-muted)]">{track.artist} · {track.status}</p>
+                      <div className="mt-1 flex flex-wrap items-center gap-2">
+                        <p className="text-xs text-[var(--pf-text-muted)]">{track.artist} · {track.status}</p>
+                        {(() => {
+                          const artistCredits = buildTrackArtistCredits(track)
+                          return artistCredits.length > 1 ? (
+                            <CollaboratorStack artists={artistCredits} size="xs" />
+                          ) : null
+                        })()}
+                      </div>
                     </div>
                     {selectedFeaturedTracks.includes(track.id) && (
                       <span className="text-xs text-[var(--pf-orange)]">
@@ -1830,7 +1883,15 @@ export default function FounderDashboard() {
                     />
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-sm truncate">{track.title}</p>
-                      <p className="text-xs text-[var(--pf-text-muted)]">{track.artist} · {track.status}</p>
+                      <div className="mt-1 flex flex-wrap items-center gap-2">
+                        <p className="text-xs text-[var(--pf-text-muted)]">{track.artist} · {track.status}</p>
+                        {(() => {
+                          const artistCredits = buildTrackArtistCredits(track)
+                          return artistCredits.length > 1 ? (
+                            <CollaboratorStack artists={artistCredits} size="xs" />
+                          ) : null
+                        })()}
+                      </div>
                     </div>
                   </label>
                 ))}

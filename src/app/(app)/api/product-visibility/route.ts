@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getAdminClient, verifyAdminAccess } from '@/lib/admin-client'
+import { verifyAdminAccess } from '@/lib/admin-client'
 import {
   loadCatalogProductById,
   loadProductVisibilityControls,
   mergeProductVisibility,
+  upsertProductVisibilityControl,
   type ProductVisibilityStatus,
 } from '@/lib/product-visibility'
 
@@ -128,32 +129,21 @@ export async function PATCH(request: NextRequest) {
   }
 
   const notes = typeof body?.notes === 'string' ? body.notes.trim() : null
-  const admin = getAdminClient()
-
-  const { data, error } = await admin
-    .from('product_visibility_controls')
-    .upsert({
-      product_id: productId,
-      public_visible: nextPublicVisible,
-      store_visible: nextStoreVisible,
-      purchasable: nextPurchasable,
-      visibility_status: visibilityStatus,
-      notes,
-      updated_by: access.userId,
-    }, { onConflict: 'product_id' })
-    .select('id, product_id, public_visible, store_visible, purchasable, visibility_status, notes, updated_by, created_at, updated_at')
-    .single()
-
-  if (error) {
-    console.error('[product-visibility] update error:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
-  }
+  const visibilityRecord = await upsertProductVisibilityControl({
+    product_id: productId,
+    public_visible: nextPublicVisible,
+    store_visible: nextStoreVisible,
+    purchasable: nextPurchasable,
+    visibility_status: visibilityStatus,
+    notes,
+    updated_by: access.userId,
+  })
 
   const merged = await loadCatalogProductById(productId, 'admin')
 
   return NextResponse.json({
     success: true,
-    visibility: data,
+    visibility: visibilityRecord,
     product: merged,
   })
 }

@@ -1,4 +1,4 @@
-import { ARTISTS, type ArtistData } from './artists'
+import type { ArtistData } from './artists'
 
 export const PUBLIC_ARTIST_STATUSES = ['active', 'approved'] as const
 
@@ -41,14 +41,8 @@ export function filterPublicArtists<T extends PublicArtistVisibility>(artists: T
   return (artists || []).filter(isPublicArtistEligible)
 }
 
-/**
- * Legacy compatibility: static fallback artists must also obey policy.
- * Only static artists with trackCount > 0 that are in the ARTISTS array are considered.
- * Note: static artists don't have status/public_profile_enabled fields, so they are
- * explicitly checked against the isPublicArtistEligible criteria via a whitelist approach.
- */
 export function getStaticPublicArtistFallbacks(): ArtistData[] {
-  // Static artists are pre-vetted (O D Porter, etc.) — they have trackCount > 0
-  // but we should still be careful. For now, return only if they have tracks.
-  return ARTISTS.filter((artist) => Boolean(artist.trackCount && artist.trackCount > 0))
+  // Fail closed: if the public artist query fails, do not surface legacy fallback artists.
+  // Returning an empty list keeps the UI honest and prevents stale/static catalog flashes.
+  return []
 }

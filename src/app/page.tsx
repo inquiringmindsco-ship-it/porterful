@@ -8,21 +8,20 @@ import { Footer } from '@/components/Footer'
 import { useSupabase } from '@/app/providers'
 import { useAudio, type Track } from '@/lib/audio-context'
 import { TRACKS } from '@/lib/data'
-import { ARTISTS, type ArtistData } from '@/lib/artists'
+import type { ArtistData } from '@/lib/artists'
 import { filterPublicArtists } from '@/lib/public-artists'
 import { getTrackArtwork } from '@/lib/artwork'
 import { PRODUCTS, isPurchasable } from '@/lib/products'
 
-const PUBLIC_ARTISTS_FALLBACK = ARTISTS.filter((artist) => artist.trackCount && artist.trackCount > 0)
-
 export default function HomePage() {
   const { currentTrack, isPlaying, playTrack, togglePlay, setQueue, setMode } = useAudio()
-  const { user, loading: authLoading } = useSupabase()
+  const { user, supabase, loading: authLoading } = useSupabase()
   const revealScopeRef = useRef<HTMLElement | null>(null)
   const [mounted, setMounted] = useState(false)
-  const [publicArtists, setPublicArtists] = useState<ArtistData[]>(PUBLIC_ARTISTS_FALLBACK)
+  const [publicArtists, setPublicArtists] = useState<ArtistData[]>([])
   const [homepageData, setHomepageData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [profileRole, setProfileRole] = useState<string | null>(null)
 
   useEffect(() => {
     setMounted(true)
@@ -46,7 +45,7 @@ export default function HomePage() {
               const artists = filterPublicArtists(
                 (Array.isArray(artistsData.artists) ? artistsData.artists : []) as ArtistData[],
               )
-              setPublicArtists(artists.length > 0 ? artists : PUBLIC_ARTISTS_FALLBACK)
+              setPublicArtists(artists)
             }
           }
         }
@@ -69,7 +68,9 @@ export default function HomePage() {
   const trackCount = homepageData?.counts?.activeTracks || 0
   const authReady = mounted && !authLoading
   const rawRole = (user?.user_metadata as { role?: unknown } | undefined)?.role
-  const role = typeof rawRole === 'string' ? rawRole.toLowerCase() : ''
+  const role = typeof rawRole === 'string'
+    ? rawRole.toLowerCase()
+    : (profileRole || '').toLowerCase()
   const isCreatorRole = role === 'artist' || role === 'admin' || role === 'founder'
   const heroPrimaryAction = !authReady
     ? { href: '/onboarding', label: 'Loading...', disabled: true }
@@ -138,11 +139,6 @@ export default function HomePage() {
     return visibleProducts as typeof PRODUCTS
   }, [homepageData])
 
-  const featuredArtist = useMemo(
-    () => publicArtists.find((artist) => artist.slug === 'od-porter') ?? publicArtists[0] ?? PUBLIC_ARTISTS_FALLBACK[0],
-    [publicArtists],
-  )
-
   useEffect(() => {
     const scope = revealScopeRef.current
     if (!scope) return
@@ -184,6 +180,36 @@ export default function HomePage() {
       document.body.style.color = previousColor
     }
   }, [])
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function loadRole() {
+      if (!user || !supabase || !mounted) {
+        if (!user) setProfileRole(null)
+        return
+      }
+
+      const { data } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .maybeSingle()
+
+      if (cancelled) return
+
+      const nextRole = String(data?.role || '').toLowerCase()
+      if (nextRole) {
+        setProfileRole(nextRole)
+      }
+    }
+
+    void loadRole()
+
+    return () => {
+      cancelled = true
+    }
+  }, [mounted, supabase, user])
 
   const startTrack = (track: Track) => {
     // A3-1 FIX: Build queue from DB-backed visible tracks only
@@ -528,27 +554,46 @@ export default function HomePage() {
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {publicArtists.slice(0, 4).map((artist) => (
-                <Link
-                  key={artist.slug}
-                  href={`/artist/${artist.slug}`}
-                  className="pf-reveal-child group flex items-center gap-4 rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-4 shadow-[0_12px_40px_rgba(0,0,0,0.2)] transition-transform duration-200 hover:-translate-y-0.5"
-                >
-                  <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full border border-white/10">
-                    <div className="flex h-full w-full items-center justify-center bg-[var(--pf-bg)]">
-                      <span className="text-lg font-semibold text-[var(--pf-text-muted)]">
-                        {(artist as any).name?.charAt(0)?.toUpperCase() ?? (artist as any).slug?.charAt(0)?.toUpperCase() ?? '?'}
-                      </span>
+              {loading ? (
+                Array.from({ length: 4 }).map((_, idx) => (
+                  <div
+                    key={idx}
+                    className="pf-reveal-child flex items-center gap-4 rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-4 shadow-[0_12px_40px_rgba(0,0,0,0.2)]"
+                  >
+                    <div className="h-14 w-14 shrink-0 rounded-full bg-white/8 animate-pulse" />
+                    <div className="min-w-0 flex-1 space-y-2">
+                      <div className="h-4 w-2/3 rounded-full bg-white/8 animate-pulse" />
+                      <div className="h-3 w-1/3 rounded-full bg-white/8 animate-pulse" />
                     </div>
                   </div>
-                  <div className="min-w-0">
-                    <h3 className="text-sm font-semibold text-white truncate">{(artist as any).name ?? (artist as any).slug}</h3>
-                    <p className="text-xs text-[var(--pf-text-muted)]">
-                      {(artist as any).trackCount ?? 0} {(artist as any).trackCount === 1 ? 'track' : 'tracks'}
-                    </p>
-                  </div>
-                </Link>
-              ))}
+                ))
+              ) : publicArtists.length > 0 ? (
+                publicArtists.slice(0, 4).map((artist) => (
+                  <Link
+                    key={artist.slug}
+                    href={`/artist/${artist.slug}`}
+                    className="pf-reveal-child group flex items-center gap-4 rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-4 shadow-[0_12px_40px_rgba(0,0,0,0.2)] transition-transform duration-200 hover:-translate-y-0.5"
+                  >
+                    <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full border border-white/10">
+                      <div className="flex h-full w-full items-center justify-center bg-[var(--pf-bg)]">
+                        <span className="text-lg font-semibold text-[var(--pf-text-muted)]">
+                          {(artist as any).name?.charAt(0)?.toUpperCase() ?? (artist as any).slug?.charAt(0)?.toUpperCase() ?? '?'}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="text-sm font-semibold text-white truncate">{(artist as any).name ?? (artist as any).slug}</h3>
+                      <p className="text-xs text-[var(--pf-text-muted)]">
+                        {(artist as any).trackCount ?? 0} {(artist as any).trackCount === 1 ? 'track' : 'tracks'}
+                      </p>
+                    </div>
+                  </Link>
+                ))
+              ) : (
+                <div className="pf-reveal-child rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-6 text-sm text-[var(--pf-text-secondary)] sm:col-span-2 lg:col-span-4">
+                  No public artists loaded yet.
+                </div>
+              )}
             </div>
           </div>
         </section>

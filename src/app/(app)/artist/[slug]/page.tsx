@@ -4,11 +4,13 @@ import { getArtistTracks, ARTISTS } from '@/lib/artists'
 import { getArtistWithDb, getServerArtistBySlug } from '@/lib/artist-db'
 import { ArtistHero } from '@/components/artist/ArtistHero'
 import { ArtistTabs } from '@/components/artist/ArtistTabs'
+import { ArtistThemeBridge } from '@/components/artist/ArtistThemeBridge'
 import type { Track } from '@/lib/audio-context'
 import { createClient } from '@supabase/supabase-js'
 import { mergeCanonicalTracks, dedupeQueueTracks, getTrackDedupeKey } from '@/lib/track-dedupe'
 import { canonicalAlbum, isRealAlbum } from '@/lib/duration-formatter'
 import { loadCatalogProducts } from '@/lib/product-visibility'
+import { getArtistThemeStyles, resolveArtistAppearance } from '@/lib/artist-theme'
 
 interface SocialLinks {
   instagram?: string
@@ -199,9 +201,14 @@ export default async function ArtistPage({ params }: PageProps) {
   )
 
   const products = artistProducts.length > 0 ? artistProducts : []
+  const appearance = resolveArtistAppearance(artist.slug, artist.appearance, artist.appearance)
 
   return (
-    <div className="min-h-screen overflow-x-hidden pb-32">
+    <div
+      className="min-h-screen overflow-x-hidden pb-32"
+      style={getArtistThemeStyles(appearance)}
+    >
+      <ArtistThemeBridge appearance={appearance} />
       <ArtistHero
         artist={{
           name: artist.name,
@@ -215,6 +222,7 @@ export default async function ArtistPage({ params }: PageProps) {
           coverUrl: artist.coverUrl || null,
           trackCount: dedupedTracks.length,
           social: artist.social as SocialLinks | undefined,
+          appearance,
         }}
         firstTrack={topTrack}
         queueTracks={dedupedTracks}
@@ -224,6 +232,7 @@ export default async function ArtistPage({ params }: PageProps) {
         // Use DB bio if available, else empty state
         bio={artist.bio?.trim() || 'This artist has not added a bio yet.'}
         social={artist.social}
+        appearance={appearance}
         featuredTracks={featuredTracks}
         singles={singles}
         albumTracks={albumTracks}

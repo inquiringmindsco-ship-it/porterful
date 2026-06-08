@@ -6,6 +6,8 @@ import { Play, Pause, Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { formatDuration } from '@/lib/duration-formatter'
 import { filterPlayableTracks } from '@/lib/track-dedupe'
+import { CollaboratorStack } from '@/components/artist/CollaboratorStack'
+import { buildTrackArtistCredits } from '@/lib/artist-credits'
 
 interface ArtistTrackListProps {
   tracks: Track[]
@@ -85,6 +87,7 @@ export function ArtistTrackList({ tracks }: ArtistTrackListProps) {
         ) : (
           playableTracks.map((track, index) => {
             const isActive = currentTrack?.id === track.id
+            const artistCredits = buildTrackArtistCredits(track)
 
             return (
               <div
@@ -115,6 +118,9 @@ export function ArtistTrackList({ tracks }: ArtistTrackListProps) {
                     {track.title}
                   </p>
                   <p className="text-xs sm:text-sm text-[var(--pf-text-muted)] truncate">{track.album}</p>
+                  {artistCredits.length > 1 && (
+                    <CollaboratorStack artists={artistCredits} size="xs" className="mt-2" />
+                  )}
                 </div>
 
                 {/* Right side */}

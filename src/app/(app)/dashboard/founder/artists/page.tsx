@@ -8,7 +8,7 @@ import {
   ArrowLeft, Check, Camera,
   AlertCircle, Search
 } from 'lucide-react'
-import { ArtistMedia } from '@/components/artist/ArtistMedia'
+import { ArtistAvatar } from '@/components/artist/ArtistAvatar'
 
 interface Artist {
   id: string
@@ -233,13 +233,12 @@ export default function FounderArtistsPage() {
                 <div className="flex items-start gap-4">
                   {/* Avatar */}
                   <div className="relative shrink-0">
-                    <ArtistMedia
+                    <ArtistAvatar
                       src={artist.avatar_url || artist.cover_url}
                       alt={artist.name}
                       name={artist.name}
-                      variant="card"
-                      className="h-14 w-14 rounded-xl bg-[var(--pf-bg)] border border-[var(--pf-border)]"
-                      imageClassName="object-cover"
+                      size="lg"
+                      className="border border-[var(--pf-border)] bg-[var(--pf-bg)]"
                     />
                     {isPublic && (
                       <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[var(--pf-orange)] flex items-center justify-center">
