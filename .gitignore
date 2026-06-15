@@ -44,3 +44,4 @@ public/audio/
 *.wav
 *.flac
 *.mp3
+/.env.vercel*
