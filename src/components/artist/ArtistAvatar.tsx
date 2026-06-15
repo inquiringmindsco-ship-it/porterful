@@ -25,7 +25,7 @@ const SIZE_CLASSES: Record<ArtistAvatarSize, string> = {
   sm: 'h-8 w-8 text-[10px]',
   md: 'h-10 w-10 text-xs',
   lg: 'h-14 w-14 text-sm',
-  xl: 'h-32 w-32 text-lg',
+  xl: 'h-40 w-40 text-xl',
 }
 
 const SHAPE_CLASSES: Record<ArtistAvatarShape, string> = {

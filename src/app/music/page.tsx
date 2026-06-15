@@ -10,6 +10,7 @@ import {
   X,
   Verified,
   Disc,
+  Disc3,
   Music2,
   Users,
   SlidersHorizontal,
@@ -299,13 +300,34 @@ export default function MusicPage() {
     ALL_TRACKS.forEach((t) => {
       const canonicalName = canonicalAlbum(t.album)
       if (!canonicalName) return // Skip singles/no album
-      
+
       if (!map.has(canonicalName)) {
         map.set(canonicalName, { name: canonicalName, image: t.image || '', count: 0 })
       }
       map.get(canonicalName)!.count++
     })
     return Array.from(map.values())
+  }, [ALL_TRACKS])
+
+  // Singles: tracks with no album (or empty/whitespace album). Treated as
+  // mini-releases. Each single becomes its own card in the Singles strip.
+  const uniqueSingles = useMemo(() => {
+    const seen = new Set<string>()
+    const items: Array<{ id: string; title: string; artist: string; image: string; duration: string }> = []
+    ALL_TRACKS.forEach((t) => {
+      if (canonicalAlbum(t.album)) return // has a real album — skip
+      const key = (t.title || '').trim().toLowerCase()
+      if (!key || seen.has(key)) return
+      seen.add(key)
+      items.push({
+        id: t.id,
+        title: t.title,
+        artist: typeof t.artist === 'string' ? t.artist : (t as any)?.artist?.name || '',
+        image: t.image || '',
+        duration: t.duration != null ? String(t.duration) : '',
+      })
+    })
+    return items
   }, [ALL_TRACKS])
 
   const filteredTracks = useMemo(() => {
@@ -533,6 +555,51 @@ export default function MusicPage() {
           </div>
         </div>
       </section>
+
+      {/* SINGLES — compact release strip (tracks with no album) */}
+      {uniqueSingles.length > 0 && (
+        <section className="border-b border-[var(--pf-border)]">
+          <div className="max-w-6xl mx-auto px-5 sm:px-6 py-6 sm:py-8">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Disc3 size={16} className="text-[var(--pf-text-secondary)]" />
+                <h2 className="text-base font-semibold">Singles</h2>
+                <span className="text-xs text-[var(--pf-text-muted)]">{uniqueSingles.length}</span>
+              </div>
+            </div>
+            <div className="flex gap-3 overflow-x-auto -mx-5 sm:-mx-6 px-5 sm:px-6 scrollbar-hide pb-1">
+              {uniqueSingles.map((single) => (
+                <button
+                  key={single.id}
+                  onClick={() => {
+                    const t = ALL_TRACKS.find((x) => x.id === single.id)
+                    if (t) handlePlayTrack(t)
+                  }}
+                  className="group flex-shrink-0 w-32 sm:w-36 text-left"
+                >
+                  <div className="relative w-32 h-32 sm:w-36 sm:h-36 rounded-xl overflow-hidden bg-[var(--pf-surface)] mb-2 border border-[var(--pf-border)]">
+                    {single.image ? (
+                      <Image
+                        src={single.image}
+                        alt={single.title}
+                        fill
+                        sizes="(max-width: 640px) 128px, 144px"
+                        className="object-cover transition-transform duration-200 group-hover:scale-[1.03]"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-[var(--pf-text-muted)]">
+                        <Disc3 size={28} />
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-sm font-medium truncate">{single.title}</p>
+                  <p className="text-xs text-[var(--pf-text-muted)] truncate">Single</p>
+                </button>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* TRACKS — dense list with search + filter */}
       <section className="max-w-6xl mx-auto px-5 sm:px-6 py-6 sm:py-8">

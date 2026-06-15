@@ -107,9 +107,9 @@ export function ArtistHero({ artist, firstTrack, queueTracks }: ArtistHeroProps)
           <div className="grid gap-4 p-4 sm:p-5 lg:grid-cols-[minmax(0,180px)_1fr_auto] lg:items-center">
             {/* Artwork */}
             <div
-              className="relative mx-auto flex w-full max-w-[220px] items-center justify-center overflow-hidden rounded-[28px] border border-[var(--pf-border)] px-5 py-5 shadow-xl"
+              className="relative mx-auto flex w-full max-w-[220px] items-center justify-center overflow-hidden rounded-[28px] border border-[var(--pf-border)] shadow-xl"
               style={{
-                backgroundImage: `linear-gradient(180deg, color-mix(in srgb, ${primaryColor} 8%, rgba(255,255,255,0.06)), color-mix(in srgb, ${secondaryColor} 12%, rgba(0,0,0,0.14)))`,
+                backgroundImage: `linear-gradient(180deg, color-mix(in srgb, ${primaryColor} 14%, rgba(255,255,255,0.1)), color-mix(in srgb, ${secondaryColor} 18%, rgba(0,0,0,0.08)))`,
               }}
             >
               <ArtistAvatar
@@ -120,9 +120,9 @@ export function ArtistHero({ artist, firstTrack, queueTracks }: ArtistHeroProps)
                 shape={appearance?.profileImageShape || 'circle'}
                 focus={appearance?.profileImageFocus || 'center-face'}
                 objectPosition={appearance?.profileImagePosition}
-                className="relative z-10 shadow-2xl ring-2 ring-white/15"
+                className="relative z-10 shadow-2xl ring-2 ring-white/20"
                 priority
-                sizes="(max-width: 640px) 128px, 128px"
+                sizes="(max-width: 640px) 160px, 160px"
               />
             </div>
 
