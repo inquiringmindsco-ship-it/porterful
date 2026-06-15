@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 import { buildArtistWelcomeEmailHTML, buildArtistWelcomeEmailText } from '@/lib/artist-welcome-email'
+import { recordRoleTransition } from '@/lib/server/role-transitions'
 
 function getResend() {
   const apiKey = process.env.RESEND_API_KEY
@@ -53,6 +54,12 @@ export async function POST(req: Request) {
     if (status === 'approved') {
       const slug = app.stage_name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
 
+      const { data: currentProfile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', app.user_id)
+        .maybeSingle()
+
       // Check if artist already exists
       const { data: existingArtist } = await supabase
         .from('artists')
@@ -100,12 +107,25 @@ export async function POST(req: Request) {
         .update({ role: 'artist' })
         .eq('id', app.user_id)
 
+      await recordRoleTransition(supabase, {
+        userId: app.user_id,
+        previousRole: currentProfile?.role || 'supporter',
+        nextRole: 'artist',
+        performedByUserId: null,
+        source: 'artist_application_approval',
+        reason: 'Artist application approved by admin',
+        metadata: {
+          application_id: app.id,
+          artist_slug: slug,
+        },
+      })
+
       await adminSupabase.auth.admin.updateUserById(app.user_id, {
         user_metadata: { role: 'artist' },
       })
 
       const resend = getResend()
-      if (resend && app.email) {
+      if (resend && app.email && String(currentProfile?.role || '').toLowerCase() !== 'artist') {
         const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://porterful.com'
         const dashboardUrl = `${siteUrl}/dashboard/artist`
         const artistPageUrl = `${siteUrl}/artist/${slug}`

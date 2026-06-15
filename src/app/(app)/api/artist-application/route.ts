@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { buildArtistWelcomeEmailHTML, buildArtistWelcomeEmailText } from '@/lib/artist-welcome-email'
+import { recordRoleTransition } from '@/lib/server/role-transitions'
 
 // Threshold for auto-approval
 function shouldAutoApprove(application: {
@@ -157,6 +158,12 @@ export async function POST(req: Request) {
     if (approval.autoApprove) {
       const slug = stage_name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
 
+      const { data: currentProfile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user_id)
+        .maybeSingle()
+
       const { error: artistError } = await supabase
         .from('artists')
         .insert({
@@ -195,6 +202,19 @@ export async function POST(req: Request) {
         .update({ role: 'artist' })
         .eq('id', user_id)
 
+      await recordRoleTransition(supabase, {
+        userId: user_id,
+        previousRole: currentProfile?.role || 'supporter',
+        nextRole: 'artist',
+        performedByUserId: null,
+        source: 'artist_application_auto_approve',
+        reason: 'Artist application met auto-approval threshold',
+        metadata: {
+          application_id: data?.id || null,
+          artist_slug: slug,
+        },
+      })
+
       const { createClient } = await import('@supabase/supabase-js')
       const adminSupabase = createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -206,7 +226,7 @@ export async function POST(req: Request) {
       })
 
       const resend = getResend()
-      if (resend) {
+      if (resend && (String(currentProfile?.role || '').toLowerCase() !== 'artist')) {
         const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://porterful.com'
         const dashboardUrl = `${siteUrl}/dashboard/artist`
         const artistPageUrl = `${siteUrl}/artist/${slug}`

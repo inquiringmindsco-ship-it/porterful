@@ -69,13 +69,16 @@ export async function POST(request: NextRequest) {
       verified: true,
       status: existingArtist?.status || 'approved',
       publicProfileEnabled: existingArtist?.public_profile_enabled ?? false,
+      performedByUserId: auth.userId || null,
+      transitionSource: 'admin_promote',
+      transitionReason: body.reason ? String(body.reason) : 'Founder/admin promoted supporter to artist',
     })
 
     const resend = getResend()
     let welcomeEmailSent = false
     let welcomeEmailError: string | null = null
 
-    if (resend && profile.email) {
+    if (resend && profile.email && promotion.roleChanged) {
       const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://porterful.com'
       const dashboardUrl = `${siteUrl}/dashboard/artist`
       const artistPageUrl = promotion.slug ? `${siteUrl}/artist/${promotion.slug}` : dashboardUrl

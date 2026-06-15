@@ -81,6 +81,15 @@ export async function GET(request: NextRequest) {
       console.error('[api/admin/users] artist applications error:', artistApplicationsError)
     }
 
+    const { data: roleTransitions, error: roleTransitionsError } = await supabase
+      .from('role_transitions')
+      .select('id, user_id, previous_role, next_role, source, reason, created_at')
+      .order('created_at', { ascending: false })
+
+    if (roleTransitionsError) {
+      console.error('[api/admin/users] role transitions error:', roleTransitionsError)
+    }
+
     // Fetch all tracks
     const { data: tracks, error: tracksError } = await supabase
       .from('tracks')
@@ -129,10 +138,18 @@ export async function GET(request: NextRequest) {
       }
     })
 
+    const roleTransitionMap = new Map()
+    roleTransitions?.forEach(transition => {
+      if (!roleTransitionMap.has(transition.user_id)) {
+        roleTransitionMap.set(transition.user_id, transition)
+      }
+    })
+
     // Build enriched user list
     const enrichedUsers = profiles.map(p => {
       const artist = artistMap.get(p.id)
       const application = applicationMap.get(p.id) || null
+      const latestRoleTransition = roleTransitionMap.get(p.id) || null
       const trackCount = trackCounts.get(p.id) || 0
       const liveTrackCount = liveTrackCounts.get(p.id) || 0
       const authData = authUserMap.get(p.id) || {}
@@ -188,6 +205,13 @@ export async function GET(request: NextRequest) {
           phone: application.phone,
           status: application.status,
           created_at: application.created_at,
+        } : null,
+        latest_role_transition: latestRoleTransition ? {
+          previous_role: latestRoleTransition.previous_role,
+          next_role: latestRoleTransition.next_role,
+          source: latestRoleTransition.source,
+          reason: latestRoleTransition.reason,
+          created_at: latestRoleTransition.created_at,
         } : null,
         track_count: trackCount,
         live_track_count: liveTrackCount,

@@ -1521,6 +1521,12 @@ export default function FounderDashboard() {
                         </div>
                       )}
 
+                      {user.latest_role_transition && (
+                        <div className="text-xs rounded-lg border border-[var(--pf-border)] bg-[var(--pf-bg)] px-3 py-2 text-[var(--pf-text-muted)]">
+                          Role change: {user.latest_role_transition.previous_role || 'none'} → {user.latest_role_transition.next_role}
+                        </div>
+                      )}
+
                       {user.artist_profile && (
                         <Link
                           href={`/artist/${user.username || user.id}`}

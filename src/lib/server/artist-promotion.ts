@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { recordRoleTransition } from '@/lib/server/role-transitions'
 
 export type ArtistPromotionInput = {
   userId: string
@@ -15,6 +16,9 @@ export type ArtistPromotionInput = {
   verified?: boolean
   status?: 'pending' | 'approved' | 'active'
   publicProfileEnabled?: boolean
+  performedByUserId?: string | null
+  transitionSource?: string
+  transitionReason?: string | null
 }
 
 export type ArtistPromotionResult = {
@@ -22,6 +26,8 @@ export type ArtistPromotionResult = {
   slug: string
   authMetadataUpdated: boolean
   profileUpdated: boolean
+  roleChanged: boolean
+  transitionRecorded: boolean
 }
 
 function buildSlug(name: string, fallbackId: string) {
@@ -60,6 +66,15 @@ export async function promoteUserToArtist(
   const baseSlug = buildSlug(artistName, input.userId)
   const slug = await ensureUniqueSlug(supabase, baseSlug, input.userId)
 
+  const { data: existingProfile } = await supabase
+    .from('profiles')
+    .select('role, email, full_name, username')
+    .eq('id', input.userId)
+    .maybeSingle()
+
+  const previousRole = String(existingProfile?.role || '').toLowerCase() || null
+  const roleChanged = previousRole !== 'artist'
+
   const artistPayload = {
     id: input.userId,
     name: artistName,
@@ -88,13 +103,18 @@ export async function promoteUserToArtist(
     throw artistError
   }
 
-  const { error: profileError } = await supabase
-    .from('profiles')
-    .update({ role: 'artist' })
-    .eq('id', input.userId)
+  let profileUpdated = false
+  if (roleChanged) {
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .update({ role: 'artist' })
+      .eq('id', input.userId)
 
-  if (profileError) {
-    throw profileError
+    if (profileError) {
+      throw profileError
+    }
+
+    profileUpdated = true
   }
 
   let authMetadataUpdated = false
@@ -126,10 +146,33 @@ export async function promoteUserToArtist(
     console.warn('[artist-promotion] auth metadata update failed:', authError)
   }
 
+  let transitionRecorded = false
+  if (roleChanged) {
+    try {
+      const { recorded } = await recordRoleTransition(supabase, {
+        userId: input.userId,
+        previousRole,
+        nextRole: 'artist',
+        performedByUserId: input.performedByUserId || null,
+        source: input.transitionSource || 'admin_promotion',
+        reason: input.transitionReason || null,
+        metadata: {
+          artist_slug: slug,
+          artist_name: artistName,
+        },
+      })
+      transitionRecorded = recorded
+    } catch (transitionError) {
+      console.warn('[artist-promotion] transition log failed:', transitionError)
+    }
+  }
+
   return {
     artist,
     slug,
     authMetadataUpdated,
-    profileUpdated: true,
+    profileUpdated,
+    roleChanged,
+    transitionRecorded,
   }
 }
