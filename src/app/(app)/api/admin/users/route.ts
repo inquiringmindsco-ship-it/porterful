@@ -71,6 +71,16 @@ export async function GET(request: NextRequest) {
       console.error('[api/admin/users] artists error:', artistsError)
     }
 
+    // Fetch artist applications for promotion hints
+    const { data: artistApplications, error: artistApplicationsError } = await supabase
+      .from('artist_applications')
+      .select('id, user_id, stage_name, genre, city, bio, email, phone, status, created_at')
+      .order('created_at', { ascending: false })
+
+    if (artistApplicationsError) {
+      console.error('[api/admin/users] artist applications error:', artistApplicationsError)
+    }
+
     // Fetch all tracks
     const { data: tracks, error: tracksError } = await supabase
       .from('tracks')
@@ -112,9 +122,17 @@ export async function GET(request: NextRequest) {
       })
     })
 
+    const applicationMap = new Map()
+    artistApplications?.forEach(app => {
+      if (!applicationMap.has(app.user_id)) {
+        applicationMap.set(app.user_id, app)
+      }
+    })
+
     // Build enriched user list
     const enrichedUsers = profiles.map(p => {
       const artist = artistMap.get(p.id)
+      const application = applicationMap.get(p.id) || null
       const trackCount = trackCounts.get(p.id) || 0
       const liveTrackCount = liveTrackCounts.get(p.id) || 0
       const authData = authUserMap.get(p.id) || {}
@@ -128,6 +146,10 @@ export async function GET(request: NextRequest) {
       
       if (p.role === 'artist' && !artist) {
         attentionReasons.push('Artist role but no profile')
+      }
+
+      if (p.role !== 'artist' && application) {
+        attentionReasons.push('Artist application on file')
       }
       
       if (artist && artist.status === 'pending' && trackCount === 0) {
@@ -155,6 +177,17 @@ export async function GET(request: NextRequest) {
           status: artist.status,
           public_profile_enabled: artist.public_profile_enabled,
           created_at: artist.created_at,
+        } : null,
+        artist_application: application ? {
+          id: application.id,
+          stage_name: application.stage_name,
+          genre: application.genre,
+          city: application.city,
+          bio: application.bio,
+          email: application.email,
+          phone: application.phone,
+          status: application.status,
+          created_at: application.created_at,
         } : null,
         track_count: trackCount,
         live_track_count: liveTrackCount,

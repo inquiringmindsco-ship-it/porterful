@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server'
+import { Resend } from 'resend'
+import { buildArtistWelcomeEmailHTML, buildArtistWelcomeEmailText } from '@/lib/artist-welcome-email'
 
 // Threshold for auto-approval
 function shouldAutoApprove(application: {
@@ -30,6 +32,12 @@ function shouldAutoApprove(application: {
     autoApprove: missing.length === 0,
     missing,
   }
+}
+
+function getResend() {
+  const apiKey = process.env.RESEND_API_KEY
+  if (!apiKey || apiKey === 're_test') return null
+  return new Resend(apiKey)
 }
 
 export async function POST(req: Request) {
@@ -186,6 +194,49 @@ export async function POST(req: Request) {
         .from('profiles')
         .update({ role: 'artist' })
         .eq('id', user_id)
+
+      const { createClient } = await import('@supabase/supabase-js')
+      const adminSupabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        { auth: { persistSession: false } }
+      )
+      await adminSupabase.auth.admin.updateUserById(user_id, {
+        user_metadata: { role: 'artist' },
+      })
+
+      const resend = getResend()
+      if (resend) {
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://porterful.com'
+        const dashboardUrl = `${siteUrl}/dashboard/artist`
+        const artistPageUrl = `${siteUrl}/artist/${slug}`
+        try {
+          const html = buildArtistWelcomeEmailHTML({
+            artistName: stage_name,
+            dashboardUrl,
+            artistPageUrl,
+            genre: genre || null,
+            city: city || null,
+          })
+          const text = buildArtistWelcomeEmailText({
+            artistName: stage_name,
+            dashboardUrl,
+            artistPageUrl,
+            genre: genre || null,
+            city: city || null,
+          })
+
+          await resend.emails.send({
+            from: 'Porterful <noreply@likenessverified.com>',
+            to: [email],
+            subject: `Welcome to Porterful, ${stage_name}`,
+            html,
+            text,
+          })
+        } catch (welcomeError) {
+          console.warn('[artist-application] welcome email failed:', welcomeError)
+        }
+      }
 
       console.log(`[AUTO-APPROVED] Artist: ${stage_name} (${slug}) — artist record created`)
     } else {

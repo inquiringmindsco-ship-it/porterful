@@ -18,8 +18,6 @@ export default async function DashboardRoot() {
     redirect('/login?next=/dashboard')
   }
 
-  const inferredRole = user.user_metadata?.role === 'artist' ? 'artist' : 'supporter'
-
   const adminSb = getAdminClient()
   const { profile: ensuredProfile } = await ensureProfile(adminSb, user)
 
@@ -27,7 +25,12 @@ export default async function DashboardRoot() {
     id: user.id,
     email: user.email,
     full_name: user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'Porterful User',
-    role: inferredRole,
+    role: user.user_metadata?.role === 'artist' ? 'artist' : 'supporter',
+  }
+
+  let inferredRole = user.user_metadata?.role === 'artist' ? 'artist' : 'supporter'
+  if (String(profile?.role || '').toLowerCase() === 'artist') {
+    inferredRole = 'artist'
   }
 
   const elevatedRoles = new Set(['artist', 'admin', 'founder'])

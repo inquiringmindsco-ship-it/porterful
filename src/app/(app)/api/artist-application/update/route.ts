@@ -1,4 +1,13 @@
 import { NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
+import { Resend } from 'resend'
+import { buildArtistWelcomeEmailHTML, buildArtistWelcomeEmailText } from '@/lib/artist-welcome-email'
+
+function getResend() {
+  const apiKey = process.env.RESEND_API_KEY
+  if (!apiKey || apiKey === 're_test') return null
+  return new Resend(apiKey)
+}
 
 export async function POST(req: Request) {
   try {
@@ -13,6 +22,11 @@ export async function POST(req: Request) {
     const { createServerClient } = await import('@/lib/supabase')
     const supabase = createServerClient()
     if (!supabase) return NextResponse.json({ error: 'Server not configured' }, { status: 500 })
+    const adminSupabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      { auth: { persistSession: false } }
+    )
 
     // Get the application
     const { data: app, error: appError } = await supabase
@@ -85,6 +99,43 @@ export async function POST(req: Request) {
         .from('profiles')
         .update({ role: 'artist' })
         .eq('id', app.user_id)
+
+      await adminSupabase.auth.admin.updateUserById(app.user_id, {
+        user_metadata: { role: 'artist' },
+      })
+
+      const resend = getResend()
+      if (resend && app.email) {
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://porterful.com'
+        const dashboardUrl = `${siteUrl}/dashboard/artist`
+        const artistPageUrl = `${siteUrl}/artist/${slug}`
+        try {
+          const html = buildArtistWelcomeEmailHTML({
+            artistName: app.stage_name,
+            dashboardUrl,
+            artistPageUrl,
+            genre: app.genre || null,
+            city: app.city || null,
+          })
+          const text = buildArtistWelcomeEmailText({
+            artistName: app.stage_name,
+            dashboardUrl,
+            artistPageUrl,
+            genre: app.genre || null,
+            city: app.city || null,
+          })
+
+          await resend.emails.send({
+            from: 'Porterful <noreply@likenessverified.com>',
+            to: [app.email],
+            subject: `Welcome to Porterful, ${app.stage_name}`,
+            html,
+            text,
+          })
+        } catch (welcomeError) {
+          console.warn('[artist-application/update] welcome email failed:', welcomeError)
+        }
+      }
     }
 
     return NextResponse.json({ success: true, status })

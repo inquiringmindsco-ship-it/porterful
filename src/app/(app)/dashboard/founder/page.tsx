@@ -144,6 +144,7 @@ export default function FounderDashboard() {
   const [userRoleFilter, setUserRoleFilter] = useState<string>('all')
   const [userNeedsAttentionFilter, setUserNeedsAttentionFilter] = useState(false)
   const [usersLoading, setUsersLoading] = useState(false)
+  const [promotingUsers, setPromotingUsers] = useState<Record<string, boolean>>({})
   
   // Search & filter states
   const [artistSearch, setArtistSearch] = useState('')
@@ -452,6 +453,41 @@ export default function FounderDashboard() {
       console.error('Error loading users:', err)
     } finally {
       setUsersLoading(false)
+    }
+  }
+
+  async function promoteUserToArtist(user: any) {
+    if (!supabase) return
+
+    setError('')
+    setNotice('')
+    setPromotingUsers(prev => ({ ...prev, [user.id]: true }))
+
+    try {
+      const res = await fetch('/api/admin/users/promote-to-artist', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ user_id: user.id }),
+      })
+
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setError(data.error || `Failed to promote ${user.full_name || user.email || 'user'} to artist`)
+        return
+      }
+
+      const displayName = user.full_name || user.username || user.email || 'User'
+      setNotice(`${displayName} is now an artist.`)
+      window.setTimeout(() => setNotice(''), 3000)
+      await loadUsers()
+      await loadData()
+    } catch (err: any) {
+      console.error('Error promoting user:', err)
+      setError(err.message || 'Failed to promote user to artist')
+    } finally {
+      setPromotingUsers(prev => ({ ...prev, [user.id]: false }))
     }
   }
 
@@ -1390,6 +1426,15 @@ export default function FounderDashboard() {
                                   {reason}
                                 </span>
                               ))}
+                              {(user.role === 'supporter' || user.role === 'superfan') && (
+                                <button
+                                  onClick={() => promoteUserToArtist(user)}
+                                  disabled={promotingUsers[user.id]}
+                                  className="text-xs px-2 py-1 bg-[var(--pf-orange)]/15 text-[var(--pf-orange)] rounded hover:bg-[var(--pf-orange)]/25 disabled:opacity-60"
+                                >
+                                  {promotingUsers[user.id] ? 'Promoting...' : 'Promote to Artist'}
+                                </button>
+                              )}
                             </div>
                           </td>
                         </tr>
@@ -1469,6 +1514,13 @@ export default function FounderDashboard() {
                         </div>
                       )}
 
+                      {user.artist_application && user.role !== 'artist' && (
+                        <div className="text-xs rounded-lg border border-[var(--pf-border)] bg-[var(--pf-surface)] px-3 py-2 text-[var(--pf-text-muted)]">
+                          Application on file: {user.artist_application.stage_name || 'Artist'}
+                          {user.artist_application.genre ? ` · ${user.artist_application.genre}` : ''}
+                        </div>
+                      )}
+
                       {user.artist_profile && (
                         <Link
                           href={`/artist/${user.username || user.id}`}
@@ -1476,6 +1528,16 @@ export default function FounderDashboard() {
                         >
                           View Artist Profile
                         </Link>
+                      )}
+
+                      {(user.role === 'supporter' || user.role === 'superfan') && (
+                        <button
+                          onClick={() => promoteUserToArtist(user)}
+                          disabled={promotingUsers[user.id]}
+                          className="w-full text-xs px-3 py-2 bg-[var(--pf-orange)]/15 text-[var(--pf-orange)] rounded hover:bg-[var(--pf-orange)]/25 disabled:opacity-60"
+                        >
+                          {promotingUsers[user.id] ? 'Promoting...' : 'Promote to Artist'}
+                        </button>
                       )}
                     </div>
                   ))}
