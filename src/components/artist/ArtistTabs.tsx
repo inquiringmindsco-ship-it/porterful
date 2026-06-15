@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, ChevronDown, Disc, Search, Star, Users } from 'lucide-react'
@@ -187,15 +187,15 @@ export function ArtistTabs({
   // "Store: coming soon" / "Videos: No videos yet" dead sections.
   // The Support tab is always available (it's a low-pressure bottom section).
   const visibleTabs = useMemo(
-    () => computeVisibleTabs({ videos, products, bio, social }),
+    () => computeVisibleTabs({ videos, products, bio, social }).map((key) => TABS.find((t) => t.key === key)!),
     [videos, products, bio, social],
   )
 
   // If the artist toggled the active tab off (e.g. emptied their videos
   // after they were on the Videos tab), fall back to Music.
   useEffect(() => {
-    if (!visibleTabs.includes(active) && visibleTabs.length > 0) {
-      setActive(visibleTabs[0])
+    if (visibleTabs.length > 0 && !visibleTabs.some((t) => t.key === active)) {
+      setActive(visibleTabs[0].key)
     }
   }, [visibleTabs, active])
 
