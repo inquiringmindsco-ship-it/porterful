@@ -62,6 +62,11 @@ async function loadArtistProgressionOverrides(supabase: ReturnType<typeof create
     .maybeSingle()
 
   if (error) {
+    const message = String(error.message || '').toLowerCase()
+    if (message.includes('artist_progressions') || message.includes('pgrst205')) {
+      console.warn('[artist-media] artist_progressions unavailable, falling back to defaults:', error.message)
+      return null
+    }
     throw error
   }
 
@@ -99,7 +104,9 @@ async function loadArtistMetrics(supabase: ReturnType<typeof createServiceClient
   if (playsResult.error) throw playsResult.error
   if (purchasesResult.error) throw purchasesResult.error
   if (orderItemsResult.error) throw orderItemsResult.error
-  if (videosResult.error) throw videosResult.error
+  if (videosResult.error) {
+    console.warn('[artist-media] artist_videos unavailable, falling back to empty list:', videosResult.error.message)
+  }
 
   const visibleVideos = (videosResult.data || []).filter((video: any) => normalizeArtistVideoVisibility(video.visibility_status) === 'visible')
   const featuredVideos = visibleVideos.filter(
@@ -135,7 +142,7 @@ export async function loadArtistMediaBundle(artist: ArtistLookup) {
   ])
 
   if (videosResult.error) {
-    throw videosResult.error
+    console.warn('[artist-media] visible artist_videos unavailable, falling back to empty list:', videosResult.error.message)
   }
 
   const videos = (videosResult.data || []).map((video: any) => ({
