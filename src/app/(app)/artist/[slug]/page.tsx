@@ -12,6 +12,7 @@ import { canonicalAlbum, isRealAlbum } from '@/lib/duration-formatter'
 import { loadCatalogProducts } from '@/lib/product-visibility'
 import { getArtistThemeStyles, resolveArtistAppearance } from '@/lib/artist-theme'
 import { loadArtistMediaBundle } from '@/lib/server/artist-media'
+import { loadTrackCollaboratorMap, attachTrackCollaborators } from '@/lib/track-collaborators'
 
 interface SocialLinks {
   instagram?: string
@@ -144,6 +145,17 @@ export default async function ArtistPage({ params }: PageProps) {
   // Fallback: also try by artist name if no tracks found by ID (legacy compat)
   if (dbTracksRaw.length === 0) {
     dbTracksRaw = await getServerTracksByArtistId(dbArtistRecord.id)
+  }
+  if (dbTracksRaw.length > 0) {
+    const collaboratorMap = await loadTrackCollaboratorMap(
+      getServerSupabase(),
+      dbTracksRaw.map((track) => track.id),
+    ).catch((error) => {
+      console.warn('[artist-page] collaborator load failed, continuing without stacks:', error)
+      return new Map<string, any[]>()
+    })
+
+    dbTracksRaw = attachTrackCollaborators(dbTracksRaw, collaboratorMap)
   }
   const staticTracks = getArtistTracks(slug)
   

@@ -1,68 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-import { loadArtistMediaBundle } from '@/lib/server/artist-media'
+import type { SupabaseClient } from '@supabase/supabase-js'
+import { loadArtistMediaBundleFromClient } from '@/lib/server/artist-media'
 import {
   normalizeArtistVideoCategory,
   normalizeArtistVideoVisibility,
   type ArtistVideoRecord,
 } from '@/lib/artist-videos'
-import { resolveYouTubeVideoMetadata, parseYouTubeUrl } from '@/lib/youtube'
+import {
+  getArtistVideoArtist,
+  getArtistVideoProfile,
+  getArtistVideoRequestAuth,
+  isFounderOrAdmin,
+} from '@/lib/artist-video-access'
+import { parseYouTubeUrl, resolveYouTubeVideoMetadata } from '@/lib/youtube'
 
 export const dynamic = 'force-dynamic'
-
-function createAdminClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
-
-  if (!url || !key) {
-    throw new Error('Missing Supabase admin configuration')
-  }
-
-  return createClient(url, key, { auth: { persistSession: false } })
-}
-
-async function getUserFromRequest(req: NextRequest) {
-  const authHeader = req.headers.get('authorization')
-  const token = authHeader?.startsWith('Bearer ')
-    ? authHeader.replace('Bearer ', '')
-    : null
-
-  const supabase = createAdminClient()
-  if (!token) return { user: null, supabase }
-
-  const { data: { user }, error } = await supabase.auth.getUser(token)
-  if (error || !user) return { user: null, supabase }
-
-  return { user, supabase }
-}
-
-async function getProfile(supabase: any, userId: string) {
-  const { data } = await supabase
-    .from('profiles')
-    .select('id, role, full_name, username, email')
-    .eq('id', userId)
-    .single()
-
-  return data || null
-}
-
-async function getArtistRow(supabase: any, artistId: string) {
-  const { data, error } = await supabase
-    .from('artists')
-    .select('id, name, slug, created_at, status, public_profile_enabled, verified, likeness_verified, bio, avatar_url, cover_url')
-    .eq('id', artistId)
-    .maybeSingle()
-
-  if (error) {
-    throw error
-  }
-
-  return data || null
-}
-
-function isFounderOrAdmin(role?: string | null) {
-  return role === 'founder' || role === 'admin'
-}
 
 function normalizeText(value: unknown) {
   if (typeof value !== 'string') return ''
@@ -83,7 +35,12 @@ function nextSortOrder(records: Array<{ sort_order: number | null }>) {
   return values.length > 0 ? Math.max(...values) + 1 : 0
 }
 
-async function resolveMediaContext(supabase: any, role: string, userId: string, requestedArtistId?: string | null) {
+async function resolveMediaContext(
+  supabase: SupabaseClient,
+  role: string,
+  userId: string,
+  requestedArtistId?: string | null,
+) {
   const targetArtistId = requestedArtistId && requestedArtistId.trim()
     ? requestedArtistId.trim()
     : userId
@@ -92,33 +49,36 @@ async function resolveMediaContext(supabase: any, role: string, userId: string, 
     throw new Error('Forbidden')
   }
 
-  const artist = await getArtistRow(supabase, targetArtistId)
+  const artist = await getArtistVideoArtist(supabase, targetArtistId)
 
   if (!artist) {
     return { artist: null, progression: null, targetArtistId }
   }
 
-  const bundle = await loadArtistMediaBundle(artist)
+  const bundle = await loadArtistMediaBundleFromClient(artist, supabase)
   return {
     artist,
     progression: bundle.progression,
     targetArtistId,
+    videos: bundle.videos,
   }
 }
 
 export async function GET(req: NextRequest) {
   try {
-    const { user, supabase } = await getUserFromRequest(req)
-    if (!user) {
+    const auth = await getArtistVideoRequestAuth(req)
+    if (!auth.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const profile = await getProfile(supabase, user.id)
+    const profile = await getArtistVideoProfile(auth.userClient, auth.user.id)
     if (!profile) {
       return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
     }
 
-    if (!['artist', 'admin', 'founder'].includes(profile.role)) {
+    const profileRole = String(profile.role || '').toLowerCase()
+
+    if (!['artist', 'admin', 'founder'].includes(profileRole)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
@@ -126,7 +86,7 @@ export async function GET(req: NextRequest) {
     const requestedArtistId = searchParams.get('artist_id')
     const limit = parseLimit(searchParams.get('limit'))
 
-    const mediaContext = await resolveMediaContext(supabase, profile.role, user.id, requestedArtistId)
+    const mediaContext = await resolveMediaContext(auth.userClient, profileRole, auth.user.id, requestedArtistId)
     if (!mediaContext.artist) {
       return NextResponse.json({
         success: true,
@@ -138,51 +98,16 @@ export async function GET(req: NextRequest) {
       })
     }
 
-    const { data: videos, error } = await supabase
-      .from('artist_videos')
-      .select(`
-        video_id,
-        artist_id,
-        creator_id,
-        source_url,
-        youtube_video_id,
-        embed_url,
-        title,
-        thumbnail_url,
-        channel_name,
-        published_at,
-        video_category,
-        visibility_status,
-        sort_order,
-        notes,
-        source,
-        created_at,
-        updated_at
-      `)
-      .eq('artist_id', mediaContext.targetArtistId)
-      .order('sort_order', { ascending: true })
-      .order('created_at', { ascending: false })
-      .limit(limit)
-
-    if (error) {
-      return NextResponse.json({ error: error.message || 'Failed to load artist videos' }, { status: 500 })
-    }
-
-    const normalizedVideos = ((videos || []) as ArtistVideoRecord[]).map((video) => ({
-      ...video,
-      video_category: normalizeArtistVideoCategory(video.video_category),
-      visibility_status: normalizeArtistVideoVisibility(video.visibility_status),
-    }))
-
+    const videos = (mediaContext.videos || []).slice(0, limit)
     return NextResponse.json({
       success: true,
       artist: mediaContext.artist,
-      videos: normalizedVideos,
+      videos,
       progression: mediaContext.progression,
       counts: {
-        total: normalizedVideos.length,
-        visible: normalizedVideos.filter((video) => video.visibility_status === 'visible').length,
-        featured: normalizedVideos.filter((video) => video.visibility_status === 'visible' && video.video_category === 'featured').length,
+        total: videos.length,
+        visible: videos.filter((video) => video.visibility_status === 'visible').length,
+        featured: videos.filter((video) => video.visibility_status === 'visible' && video.video_category === 'featured').length,
       },
       targetArtistId: mediaContext.targetArtistId,
     })
@@ -198,28 +123,30 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const { user, supabase } = await getUserFromRequest(req)
-    if (!user) {
+    const auth = await getArtistVideoRequestAuth(req)
+    if (!auth.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const profile = await getProfile(supabase, user.id)
+    const profile = await getArtistVideoProfile(auth.userClient, auth.user.id)
     if (!profile) {
       return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
     }
 
-    if (!['artist', 'admin', 'founder'].includes(profile.role)) {
+    const profileRole = String(profile.role || '').toLowerCase()
+
+    if (!['artist', 'admin', 'founder'].includes(profileRole)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     const body = await req.json().catch(() => ({}))
     const requestedArtistId = normalizeText(body.artist_id) || null
-    const targetArtistId = isFounderOrAdmin(profile.role) ? (requestedArtistId || user.id) : user.id
-    if (!isFounderOrAdmin(profile.role) && requestedArtistId && requestedArtistId !== user.id) {
+    const targetArtistId = isFounderOrAdmin(profileRole) ? (requestedArtistId || auth.user.id) : auth.user.id
+    if (!isFounderOrAdmin(profileRole) && requestedArtistId && requestedArtistId !== auth.user.id) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const mediaContext = await resolveMediaContext(supabase, profile.role, user.id, targetArtistId)
+    const mediaContext = await resolveMediaContext(auth.userClient, profileRole, auth.user.id, targetArtistId)
     if (!mediaContext.artist) {
       return NextResponse.json({ error: 'Artist not found' }, { status: 404 })
     }
@@ -239,34 +166,29 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const sourceUrl = normalizeText(body.youtube_url || body.source_url || body.url)
-    if (!sourceUrl) {
-      return NextResponse.json({ error: 'youtube_url is required' }, { status: 400 })
+    const sourceInput = normalizeText(body.source_url || body.url || body.video_url)
+    const parsed = parseYouTubeUrl(sourceInput)
+    if (!parsed) {
+      return NextResponse.json({ error: 'Only YouTube URLs are supported for artist videos.' }, { status: 400 })
     }
 
-    if (!parseYouTubeUrl(sourceUrl)) {
-      return NextResponse.json({ error: 'Only YouTube URLs are allowed.' }, { status: 400 })
-    }
-
-    const metadata = await resolveYouTubeVideoMetadata(sourceUrl)
-    const notes = normalizeText(body.notes) || null
-
-    const { data: existingVideos, error: listError } = await supabase
+    const metadata = await resolveYouTubeVideoMetadata(sourceInput)
+    const notes = normalizeText(body.notes)
+    const { data: existingVideos, error: existingVideosError } = await auth.userClient
       .from('artist_videos')
-      .select('sort_order')
+      .select('video_id, sort_order')
       .eq('artist_id', mediaContext.targetArtistId)
-      .order('sort_order', { ascending: false })
-      .limit(1)
+      .order('sort_order', { ascending: true })
 
-    if (listError) {
-      return NextResponse.json({ error: listError.message || 'Failed to inspect existing videos' }, { status: 500 })
+    if (existingVideosError) {
+      return NextResponse.json({ error: existingVideosError.message || 'Failed to load existing videos' }, { status: 500 })
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await auth.userClient
       .from('artist_videos')
       .insert({
         artist_id: mediaContext.targetArtistId,
-        creator_id: user.id,
+        creator_id: auth.user.id,
         source_url: metadata.canonicalUrl,
         youtube_video_id: metadata.videoId,
         embed_url: metadata.embedUrl,

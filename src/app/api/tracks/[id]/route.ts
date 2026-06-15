@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { getAuthenticatedClient } from '@/lib/auth-utils'
 import { getArtistAccessContext, trackBelongsToArtist } from '@/lib/artist-identity'
+import { attachTrackCollaborators, loadTrackCollaboratorMap } from '@/lib/track-collaborators'
 
 function createSupabaseAdmin() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -237,7 +238,10 @@ export async function GET(
       return NextResponse.json({ error: 'You can only view your own tracks' }, { status: 403 })
     }
 
-    return NextResponse.json({ success: true, track })
+    const collaboratorMap = await loadTrackCollaboratorMap(supabaseAdmin, [track.id]).catch(() => new Map())
+    const enrichedTrack = attachTrackCollaborators([track], collaboratorMap)[0]
+
+    return NextResponse.json({ success: true, track: enrichedTrack })
   } catch (err: any) {
     console.error('[tracks:get] Exception:', err)
     return NextResponse.json({ error: err.message || 'Failed to fetch track' }, { status: 500 })

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthenticatedClient } from '@/lib/auth-utils';
 import { createServerClient } from '@/lib/supabase';
+import { attachTrackCollaborators, loadTrackCollaboratorMap } from '@/lib/track-collaborators'
 
 // POST /api/tracks — Upload a new track
 export async function POST(request: NextRequest) {
@@ -73,9 +74,11 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Insert track using service role (RLS bypass) after auth verification
-    // This prevents RLS mismatches while ensuring only authenticated users insert
-    const serviceSupabase = createServerClient();
+    // Insert track through the authenticated server client so the user
+    // session is validated and the write respects the expected server context.
+    // In this app the authenticated SSR client is already privileged enough for
+    // the upload path once auth has passed.
+    const serviceSupabase = supabase;
     supabaseClient = serviceSupabase;
 
     // Get artist name for proper display
@@ -203,8 +206,16 @@ export async function GET(request: NextRequest) {
   // Public API must return DB/public-truth tracks only.
   // Static tracks are kept as fallback only when DB returns zero results.
   const tracks = (data || []).length > 0 ? data : []
+  if (tracks.length === 0) {
+    return NextResponse.json({ tracks })
+  }
 
-  return NextResponse.json({ tracks })
+  const collaboratorMap = await loadTrackCollaboratorMap(
+    supabase,
+    tracks.map((track: any) => track.id).filter(Boolean),
+  ).catch(() => new Map())
+
+  return NextResponse.json({ tracks: attachTrackCollaborators(tracks, collaboratorMap) })
 }
 // Cache bust: 1777083644
 // Deploy trigger: Fri Apr 24 21:47:41 CDT 2026

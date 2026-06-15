@@ -97,7 +97,7 @@ export default function ArtistAppearancePage() {
 
       const { data: artistRow, error: artistError } = await supabase
         .from('artists')
-        .select('id, name, slug, avatar_url, cover_url, social_links, appearance, artist_appearance')
+        .select('id, name, slug, avatar_url, cover_url, social_links')
         .eq('id', user.id)
         .maybeSingle()
 
@@ -107,7 +107,7 @@ export default function ArtistAppearancePage() {
 
       const artistLabel = artistRow?.name || profile.full_name || profile.username || 'Your artist'
       const image = artistRow?.avatar_url || artistRow?.cover_url || profile.avatar_url || profile.cover_url || null
-      const sourceAppearance = artistRow?.appearance || artistRow?.artist_appearance || (artistRow?.social_links as any)?.appearance
+      const sourceAppearance = (artistRow?.social_links as any)?.appearance
 
       setArtistName(artistLabel)
       setArtistImage(image)
@@ -161,7 +161,10 @@ export default function ArtistAppearancePage() {
   if (authLoading || loading) {
     return (
       <div className="min-h-screen pt-24 pb-12 flex items-center justify-center">
-        <div className="animate-pulse text-[var(--pf-text-muted)]">Loading appearance settings...</div>
+        <div className="inline-flex items-center gap-2 rounded-full border border-[var(--pf-border)] bg-[var(--pf-surface)] px-4 py-2 text-[var(--pf-text-muted)]">
+          <span className="h-2 w-2 animate-pulse rounded-full bg-[var(--pf-orange)]" />
+          Preparing appearance settings
+        </div>
       </div>
     )
   }

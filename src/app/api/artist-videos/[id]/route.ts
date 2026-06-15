@@ -1,54 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import type { SupabaseClient } from '@supabase/supabase-js'
 import {
   normalizeArtistVideoCategory,
   normalizeArtistVideoVisibility,
   type ArtistVideoRecord,
 } from '@/lib/artist-videos'
+import {
+  getArtistVideoArtist,
+  getArtistVideoProfile,
+  getArtistVideoRequestAuth,
+  isFounderOrAdmin,
+} from '@/lib/artist-video-access'
 
 export const dynamic = 'force-dynamic'
 
-function createAdminClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
-
-  if (!url || !key) {
-    throw new Error('Missing Supabase admin configuration')
-  }
-
-  return createClient(url, key, { auth: { persistSession: false } })
-}
-
-async function getUserFromRequest(req: NextRequest) {
-  const authHeader = req.headers.get('authorization')
-  const token = authHeader?.startsWith('Bearer ')
-    ? authHeader.replace('Bearer ', '')
-    : null
-
-  const supabase = createAdminClient()
-  if (!token) return { user: null, supabase }
-
-  const { data: { user }, error } = await supabase.auth.getUser(token)
-  if (error || !user) return { user: null, supabase }
-
-  return { user, supabase }
-}
-
-async function getProfile(supabase: any, userId: string) {
-  const { data } = await supabase
-    .from('profiles')
-    .select('id, role, full_name, username, email')
-    .eq('id', userId)
-    .single()
-
-  return data || null
-}
-
-function isFounderOrAdmin(role?: string | null) {
-  return role === 'founder' || role === 'admin'
-}
-
-async function loadVideo(supabase: any, videoId: string) {
+async function loadVideo(supabase: SupabaseClient, videoId: string) {
   const { data, error } = await supabase
     .from('artist_videos')
     .select(`
@@ -82,26 +48,28 @@ async function loadVideo(supabase: any, videoId: string) {
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const { user, supabase } = await getUserFromRequest(req)
-    if (!user) {
+    const auth = await getArtistVideoRequestAuth(req)
+    if (!auth.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const profile = await getProfile(supabase, user.id)
+    const profile = await getArtistVideoProfile(auth.userClient, auth.user.id)
     if (!profile) {
       return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
     }
 
-    if (!['artist', 'admin', 'founder'].includes(profile.role)) {
+    const profileRole = String(profile.role || '').toLowerCase()
+
+    if (!['artist', 'admin', 'founder'].includes(profileRole)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const existing = await loadVideo(supabase, params.id)
+    const existing = await loadVideo(auth.userClient, params.id)
     if (!existing) {
       return NextResponse.json({ error: 'Video not found' }, { status: 404 })
     }
 
-    if (!isFounderOrAdmin(profile.role) && existing.artist_id !== user.id) {
+    if (!isFounderOrAdmin(profileRole) && existing.artist_id !== auth.user.id) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
@@ -131,7 +99,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       return NextResponse.json({ error: 'No updates provided' }, { status: 400 })
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await auth.userClient
       .from('artist_videos')
       .update(updatePayload)
       .eq('video_id', params.id)
@@ -176,30 +144,32 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
 export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const { user, supabase } = await getUserFromRequest(req)
-    if (!user) {
+    const auth = await getArtistVideoRequestAuth(req)
+    if (!auth.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const profile = await getProfile(supabase, user.id)
+    const profile = await getArtistVideoProfile(auth.userClient, auth.user.id)
     if (!profile) {
       return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
     }
 
-    if (!['artist', 'admin', 'founder'].includes(profile.role)) {
+    const profileRole = String(profile.role || '').toLowerCase()
+
+    if (!['artist', 'admin', 'founder'].includes(profileRole)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const existing = await loadVideo(supabase, params.id)
+    const existing = await loadVideo(auth.userClient, params.id)
     if (!existing) {
       return NextResponse.json({ error: 'Video not found' }, { status: 404 })
     }
 
-    if (!isFounderOrAdmin(profile.role) && existing.artist_id !== user.id) {
+    if (!isFounderOrAdmin(profileRole) && existing.artist_id !== auth.user.id) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await auth.userClient
       .from('artist_videos')
       .update({ visibility_status: 'archived' })
       .eq('video_id', params.id)

@@ -24,6 +24,7 @@ import { createBrowserSupabaseClient } from '@/lib/create-browser-client'
 import { dedupeQueueTracks } from '@/lib/track-dedupe'
 import { formatDuration, canonicalAlbum } from '@/lib/duration-formatter'
 import { buildTrackArtistCredits } from '@/lib/artist-credits'
+import { loadTrackCollaboratorMap, attachTrackCollaborators } from '@/lib/track-collaborators'
 
 type DisplayTrack = Track
 
@@ -142,21 +143,38 @@ export default function MusicPage() {
   const [selectedAlbum, setSelectedAlbum] = useState<string | null>(null)
   const [publicArtists, setPublicArtists] = useState<ArtistData[]>([])
   const [artistsLoading, setArtistsLoading] = useState(true)
+  const [artistsError, setArtistsError] = useState<string | null>(null)
   const [dbTracks, setDbTracks] = useState<Track[]>([])
   const [loading, setLoading] = useState(true)
+  const [tracksError, setTracksError] = useState<string | null>(null)
+  const [reloadKey, setReloadKey] = useState(0)
 
   // Fetch DB tracks on mount (all tracks for canonical dedupe)
   useEffect(() => {
+    let cancelled = false
+
     async function loadTracks() {
-      const supabase = createBrowserSupabaseClient()
-      const { data } = await supabase
-        .from('tracks')
-        .select('*')
-        .order('track_number', { ascending: true })
-      
-      if (data) {
+      setLoading(true)
+      setTracksError(null)
+      try {
+        const supabase = createBrowserSupabaseClient()
+        const { data, error } = await supabase
+          .from('tracks')
+          .select('*')
+          .order('track_number', { ascending: true })
+
+        if (error) throw error
+
+        const collaboratorMap = await loadTrackCollaboratorMap(
+          supabase,
+          (data || []).map((track: any) => track.id),
+        ).catch((collabError) => {
+          console.warn('[music] track collaborators unavailable, falling back to plain track rows:', collabError)
+          return new Map<string, any[]>()
+        })
+
         // Map DB tracks to Track format (keep is_active for dedupe logic)
-        const mapped = data.map((t: any) => ({
+        const mapped = (data || []).map((t: any) => ({
           id: t.id,
           title: t.title,
           artist: t.artist_name || t.artist || 'Unknown',
@@ -171,23 +189,42 @@ export default function MusicPage() {
           status: t.status, // PHASE C: include status for hasPlayableAudio check
           track_number: t.track_number,
         }))
-        setDbTracks(mapped)
+
+        if (!cancelled) {
+          setDbTracks(attachTrackCollaborators(mapped, collaboratorMap))
+        }
+      } catch (error) {
+        console.error('[music] tracks unavailable:', error)
+        if (!cancelled) {
+          setDbTracks([])
+          setTracksError('Tracks are temporarily unavailable.')
+        }
+      } finally {
+        if (!cancelled) setLoading(false)
       }
-      setLoading(false)
     }
-    loadTracks()
-  }, [])
+
+    void loadTracks()
+
+    return () => {
+      cancelled = true
+    }
+  }, [reloadKey])
 
   useEffect(() => {
     let cancelled = false
 
     async function loadArtists() {
+      setArtistsLoading(true)
+      setArtistsError(null)
       try {
         const supabase = createBrowserSupabaseClient()
-        const { data } = await supabase
+        const { data, error } = await supabase
           .from('artists')
           .select('id, name, slug, genre, location, bio, avatar_url, cover_url, verified, artist_tier, status, public_profile_enabled')
           .order('created_at', { ascending: false })
+
+        if (error) throw error
 
         const publicArtists = filterPublicArtists((Array.isArray(data) ? data : []) as any[]).map(
           (artist: any) =>
@@ -199,19 +236,23 @@ export default function MusicPage() {
         if (!cancelled) {
           setPublicArtists(publicArtists)
         }
-      } catch {
-        if (!cancelled) setPublicArtists([])
+      } catch (error) {
+        console.error('[music] artists unavailable:', error)
+        if (!cancelled) {
+          setPublicArtists([])
+          setArtistsError('Artists are temporarily unavailable.')
+        }
       } finally {
         if (!cancelled) setArtistsLoading(false)
       }
     }
 
-    loadArtists()
+    void loadArtists()
 
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [reloadKey])
 
   const ALL_TRACKS = useMemo(() => {
     return dbTracks
@@ -356,6 +397,20 @@ export default function MusicPage() {
               )}
             </button>
           </div>
+          {tracksError && (
+            <div className="mt-4 rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] px-4 py-3 text-sm text-[var(--pf-text-secondary)]">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <p>{tracksError}</p>
+                <button
+                  type="button"
+                  onClick={() => setReloadKey((current) => current + 1)}
+                  className="inline-flex items-center gap-2 rounded-full bg-[var(--pf-orange)] px-4 py-2 text-xs font-semibold text-[var(--pf-text)] transition-colors hover:bg-[var(--pf-orange)]/90"
+                >
+                  Retry
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
@@ -370,12 +425,16 @@ export default function MusicPage() {
           <div className="flex gap-3 overflow-x-auto -mx-5 sm:-mx-6 px-5 sm:px-6 scrollbar-hide pb-1">
             {artistsLoading ? (
               Array.from({ length: 4 }).map((_, idx) => (
-                <div key={idx} className="flex-shrink-0 w-32 sm:w-36">
-                  <div className="w-32 h-32 sm:w-36 sm:h-36 rounded-xl bg-[var(--pf-surface)] mb-2 animate-pulse" />
-                  <div className="h-4 w-20 rounded-full bg-[var(--pf-surface)] animate-pulse mb-2" />
-                  <div className="h-3 w-12 rounded-full bg-[var(--pf-surface)] animate-pulse" />
+                <div key={idx} className="flex-shrink-0 w-36 sm:w-40">
+                  <div className="w-36 h-36 sm:w-40 sm:h-40 rounded-[24px] bg-[var(--pf-surface)] mb-2 animate-pulse" />
+                  <div className="h-4 w-24 rounded-full bg-[var(--pf-surface)] animate-pulse mb-2" />
+                  <div className="h-3 w-16 rounded-full bg-[var(--pf-surface)] animate-pulse" />
                 </div>
               ))
+            ) : artistsError ? (
+              <div className="rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] px-4 py-3 text-sm text-[var(--pf-text-secondary)]">
+                {artistsError}
+              </div>
             ) : publicArtists.length > 0 ? (
               publicArtists.map((artist) => {
                 const trackCount = artist.trackCount ?? ALL_TRACKS.filter((t) => t.artist === artist.name || t.artist === artist.id).length
@@ -383,14 +442,15 @@ export default function MusicPage() {
                   <Link
                     key={artist.id}
                     href={`/artist/${artist.slug}`}
-                    className="group flex-shrink-0 w-32 sm:w-36"
+                    className="group flex-shrink-0 w-36 sm:w-40"
                   >
-                    <div className="mb-2 flex h-32 w-32 items-center justify-center rounded-[28px] border border-[var(--pf-border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(0,0,0,0.16))] sm:h-36 sm:w-36">
+                    <div className="mb-2 flex h-36 w-36 items-center justify-center overflow-hidden rounded-[24px] border border-[var(--pf-border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(0,0,0,0.16))] sm:h-40 sm:w-40">
                       <ArtistAvatar
                         src={artist.image}
                         alt={artist.name}
                         name={artist.name}
                         size="xl"
+                        shape="rounded-square"
                         className="transition-transform duration-200 group-hover:scale-[1.03]"
                       />
                     </div>
@@ -490,7 +550,13 @@ export default function MusicPage() {
                   : 'All Tracks'}
               </h2>
             </div>
-            <p className="text-xs text-[var(--pf-text-muted)]">{filteredTracks.length} tracks</p>
+            <p className="text-xs text-[var(--pf-text-muted)]" suppressHydrationWarning>
+              {loading ? (
+                <span className="inline-block h-3 w-16 rounded bg-[var(--pf-surface)] animate-pulse align-middle" />
+              ) : (
+                <>{filteredTracks.length} tracks</>
+              )}
+            </p>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
@@ -535,10 +601,19 @@ export default function MusicPage() {
           </div>
         </div>
 
-        {/* Loading state */}
+        {/* Loading skeleton — replaces the literal "Loading tracks…" text */}
         {loading && (
-          <div className="text-center py-8 text-[var(--pf-text-muted)] text-sm">
-            Loading tracks…
+          <div className="space-y-1" aria-busy="true" aria-label="Preparing tracks">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="flex items-center gap-3 px-3 py-3 animate-pulse">
+                <div className="h-5 w-5 rounded bg-[var(--pf-surface)]" />
+                <div className="h-12 w-12 rounded bg-[var(--pf-surface)] flex-shrink-0" />
+                <div className="flex-1 space-y-2 min-w-0">
+                  <div className="h-4 w-2/3 rounded bg-[var(--pf-surface)]" />
+                  <div className="h-3 w-1/3 rounded bg-[var(--pf-surface)]" />
+                </div>
+              </div>
+            ))}
           </div>
         )}
 

@@ -107,23 +107,22 @@ export function ArtistHero({ artist, firstTrack, queueTracks }: ArtistHeroProps)
           <div className="grid gap-4 p-4 sm:p-5 lg:grid-cols-[minmax(0,180px)_1fr_auto] lg:items-center">
             {/* Artwork */}
             <div
-              className="relative mx-auto flex w-full max-w-[160px] items-center justify-center overflow-hidden rounded-[24px] border border-[var(--pf-border)] px-5 py-6 shadow-xl"
+              className="relative mx-auto flex w-full max-w-[220px] items-center justify-center overflow-hidden rounded-[28px] border border-[var(--pf-border)] px-5 py-5 shadow-xl"
               style={{
-                backgroundImage: `linear-gradient(180deg, color-mix(in srgb, ${primaryColor} 10%, rgba(255,255,255,0.04)), color-mix(in srgb, ${secondaryColor} 18%, rgba(0,0,0,0.18)))`,
+                backgroundImage: `linear-gradient(180deg, color-mix(in srgb, ${primaryColor} 8%, rgba(255,255,255,0.06)), color-mix(in srgb, ${secondaryColor} 12%, rgba(0,0,0,0.14)))`,
               }}
             >
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_42%),radial-gradient(circle_at_bottom,rgba(255,137,0,0.14),transparent_35%)]" />
               <ArtistAvatar
                 src={artist.image}
                 alt={artist.name}
                 name={artist.name}
-                size="lg"
+                size="xl"
                 shape={appearance?.profileImageShape || 'circle'}
                 focus={appearance?.profileImageFocus || 'center-face'}
                 objectPosition={appearance?.profileImagePosition}
-                className="relative z-10 ring-4 ring-[var(--pf-border)]/20"
+                className="relative z-10 shadow-2xl ring-2 ring-white/15"
                 priority
-                sizes="(max-width: 640px) 56px, 56px"
+                sizes="(max-width: 640px) 128px, 128px"
               />
             </div>
 

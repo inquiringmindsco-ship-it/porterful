@@ -91,7 +91,7 @@ export function FeaturedTrackCard({ track, queue }: FeaturedTrackCardProps) {
       <div className="flex-1 min-w-0">
         <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-[var(--pf-orange)]/10 text-[var(--pf-orange)] text-[11px] uppercase tracking-widest font-semibold mb-2">
           <Star size={11} className="fill-[var(--pf-orange)]" />
-          Featured
+          Top Track
         </div>
         <h3 className={`text-lg sm:text-xl font-bold truncate ${isActive ? 'text-[var(--pf-orange)]' : ''}`}>
           {track.title}

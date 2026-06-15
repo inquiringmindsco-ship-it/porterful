@@ -11,6 +11,7 @@ import { useGuidedTour } from '@/components/guidance/GuidedTour'
 import { canonicalAlbum } from '@/lib/duration-formatter'
 import { CollaboratorStack } from '@/components/artist/CollaboratorStack'
 import { buildTrackArtistCredits } from '@/lib/artist-credits'
+import { attachTrackCollaborators, loadTrackCollaboratorMap } from '@/lib/track-collaborators'
 
 const Icon = {
   Music: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></svg>,
@@ -38,7 +39,6 @@ export default function ArtistDashboardPage() {
   const [artistSkus, setArtistSkus] = useState<any[]>([])
   const [inventorySummaries, setInventorySummaries] = useState<any[]>([])
   const [fulfillmentJobs, setFulfillmentJobs] = useState<any[]>([])
-  const [featured, setFeatured] = useState<string[]>([])
   
   // Search and filter states
   const [trackSearch, setTrackSearch] = useState('')
@@ -67,7 +67,13 @@ export default function ArtistDashboardPage() {
       .eq('artist_id', user.id)
       .order('created_at', { ascending: false })
 
-    setDbTracks(data || [])
+    const tracks = data || []
+    const collaboratorMap = await loadTrackCollaboratorMap(
+      supabase,
+      tracks.map((track: any) => track.id).filter(Boolean),
+    ).catch(() => new Map())
+
+    setDbTracks(attachTrackCollaborators(tracks, collaboratorMap))
   }, [supabase, user])
 
   useEffect(() => {
@@ -452,6 +458,13 @@ export default function ArtistDashboardPage() {
           ))}
         </div>
 
+        <div className="mb-8 rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-4 text-sm text-[var(--pf-text-secondary)]">
+          <p className="font-semibold text-[var(--pf-text)]">Lead track controls</p>
+          <p className="mt-1 leading-6">
+            Open any track to mark it as the featured track or set its track order. The featured track becomes the hero track on your artist page, and track order 1 appears first.
+          </p>
+        </div>
+
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -784,7 +797,12 @@ export default function ArtistDashboardPage() {
                             </span>
                             {track.featured && (
                               <span className="px-2 py-1 rounded text-xs border border-[var(--pf-orange)]/30 bg-[var(--pf-orange)]/10 text-[var(--pf-orange)]">
-                                Featured
+                                Top Track
+                              </span>
+                            )}
+                            {track.track_number === 1 && (
+                              <span className="px-2 py-1 rounded text-xs border border-[var(--pf-border)] bg-[var(--pf-surface)] text-[var(--pf-text-muted)]">
+                                First Track
                               </span>
                             )}
                             <Link

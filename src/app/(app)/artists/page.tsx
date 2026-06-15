@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { ArrowRight, Check, MapPin, Music } from 'lucide-react'
 import { useSupabase } from '@/app/providers'
@@ -28,32 +28,45 @@ export default function ArtistsPage() {
   const { user, supabase, loading: authLoading } = useSupabase()
   const [artists, setArtists] = useState<ArtistFromDb[]>([])
   const [artistsLoading, setArtistsLoading] = useState(true)
+  const [artistsError, setArtistsError] = useState<string | null>(null)
   const [ctaReady, setCtaReady] = useState(false)
   const [ctaHref, setCtaHref] = useState('/artists')
   const [ctaLabel, setCtaLabel] = useState('Explore Artists')
   const [ctaDescription, setCtaDescription] = useState('Browse artist profiles and upcoming releases.')
+  const [refreshNonce, setRefreshNonce] = useState(0)
 
   // Load artists from DB
-  useEffect(() => {
-    async function loadArtists() {
-      if (!supabase) {
-        setArtistsLoading(false)
-        return
-      }
+  const loadArtists = useCallback(async () => {
+    if (!supabase) {
+      setArtistsError('Artists are temporarily unavailable.')
+      setArtistsLoading(false)
+      return
+    }
+
+    setArtistsLoading(true)
+    setArtistsError(null)
+
+    try {
       const { data, error } = await supabase
         .from('artists')
         .select('id, name, slug, genre, location, bio, avatar_url, cover_url, verified, artist_tier, status, public_profile_enabled')
         .in('status', ['active', 'approved'])
         .order('name')
-      if (error) {
-        console.error('Error loading artists:', error)
-      } else {
-        setArtists(filterPublicArtists(data as ArtistFromDb[] | null | undefined) as unknown as ArtistFromDb[])
-      }
+
+      if (error) throw error
+      setArtists(filterPublicArtists(data as ArtistFromDb[] | null | undefined) as unknown as ArtistFromDb[])
+    } catch (err) {
+      console.error('Error loading artists:', err)
+      setArtists([])
+      setArtistsError('Artists are temporarily unavailable.')
+    } finally {
       setArtistsLoading(false)
     }
-    loadArtists()
   }, [supabase])
+
+  useEffect(() => {
+    void loadArtists()
+  }, [loadArtists, refreshNonce])
 
   // Load CTA
   useEffect(() => {
@@ -129,7 +142,7 @@ export default function ArtistsPage() {
                 disabled
                 className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[var(--pf-orange)] px-5 py-3 font-semibold text-white opacity-70"
               >
-                Loading...
+                Preparing
                 <ArrowRight size={16} />
               </button>
             )}
@@ -155,6 +168,22 @@ export default function ArtistsPage() {
                 <div className="mt-4 h-20 rounded-xl bg-[var(--pf-border)]" />
               </div>
             ))}
+          </div>
+        ) : artistsError ? (
+          <div className="mx-auto max-w-2xl rounded-[24px] border border-[var(--pf-border)] bg-[var(--pf-surface)] p-8 text-center">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full border border-[var(--pf-border)] bg-[var(--pf-bg)]">
+              <Music size={24} className="text-[var(--pf-text-muted)]" />
+            </div>
+            <h3 className="text-xl font-semibold text-[var(--pf-text)]">Artists are temporarily unavailable</h3>
+            <p className="mt-2 text-[var(--pf-text-secondary)]">{artistsError}</p>
+            <button
+              type="button"
+              onClick={() => setRefreshNonce((current) => current + 1)}
+              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[var(--pf-orange)] px-5 py-3 font-semibold text-white transition-colors hover:bg-[var(--pf-orange-dark)]"
+            >
+              Retry
+              <ArrowRight size={16} />
+            </button>
           </div>
         ) : artists.length === 0 ? (
           <div className="text-center py-20">
@@ -199,66 +228,58 @@ function ArtistCard({ artist }: { artist: ArtistFromDb }) {
   }, [artist.name])
 
   const image = artist.avatar_url || artist.cover_url || ''
-  const shortBio = artist.bio?.slice(0, 120) || 'Artist on Porterful'
 
   return (
     <Link
       href={`/artist/${artist.slug}`}
-      className="group overflow-hidden rounded-3xl border border-[var(--pf-border)] bg-[var(--pf-surface)] shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--pf-orange)]/40"
+      className="group overflow-hidden rounded-[22px] border border-[var(--pf-border)] bg-[var(--pf-surface)] shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--pf-orange)]/40"
     >
-      <div className="grid gap-4 p-4 sm:grid-cols-[112px_1fr]">
-        <div className="relative flex aspect-square items-center justify-center overflow-hidden rounded-2xl border border-[var(--pf-border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(0,0,0,0.18))]">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_40%),radial-gradient(circle_at_bottom,rgba(255,137,0,0.12),transparent_35%)]" />
-          <ArtistAvatar
-            src={image}
-            alt={artist.name}
-            name={artist.name}
-            size="lg"
-            className="relative z-10 ring-4 ring-white/10 transition duration-300 group-hover:scale-105"
-          />
+      <div className="p-3 sm:p-4">
+        <div className="overflow-hidden rounded-[18px] border border-[var(--pf-border)] bg-[var(--pf-bg)]">
+          <div className="relative mx-auto aspect-square w-full max-w-[220px] bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(0,0,0,0.18))]">
+            <ArtistAvatar
+              src={image}
+              alt={artist.name}
+              name={artist.name}
+              size="lg"
+              shape="rounded-square"
+              className="h-full w-full border-0 ring-0 shadow-none transition duration-300 group-hover:scale-[1.02]"
+            />
+          </div>
         </div>
 
-        <div className="min-w-0 space-y-3 py-1">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <h2 className="truncate text-xl font-bold text-[var(--pf-text)]">{artist.name}</h2>
-                {artist.verified && (
-                  <Check size={16} className="shrink-0 text-[var(--pf-orange)]" />
-                )}
-              </div>
-              <p className="mt-1 truncate text-sm text-[var(--pf-text-secondary)]">
-                {artist.genre || 'Artist'} · {artist.location || 'Location unknown'}
-              </p>
+        <div className="mt-3 flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <h2 className="truncate text-base font-bold text-[var(--pf-text)] sm:text-lg">{artist.name}</h2>
+              {artist.verified && (
+                <Check size={16} className="shrink-0 text-[var(--pf-orange)]" />
+              )}
             </div>
-            <span className="shrink-0 rounded-full border border-[var(--pf-border)] bg-[var(--pf-bg)] px-2.5 py-1 text-xs font-medium text-[var(--pf-text-muted)]">
-              {trackCount} tracks
-            </span>
-          </div>
-
-          <p className="line-clamp-3 text-sm leading-6 text-[var(--pf-text-secondary)]">
-            {shortBio}
-          </p>
-
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full border border-[var(--pf-border)] bg-[var(--pf-bg)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--pf-text-muted)]">
-              {artist.genre || 'Artist'}
-            </span>
-            <span className="inline-flex items-center gap-1 rounded-full border border-[var(--pf-border)] bg-[var(--pf-bg)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--pf-text-muted)]">
-              <MapPin size={11} />
-              {artist.location || 'Location unknown'}
-            </span>
-          </div>
-
-          <div className="flex items-center justify-between gap-3 pt-1">
-            <p className="text-xs text-[var(--pf-text-muted)]">
-              Compact artist cards help you scan the lineup faster.
+            <p className="mt-1 truncate text-xs sm:text-sm text-[var(--pf-text-secondary)]">
+              {artist.genre || 'Artist'} · {artist.location || 'Location unknown'}
             </p>
-            <span className="inline-flex items-center gap-1 text-sm font-semibold text-[var(--pf-orange)]">
-              Open
-              <ArrowRight size={14} />
-            </span>
           </div>
+          <span className="shrink-0 rounded-full border border-[var(--pf-border)] bg-[var(--pf-bg)] px-2.5 py-1 text-xs font-medium text-[var(--pf-text-muted)]">
+            {trackCount} tracks
+          </span>
+        </div>
+
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <span className="rounded-full border border-[var(--pf-border)] bg-[var(--pf-bg)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--pf-text-muted)]">
+            {artist.genre || 'Artist'}
+          </span>
+          <span className="inline-flex items-center gap-1 rounded-full border border-[var(--pf-border)] bg-[var(--pf-bg)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--pf-text-muted)]">
+            <MapPin size={11} />
+            {artist.location || 'Location unknown'}
+          </span>
+        </div>
+
+        <div className="mt-3 flex items-center justify-end gap-3">
+          <span className="inline-flex items-center gap-1 text-sm font-semibold text-[var(--pf-orange)]">
+            Open
+            <ArrowRight size={14} />
+          </span>
         </div>
       </div>
     </Link>

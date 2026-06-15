@@ -2,7 +2,7 @@
 // Run with: node scripts/test-artist-application-api.js
 
 const SUPABASE_URL = 'https://tsdjmiqczgxnkpvirkya.supabase.co';
-const SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRzZGptaXFjemd4bmtwdmlya3lhIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NDAyOTYzNiwiZXhwIjoyMDg5NjA1NjM2fQ.7PAvqsXolPTLionRlvH0caLz20KUjQGE5-e8yHzZacc';
+const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 const BASE_URL = process.env.TEST_URL || 'https://porterful.com';
 

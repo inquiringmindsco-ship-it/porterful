@@ -87,7 +87,7 @@ export async function GET(
         location: dbArtist.location || profile?.location || staticArtist?.location || '',
         slug: dbArtist.slug || profile?.username || staticArtist?.slug || params.id,
         appearance: normalizeArtistAppearance(
-          dbArtist.appearance || dbArtist.artist_appearance || socialLinks.appearance,
+          socialLinks.appearance,
           staticArtist?.appearance || undefined,
         ),
       }
@@ -219,13 +219,13 @@ export async function PATCH(
     ) {
       const { data: currentArtist } = await serviceSupabase
         .from('artists')
-        .select('social_links, appearance, artist_appearance')
+        .select('social_links')
         .eq('id', params.id)
         .single()
 
       const socialLinks = typeof currentArtist?.social_links === 'object' && currentArtist?.social_links ? { ...currentArtist.social_links } : {}
       const currentAppearance = normalizeArtistAppearance(
-        currentArtist?.appearance || currentArtist?.artist_appearance || socialLinks.appearance,
+        socialLinks.appearance,
         null,
       )
 

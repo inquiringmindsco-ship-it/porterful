@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowRight, Heart, Headphones, Pause, Play, Shirt, Music, Package, DollarSign, BarChart3 } from 'lucide-react'
 import { Footer } from '@/components/Footer'
 import { useSupabase } from '@/app/providers'
@@ -21,47 +21,45 @@ export default function HomePage() {
   const [publicArtists, setPublicArtists] = useState<ArtistData[]>([])
   const [homepageData, setHomepageData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [homepageError, setHomepageError] = useState<string | null>(null)
+  const [reloadKey, setReloadKey] = useState(0)
   const [profileRole, setProfileRole] = useState<string | null>(null)
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  useEffect(() => {
-    let cancelled = false
-
-    async function loadData() {
-      try {
-        // Load all homepage data from single API
-        const res = await fetch('/api/homepage-data', { cache: 'no-store' })
-        if (res.ok) {
-          const data = await res.json()
-          if (!cancelled) {
-            setHomepageData(data)
-            // Also load artists for the browse section
-            const artistsRes = await fetch('/api/artists', { cache: 'no-store' })
-            if (artistsRes.ok) {
-              const artistsData = await artistsRes.json()
-              const artists = filterPublicArtists(
-                (Array.isArray(artistsData.artists) ? artistsData.artists : []) as ArtistData[],
-              )
-              setPublicArtists(artists)
-            }
-          }
-        }
-      } catch {
-        // Silently fail, use fallbacks
-      } finally {
-        if (!cancelled) setLoading(false)
+  const loadData = useCallback(async () => {
+    try {
+      setHomepageError(null)
+      // Load all homepage data from single API
+      const res = await fetch('/api/homepage-data', { cache: 'no-store' })
+      if (res.ok) {
+        const data = await res.json()
+        setHomepageData(data)
+      } else {
+        setHomepageError('Some homepage data is temporarily unavailable.')
       }
-    }
 
-    loadData()
-
-    return () => {
-      cancelled = true
+      const artistsRes = await fetch('/api/artists', { cache: 'no-store' })
+      if (artistsRes.ok) {
+        const artistsData = await artistsRes.json()
+        const artists = filterPublicArtists(
+          (Array.isArray(artistsData.artists) ? artistsData.artists : []) as ArtistData[],
+        )
+        setPublicArtists(artists)
+      } else {
+        setHomepageError((current) => current || 'Some homepage data is temporarily unavailable.')
+      }
+    } catch {
+      setHomepageError('Some homepage data is temporarily unavailable.')
     }
   }, [])
+
+  useEffect(() => {
+    setLoading(true)
+    void loadData().finally(() => setLoading(false))
+  }, [loadData, reloadKey])
 
   // Get real counts from API
   const artistCount = homepageData?.counts?.publicArtists || publicArtists.length || 0
@@ -73,7 +71,7 @@ export default function HomePage() {
     : (profileRole || '').toLowerCase()
   const isCreatorRole = role === 'artist' || role === 'admin' || role === 'founder'
   const heroPrimaryAction = !authReady
-    ? { href: '/onboarding', label: 'Loading...', disabled: true }
+    ? null
     : !user
       ? { href: '/apply', label: 'Upload Your Music', disabled: false }
       : isCreatorRole
@@ -106,6 +104,12 @@ export default function HomePage() {
       audio_url: `/api/tracks/${nt.id}/audio`, // Dynamic audio endpoint
       price: Number(nt.proud_to_pay_min ?? nt.price ?? 0.50),
       status: nt.status, // PHASE C: pass through status for eligibility checks
+      artist_id: nt.artist_id,
+      collaborators: nt.collaborators || [],
+      featured_artists: nt.featured_artists || [],
+      artist_credits: nt.artist_credits || [],
+      track_credits: nt.track_credits || [],
+      credits: nt.credits || [],
     } as Track
   }
 
@@ -291,15 +295,12 @@ export default function HomePage() {
                   Upload music. Sell products. Build your audience. One platform.
                 </p>
 
-                <div className="mt-5 sm:mt-6 flex flex-wrap gap-3">
-                  {heroPrimaryAction.disabled ? (
-                    <button
-                      type="button"
-                      disabled
-                      className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[var(--pf-orange)] px-6 py-3 text-base font-semibold text-[#111111] opacity-75"
-                    >
-                      Loading... <ArrowRight size={18} />
-                    </button>
+                <div className="mt-5 sm:mt-6 flex flex-wrap gap-3 min-h-12 items-center">
+                  {heroPrimaryAction === null ? (
+                    <div
+                      className="inline-flex h-12 w-48 rounded-full bg-[var(--pf-surface)] animate-pulse"
+                      aria-label="Preparing homepage"
+                    />
                   ) : (
                     <Link
                       href={heroPrimaryAction.href}
@@ -331,7 +332,20 @@ export default function HomePage() {
                         <span className="h-1.5 w-1.5 rounded-full bg-[var(--pf-text-muted)] animate-pulse delay-75" />
                         <span className="h-1.5 w-1.5 rounded-full bg-[var(--pf-text-muted)] animate-pulse delay-150" />
                       </span>
-                    ) : `${artistCount} ${artistCount === 1 ? 'artist' : 'artists'}`}
+                    ) : homepageData || publicArtists.length > 0 ? (
+                      `${artistCount} ${artistCount === 1 ? 'artist' : 'artists'}`
+                    ) : (
+                      <span className="inline-flex items-center gap-2">
+                        {homepageError || 'Temporarily unavailable'}
+                        <button
+                          type="button"
+                          onClick={() => setReloadKey((current) => current + 1)}
+                          className="rounded-full border border-white/10 px-2 py-0.5 text-[10px] uppercase tracking-[0.2em] text-white/70"
+                        >
+                          Retry
+                        </button>
+                      </span>
+                    )}
                   </span>
                   <span className="inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.04] px-4 py-2">
                     <span className="h-2 w-2 rounded-full bg-emerald-400" />
@@ -341,7 +355,20 @@ export default function HomePage() {
                         <span className="h-1.5 w-1.5 rounded-full bg-[var(--pf-text-muted)] animate-pulse delay-75" />
                         <span className="h-1.5 w-1.5 rounded-full bg-[var(--pf-text-muted)] animate-pulse delay-150" />
                       </span>
-                    ) : `${trackCount} ${trackCount === 1 ? 'track' : 'tracks'}`}
+                    ) : homepageData ? (
+                      `${trackCount} ${trackCount === 1 ? 'track' : 'tracks'}`
+                    ) : (
+                      <span className="inline-flex items-center gap-2">
+                        {homepageError || 'Temporarily unavailable'}
+                        <button
+                          type="button"
+                          onClick={() => setReloadKey((current) => current + 1)}
+                          className="rounded-full border border-white/10 px-2 py-0.5 text-[10px] uppercase tracking-[0.2em] text-white/70"
+                        >
+                          Retry
+                        </button>
+                      </span>
+                    )}
                   </span>
                 </div>
               </div>

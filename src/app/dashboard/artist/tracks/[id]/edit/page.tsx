@@ -8,6 +8,8 @@ import Link from 'next/link'
 
 interface TrackEditForm {
   title: string
+  track_number: string
+  featured: boolean
   playback_mode: 'full' | 'preview' | 'locked'
   preview_duration_seconds: number
   unlock_required: boolean
@@ -26,6 +28,8 @@ export default function TrackEditPage() {
   const [message, setMessage] = useState('')
   const [form, setForm] = useState<TrackEditForm>({
     title: '',
+    track_number: '',
+    featured: false,
     playback_mode: 'full',
     preview_duration_seconds: 60,
     unlock_required: false,
@@ -74,6 +78,8 @@ export default function TrackEditPage() {
 
       setForm({
         title: track.title || '',
+        track_number: track.track_number?.toString?.() || '',
+        featured: Boolean(track.featured),
         playback_mode: track.playback_mode || 'full',
         preview_duration_seconds: track.preview_duration_seconds || 60,
         unlock_required: track.unlock_required || false,
@@ -98,6 +104,12 @@ export default function TrackEditPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: form.title,
+          track_number: form.track_number === ''
+            ? null
+            : Number.isFinite(Number(form.track_number))
+              ? Number.parseInt(form.track_number, 10)
+              : null,
+          featured: form.featured,
           playback_mode: form.playback_mode,
           preview_duration_seconds: form.preview_duration_seconds,
           unlock_required: form.unlock_required,
@@ -157,6 +169,38 @@ export default function TrackEditPage() {
         )}
 
         <div className="space-y-6">
+          {/* Lead Track */}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label className="block text-sm font-medium mb-2">Track order</label>
+              <input
+                type="number"
+                min="1"
+                step="1"
+                value={form.track_number}
+                onChange={(e) => setForm({ ...form, track_number: e.target.value })}
+                className="w-full px-4 py-3 bg-[var(--pf-bg-secondary)] border border-[var(--pf-border)] rounded-xl text-white"
+              />
+              <p className="mt-2 text-xs text-[var(--pf-text-muted)]">
+                Lower numbers appear earlier on your artist page. Set this track to 1 to make it the first track.
+              </p>
+            </div>
+            <label className="flex items-start gap-3 p-4 bg-[var(--pf-surface)] rounded-xl border border-[var(--pf-border)] cursor-pointer">
+              <input
+                type="checkbox"
+                checked={form.featured}
+                onChange={(e) => setForm({ ...form, featured: e.target.checked })}
+                className="w-5 h-5 accent-[var(--pf-orange)] mt-1"
+              />
+              <div>
+                <span className="font-medium">Featured track</span>
+                <p className="text-sm text-[var(--pf-text-secondary)]">
+                  This is the top track for your artist page hero and the featured track badge.
+                </p>
+              </div>
+            </label>
+          </div>
+
           {/* Title */}
           <div>
             <label className="block text-sm font-medium mb-2">Track Title</label>

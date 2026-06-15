@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { loadCatalogProducts } from '@/lib/product-visibility'
+import { attachTrackCollaborators, loadTrackCollaboratorMap } from '@/lib/track-collaborators'
 
 export const dynamic = 'force-dynamic'
 
@@ -38,7 +39,7 @@ export async function GET() {
     // Get newest LIVE track only
     const { data: newestTrack } = await supabase
       .from('tracks')
-      .select('id, title, artist, album, duration, cover_url, is_active, status')
+      .select('id, title, artist, artist_id, album, duration, cover_url, is_active, status')
       .in('status', ['live', 'published'])
       .eq('is_active', true)
       .order('created_at', { ascending: false })
@@ -72,12 +73,31 @@ export async function GET() {
     if (allNeededIds.length > 0) {
       const { data: dbTracks } = await supabase
         .from('tracks')
-        .select('id, title, artist, album, duration, cover_url, is_active, status')
+        .select('id, title, artist, artist_id, album, duration, cover_url, is_active, status')
         .in('id', allNeededIds)
         .in('status', ['live', 'published'])
         .eq('is_active', true)
       resolvedTracks = dbTracks || []
     }
+
+    const collaboratorMap = await loadTrackCollaboratorMap(
+      supabase,
+      Array.from(
+        new Set([
+          ...(newestTrack?.id ? [newestTrack.id] : []),
+          ...resolvedTracks.map((track: any) => track.id),
+        ]),
+      ),
+    ).catch((error) => {
+      console.warn('[homepage-data] collaborator load failed, using plain tracks:', error)
+      return new Map<string, any[]>()
+    })
+
+    const newestTrackWithCollaborators = newestTrack
+      ? attachTrackCollaborators([newestTrack], collaboratorMap)[0]
+      : null
+
+    const resolvedTracksWithCollaborators = attachTrackCollaborators(resolvedTracks, collaboratorMap)
 
     const response = NextResponse.json({
       counts: {
@@ -86,9 +106,9 @@ export async function GET() {
         totalTracks: totalTracks || 0,
         activeTracks: activeTracks || 0,
       },
-      newestTrack,
+      newestTrack: newestTrackWithCollaborators,
       siteSettings: siteSettingsValue,
-      tracks: resolvedTracks,
+      tracks: resolvedTracksWithCollaborators,
       products: await loadCatalogProducts('store', { limit: 4 }),
     })
     response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')

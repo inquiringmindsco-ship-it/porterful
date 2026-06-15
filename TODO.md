@@ -361,3 +361,54 @@ cron update jobId=797c4bd1-522c-459f-9f60-e6e66e097207 enabled=false
 ```
 
 or `cron remove jobId=797c4bd1-522c-459f-9f60-e6e66e097207`. The directive describes work that was complete before run 1. If a real recurring check is wanted, the payload needs to describe something that can actually fail.
+
+## Run 21 — 2026-06-15 4:47 AM CDT
+Cron `797c4bd1-522c-459f-9f60-e6e66e097207` re-triggered. Twenty-first re-audit. Findings unchanged from runs 1–20.
+
+1. **Rob Soule data** — `src/lib/artists.ts:171` has `genre: 'Hip-Hop / R&B / Blues'`; bio opens *"Rob Soule is a St. Louis hip-hop and R&B artist blending blues into a soulful sound."* (matches the directive verbatim). `social` populated: instagram/twitter/youtube/tiktok all `'robsoule'`. No change.
+2. **Social buttons** — `src/components/artist/ArtistHero.tsx` renders IG/Twitter/YouTube/TikTok icon chips inline next to the artist name (uses `SOCIAL_ICONS` + `normalizeSocialUrl()` from `src/lib/artist-social.tsx`). Directive's path `src/app/artist/[id]/page.tsx` still doesn't exist; canonical public page is `src/app/(app)/artist/[slug]/page.tsx`, which consumes `<ArtistHero>`. No change.
+3. **Singles before Albums** — `src/components/artist/ArtistTabs.tsx` Music-tab order intact: Featured Tracks → Music → **Singles (before Albums)** → Albums → Collaborators. Singles section header (line 361) precedes Albums section header (line 376). No change.
+
+Working tree: dirty as in prior runs. **No code modifications, no commit, no deploy.**
+
+**21st no-op in ~5 days** — same recommendation: disable or remove cron `797c4bd1-522c-459f-9f60-e6e66e097207`.
+
+```
+cron update jobId=797c4bd1-522c-459f-9f60-e6e66e097207 enabled=false
+```
+
+or `cron remove jobId=797c4bd1-522c-459f-9f60-e6e66e097207`. Cron state shows `consecutiveErrors: 144` (Telegram delivery is broken too) and `lastRunStatus: "error"`. The directive describes work that was complete before run 1. If a real recurring check is wanted, the payload needs to describe something that can actually fail (or this cron can be replaced with a one-time agentTurn that returns "still done").
+
+## Run 22 — 2026-06-15 5:50 AM CDT
+Cron `797c4bd1-522c-459f-9f60-e6e66e097207` re-triggered. Twenty-second re-audit. Findings unchanged from runs 1–21.
+
+1. **Rob Soule data** — `src/lib/artists.ts:171` has `genre: 'Hip-Hop / R&B / Blues'`; bio opens *"Rob Soule is a St. Louis hip-hop and R&B artist blending blues into a soulful sound."* (matches the directive verbatim). `social` populated: instagram/twitter/youtube/tiktok all `'robsoule'`. No change.
+2. **Social buttons** — `src/components/artist/ArtistHero.tsx` (lines ~54–70, 113–138) renders IG/Twitter/YouTube/TikTok icon chips inline next to the artist name, using `SOCIAL_ICONS` + `normalizeSocialUrl()` from `src/lib/artist-social.tsx`. The directive's path `src/app/artist/[id]/page.tsx` still doesn't exist; canonical public page is `src/app/(app)/artist/[slug]/page.tsx`, which consumes `<ArtistHero>`. The legacy `src/app/(app)/artist/artist/[id]/page.tsx` is a redirect shim → `/artist/[slug]`. No change.
+3. **Singles before Albums** — `src/components/artist/ArtistTabs.tsx` Music-tab order intact: Featured Tracks (line 364) → Music (line 375) → **Singles (line 390)** → **Albums (line 405)** → Collaborators (line 477). Singles section header precedes Albums section header. No change.
+
+Working tree: dirty as in prior runs. **No code modifications, no commit, no deploy.**
+
+**22nd no-op in ~5 days** — same recommendation: disable or remove cron `797c4bd1-522c-459f-9f60-e6e66e097207`.
+
+```
+cron update jobId=797c4bd1-522c-459f-9f60-e6e66e097207 enabled=false
+```
+
+or `cron remove jobId=797c4bd1-522c-459f-9f60-e6e66e097207`. The directive describes work that was complete before run 1. If a real recurring check is wanted, the payload needs to describe something that can actually fail.
+
+## Run 23 — 2026-06-15 6:52 AM CDT
+Cron `797c4bd1-522c-459f-9f60-e6e66e097207` re-triggered. Twenty-third re-audit. Findings unchanged from runs 1–22.
+
+1. **Rob Soule data** — `src/lib/artists.ts:171` has `genre: 'Hip-Hop / R&B / Blues'`; bio opens *"Rob Soule is a St. Louis hip-hop and R&B artist blending blues into a soulful sound."* (matches the directive verbatim). `social` populated: instagram/twitter/youtube/tiktok all `'robsoule'`. No change.
+2. **Social buttons** — `src/components/artist/ArtistHero.tsx` (lines ~96–119) renders IG/Twitter/YouTube/TikTok icon chips inline next to the artist name, using `SOCIAL_ICONS` + `normalizeSocialUrl()` from `src/lib/artist-social.tsx`. The directive's path `src/app/artist/[id]/page.tsx` still doesn't exist; canonical public page is `src/app/(app)/artist/[slug]/page.tsx`, which consumes `<ArtistHero>`. The legacy `src/app/(app)/artist/artist/[id]/page.tsx` is a redirect shim → `/artist/[slug]`. No change.
+3. **Singles before Albums** — `src/components/artist/ArtistTabs.tsx` Music-tab order intact: Featured Tracks (line 348) → Music (line 364) → **Singles (line 379)** → **Albums (line 394)** → Collaborators (line 466). Singles section header precedes Albums section header. No change.
+
+Working tree: same 30+ dirty entries as run 22 (uncommitted local edits from prior work, plus this TODO update). **No code modifications, no commit, no deploy.**
+
+**23rd no-op in ~5 days** — same recommendation: disable or remove cron `797c4bd1-522c-459f-9f60-e6e66e097207`.
+
+```
+cron update jobId=797c4bd1-522c-459f-9f60-e6e66e097207 enabled=false
+```
+
+or `cron remove jobId=797c4bd1-522c-459f-9f60-e6e66e097207`. The directive describes work that was complete before run 1. If a real recurring check is wanted, the payload needs to describe something that can actually fail.

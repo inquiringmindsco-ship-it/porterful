@@ -17,6 +17,7 @@ import {
 } from 'lucide-react'
 import { EmptyState, GuidanceRoadmap, StageTracker, NextStepCard, AttentionCard } from '@/components/guidance/GuidedExperience'
 import { useGuidedTour } from '@/components/guidance/GuidedTour'
+import { attachTrackCollaborators, loadTrackCollaboratorMap } from '@/lib/track-collaborators'
 
 type ArtistWithProfile = {
   id: string
@@ -249,7 +250,13 @@ export default function FounderDashboard() {
 
       const { data: profilesData } = await supabase.from('profiles').select('id, role, created_at')
       const { data: artistsData } = await supabase.from('artists').select('*')
-      const { data: tracksData } = await supabase.from('tracks').select('*')
+      const { data: tracksDataRaw } = await supabase.from('tracks').select('*')
+      const tracksData = tracksDataRaw || []
+      const collaboratorMap = await loadTrackCollaboratorMap(
+        supabase,
+        tracksData.map((track: any) => track.id).filter(Boolean),
+      ).catch(() => new Map())
+      const enrichedTracksData = attachTrackCollaborators(tracksData, collaboratorMap)
 
       const [assetsRes, skusRes, inventoryRes, jobsRes] = await Promise.all([
         fetch('/api/production-assets?current_only=true', {
@@ -298,8 +305,8 @@ export default function FounderDashboard() {
       // Calculate metrics
       const totalUsers = adminCounts?.total || profilesData?.length || 0
       const totalArtists = adminCounts?.artists || artistsData?.length || 0
-      const totalTracks = tracksData?.length || 0
-      const liveTracks = tracksData?.filter(t => t.status === 'live' || t.is_active).length || 0
+      const totalTracks = enrichedTracksData.length
+      const liveTracks = enrichedTracksData.filter(t => t.status === 'live' || t.is_active).length || 0
 
       // Calculate revenue from the canonical report.
       const totalRevenue = (revenueData?.totals?.revenue_cents || 0) / 100
@@ -322,13 +329,13 @@ export default function FounderDashboard() {
         : 0
 
       // Calculate potential catalog value
-      const trackPrices = tracksData?.map((t: any) => Number(t.proud_to_pay_min ?? t.price ?? 0)) || []
+      const trackPrices = enrichedTracksData.map((t: any) => Number(t.proud_to_pay_min ?? t.price ?? 0)) || []
       const catalogValue = trackPrices.reduce((sum: number, p: number) => sum + p, 0)
 
       // Tracks needing attention
       const attentionItems: any[] = []
       
-      tracksData?.forEach((t: any) => {
+      enrichedTracksData.forEach((t: any) => {
         if (!t.duration) {
           attentionItems.push({
             type: 'track',
@@ -365,7 +372,7 @@ export default function FounderDashboard() {
 
       // Build artist list with computed fields
       const enrichedArtists = (artistsData || []).map((a: any) => {
-        const artistTracks = tracksData?.filter((t: any) => t.artist_id === a.id) || []
+        const artistTracks = enrichedTracksData.filter((t: any) => t.artist_id === a.id) || []
         const liveTracks = artistTracks.filter((t: any) => t.status === 'live' || t.is_active)
         const lastUpload = artistTracks.length > 0 
           ? artistTracks.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0]?.created_at 
@@ -380,7 +387,7 @@ export default function FounderDashboard() {
       })
 
       // Build track list
-      const enrichedTracks = (tracksData || []).map((t: any) => ({
+      const enrichedTracks = enrichedTracksData.map((t: any) => ({
         ...t,
         status: t.status || (t.is_active ? 'live' : 'draft')
       }))
