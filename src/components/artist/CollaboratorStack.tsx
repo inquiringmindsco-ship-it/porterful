@@ -2,6 +2,7 @@
 
 import { ArtistAvatar } from '@/components/artist/ArtistAvatar'
 import type { ArtistCredit } from '@/lib/artist-credits'
+import Link from 'next/link'
 
 interface CollaboratorStackProps {
   artists: ArtistCredit[]
@@ -47,13 +48,31 @@ export function CollaboratorStack({
           className={index === 0 ? 'relative' : '-ml-2 relative'}
           title={getTitle(artist)}
         >
-          <ArtistAvatar
-            src={artist.image}
-            alt={artist.name}
-            name={artist.name}
-            size={SIZE_MAP[size]}
-            className="ring-2 ring-[var(--pf-bg)]"
-          />
+          {artist.href ? (
+            <Link
+              href={artist.href}
+              title={getTitle(artist)}
+              aria-label={artist.name}
+              className="block transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[var(--pf-orange)]/40 rounded-full"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <ArtistAvatar
+                src={artist.image}
+                alt={artist.name}
+                name={artist.name}
+                size={SIZE_MAP[size]}
+                className="ring-2 ring-[var(--pf-bg)]"
+              />
+            </Link>
+          ) : (
+            <ArtistAvatar
+              src={artist.image}
+              alt={artist.name}
+              name={artist.name}
+              size={SIZE_MAP[size]}
+              className="ring-2 ring-[var(--pf-bg)]"
+            />
+          )}
         </div>
       ))}
 

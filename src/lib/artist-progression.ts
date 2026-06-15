@@ -179,7 +179,7 @@ export function resolveArtistProgressionSummary(input: {
   }
 
   const unlockedCapacities = effectiveLevel > 0
-    ? ARTIST_PROGRESSION_CONFIG[effectiveLevel].capabilities
+    ? ARTIST_PROGRESSION_CONFIG[effectiveLevel as ArtistProgressionLevel].capabilities
     : []
 
   const nextUnlocks = effectiveLevel >= 4

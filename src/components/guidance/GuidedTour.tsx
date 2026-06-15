@@ -219,6 +219,9 @@ function loadState(scope: TourScope, userId?: string | null): TourState | null {
       const parsed = JSON.parse(raw) as TourState
       if (!parsed || parsed.scope !== scope) return null
       if (!['idle', 'active', 'paused', 'completed'].includes(parsed.status)) return null
+      if (userId && parsed.status !== 'idle') {
+        window.localStorage.setItem(seenKey(scope, userId), 'true')
+      }
       return parsed
     }
 

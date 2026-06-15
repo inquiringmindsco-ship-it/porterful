@@ -204,43 +204,61 @@ function ArtistCard({ artist }: { artist: ArtistFromDb }) {
   return (
     <Link
       href={`/artist/${artist.slug}`}
-      className="group overflow-hidden rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] transition hover:border-[var(--pf-orange)]/40"
+      className="group overflow-hidden rounded-3xl border border-[var(--pf-border)] bg-[var(--pf-surface)] shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--pf-orange)]/40"
     >
-      <div className="relative aspect-[4/5] overflow-hidden bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(0,0,0,0.2))]">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_42%),radial-gradient(circle_at_bottom,rgba(255,137,0,0.12),transparent_35%)]" />
-        <div className="absolute inset-0 flex items-center justify-center p-6">
+      <div className="grid gap-4 p-4 sm:grid-cols-[112px_1fr]">
+        <div className="relative flex aspect-square items-center justify-center overflow-hidden rounded-2xl border border-[var(--pf-border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(0,0,0,0.18))]">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_40%),radial-gradient(circle_at_bottom,rgba(255,137,0,0.12),transparent_35%)]" />
           <ArtistAvatar
             src={image}
             alt={artist.name}
             name={artist.name}
-            size="xl"
-            className="ring-4 ring-white/10 transition duration-300 group-hover:scale-105"
+            size="lg"
+            className="relative z-10 ring-4 ring-white/10 transition duration-300 group-hover:scale-105"
           />
         </div>
-      </div>
-      <div className="space-y-3 p-5">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <h2 className="text-xl font-bold truncate">{artist.name}</h2>
-              {artist.verified && (
-                <Check size={16} className="text-[var(--pf-orange)] shrink-0" />
-              )}
+
+        <div className="min-w-0 space-y-3 py-1">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <h2 className="truncate text-xl font-bold text-[var(--pf-text)]">{artist.name}</h2>
+                {artist.verified && (
+                  <Check size={16} className="shrink-0 text-[var(--pf-orange)]" />
+                )}
+              </div>
+              <p className="mt-1 truncate text-sm text-[var(--pf-text-secondary)]">
+                {artist.genre || 'Artist'} · {artist.location || 'Location unknown'}
+              </p>
             </div>
-            <p className="mt-1 text-sm text-[var(--pf-text-secondary)] truncate">{artist.genre || 'Artist'}</p>
+            <span className="shrink-0 rounded-full border border-[var(--pf-border)] bg-[var(--pf-bg)] px-2.5 py-1 text-xs font-medium text-[var(--pf-text-muted)]">
+              {trackCount} tracks
+            </span>
           </div>
-          <span className="rounded-full border border-[var(--pf-border)] px-2.5 py-1 text-xs font-medium text-[var(--pf-text-muted)] shrink-0">
-            {trackCount} tracks
-          </span>
-        </div>
 
-        <p className="text-sm text-[var(--pf-text-secondary)] line-clamp-2">
-          {shortBio}
-        </p>
+          <p className="line-clamp-3 text-sm leading-6 text-[var(--pf-text-secondary)]">
+            {shortBio}
+          </p>
 
-        <div className="flex items-center gap-2 text-xs text-[var(--pf-text-muted)]">
-          <MapPin size={12} />
-          <span>{artist.location || 'Location unknown'}</span>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full border border-[var(--pf-border)] bg-[var(--pf-bg)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--pf-text-muted)]">
+              {artist.genre || 'Artist'}
+            </span>
+            <span className="inline-flex items-center gap-1 rounded-full border border-[var(--pf-border)] bg-[var(--pf-bg)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--pf-text-muted)]">
+              <MapPin size={11} />
+              {artist.location || 'Location unknown'}
+            </span>
+          </div>
+
+          <div className="flex items-center justify-between gap-3 pt-1">
+            <p className="text-xs text-[var(--pf-text-muted)]">
+              Compact artist cards help you scan the lineup faster.
+            </p>
+            <span className="inline-flex items-center gap-1 text-sm font-semibold text-[var(--pf-orange)]">
+              Open
+              <ArrowRight size={14} />
+            </span>
+          </div>
         </div>
       </div>
     </Link>

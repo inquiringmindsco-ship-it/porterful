@@ -16,14 +16,17 @@ import { ArtistTrackList } from '@/components/artist/ArtistTrackList'
 import { FeaturedTrackCard } from '@/components/artist/FeaturedTrackCard'
 import { ArtistAvatar } from '@/components/artist/ArtistAvatar'
 import { CollaboratorStack } from '@/components/artist/CollaboratorStack'
+import { ArtistVideoLibrary } from '@/components/artist/ArtistVideoLibrary'
 import { buildTrackArtistCredits, type ArtistCredit } from '@/lib/artist-credits'
 import { sortTracksByAlbumOrder, dedupeQueueTracks, filterPlayableTracks } from '@/lib/track-dedupe'
 import { canonicalAlbum } from '@/lib/duration-formatter'
+import type { ArtistVideoRecord } from '@/lib/artist-videos'
 
-type TabKey = 'music' | 'store' | 'about'
+type TabKey = 'music' | 'videos' | 'store' | 'about'
 
 const TABS: { key: TabKey; label: string }[] = [
   { key: 'music', label: 'Music' },
+  { key: 'videos', label: 'Videos' },
   { key: 'store', label: 'Store' },
   { key: 'about', label: 'About' },
 ]
@@ -44,6 +47,7 @@ interface ArtistTabsProps {
   featuredTracks?: Track[]
   singles: Track[]
   albumTracks: Track[]
+  videos?: ArtistVideoRecord[]
   products: Product[]
   albumOrder?: Record<string, number>
 }
@@ -156,6 +160,7 @@ export function ArtistTabs({
   featuredTracks = [],
   singles,
   albumTracks,
+  videos = [],
   products,
   albumOrder,
 }: ArtistTabsProps) {
@@ -220,6 +225,15 @@ export function ArtistTabs({
       matchesQuery(product.description, normalizedQuery)
     )
   }, [products, normalizedQuery])
+
+  const filteredVideos = useMemo(() => {
+    if (!normalizedQuery) return videos
+    return videos.filter((video) =>
+      matchesQuery(video.title, normalizedQuery) ||
+      matchesQuery(video.channel_name, normalizedQuery) ||
+      matchesQuery(video.video_category, normalizedQuery)
+    )
+  }, [videos, normalizedQuery])
 
   const filteredCollaborators = useMemo(() => {
     if (!normalizedQuery) return collaborators
@@ -334,7 +348,7 @@ export function ArtistTabs({
                 Search results for “{query}”
               </p>
               <p className="mt-1 text-xs text-[var(--pf-text-muted)]">
-                {filteredTracks.length} tracks, {filteredAlbums.length} albums, {filteredSingles.length} singles, {filteredProducts.length} products, {filteredCollaborators.length} collaborators
+                {filteredTracks.length} tracks, {filteredAlbums.length} albums, {filteredSingles.length} singles, {filteredVideos.length} videos, {filteredProducts.length} products, {filteredCollaborators.length} collaborators
               </p>
             </div>
           )}
@@ -541,6 +555,23 @@ export function ArtistTabs({
                 )
               })}
             </div>
+          )}
+        </div>
+      )}
+
+      {active === 'videos' && (
+        <div className="space-y-6">
+          {filteredVideos.length === 0 ? (
+            <EmptyMessage
+              title={normalizedQuery ? 'No videos matched that search' : 'No videos yet'}
+              body={normalizedQuery ? 'Try another title or channel name.' : 'Videos will appear here when the artist adds YouTube imports.'}
+            />
+          ) : (
+            <ArtistVideoLibrary
+              videos={filteredVideos}
+              emptyTitle="No videos yet"
+              emptyBody="Videos will appear here when the artist adds YouTube imports."
+            />
           )}
         </div>
       )}

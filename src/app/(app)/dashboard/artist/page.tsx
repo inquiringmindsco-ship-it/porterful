@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useSupabase } from '@/app/providers'
 import Link from 'next/link'
-import { ArrowLeft, Music, Package, Upload } from 'lucide-react'
+import { ArrowLeft, Music, Package, Upload, Video } from 'lucide-react'
 import { GuidanceRoadmap, StageTracker, EmptyState } from '@/components/guidance/GuidedExperience'
 import { useGuidedTour } from '@/components/guidance/GuidedTour'
 import { canonicalAlbum } from '@/lib/duration-formatter'
@@ -435,6 +435,7 @@ export default function ArtistDashboardPage() {
           {[
             { href: '/dashboard/artist', label: 'My Music' },
             { href: '/dashboard/artist/assets', label: 'My Files' },
+            { href: '/dashboard/artist/media', label: 'Media' },
             { href: '/dashboard/artist/edit', label: 'Appearance' },
             { href: '/dashboard/artist/inventory', label: 'Inventory' },
             { href: '/dashboard/artist/fulfillment', label: 'Fulfillment' },
@@ -468,6 +469,9 @@ export default function ArtistDashboardPage() {
           <div className="flex flex-wrap gap-2">
             <Link href="/dashboard/upload" className="pf-btn pf-btn-primary flex items-center gap-2 text-lg px-6 py-3">
               <Icon.Upload /> Upload
+            </Link>
+            <Link href="/dashboard/artist/media" className="pf-btn pf-btn-secondary flex items-center gap-2">
+              <Video size={16} /> Media
             </Link>
             <Link href="/store" className="pf-btn pf-btn-secondary flex items-center gap-2">
               <Icon.Package /> View Store

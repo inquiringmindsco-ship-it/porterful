@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useSupabase } from '@/app/providers'
 import Link from 'next/link'
 import { 
-  ArrowLeft, Check, Camera,
+  ArrowLeft, Check, Camera, Video,
   AlertCircle, Search
 } from 'lucide-react'
 import { ArtistAvatar } from '@/components/artist/ArtistAvatar'
@@ -263,25 +263,35 @@ export default function FounderArtistsPage() {
                       </div>
                       <div className="shrink-0">
                         <p className="text-[10px] uppercase tracking-wider text-[var(--pf-text-muted)] mb-1 text-right">Public Profile</p>
-                        <button
-                          onClick={() => toggleVisibility(artist)}
-                          disabled={saving[artist.id]}
-                          className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                            isPublic
-                              ? 'bg-[var(--pf-orange)] text-white'
-                              : 'bg-[var(--pf-surface)] border border-[var(--pf-border)] text-[var(--pf-text-secondary)]'
-                          }`}
-                          title="Toggle public profile visibility"
-                        >
-                          {saving[artist.id] ? (
-                            <span className="w-16 text-center">Saving...</span>
-                          ) : (
-                            <>
-                              <span className={`w-2 h-2 rounded-full ${isPublic ? 'bg-white' : 'bg-[var(--pf-text-muted)]'}`} />
-                              <span>{isPublic ? 'Visible' : 'Hidden'}</span>
-                            </>
-                          )}
-                        </button>
+                        <div className="flex flex-wrap justify-end gap-2">
+                          <button
+                            onClick={() => toggleVisibility(artist)}
+                            disabled={saving[artist.id]}
+                            className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                              isPublic
+                                ? 'bg-[var(--pf-orange)] text-white'
+                                : 'bg-[var(--pf-surface)] border border-[var(--pf-border)] text-[var(--pf-text-secondary)]'
+                            }`}
+                            title="Toggle public profile visibility"
+                          >
+                            {saving[artist.id] ? (
+                              <span className="w-16 text-center">Saving...</span>
+                            ) : (
+                              <>
+                                <span className={`w-2 h-2 rounded-full ${isPublic ? 'bg-white' : 'bg-[var(--pf-text-muted)]'}`} />
+                                <span>{isPublic ? 'Visible' : 'Hidden'}</span>
+                              </>
+                            )}
+                          </button>
+                          <Link
+                            href={`/dashboard/artist/media?artist_id=${artist.id}`}
+                            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium bg-[var(--pf-surface)] border border-[var(--pf-border)] text-[var(--pf-text-secondary)] transition-colors hover:border-[var(--pf-orange)] hover:text-[var(--pf-text)]"
+                            title="Manage artist videos"
+                          >
+                            <Video size={12} />
+                            Media
+                          </Link>
+                        </div>
                       </div>
                     </div>
 

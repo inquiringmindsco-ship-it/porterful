@@ -11,6 +11,7 @@ import { mergeCanonicalTracks, dedupeQueueTracks, getTrackDedupeKey } from '@/li
 import { canonicalAlbum, isRealAlbum } from '@/lib/duration-formatter'
 import { loadCatalogProducts } from '@/lib/product-visibility'
 import { getArtistThemeStyles, resolveArtistAppearance } from '@/lib/artist-theme'
+import { loadArtistMediaBundle } from '@/lib/server/artist-media'
 
 interface SocialLinks {
   instagram?: string
@@ -202,6 +203,21 @@ export default async function ArtistPage({ params }: PageProps) {
 
   const products = artistProducts.length > 0 ? artistProducts : []
   const appearance = resolveArtistAppearance(artist.slug, artist.appearance, artist.appearance)
+  const mediaBundle = dbArtistRecord?.id
+    ? await loadArtistMediaBundle({
+        id: dbArtistRecord.id,
+        name: artist.name,
+        slug: artist.slug,
+        created_at: dbArtistRecord.created_at,
+        status: dbArtistRecord.status,
+        public_profile_enabled: dbArtistRecord.public_profile_enabled,
+        verified: artist.verified,
+        likeness_verified: artist.likeness_verified,
+        bio: artist.bio,
+        avatar_url: dbArtistRecord.avatar_url || artist.image || null,
+        cover_url: dbArtistRecord.cover_url || artist.coverUrl || artist.bannerUrl || null,
+      })
+    : null
 
   return (
     <div
@@ -236,6 +252,7 @@ export default async function ArtistPage({ params }: PageProps) {
         featuredTracks={featuredTracks}
         singles={singles}
         albumTracks={albumTracks}
+        videos={mediaBundle?.videos || []}
         products={products}
         albumOrder={albumOrder}
       />
