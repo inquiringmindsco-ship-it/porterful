@@ -22,14 +22,29 @@ import { sortTracksByAlbumOrder, dedupeQueueTracks, filterPlayableTracks } from 
 import { canonicalAlbum } from '@/lib/duration-formatter'
 import type { ArtistVideoRecord } from '@/lib/artist-videos'
 
-type TabKey = 'music' | 'videos' | 'store' | 'about'
+type TabKey = 'music' | 'videos' | 'store' | 'about' | 'support'
 
 const TABS: { key: TabKey; label: string }[] = [
   { key: 'music', label: 'Music' },
   { key: 'videos', label: 'Videos' },
   { key: 'store', label: 'Store' },
   { key: 'about', label: 'About' },
+  { key: 'support', label: 'Support' },
 ]
+
+// Compute which tabs should actually render for this artist, based on what
+// they have. Hiding empty tabs prevents the "Videos: No videos yet" and
+// "Store: coming soon" dead sections that erode trust.
+function computeVisibleTabs(
+  props: Pick<ArtistTabsProps, 'videos' | 'products' | 'bio' | 'social'>,
+): TabKey[] {
+  const visible: TabKey[] = ['music']
+  if ((props.videos?.length || 0) > 0) visible.push('videos')
+  if ((props.products?.length || 0) > 0) visible.push('store')
+  if (props.bio || props.social) visible.push('about')
+  visible.push('support') // always available as a low-pressure bottom section
+  return visible
+}
 
 interface SocialLinks {
   instagram?: string
@@ -167,6 +182,22 @@ export function ArtistTabs({
   const [active, setActive] = useState<TabKey>('music')
   const [openAlbum, setOpenAlbum] = useState<string | null>(null)
   const [query, setQuery] = useState('')
+
+  // Tabs are conditional on what the artist actually has. This prevents
+  // "Store: coming soon" / "Videos: No videos yet" dead sections.
+  // The Support tab is always available (it's a low-pressure bottom section).
+  const visibleTabs = useMemo(
+    () => computeVisibleTabs({ videos, products, bio, social }),
+    [videos, products, bio, social],
+  )
+
+  // If the artist toggled the active tab off (e.g. emptied their videos
+  // after they were on the Videos tab), fall back to Music.
+  useEffect(() => {
+    if (!visibleTabs.includes(active) && visibleTabs.length > 0) {
+      setActive(visibleTabs[0])
+    }
+  }, [visibleTabs, active])
 
   const normalizedQuery = query.trim().toLowerCase()
   const playableFeatured = useMemo(() => filterPlayableTracks(featuredTracks), [featuredTracks])
@@ -313,7 +344,7 @@ export function ArtistTabs({
       />
 
       <div className="flex w-full flex-nowrap border-b border-[var(--pf-border)] mb-6 -mx-5 overflow-x-auto px-5 pb-1 scrollbar-hide sm:mx-0 sm:px-0 sm:pb-0">
-        {TABS.map((tab) => {
+        {visibleTabs.map((tab) => {
           const isActive = active === tab.key
           return (
             <button
@@ -337,8 +368,6 @@ export function ArtistTabs({
           )
         })}
       </div>
-
-      {supportBlock}
 
       {active === 'music' && (
         <div className="space-y-8">
@@ -626,7 +655,7 @@ export function ArtistTabs({
         </div>
       )}
 
-      {supportBlock}
+      {active === 'support' && supportBlock}
     </div>
   )
 }
