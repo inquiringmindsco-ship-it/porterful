@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { ArtistAvatarShape, ArtistAvatarFocus } from '@/lib/artist-theme'
 
 type ArtistAvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
@@ -66,8 +66,22 @@ export function ArtistAvatar({
   sizes,
   title,
 }: ArtistAvatarProps) {
+  // If the image is already cached or already finished loading by the time React mounts,
+  // imgRef.current.complete will be true and we should set status to 'loaded' immediately
+  // to avoid the opacity-0 flash. We also re-check on every src change for the same reason.
+  const imgRef = useRef<HTMLImageElement | null>(null)
   const [status, setStatus] = useState<'loading' | 'loaded' | 'error' | 'empty'>(
-    src?.trim() ? 'loading' : 'empty',
+    () => {
+      if (!src?.trim()) return 'empty'
+      if (typeof window === 'undefined') return 'loading'
+      try {
+        const probe = new window.Image()
+        probe.src = src
+        return probe.complete ? 'loaded' : 'loading'
+      } catch {
+        return 'loading'
+      }
+    },
   )
 
   useEffect(() => {
@@ -77,6 +91,20 @@ export function ArtistAvatar({
     }
 
     setStatus('loading')
+
+    // If the image is already in the browser cache (or the same-origin relative
+    // path already finished loading before React attached the onLoad listener),
+    // mark it loaded immediately. Otherwise the opacity-0 hides the image forever
+    // and the user sees a blank hero.
+    const checkLoaded = () => {
+      if (imgRef.current?.complete && imgRef.current.naturalWidth > 0) {
+        setStatus('loaded')
+      }
+    }
+
+    // Run after layout: imgRef is attached by then.
+    const raf = requestAnimationFrame(checkLoaded)
+    return () => cancelAnimationFrame(raf)
   }, [src])
 
   const initials = useMemo(() => getInitials(name || 'Porterful'), [name])
@@ -98,6 +126,7 @@ export function ArtistAvatar({
     >
       {canRenderImage ? (
         <img
+          ref={imgRef}
           src={src!}
           alt={altText}
           className={[
