@@ -52,6 +52,8 @@ export async function GET() {
     { name: 'artist_applications', pk: 'id' },
     { name: 'artist_videos', pk: 'video_id' },
     { name: 'products', pk: 'id' },
+    { name: 'role_transitions', pk: 'id' },
+    { name: 'artist_progressions', pk: 'artist_id' },
   ]
 
   for (const { name: table, pk } of requiredTables) {

@@ -99,6 +99,8 @@ check_table "tracks" "id"
 check_table "artist_applications" "id"
 check_table "artist_videos" "video_id"
 check_table "products" "id"
+  check_table "role_transitions" "id"
+  check_table "artist_progressions" "artist_id"
 
 echo ""
 echo "Required columns on artists:"
