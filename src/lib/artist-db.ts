@@ -123,7 +123,27 @@ export async function getServerArtistBySlug(slug: string) {
     .maybeSingle()
   
   if (error) {
-    console.error('[getServerArtistBySlug] Error:', error)
+    // If the error is a schema gap (missing table or column), emit a clear
+    // SENTINEL-ALERT log line so it's obvious in the Vercel logs that the
+    // root cause is a missing migration, not a logic bug. The historic bug
+    // was: artist_applications table was missing, every apply failed with
+    // 500 and the error in the logs was opaque.
+    const msg = error?.message || ''
+    const isSchemaGap =
+      error?.code === 'PGRST205' || // table not found
+      error?.code === 'PGRST204' || // column not found
+      msg.includes('Could not find the table') ||
+      msg.includes('Could not find the column')
+    if (isSchemaGap) {
+      console.error(
+        `[SENTINEL-ALERT] SCHEMA GAP in getServerArtistBySlug (slug=${slug}): ${msg}. ` +
+        `A required table or column is missing from live Supabase. ` +
+        `Run ./scripts/verify-schema.sh to see what's missing. ` +
+        `If a migration is missing, apply it via the Supabase dashboard SQL editor.`
+      )
+    } else {
+      console.error('[getServerArtistBySlug] Error:', error)
+    }
     return null
   }
   
