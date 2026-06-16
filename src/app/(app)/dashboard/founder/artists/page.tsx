@@ -4,11 +4,21 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSupabase } from '@/app/providers'
 import Link from 'next/link'
-import { 
+import {
   ArrowLeft, Check, Camera, Video,
-  AlertCircle, Search
+  AlertCircle, Search, Sparkles
 } from 'lucide-react'
 import { ArtistAvatar } from '@/components/artist/ArtistAvatar'
+
+const ARTIST_TIERS = [
+  { value: 'basic_artist', label: 'Basic', cap: '3 tracks' },
+  { value: 'verified_artist', label: 'Verified', cap: '25 tracks' },
+  { value: 'likeness_verified_artist', label: 'Likeness Verified', cap: '25 tracks' },
+  { value: 'porterful_artist', label: 'Porterful', cap: 'Unlimited' },
+  { value: 'exclusive_porterful_artist', label: 'Exclusive Porterful', cap: 'Unlimited' },
+] as const
+
+type TierValue = (typeof ARTIST_TIERS)[number]['value']
 
 interface Artist {
   id: string
@@ -73,6 +83,44 @@ export default function FounderArtistsPage() {
     loadArtists()
   }, [authLoading, user, supabase, router])
 
+  async function changeTier(artist: Artist, newTier: TierValue) {
+    if (newTier === artist.artist_tier) return
+
+    setSaving({ ...saving, [artist.id]: true })
+    setError('')
+    setNotice('')
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+
+      const res = await fetch(`/api/admin/artists/${artist.id}/tier`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.access_token || ''}`,
+        },
+        body: JSON.stringify({ tier: newTier }),
+      })
+
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        throw new Error(data.error || `Failed to update tier for ${artist.name}`)
+      }
+
+      setArtists(artists.map(a =>
+        a.id === artist.id ? { ...a, artist_tier: newTier } : a
+      ))
+      const cap = ARTIST_TIERS.find(t => t.value === newTier)?.cap || newTier
+      setNotice(`${artist.name} is now '${newTier.replace(/_/g, ' ')}' (${cap}).`)
+      window.setTimeout(() => setNotice(''), 3000)
+    } catch (err: any) {
+      console.error('Error updating tier:', err)
+      setError(err.message || 'Failed to update tier')
+    }
+
+    setSaving({ ...saving, [artist.id]: false })
+  }
+
   async function toggleVisibility(artist: Artist) {
     setSaving({ ...saving, [artist.id]: true })
     setError('')
@@ -83,16 +131,16 @@ export default function FounderArtistsPage() {
     try {
       // Get current session token for auth
       const { data: { session } } = await supabase.auth.getSession()
-      
+
       const res = await fetch(`/api/artists/${artist.id}/toggle`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session?.access_token || ''}`,
         },
-        body: JSON.stringify({ 
-          field: 'public_profile_enabled', 
-          value: newValue 
+        body: JSON.stringify({
+          field: 'public_profile_enabled',
+          value: newValue
         }),
       })
 
@@ -104,7 +152,7 @@ export default function FounderArtistsPage() {
       }
 
       // Only update local state after confirmed success
-      setArtists(artists.map(a => 
+      setArtists(artists.map(a =>
         a.id === artist.id ? { ...a, public_profile_enabled: newValue } : a
       ))
       setNotice(`${artist.name} is now ${newValue ? 'visible' : 'hidden'}.`)
@@ -120,7 +168,7 @@ export default function FounderArtistsPage() {
   const filteredArtists = artists.filter(a => {
     const matchesSearch = a.name.toLowerCase().includes(search.toLowerCase()) ||
                          a.slug.toLowerCase().includes(search.toLowerCase())
-    
+
     if (!matchesSearch) return false
 
     switch (filter) {
@@ -149,8 +197,8 @@ export default function FounderArtistsPage() {
       <div className="max-w-4xl mx-auto px-5 sm:px-6">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
-          <Link 
-            href="/dashboard/founder" 
+          <Link
+            href="/dashboard/founder"
             className="p-2 rounded-lg hover:bg-[var(--pf-surface)] transition-colors"
           >
             <ArrowLeft size={20} className="text-[var(--pf-text-secondary)]" />
@@ -204,8 +252,8 @@ export default function FounderArtistsPage() {
                 key={f}
                 onClick={() => setFilter(f)}
                 className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
-                  filter === f 
-                    ? 'bg-[var(--pf-orange)] text-white' 
+                  filter === f
+                    ? 'bg-[var(--pf-orange)] text-white'
                     : 'bg-[var(--pf-surface)] border border-[var(--pf-border)] text-[var(--pf-text-secondary)]'
                 }`}
               >
@@ -222,11 +270,11 @@ export default function FounderArtistsPage() {
             const isPublic = artist.public_profile_enabled
 
             return (
-              <div 
+              <div
                 key={artist.id}
                 className={`rounded-xl border ${
-                  isPublic 
-                    ? 'border-[var(--pf-orange)]/30 bg-[var(--pf-orange)]/5' 
+                  isPublic
+                    ? 'border-[var(--pf-orange)]/30 bg-[var(--pf-orange)]/5'
                     : 'border-[var(--pf-border)] bg-[var(--pf-surface)]'
                 } p-4`}
               >
@@ -251,7 +299,7 @@ export default function FounderArtistsPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2 flex-wrap sm:flex-nowrap">
                       <div>
-                        <Link 
+                        <Link
                           href={`/artist/${artist.slug}`}
                           className="font-semibold hover:text-[var(--pf-orange)] transition-colors"
                         >
@@ -259,11 +307,30 @@ export default function FounderArtistsPage() {
                         </Link>
                         <p className="text-xs text-[var(--pf-text-muted)] mt-0.5">
                           @{artist.slug} · {artist.artist_tier.replace(/_/g, ' ')}
+                          {' · '}
+                          <span className="text-[var(--pf-text-secondary)]">
+                            {ARTIST_TIERS.find(t => t.value === artist.artist_tier)?.cap || '?'}
+                          </span>
                         </p>
                       </div>
                       <div className="shrink-0">
                         <p className="text-[10px] uppercase tracking-wider text-[var(--pf-text-muted)] mb-1 text-right">Public Profile</p>
                         <div className="flex flex-wrap justify-end gap-2">
+                          {/* Tier selector — founder/admin can change the artist's tier.
+                              Updates the upload cap (see /api/tracks/route.ts). */}
+                          <select
+                            value={artist.artist_tier}
+                            onChange={(e) => changeTier(artist, e.target.value as TierValue)}
+                            disabled={saving[artist.id]}
+                            className="inline-flex items-center gap-1.5 px-2 py-1.5 rounded-full text-xs font-medium bg-[var(--pf-surface)] border border-[var(--pf-border)] text-[var(--pf-text-secondary)] transition-colors hover:border-[var(--pf-orange)] hover:text-[var(--pf-text)] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Change upload tier"
+                          >
+                            {ARTIST_TIERS.map((t) => (
+                              <option key={t.value} value={t.value}>
+                                {t.label} ({t.cap})
+                              </option>
+                            ))}
+                          </select>
                           <button
                             onClick={() => toggleVisibility(artist)}
                             disabled={saving[artist.id]}
@@ -298,8 +365,8 @@ export default function FounderArtistsPage() {
                     {/* Status badges */}
                     <div className="flex flex-wrap gap-1.5 mt-2">
                       <span className={`text-xs px-2 py-0.5 rounded-full ${
-                        artist.status === 'active' 
-                          ? 'bg-green-500/10 text-green-400' 
+                        artist.status === 'active'
+                          ? 'bg-green-500/10 text-green-400'
                           : 'bg-blue-500/10 text-blue-400'
                       }`}>
                         {artist.status}
@@ -333,12 +400,12 @@ export default function FounderArtistsPage() {
 }
 
 function StatCard({ label, value, color }: { label: string; value: number; color?: string }) {
-  const colorClass = color === 'green' 
-    ? 'text-green-400' 
-    : color === 'orange' 
-      ? 'text-[var(--pf-orange)]' 
-      : color === 'red' 
-        ? 'text-red-400' 
+  const colorClass = color === 'green'
+    ? 'text-green-400'
+    : color === 'orange'
+      ? 'text-[var(--pf-orange)]'
+      : color === 'red'
+        ? 'text-red-400'
         : 'text-[var(--pf-text)]'
 
   return (
