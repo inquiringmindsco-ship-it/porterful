@@ -74,7 +74,7 @@ function buildDbAppearance(dbArtist: any, staticArtist?: ArtistData): ArtistAppe
 function buildDbArtistData(dbArtist: any, staticArtist?: ArtistData): ArtistData {
   const profile = dbArtist.profile || null
   const name = firstNonEmpty(dbArtist.name, dbArtist.full_name, profile?.full_name, staticArtist?.name) || 'Unknown artist'
-  const bio = firstNonEmpty(dbArtist.bio, profile?.bio, staticArtist?.bio) || ''
+  const bio = firstNonEmpty(dbArtist.bio, staticArtist?.bio) || ''
   // FALLBACK: if the artists row has no avatar_url, fall back to the linked
   // profile's avatar_url. The artists table is created from the profile
   // table, but on promotion the avatar may only be copied to one of them.
@@ -148,8 +148,7 @@ export async function getServerArtistBySlug(slug: string) {
         avatar_url,
         cover_url,
         full_name,
-        username,
-        bio
+        username
       )
     `)
     .eq('slug', slug)
