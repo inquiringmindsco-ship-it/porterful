@@ -164,26 +164,35 @@ export async function POST(req: Request) {
         .eq('id', user_id)
         .maybeSingle()
 
+      // CRITICAL FIX: The artists table has `id UUID REFERENCES profiles(id)
+      // ON DELETE CASCADE PRIMARY KEY` — the PK IS the user_id, no `user_id`
+      // column. Earlier this branch sent `user_id` and the insert failed at
+      // the DB level, surfacing only as a soft warning to the caller. Steven
+      // Jones's page 404'd because of this exact bug. Use `id: user_id` and
+      // upsert (onConflict: 'id') for idempotency on re-apply.
       const { error: artistError } = await supabase
         .from('artists')
-        .insert({
-          user_id,
-          name: stage_name,
-          slug,
-          bio: bio || null,
-          genre: genre || null,
-          city: city || null,
-          avatar_url: avatar_url || null,
-          cover_url: cover_image_url || null,
-          verified: true,
-          // PHASE B: Auto-approved artists still need founder review before going public
-          status: 'approved',
-          public_profile_enabled: false,
-          instagram_url: instagram ? `https://instagram.com/${instagram.replace('@', '')}` : null,
-          youtube_url: youtube ? `https://youtube.com/${youtube.replace('@', '')}` : null,
-          twitter_url: twitter ? `https://twitter.com/${twitter.replace('@', '')}` : null,
-          tiktok_url: tiktok ? `https://tiktok.com/@${tiktok.replace('@', '')}` : null,
-        })
+        .upsert(
+          {
+            id: user_id,
+            name: stage_name,
+            slug,
+            bio: bio || null,
+            genre: genre || null,
+            city: city || null,
+            avatar_url: avatar_url || null,
+            cover_url: cover_image_url || null,
+            verified: true,
+            // PHASE B: Auto-approved artists still need founder review before going public
+            status: 'approved',
+            public_profile_enabled: false,
+            instagram_url: instagram ? `https://instagram.com/${instagram.replace('@', '')}` : null,
+            youtube_url: youtube ? `https://youtube.com/${youtube.replace('@', '')}` : null,
+            twitter_url: twitter ? `https://twitter.com/${twitter.replace('@', '')}` : null,
+            tiktok_url: tiktok ? `https://tiktok.com/@${tiktok.replace('@', '')}` : null,
+          },
+          { onConflict: 'id' },
+        )
 
       if (artistError) {
         console.error('Artist creation error:', artistError)
