@@ -72,10 +72,28 @@ function buildDbAppearance(dbArtist: any, staticArtist?: ArtistData): ArtistAppe
 }
 
 function buildDbArtistData(dbArtist: any, staticArtist?: ArtistData): ArtistData {
-  const name = firstNonEmpty(dbArtist.name, dbArtist.full_name, staticArtist?.name) || 'Unknown artist'
-  const bio = firstNonEmpty(dbArtist.bio, staticArtist?.bio) || ''
-  const avatarUrl = firstNonEmpty(dbArtist.avatar_url, dbArtist.profile_image_url, staticArtist?.image) || ''
-  const bannerUrl = firstNonEmpty(dbArtist.banner_url, dbArtist.hero_image_url, dbArtist.cover_url, staticArtist?.bannerUrl, staticArtist?.coverUrl, staticArtist?.coverSlides?.[0]?.src)
+  const profile = dbArtist.profile || null
+  const name = firstNonEmpty(dbArtist.name, dbArtist.full_name, profile?.full_name, staticArtist?.name) || 'Unknown artist'
+  const bio = firstNonEmpty(dbArtist.bio, profile?.bio, staticArtist?.bio) || ''
+  // FALLBACK: if the artists row has no avatar_url, fall back to the linked
+  // profile's avatar_url. The artists table is created from the profile
+  // table, but on promotion the avatar may only be copied to one of them.
+  // This makes the public page always have an image if either table has one.
+  const avatarUrl = firstNonEmpty(
+    dbArtist.avatar_url,
+    dbArtist.profile_image_url,
+    profile?.avatar_url,
+    staticArtist?.image,
+  ) || ''
+  const bannerUrl = firstNonEmpty(
+    dbArtist.banner_url,
+    dbArtist.hero_image_url,
+    dbArtist.cover_url,
+    profile?.cover_url,
+    staticArtist?.bannerUrl,
+    staticArtist?.coverUrl,
+    staticArtist?.coverSlides?.[0]?.src,
+  )
   const slug = firstNonEmpty(dbArtist.slug, staticArtist?.slug, dbArtist.id) || name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
 
   return {
@@ -114,14 +132,29 @@ function buildDbArtistData(dbArtist: any, staticArtist?: ArtistData): ArtistData
 // Fetch artist from DB by slug
 export async function getServerArtistBySlug(slug: string) {
   const supabase = getServerSupabase()
-  
-  // Try artists table first
+
+  // Try artists table first. We also select the related profile's avatar
+  // and cover via a join so buildDbArtistData can fall back to profile
+  // images when the artists row has none.
+  //
+  // Use a FK relationship hint — the artists.id is a 1:1 with profiles.id
+  // (artists.id REFERENCES profiles(id) ON DELETE CASCADE PRIMARY KEY).
+  // PostgREST infers this automatically.
   const { data: artistRow, error } = await supabase
     .from('artists')
-    .select('*')
+    .select(`
+      *,
+      profile:profiles!inner (
+        avatar_url,
+        cover_url,
+        full_name,
+        username,
+        bio
+      )
+    `)
     .eq('slug', slug)
     .maybeSingle()
-  
+
   if (error) {
     // If the error is a schema gap (missing table or column), emit a clear
     // SENTINEL-ALERT log line so it's obvious in the Vercel logs that the
@@ -146,7 +179,7 @@ export async function getServerArtistBySlug(slug: string) {
     }
     return null
   }
-  
+
   return artistRow
 }
 

@@ -86,6 +86,14 @@ export async function GET(
         genre: dbArtist.genre || profile?.genre || staticArtist?.genre || '',
         location: dbArtist.location || profile?.location || staticArtist?.location || '',
         slug: dbArtist.slug || profile?.username || staticArtist?.slug || params.id,
+        // FALLBACK: if the artists row has no avatar_url, fall back to the
+        // linked profile's avatar_url. The artists table is created from the
+        // profile table, but on promotion the avatar may only be copied to
+        // one of them. This makes the public page always have an image if
+        // either table has one. (Same fallback added to lib/artist-db.ts
+        // for the SSR path.)
+        avatar_url: dbArtist.avatar_url || profile?.avatar_url || null,
+        cover_url: dbArtist.cover_url || profile?.cover_url || null,
         appearance: normalizeArtistAppearance(
           socialLinks.appearance,
           staticArtist?.appearance || undefined,
