@@ -166,7 +166,14 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const sourceInput = normalizeText(body.source_url || body.url || body.video_url)
+    // Accept the legacy front-end field name 'youtube_url' alongside the
+    // canonical 'source_url'. The dashboard media form sends 'youtube_url';
+    // older callers may send 'url' or 'video_url'. We resolve the value,
+    // then immediately canonicalize to the canonical YouTube watch URL via
+    // the parser so downstream storage and validation are consistent.
+    const sourceInput = normalizeText(
+      body.source_url || body.youtube_url || body.url || body.video_url,
+    )
     const parsed = parseYouTubeUrl(sourceInput)
     if (!parsed) {
       return NextResponse.json({ error: 'Only YouTube URLs are supported for artist videos.' }, { status: 400 })
