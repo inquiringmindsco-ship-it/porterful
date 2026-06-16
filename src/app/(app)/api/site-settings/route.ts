@@ -6,12 +6,12 @@ export const dynamic = 'force-dynamic'
 function getServerSupabase() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, // ✅ FIXED: anon key only for public reads
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
     { auth: { persistSession: false } }
   )
 }
 
-// Admin-only: service role for updates with proper guard
+// Admin-only: service role for reads/updates with proper guard
 function getAdminSupabase() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -58,8 +58,10 @@ export async function PATCH(req: Request) {
     
     const { data, error } = await supabase
       .from('site_settings')
-      .update({ value: body, updated_at: new Date().toISOString() })
-      .eq('key', 'homepage')
+      .upsert(
+        { key: 'homepage', value: body, updated_at: new Date().toISOString() },
+        { onConflict: 'key' },
+      )
       .select()
 
     if (error) {

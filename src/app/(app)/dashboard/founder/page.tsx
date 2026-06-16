@@ -713,6 +713,13 @@ export default function FounderDashboard() {
 
       const data = await res.json()
       if (data.success) {
+        if (data.settings) {
+          setContentSettings(data.settings)
+          setSelectedHeroTrack(data.settings.hero_track_id || '')
+          setSelectedFeaturedTracks(data.settings.featured_track_ids || [])
+          setSelectedPromoTracks(data.settings.promo_track_ids || [])
+          setHeroLabel(data.settings.hero_label || 'Featured Release')
+        }
         setSaveSuccess(true)
         setNotice('Content settings saved successfully')
         window.setTimeout(() => {

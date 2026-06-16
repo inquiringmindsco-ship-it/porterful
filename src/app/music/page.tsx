@@ -22,7 +22,7 @@ import { getTrackArtwork } from '@/lib/artwork'
 import { ArtistAvatar } from '@/components/artist/ArtistAvatar'
 import { CollaboratorStack } from '@/components/artist/CollaboratorStack'
 import { createBrowserSupabaseClient } from '@/lib/create-browser-client'
-import { dedupeQueueTracks } from '@/lib/track-dedupe'
+import { dedupeQueueTracks, filterPlayableTracks } from '@/lib/track-dedupe'
 import { formatDuration, canonicalAlbum } from '@/lib/duration-formatter'
 import { buildTrackArtistCredits } from '@/lib/artist-credits'
 import { loadTrackCollaboratorMap, attachTrackCollaborators } from '@/lib/track-collaborators'
@@ -259,14 +259,39 @@ export default function MusicPage() {
     return dbTracks
   }, [dbTracks])
 
+  const publicArtistIdSet = useMemo(() => {
+    return new Set(publicArtists.map((artist) => String(artist.id || '').trim()).filter(Boolean))
+  }, [publicArtists])
+
+  const publicArtistNameSet = useMemo(() => {
+    return new Set(
+      publicArtists
+        .map((artist) => String(artist.name || '').trim().toLowerCase())
+        .filter(Boolean),
+    )
+  }, [publicArtists])
+
+  const isVisibleTrack = useCallback((track: Track) => {
+    const artistId = String(track.artist_id || track.primary_artist_id || '').trim()
+    const artistName = String(track.artist || '').trim().toLowerCase()
+    if (artistId && publicArtistIdSet.has(artistId)) return true
+    if (artistName && publicArtistNameSet.has(artistName)) return true
+    return false
+  }, [publicArtistIdSet, publicArtistNameSet])
+
+  const visibleTracks = useMemo(() => {
+    return filterPlayableTracks(ALL_TRACKS.filter((track) => isVisibleTrack(track)))
+  }, [ALL_TRACKS, isVisibleTrack])
+
   // Featured track: prefer featured DB track, fallback to first track
   const heroTrack = useMemo(() => {
     // First, try to find a featured DB track
-    const featuredDb = dbTracks.find(t => (t as any).featured && t.audio_url && t.is_active !== false)
+    const featuredDb = visibleTracks.find(t => (t as any).featured && t.audio_url && t.is_active !== false)
     if (featuredDb) return featuredDb
     // Otherwise use current or first available
-    return currentTrack ?? ALL_TRACKS[0]
-  }, [dbTracks, ALL_TRACKS, currentTrack])
+    const visibleCurrent = currentTrack && isVisibleTrack(currentTrack) ? currentTrack : null
+    return visibleCurrent ?? visibleTracks[0] ?? null
+  }, [visibleTracks, currentTrack, isVisibleTrack])
 
   const isHeroActive = currentTrack?.id === heroTrack?.id
   const heroArtistCredits = useMemo(() => buildTrackArtistCredits(heroTrack), [heroTrack])
@@ -277,11 +302,11 @@ export default function MusicPage() {
     (track: Track) => {
       // Build a queue that gives the tapped artist first run, then the rest.
       // Dedupe queue to prevent repeats from DB/static duplicates.
-      const queue = buildArtistQueue(ALL_TRACKS, track)
+      const queue = buildArtistQueue(visibleTracks, track)
       setQueue(dedupeQueueTracks(queue))
       playTrack(track)
     },
-    [playTrack, setQueue, ALL_TRACKS]
+    [playTrack, setQueue, visibleTracks]
   )
 
   const handlePlayTrack = useCallback(
@@ -297,7 +322,7 @@ export default function MusicPage() {
 
   const uniqueAlbums = useMemo(() => {
     const map = new Map<string, { name: string; image: string; count: number }>()
-    ALL_TRACKS.forEach((t) => {
+    visibleTracks.forEach((t) => {
       const canonicalName = canonicalAlbum(t.album)
       if (!canonicalName) return // Skip singles/no album
 
@@ -307,14 +332,14 @@ export default function MusicPage() {
       map.get(canonicalName)!.count++
     })
     return Array.from(map.values())
-  }, [ALL_TRACKS])
+  }, [visibleTracks])
 
   // Singles: tracks with no album (or empty/whitespace album). Treated as
   // mini-releases. Each single becomes its own card in the Singles strip.
   const uniqueSingles = useMemo(() => {
     const seen = new Set<string>()
     const items: Array<{ id: string; title: string; artist: string; image: string; duration: string }> = []
-    ALL_TRACKS.forEach((t) => {
+    visibleTracks.forEach((t) => {
       if (canonicalAlbum(t.album)) return // has a real album — skip
       const key = (t.title || '').trim().toLowerCase()
       if (!key || seen.has(key)) return
@@ -328,10 +353,10 @@ export default function MusicPage() {
       })
     })
     return items
-  }, [ALL_TRACKS])
+  }, [visibleTracks])
 
   const filteredTracks = useMemo(() => {
-    let tracks = ALL_TRACKS
+    let tracks = visibleTracks
     if (selectedAlbum) tracks = tracks.filter((t) => t.album === selectedAlbum)
     if (albumFilter !== 'all') tracks = tracks.filter((t) => t.album === albumFilter)
     if (searchQuery.trim()) {
@@ -339,7 +364,7 @@ export default function MusicPage() {
       tracks = tracks.filter((t) => t.title.toLowerCase().includes(q))
     }
     return tracks
-  }, [searchQuery, albumFilter, selectedAlbum, ALL_TRACKS])
+  }, [searchQuery, albumFilter, selectedAlbum, visibleTracks])
 
   const clearAlbumFilter = () => {
     setSelectedAlbum(null)
@@ -459,7 +484,7 @@ export default function MusicPage() {
               </div>
             ) : publicArtists.length > 0 ? (
               publicArtists.map((artist) => {
-                const trackCount = artist.trackCount ?? ALL_TRACKS.filter((t) => t.artist === artist.name || t.artist === artist.id).length
+                const trackCount = artist.trackCount ?? visibleTracks.filter((t) => t.artist === artist.name || t.artist === artist.id).length
                 return (
                   <Link
                     key={artist.id}
@@ -572,7 +597,7 @@ export default function MusicPage() {
                 <button
                   key={single.id}
                   onClick={() => {
-                    const t = ALL_TRACKS.find((x) => x.id === single.id)
+                    const t = visibleTracks.find((x) => x.id === single.id)
                     if (t) handlePlayTrack(t)
                   }}
                   className="group flex-shrink-0 w-32 sm:w-36 text-left"

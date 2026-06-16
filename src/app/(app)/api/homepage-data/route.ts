@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { loadCatalogProducts } from '@/lib/product-visibility'
 import { attachTrackCollaborators, loadTrackCollaboratorMap } from '@/lib/track-collaborators'
+import { filterPublicArtists } from '@/lib/public-artists'
 
 export const dynamic = 'force-dynamic'
 
@@ -11,9 +12,38 @@ function getServerSupabase() {
   return createClient(url, key, { auth: { persistSession: false } })
 }
 
+function getAdminSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { persistSession: false } },
+  )
+}
+
 export async function GET() {
   try {
     const supabase = getServerSupabase()
+    const publicArtistsResult = await supabase
+      .from('artists')
+      .select('id, name, slug, status, public_profile_enabled')
+      .in('status', ['active', 'approved'])
+      .eq('public_profile_enabled', true)
+    const publicArtistsList = filterPublicArtists((publicArtistsResult.data || []) as any[])
+    const publicArtistIdSet = new Set(publicArtistsList.map((artist: any) => String(artist.id)))
+    const publicArtistNameSet = new Set(
+      publicArtistsList
+        .map((artist: any) => String(artist.name || '').trim().toLowerCase())
+        .filter(Boolean),
+    )
+
+    const isPublicTrack = (track: any) => {
+      if (!track) return false
+      const trackArtistId = String(track.artist_id || '').trim()
+      const trackArtistName = String(track.artist || '').trim().toLowerCase()
+      if (trackArtistId && publicArtistIdSet.has(trackArtistId)) return true
+      if (trackArtistName && publicArtistNameSet.has(trackArtistName)) return true
+      return false
+    }
 
     // Get accurate counts
     const { count: totalArtists } = await supabase
@@ -36,31 +66,24 @@ export async function GET() {
       .eq('is_active', true)
       .in('status', ['live', 'published'])
 
-    // Get newest LIVE track only
-    const { data: newestTrack } = await supabase
+    // Get newest LIVE track only, then fail closed if the artist is hidden.
+    const { data: newestTracks } = await supabase
       .from('tracks')
       .select('id, title, artist, artist_id, album, duration, cover_url, is_active, status')
       .in('status', ['live', 'published'])
       .eq('is_active', true)
       .order('created_at', { ascending: false })
-      .limit(1)
-      .single()
+      .limit(12)
+    const newestTrack = (newestTracks || []).find((track: any) => isPublicTrack(track)) || null
 
-    // Get site settings - using raw fetch to bypass Supabase JS client JSONB issue
-    const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const siteSettingsUrl = baseUrl + '/rest/v1/site_settings?select=*'
-    const siteSettingsRes = await fetch(siteSettingsUrl, {
-      cache: 'no-store',
-      headers: {
-        'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
-      },
-    })
-    let siteSettingsRows: any[] = []
-    if (siteSettingsRes.ok) {
-      siteSettingsRows = await siteSettingsRes.json()
-    }
-    const siteSettingsRow = siteSettingsRows.find((r: any) => r.key === 'homepage') || siteSettingsRows[0] || null
+    // Site settings are founder-controlled, so read them with the admin key.
+    const adminSupabase = getAdminSupabase()
+    const { data: siteSettingsRows } = await adminSupabase
+      .from('site_settings')
+      .select('key, value')
+      .eq('key', 'homepage')
+      .limit(1)
+    const siteSettingsRow = siteSettingsRows?.[0] || null
     const siteSettingsValue = siteSettingsRow?.value || {}
 
     // Resolve featured/hero tracks if they're DB tracks not in static array
@@ -77,7 +100,7 @@ export async function GET() {
         .in('id', allNeededIds)
         .in('status', ['live', 'published'])
         .eq('is_active', true)
-      resolvedTracks = dbTracks || []
+      resolvedTracks = (dbTracks || []).filter((track: any) => isPublicTrack(track))
     }
 
     const collaboratorMap = await loadTrackCollaboratorMap(
