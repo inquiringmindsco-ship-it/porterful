@@ -35,9 +35,11 @@ FAIL_COUNT=0
 PASS_COUNT=0
 
 # Helper: check that a table exists by attempting a query
+# Usage: check_table <table_name> <primary_key_column>
 check_table() {
   local table_name="$1"
-  local result=$(curl -sS --max-time 10 "$SUPABASE_URL/rest/v1/$table_name?select=id&limit=1" \
+  local pk_column="${2:-id}"
+  local result=$(curl -sS --max-time 10 "$SUPABASE_URL/rest/v1/$table_name?select=$pk_column&limit=1" \
     -H "apikey: $SUPABASE_SERVICE_ROLE_KEY" \
     -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" 2>/dev/null)
 
@@ -46,12 +48,15 @@ check_table() {
     FAIL_COUNT=$((FAIL_COUNT + 1))
     return 1
   elif echo "$result" | grep -q '"PGRST204"'; then
-    echo -e "  ${RED}✗${NC} MISSING COLUMNS on $table_name"
-    echo -e "      ${YELLOW}$(echo "$result" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("message",""))')${NC}"
+    echo -e "  ${RED}✗${NC} MISSING PK COLUMN $pk_column on $table_name"
+    FAIL_COUNT=$((FAIL_COUNT + 1))
+    return 1
+  elif echo "$result" | grep -q '"42703"'; then
+    echo -e "  ${RED}✗${NC} MISSING PK COLUMN $pk_column on $table_name"
     FAIL_COUNT=$((FAIL_COUNT + 1))
     return 1
   else
-    echo -e "  ${GREEN}✓${NC} $table_name"
+    echo -e "  ${GREEN}✓${NC} $table_name (PK: $pk_column)"
     PASS_COUNT=$((PASS_COUNT + 1))
     return 0
   fi
@@ -85,10 +90,15 @@ echo "  Porterful schema self-test"
 echo "  Supabase: $SUPABASE_URL"
 echo "==================================================================="
 echo ""
-echo "Required tables:"
-for table in artists profiles tracks artist_applications artist_videos products; do
-  check_table "$table"
-done
+echo "Required tables (with each table's primary key column):"
+# Use sequential checks because bash 3.2 (default on macOS) doesn't support
+# associative arrays.
+check_table "artists" "id"
+check_table "profiles" "id"
+check_table "tracks" "id"
+check_table "artist_applications" "id"
+check_table "artist_videos" "video_id"
+check_table "products" "id"
 
 echo ""
 echo "Required columns on artists:"
