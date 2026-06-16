@@ -260,9 +260,27 @@ export async function PATCH(
       return NextResponse.json({ error: 'Failed to update artist' }, { status: 500 })
     }
 
+    // Normalize the response to match the GET shape: return appearance at the
+    // top level of the profile object, mirroring /api/artists/[id] GET. The
+    // front-end editor reads data.profile.appearance; if we returned the raw
+    // artists row it would be at data.profile.social_links.appearance and
+    // appear "missing" to the editor (causing the form to revert to the old
+    // local state on save).
+    const responseSocialLinks =
+      typeof artistData.social_links === 'object' && artistData.social_links
+        ? artistData.social_links
+        : {}
+    const normalizedAppearance = normalizeArtistAppearance(
+      (responseSocialLinks as any).appearance,
+      null,
+    )
+
     return NextResponse.json({
       success: true,
-      profile: artistData
+      profile: {
+        ...artistData,
+        appearance: normalizedAppearance,
+      },
     })
   } catch (error) {
     console.error('Error updating artist:', error)

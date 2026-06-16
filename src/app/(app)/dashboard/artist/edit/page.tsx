@@ -148,7 +148,12 @@ export default function ArtistAppearancePage() {
         throw new Error(data.error || 'Failed to save appearance settings')
       }
 
-      setAppearance(buildAppearanceState(data?.profile?.appearance || appearance, artistName))
+      // Trust the server's normalized appearance if present, otherwise
+      // use the just-sent appearance value (the source of truth). Falling
+      // back to the closure-captured `appearance` here is safe because we
+      // know that value was what the user saved successfully.
+      const serverAppearance = data?.profile?.appearance
+      setAppearance(buildAppearanceState(serverAppearance || appearance, artistName))
       setNotice('Appearance updated.')
       window.setTimeout(() => setNotice(''), 2200)
     } catch (err: any) {
