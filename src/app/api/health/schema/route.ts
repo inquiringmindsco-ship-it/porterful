@@ -42,18 +42,20 @@ export async function GET() {
   const checks: Check[] = []
   const missing: string[] = []
 
-  // Required tables
-  const requiredTables = [
-    'artists',
-    'profiles',
-    'tracks',
-    'artist_applications',
-    'artist_videos',
-    'products',
+  // Required tables with their primary key column names. Some tables use
+  // something other than 'id' (e.g. artist_videos uses 'video_id'). The PK
+  // column is what we test for to confirm the table exists.
+  const requiredTables: Array<{ name: string; pk: string }> = [
+    { name: 'artists', pk: 'id' },
+    { name: 'profiles', pk: 'id' },
+    { name: 'tracks', pk: 'id' },
+    { name: 'artist_applications', pk: 'id' },
+    { name: 'artist_videos', pk: 'video_id' },
+    { name: 'products', pk: 'id' },
   ]
 
-  for (const table of requiredTables) {
-    const { error } = await supabase.from(table).select('id', { count: 'exact', head: true })
+  for (const { name: table, pk } of requiredTables) {
+    const { error } = await supabase.from(table).select(pk, { count: 'exact', head: true })
     const ok = !error
     checks.push({ name: `table:${table}`, type: 'table', table, ok, error: error?.message })
     if (!ok) missing.push(`table ${table}: ${error?.message}`)
@@ -87,6 +89,8 @@ export async function GET() {
 
   const allOk = missing.length === 0
 
+  // Explicit no-store so Vercel edge cache never serves a stale snapshot.
+  // This is a health check — staleness is the whole point of the bug class.
   return NextResponse.json(
     {
       ok: allOk,
@@ -102,6 +106,11 @@ export async function GET() {
         : 'Run scripts/verify-schema.sh locally to see what is missing. ' +
           'Then apply the corresponding migration from supabase/migrations/ via the Supabase dashboard SQL editor.',
     },
-    { status: allOk ? 200 : 503 },
+    {
+      status: allOk ? 200 : 503,
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+      },
+    },
   )
 }
