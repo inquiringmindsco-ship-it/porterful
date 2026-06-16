@@ -78,9 +78,19 @@ export async function POST(req: Request) {
     }
 
     // Lazy init — only create client when actually needed (not at module load)
-    const { createServerClient } = await import('@/lib/supabase')
-    const supabase = createServerClient()
-    if (!supabase) return NextResponse.json({ error: 'Server not configured. Please try again later.' }, { status: 500 })
+    //
+    // The artist_applications table has RLS enabled. The createServerClient
+    // helper uses the anon key, so the application INSERT would hit RLS and
+    // return 'new row violates row-level security policy'. We use the service
+    // role client instead. user_id is validated above so a caller can only
+    // ever write their own row, never impersonate another user. The
+    // auth.admin.updateUserById call further down also uses the service role.
+    const { createClient } = await import('@supabase/supabase-js')
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      { auth: { persistSession: false } },
+    )
 
     // Check if already has an application on record
     const { data: existing } = await supabase
@@ -293,8 +303,12 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const { createServerClient } = await import('@/lib/supabase')
-  const supabase = createServerClient()
+  const { createClient } = await import('@supabase/supabase-js')
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { persistSession: false } },
+  )
   if (!supabase) return NextResponse.json({ error: 'Server not configured' }, { status: 500 })
 
   const { data, error } = await supabase
