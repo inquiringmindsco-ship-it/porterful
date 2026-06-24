@@ -610,9 +610,6 @@ export default function HomePage() {
                     </div>
                     <div className="min-w-0">
                       <h3 className="text-sm font-semibold text-white truncate">{(artist as any).name ?? (artist as any).slug}</h3>
-                      <p className="text-xs text-[var(--pf-text-muted)]">
-                        {(artist as any).trackCount ?? 0} {(artist as any).trackCount === 1 ? 'track' : 'tracks'}
-                      </p>
                     </div>
                   </Link>
                 ))

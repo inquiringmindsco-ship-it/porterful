@@ -210,11 +210,6 @@ export function ArtistSearch() {
                         )}
                       </div>
                       <div className="flex items-center gap-3 text-xs text-[var(--pf-text-muted)]">
-                        {artist.trackCount !== undefined && (
-                          <span className="flex items-center gap-1">
-                            <Music size={12} /> {artist.trackCount}
-                          </span>
-                        )}
                         {artist.productCount !== undefined && (
                           <span className="flex items-center gap-1">
                             <ShoppingBag size={12} /> {artist.productCount}

@@ -484,7 +484,6 @@ export default function MusicPage() {
               </div>
             ) : publicArtists.length > 0 ? (
               publicArtists.map((artist) => {
-                const trackCount = artist.trackCount ?? visibleTracks.filter((t) => t.artist === artist.name || t.artist === artist.id).length
                 return (
                   <Link
                     key={artist.id}
@@ -505,7 +504,6 @@ export default function MusicPage() {
                       <p className="text-sm font-medium truncate">{artist.name}</p>
                       {artist.verified && <Verified size={12} className="text-[var(--pf-text-secondary)] shrink-0" />}
                     </div>
-                    <p className="text-xs text-[var(--pf-text-muted)] truncate">{trackCount} tracks</p>
                   </Link>
                 )
               })
