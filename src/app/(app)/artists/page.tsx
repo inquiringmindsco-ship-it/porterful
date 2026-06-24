@@ -213,20 +213,6 @@ export default function ArtistsPage() {
 }
 
 function ArtistCard({ artist }: { artist: ArtistFromDb }) {
-  const [trackCount, setTrackCount] = useState(0)
-
-  useEffect(() => {
-    async function countTracks() {
-      const res = await fetch(`/api/tracks?artist=${encodeURIComponent(artist.name)}&count_only=true`)
-      if (res.ok) {
-        const data = await res.json()
-        // Use count_only API for accurate per-artist track counts
-        setTrackCount(data.count || 0)
-      }
-    }
-    countTracks()
-  }, [artist.name])
-
   const image = artist.avatar_url || artist.cover_url || ''
 
   return (
@@ -260,9 +246,6 @@ function ArtistCard({ artist }: { artist: ArtistFromDb }) {
               {artist.genre || 'Artist'} · {artist.location || 'Location unknown'}
             </p>
           </div>
-          <span className="shrink-0 rounded-full border border-[var(--pf-border)] bg-[var(--pf-bg)] px-2.5 py-1 text-xs font-medium text-[var(--pf-text-muted)]">
-            {trackCount} tracks
-          </span>
         </div>
 
         <div className="mt-3 flex flex-wrap items-center gap-2">
