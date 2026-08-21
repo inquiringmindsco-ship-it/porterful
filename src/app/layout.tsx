@@ -147,8 +147,8 @@ const webApplicationLd = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#ff6b00' },
-    { media: '(prefers-color-scheme: dark)', color: '#ff6b00' },
+    { media: '(prefers-color-scheme: light)', color: '#f97316' },
+    { media: '(prefers-color-scheme: dark)', color: '#f97316' },
   ],
   width: 'device-width',
   initialScale: 1,
@@ -174,7 +174,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="Porterful" />
         <meta name="application-name" content="Porterful" />
-        <meta name="msapplication-TileColor" content="#ff6b00" />
+        <meta name="msapplication-TileColor" content="#f97316" />
         <meta name="msapplication-config" content="/browserconfig.xml" />
       </head>
       <body className="antialiased">

@@ -119,7 +119,25 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-[var(--pf-border)] pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+        {/* Newsletter */}
+        <div className="border-t border-[var(--pf-border)] pt-8 mb-6">
+          <div className="max-w-md mx-auto text-center">
+            <h4 className="font-semibold mb-2 text-[var(--pf-text)]">Stay in the Loop</h4>
+            <p className="text-sm text-[var(--pf-text-muted)] mb-4">Get updates on new artists, releases, and exclusive offers.</p>
+            <form className="flex gap-2" onSubmit={(e) => e.preventDefault()}>
+              <input
+                type="email"
+                placeholder="your@email.com"
+                className="flex-1 px-4 py-2 rounded-lg border border-[var(--pf-border)] bg-[var(--pf-bg)] text-[var(--pf-text)] text-sm focus:outline-none focus:border-[var(--pf-orange)] focus:ring-2 focus:ring-orange-500/30"
+              />
+              <button type="submit" className="px-4 py-2 bg-[var(--pf-orange)] text-white rounded-lg font-medium text-sm hover:bg-[var(--pf-orange-dark)] transition-colors">
+                Subscribe
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <div className="border-t border-[var(--pf-border)] pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-[var(--pf-text-muted)] text-sm">
             © {new Date().getFullYear()} Porterful. The Artist Economy.
           </p>
