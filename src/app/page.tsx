@@ -61,6 +61,10 @@ export default function Home() {
                     <ShoppingCart size={20} />
                     Shop Merch
                   </Link>
+                  <Link href="/signup?role=artist" className="pf-btn pf-btn-secondary text-lg px-6 py-3 flex items-center justify-center gap-2 border-dashed">
+                    <Upload size={20} />
+                    Sell Your Music
+                  </Link>
                 </div>
 
                 {/* Stats */}
