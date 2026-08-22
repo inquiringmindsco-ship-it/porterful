@@ -257,7 +257,7 @@ export function Navbar() {
                 <span className="text-base">⭐</span>
                 <span>Superfan</span>
               </Link>
-              <Link href="/challenge" className="flex items-center gap-2 px-4 py-2 rounded-lg text-[var(--pf-orange)] bg-[var(--pf-orange)]/10 hover:bg-[var(--pf-orange)]/20 transition-colors font-semibold">
+              <Link href="/competition" className="flex items-center gap-2 px-4 py-2 rounded-lg text-[var(--pf-orange)] bg-[var(--pf-orange)]/10 hover:bg-[var(--pf-orange)]/20 transition-colors font-semibold">
                 <PorterfulIcon name="trophy" size={18} />
                 <span>$10K Challenge</span>
               </Link>
@@ -410,7 +410,7 @@ export function Navbar() {
               <PorterfulIcon name="playlist" size={20} />
               <span>Playlists</span>
             </Link>
-            <Link href="/challenge" className="flex items-center gap-3 px-4 py-4 text-[var(--pf-orange)] bg-[var(--pf-orange)]/10 font-semibold hover:bg-[var(--pf-orange)]/20 rounded-xl transition-colors" onClick={closeMobile}>
+            <Link href="/competition" className="flex items-center gap-3 px-4 py-4 text-[var(--pf-orange)] bg-[var(--pf-orange)]/10 font-semibold hover:bg-[var(--pf-orange)]/20 rounded-xl transition-colors" onClick={closeMobile}>
               <PorterfulIcon name="trophy" size={20} />
               <span>$10K Challenge</span>
             </Link>
