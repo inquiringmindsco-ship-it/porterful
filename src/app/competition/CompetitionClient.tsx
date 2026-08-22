@@ -128,7 +128,7 @@ export default function CompetitionPage() {
   const [error, setError] = useState<string | null>(null);
   const [faqs] = useState(FAQS);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const [timeLeft, setTimeLeft] = useState({ days: 30, hours: 0, mins: 0 });
+  const [timeLeft, setTimeLeft] = useState({ days: 31, hours: 0, mins: 0 });
 
   const fetchData = useCallback(async () => {
     try {
@@ -162,12 +162,11 @@ export default function CompetitionPage() {
     return () => clearInterval(interval);
   }, [fetchData]);
 
-  // Countdown timer
+  // Countdown timer - fixed launch date (September 22, 2026)
+  const launchDate = new Date('2026-09-22T00:00:00-05:00');
+  
   useEffect(() => {
-    const launchDate = new Date();
-    launchDate.setDate(launchDate.getDate() + DAYS_TO_LAUNCH);
-    
-    const interval = setInterval(() => {
+    const updateCountdown = () => {
       const now = new Date();
       const diff = launchDate.getTime() - now.getTime();
       
@@ -180,8 +179,10 @@ export default function CompetitionPage() {
           mins: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)),
         });
       }
-    }, 1000);
+    };
 
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
     return () => clearInterval(interval);
   }, [data?.foundingWindow?.spotsLeft]);
 
