@@ -145,6 +145,53 @@ const webApplicationLd = {
   },
 }
 
+const faqLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'How does Porterful help independent artists?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Porterful lets independent artists sell music and merchandise directly to fans, keeping 80% of every sale. No label, no middleman, no complicated contracts.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'How much do artists earn on Porterful?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Artists keep 80% of every sale. The platform takes 10%, and 10% goes into the artist fund. There are no monthly fees or upfront costs.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Can I sell merchandise on Porterful?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Yes! Artists can sell print-on-demand merchandise through Porterful. We handle printing and shipping so you can focus on creating music.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'What is the Superfan program?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'The Superfan program lets fans earn rewards by sharing artists they love. Superfans get 3-10% commissions on sales made through their unique referral links.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Is Porterful only for musicians?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'No, Porterful is open to all independent artists, creators, and small businesses. We also support businesses and brands looking to reach artist audiences.',
+      },
+    },
+  ],
+}
+
 export const viewport: Viewport = {
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#f97316' },
@@ -191,6 +238,11 @@ export default function RootLayout({
           id="webapplication-jsonld"
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(webApplicationLd) }}
+        />
+        <Script
+          id="faq-jsonld"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
         />
         <Script src="/pwa.js" strategy="afterInteractive" />
         <Providers>
