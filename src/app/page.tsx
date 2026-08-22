@@ -251,8 +251,8 @@ export default function Home() {
                     <div className="text-xs text-[var(--pf-text-muted)]">Albums</div>
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-[var(--pf-orange)]">12K+</div>
-                    <div className="text-xs text-[var(--pf-text-muted)]">Listeners</div>
+                    <div className="text-2xl font-bold text-[var(--pf-orange)]">5.3M+</div>
+                    <div className="text-xs text-[var(--pf-text-muted)]">Plays</div>
                   </div>
                 </div>
                 
@@ -304,13 +304,21 @@ export default function Home() {
             Explore Porterful
           </h2>
           
-          <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid sm:grid-cols-2 md:grid-cols-5 gap-4">
             <Link href="/digital" className="group bg-[var(--pf-bg)] rounded-xl p-6 border border-[var(--pf-border)] hover:border-[var(--pf-orange)] transition-colors">
               <div className="w-12 h-12 rounded-lg bg-[var(--pf-orange)]/10 flex items-center justify-center mb-4 group-hover:bg-[var(--pf-orange)]/20 transition-colors">
                 <Music size={24} className="text-[var(--pf-orange)]" />
               </div>
               <h3 className="font-bold mb-1">Music</h3>
               <p className="text-sm text-[var(--pf-text-secondary)]">Stream and buy tracks</p>
+            </Link>
+            
+            <Link href="/artists" className="group bg-[var(--pf-bg)] rounded-xl p-6 border border-[var(--pf-border)] hover:border-[var(--pf-orange)] transition-colors">
+              <div className="w-12 h-12 rounded-lg bg-[var(--pf-orange)]/10 flex items-center justify-center mb-4 group-hover:bg-[var(--pf-orange)]/20 transition-colors">
+                <Users size={24} className="text-[var(--pf-orange)]" />
+              </div>
+              <h3 className="font-bold mb-1">Artists</h3>
+              <p className="text-sm text-[var(--pf-text-secondary)]">Discover creators</p>
             </Link>
             
             <Link href="/marketplace" className="group bg-[var(--pf-bg)] rounded-xl p-6 border border-[var(--pf-border)] hover:border-[var(--pf-orange)] transition-colors">
