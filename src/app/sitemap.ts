@@ -24,6 +24,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/dashboard/upload',
     '/terms',
     '/privacy',
+    '/refund',
+    '/dmca',
     '/press-kit',
     '/onboarding',
     '/resources',
