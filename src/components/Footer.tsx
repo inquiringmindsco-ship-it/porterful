@@ -9,9 +9,17 @@ export function Footer() {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [message, setMessage] = useState('')
 
+  const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!email) return
+    if (!email || !isValidEmail(email)) {
+      setStatus('error')
+      setMessage('Please enter a valid email')
+      setTimeout(() => setStatus('idle'), 2000)
+      return
+    }
+    if (status === 'loading') return // Prevent double-submit
 
     setStatus('loading')
     try {
@@ -35,8 +43,8 @@ export function Footer() {
       setMessage('Connection error. Please try again.')
     }
 
-    // Reset status after 3 seconds
-    setTimeout(() => setStatus('idle'), 3000)
+    // Reset status after 4 seconds
+    setTimeout(() => setStatus('idle'), 4000)
   }
 
   return (
@@ -159,25 +167,39 @@ export function Footer() {
           <div className="max-w-md mx-auto text-center">
             <h4 className="font-semibold mb-2 text-[var(--pf-text)]">Stay in the Loop</h4>
             <p className="text-sm text-[var(--pf-text-muted)] mb-4">Get updates on new artists, releases, and exclusive offers.</p>
-            <form onSubmit={handleSubscribe} className="flex gap-2">
+            <form onSubmit={handleSubscribe} className="flex gap-2" aria-label="Newsletter signup">
               <input
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value)
+                  if (status === 'error') setStatus('idle')
+                }}
                 placeholder="your@email.com"
                 disabled={status === 'loading'}
-                className="flex-1 px-4 py-2 rounded-lg border border-[var(--pf-border)] bg-[var(--pf-bg)] text-[var(--pf-text)] text-sm focus:outline-none focus:border-[var(--pf-orange)] focus:ring-2 focus:ring-orange-500/30 disabled:opacity-50"
+                aria-label="Email address"
+                aria-invalid={status === 'error'}
+                aria-describedby="newsletter-status"
+                className={`flex-1 px-4 py-2 rounded-lg border bg-[var(--pf-bg)] text-[var(--pf-text)] text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/30 disabled:opacity-50 transition-colors ${
+                  status === 'error' ? 'border-red-500 focus:border-red-500' : 'border-[var(--pf-border)] focus:border-[var(--pf-orange)]'
+                }`}
               />
               <button 
                 type="submit" 
-                disabled={status === 'loading'}
-                className="px-4 py-2 bg-[var(--pf-orange)] text-white rounded-lg font-medium text-sm hover:bg-[var(--pf-orange-dark)] transition-colors disabled:opacity-50"
+                disabled={status === 'loading' || status === 'success'}
+                aria-label={status === 'loading' ? 'Subscribing...' : 'Subscribe to newsletter'}
+                className="px-4 py-2 bg-[var(--pf-orange)] text-white rounded-lg font-medium text-sm hover:bg-[var(--pf-orange-dark)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
               >
-                {status === 'loading' ? '...' : 'Subscribe'}
+                {status === 'loading' ? 'Subscribing...' : status === 'success' ? 'Done!' : 'Subscribe'}
               </button>
             </form>
             {message && (
-              <p className={`mt-2 text-sm ${status === 'error' ? 'text-red-400' : 'text-green-400'}`}>
+              <p 
+                id="newsletter-status" 
+                role="status"
+                aria-live="polite"
+                className={`mt-2 text-sm ${status === 'error' ? 'text-red-400' : 'text-green-400'}`}
+              >
                 {message}
               </p>
             )}
