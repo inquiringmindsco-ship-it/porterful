@@ -11,6 +11,8 @@ import { ArtistSearch } from '@/components/ArtistSearch';
 export default function Home() {
   const { user } = useSupabase();
   const featuredTracks = TRACKS.slice(0, 6);
+  const totalPlays = TRACKS.reduce((sum, track) => sum + (track.plays || 0), 0);
+  const formattedPlays = totalPlays >= 1000000 ? `${(totalPlays / 1000000).toFixed(1)}M+` : `${(totalPlays / 1000).toFixed(0)}K+`;
   const [showBackToTop, setShowBackToTop] = useState(false);
 
   useEffect(() => {
@@ -251,7 +253,7 @@ export default function Home() {
                     <div className="text-xs text-[var(--pf-text-muted)]">Albums</div>
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-[var(--pf-orange)]">5.3M+</div>
+                    <div className="text-2xl font-bold text-[var(--pf-orange)]">{formattedPlays}</div>
                     <div className="text-xs text-[var(--pf-text-muted)]">Plays</div>
                   </div>
                 </div>
