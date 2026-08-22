@@ -48,7 +48,7 @@ export function Footer() {
   }
 
   return (
-    <footer className="bg-[var(--pf-bg-secondary)] border-t border-[var(--pf-border)] py-12 mt-12">
+    <footer className="bg-[var(--pf-bg-secondary)] border-t border-[var(--pf-border)] py-12">
       <div className="max-w-6xl mx-auto px-6">
         <div className="grid grid-cols-2 md:grid-cols-6 gap-8 mb-8">
           {/* Brand */}
