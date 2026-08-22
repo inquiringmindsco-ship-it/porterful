@@ -30,7 +30,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/privacy',
     '/press-kit',
     '/onboarding',
-    '/challenge',
+    '/competition',
     '/resources',
     '/verify',
     '/wallet',

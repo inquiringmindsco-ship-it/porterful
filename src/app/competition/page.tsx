@@ -1,20 +1,8 @@
-import { Metadata } from 'next'
-import Link from 'next/link'
-import { useState, useEffect, useCallback } from 'react'
-import { Trophy, DollarSign, Users, TrendingUp, Gift, Star, Zap, Crown, Target, Award, Clock, Lock, Check, Flame, Rocket, RefreshCw } from 'lucide-react'
+'use client';
 
-export const metadata: Metadata = {
-  title: '$10K Artist Competition - Earn While You Sell',
-  description: 'Join the Porterful $10K Artist Competition. First 50 artists get Founding Artist status with double prizes. Compete for $10,000 in cash and prizes.',
-  keywords: ['artist competition', 'music competition', 'earn money as artist', 'founding artist', 'artist prizes', 'music platform competition'],
-  openGraph: {
-    title: '$10K Artist Competition - Porterful',
-    description: 'First 50 artists get Founding Artist status. Compete for $10,000 in prizes.',
-    images: ['/og-image.png'],
-  },
-}
-import Link from 'next/link';
-import { Trophy, DollarSign, Users, TrendingUp, Gift, Star, Zap, Crown, Target, Award, Clock, Lock, Check, Flame, Rocket, RefreshCw } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react'
+import Link from 'next/link'
+import { Trophy, DollarSign, Users, TrendingUp, Gift, Star, Zap, Crown, Target, Award, Clock, Lock, Check, Flame, Rocket, RefreshCw } from 'lucide-react'
 
 // Configuration
 const FOUNDING_ARTIST_LIMIT = 50;
