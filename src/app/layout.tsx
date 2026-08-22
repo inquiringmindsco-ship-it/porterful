@@ -178,6 +178,10 @@ export default function RootLayout({
         <meta name="msapplication-config" content="/browserconfig.xml" />
       </head>
       <body className="antialiased">
+        {/* Skip to main content - accessibility */}
+        <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[9999] focus:px-4 focus:py-2 focus:bg-[var(--pf-orange)] focus:text-white focus:rounded-lg focus:font-medium">
+          Skip to main content
+        </a>
         <Script
           id="organization-jsonld"
           type="application/ld+json"
@@ -192,7 +196,7 @@ export default function RootLayout({
         <Providers>
           <KeyboardShortcuts />
           <Navbar />
-          <main className="min-h-screen pb-24 pt-16 md:pt-20">
+          <main id="main-content" className="min-h-screen pb-24 pt-16 md:pt-20">
             {children}
           </main>
           <Footer />
