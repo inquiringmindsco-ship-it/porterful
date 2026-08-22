@@ -197,7 +197,7 @@ export default function Home() {
               </div>
               
               <div className="text-center">
-                <Link href="/superfan" className="inline-flex items-center gap-2 px-8 py-4 bg-[var(--pf-orange)] text-white rounded-xl font-bold hover:bg-[var(--pf-orange)]/90 transition-colors">
+                <Link href="/signup/superfan" className="inline-flex items-center gap-2 px-8 py-4 bg-[var(--pf-orange)] text-white rounded-xl font-bold hover:bg-[var(--pf-orange)]/90 transition-colors">
                   Join the Superfan Program
                   <span>→</span>
                 </Link>

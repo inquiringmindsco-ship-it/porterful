@@ -253,7 +253,7 @@ export function Navbar() {
                 <PorterfulIcon name="resources" size={18} />
                 <span>Resources</span>
               </Link>
-              <Link href="/superfan" className="flex items-center gap-2 px-4 py-2 rounded-lg text-[var(--pf-orange)] bg-[var(--pf-orange)]/10 hover:bg-[var(--pf-orange)]/20 transition-colors font-medium">
+              <Link href="/signup/superfan" className="flex items-center gap-2 px-4 py-2 rounded-lg text-[var(--pf-orange)] bg-[var(--pf-orange)]/10 hover:bg-[var(--pf-orange)]/20 transition-colors font-medium">
                 <span className="text-base">⭐</span>
                 <span>Superfan</span>
               </Link>
@@ -414,7 +414,7 @@ export function Navbar() {
               <PorterfulIcon name="trophy" size={20} />
               <span>$10K Challenge</span>
             </Link>
-            <Link href="/superfan" className="flex items-center gap-3 px-4 py-4 text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] hover:bg-[var(--pf-surface)] rounded-xl transition-colors" onClick={closeMobile}>
+            <Link href="/signup/superfan" className="flex items-center gap-3 px-4 py-4 text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] hover:bg-[var(--pf-surface)] rounded-xl transition-colors" onClick={closeMobile}>
               <span className="text-lg">⭐</span>
               <span>Superfan Program</span>
             </Link>
