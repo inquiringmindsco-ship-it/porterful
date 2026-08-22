@@ -12,6 +12,14 @@ export const metadata: Metadata = {
     url: 'https://porterful.com/competition',
     siteName: 'Porterful',
     type: 'website',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Porterful $10K Artist Competition',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',

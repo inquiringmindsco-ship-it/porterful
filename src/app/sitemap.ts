@@ -11,6 +11,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/digital',
     '/marketplace',
     '/store',
+    '/brands',
     '/radio',
     '/playlists',
     '/trending',
@@ -30,7 +31,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/privacy',
     '/press-kit',
     '/onboarding',
-    '/competition',
     '/resources',
     '/verify',
     '/wallet',
@@ -60,6 +60,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     if (page === '/blog') return 0.7
     if (page.startsWith('/album')) return 0.7
     if (page === '/digital' || page === '/marketplace' || page === '/store') return 0.9
+    if (page === '/brands') return 0.8
     if (page.startsWith('/dashboard')) return 0.5
     return 0.8
   }
