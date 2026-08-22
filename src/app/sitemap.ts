@@ -4,13 +4,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://porterful.com'
   const currentDate = new Date().toISOString().split('T')[0]
   
-  // Static pages (canonical URLs only — /shop → /store, /unlock → /store?ref=unlock)
+  // Static pages (canonical URLs only — /competition → /apply, /store → /marketplace)
   const staticPages = [
     '',
-    '/competition',
+    '/apply',
     '/digital',
     '/marketplace',
-    '/store',
     '/brands',
     '/radio',
     '/playlists',
@@ -52,17 +51,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
   
   const getPriority = (page: string): number => {
     if (page === '') return 1.0
-    if (page === '/competition') return 0.95
+    if (page === '/apply') return 0.95
     if (page === '/blog') return 0.7
     if (page.startsWith('/album')) return 0.7
-    if (page === '/digital' || page === '/marketplace' || page === '/store') return 0.9
+    if (page === '/digital' || page === '/marketplace') return 0.9
     if (page === '/brands') return 0.8
     if (page.startsWith('/dashboard')) return 0.5
     return 0.8
   }
 
   const getChangeFrequency = (page: string): MetadataRoute.Sitemap[0]['changeFrequency'] => {
-    if (page === '' || page === '/competition') return 'daily'
+    if (page === '' || page === '/apply') return 'daily'
     if (page.startsWith('/album') || page === '/blog') return 'weekly'
     if (page.startsWith('/dashboard')) return 'monthly'
     if (page === '/terms' || page === '/privacy') return 'monthly'

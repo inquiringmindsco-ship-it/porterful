@@ -39,6 +39,13 @@ export async function middleware(request: NextRequest) {
     url.pathname = '/marketplace'
     return NextResponse.redirect(url)
   }
+  
+  // Redirect /competition to /apply (canonical URL)
+  if (request.nextUrl.pathname === '/competition') {
+    const url = request.nextUrl.clone()
+    url.pathname = '/apply'
+    return NextResponse.redirect(url)
+  }
 
   // Protected routes that require authentication
   const protectedPaths = ['/dashboard', '/dashboard/artist', '/settings', '/wallet']
