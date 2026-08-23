@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
 
     if (!email || !email.includes('@')) {
       return NextResponse.json(
-        { error: 'Valid email address required' },
+        { error: 'Please enter a valid email address' },
         { status: 400 }
       )
     }

@@ -36,11 +36,11 @@ export function Footer() {
         setEmail('')
       } else {
         setStatus('error')
-        setMessage(data.error || 'Something went wrong')
+        setMessage(data.error || 'Failed to subscribe. Please try again.')
       }
     } catch {
       setStatus('error')
-      setMessage('Connection error. Please try again.')
+      setMessage('Network error. Check your connection and try again.')
     }
 
     // Reset status after 4 seconds
