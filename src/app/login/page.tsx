@@ -16,6 +16,8 @@ export default function LoginPage() {
   const [error, setError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
 
+  const [resetSent, setResetSent] = useState(false)
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -34,7 +36,14 @@ export default function LoginPage() {
       })
 
       if (loginError) {
-        setError(loginError.message)
+        // Provide friendlier messages for common errors
+        if (loginError.message.includes('Invalid login credentials')) {
+          setError('Incorrect email or password. Please try again.')
+        } else if (loginError.message.includes('Email not confirmed')) {
+          setError('Please verify your email first. Check your inbox for a confirmation link.')
+        } else {
+          setError(loginError.message)
+        }
         return
       }
 
@@ -59,6 +68,29 @@ export default function LoginPage() {
       }
     } catch (err: any) {
       setError(err.message || 'An error occurred')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleResetPassword = async () => {
+    if (!email) {
+      setError('Enter your email address first, then click "Forgot password?"')
+      return
+    }
+    setLoading(true)
+    setError('')
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      })
+      if (error) {
+        setError(error.message)
+      } else {
+        setResetSent(true)
+      }
+    } catch {
+      setError('Failed to send reset email. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -100,6 +132,13 @@ export default function LoginPage() {
           </div>
         )}
 
+        {resetSent && (
+          <div className="mb-6 p-4 rounded-lg bg-green-500/10 border border-green-500/30 text-green-400">
+            <p className="font-medium">Password reset email sent!</p>
+            <p className="text-sm mt-1">Check your inbox for a link to reset your password.</p>
+          </div>
+        )}
+
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
             <label className="block text-sm font-medium mb-2">Email</label>
@@ -132,6 +171,17 @@ export default function LoginPage() {
                 {showPassword ? 'Hide' : 'Show'}
               </button>
             </div>
+          </div>
+
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={handleResetPassword}
+              disabled={loading || resetSent}
+              className="text-sm text-[var(--pf-orange)] hover:underline disabled:opacity-50"
+            >
+              Forgot password?
+            </button>
           </div>
 
           <button
