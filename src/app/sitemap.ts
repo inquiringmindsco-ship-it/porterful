@@ -10,7 +10,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/apply',
     '/digital',
     '/marketplace',
-    '/brands',
+    '/shop',
     '/radio',
     '/playlists',
     '/trending',
@@ -56,8 +56,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     if (page === '/apply') return 0.95
     if (page === '/blog') return 0.7
     if (page.startsWith('/album')) return 0.7
-    if (page === '/digital' || page === '/marketplace') return 0.9
-    if (page === '/brands') return 0.8
+    if (page === '/digital' || page === '/marketplace' || page === '/shop') return 0.9
     if (page.startsWith('/dashboard')) return 0.5
     return 0.8
   }
@@ -67,6 +66,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     if (page.startsWith('/album') || page === '/blog') return 'weekly'
     if (page.startsWith('/dashboard')) return 'monthly'
     if (page === '/terms' || page === '/privacy') return 'monthly'
+    if (page === '/shop') return 'daily'
     return 'weekly'
   }
   
