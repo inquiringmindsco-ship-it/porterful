@@ -41,11 +41,17 @@ export async function GET(request: NextRequest) {
     )
   }
   
-  // Calculate sale price (30% markup default)
-  products = products.map(p => ({
-    ...p,
-    salePrice: Math.round((p.basePrice || 5) * 1.3 * 100) / 100,
-  }))
+  // Calculate sale price (30% markup default) and artist cut (80% of sale price)
+  products = products.map(p => {
+    const salePrice = Math.round((p.basePrice || 5) * 1.3 * 100) / 100
+    const artistCut = Math.round(salePrice * 0.80 * 100) / 100
+    return {
+      ...p,
+      price: salePrice, // legacy field for compatibility
+      salePrice,
+      artistCut,
+    }
+  })
   
   // Sort products
   switch (sort) {
