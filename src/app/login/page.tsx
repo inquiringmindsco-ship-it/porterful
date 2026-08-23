@@ -178,19 +178,19 @@ export default function LoginPage() {
               Create one
             </Link>
           </div>
+          
+          <div className="text-center text-sm">
+            <a href="/signup?role=artist" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)]">
+              Artist signup →
+            </a>
+            <span className="mx-2 text-[var(--pf-border)]">|</span>
+            <a href="/signup/superfan" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)]">
+              Become a Superfan →
+            </a>
+          </div>
         </form>
 
-        <div className="mt-8 pt-8 border-t border-[var(--pf-border)]">
-          <p className="text-center text-sm text-[var(--pf-text-muted)] mb-4">
-            Demo Accounts (no database needed)
-          </p>
-          <button
-            onClick={() => router.push('/dashboard')}
-            className="w-full pf-btn pf-btn-secondary py-3"
-          >
-            Continue as Demo User
-          </button>
-        </div>
+
       </div>
     </div>
   )
