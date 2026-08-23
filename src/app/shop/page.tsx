@@ -490,9 +490,9 @@ export default function MarketplacePage() {
                           </span>
                         </div>
                       )}
-                      {/* Quick Add Overlay */}
-                      {viewMode === 'grid' && product.inStock && (
-                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      {/* Quick Add — always visible on mobile (touch can't hover), hover on desktop */}
+                      {product.inStock && (
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 sm:opacity-0 transition-opacity flex items-center justify-center">
                           <button
                             onClick={(e) => handleQuickAdd(e, product)}
                             disabled={addedProducts.has(product.id)}
@@ -513,6 +513,23 @@ export default function MarketplacePage() {
                                 Quick Add
                               </>
                             )}
+                          </button>
+                        </div>
+                      )}
+                      {/* Mobile persistent quick-add pill — only on grid, visible on touch devices */}
+                      {product.inStock && (
+                        <div className="absolute bottom-2 left-2 right-2 sm:hidden">
+                          <button
+                            onClick={(e) => handleQuickAdd(e, product)}
+                            disabled={addedProducts.has(product.id)}
+                            className={`w-full flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold transition-all active:scale-95 ${
+                              addedProducts.has(product.id)
+                                ? 'bg-green-500 text-white'
+                                : 'bg-[var(--pf-orange)] text-white'
+                            }`}
+                          >
+                            {addedProducts.has(product.id) ? <Check size={12} /> : <ShoppingCart size={12} />}
+                            {addedProducts.has(product.id) ? 'Added!' : 'Quick Add'}
                           </button>
                         </div>
                       )}
@@ -561,6 +578,24 @@ export default function MarketplacePage() {
                         <p className="text-sm text-[var(--pf-text-secondary)] mt-2 line-clamp-2">
                           Premium quality {product.category.toLowerCase()} with custom design. Perfect for everyday use.
                         </p>
+                      )}
+
+                      {/* List view: Quick Add button */}
+                      {viewMode === 'list' && product.inStock && (
+                        <div className="mt-3">
+                          <button
+                            onClick={(e) => handleQuickAdd(e, product)}
+                            disabled={addedProducts.has(product.id)}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all active:scale-95 ${
+                              addedProducts.has(product.id)
+                                ? 'bg-green-500 text-white'
+                                : 'bg-[var(--pf-orange)] text-white hover:brightness-110'
+                            }`}
+                          >
+                            {addedProducts.has(product.id) ? <Check size={12} /> : <ShoppingCart size={12} />}
+                            {addedProducts.has(product.id) ? 'Added!' : 'Add to Cart'}
+                          </button>
+                        </div>
                       )}
                     </div>
                   </Link>
