@@ -6,38 +6,64 @@ import { useEffect, useState, useRef } from 'react'
 // Shopify Buy Button instance for filtering
 let shopifyUI: any = null
 
-// Fallback shown when Shopify takes too long to load
-function TimeoutFallback() {
+// Fallback shown when Shopify takes too long to load or fails
+function TimeoutFallback({ hasError = false, onRetry }: { hasError?: boolean; onRetry?: () => void }) {
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
-    const timer = setTimeout(() => setVisible(true), 8000)
+    const timer = setTimeout(() => setVisible(true), 6000)
     return () => clearTimeout(timer)
   }, [])
 
-  if (!visible) return null
+  if (!visible && !hasError) return null
 
   return (
     <div className="text-center py-8 mt-4">
-      <p className="text-gray-500 mb-3">Having trouble loading products?</p>
-      <a
-        href="https://porterful.myshopify.com"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="inline-flex items-center gap-2 px-5 py-2.5 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-colors"
-      >
-        <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-        </svg>
-        Browse shop.porterful.com
-      </a>
+      <p className="text-gray-500 mb-3">
+        {hasError ? "Couldn't load products" : 'Having trouble loading products?'}
+      </p>
+      {onRetry && (
+        <button
+          onClick={onRetry}
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-colors mb-3"
+        >
+          <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Try Again
+        </button>
+      )}
+      <div>
+        <a
+          href="https://porterful.myshopify.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 text-orange-600 hover:text-orange-700 font-medium text-sm"
+        >
+          <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+          Browse shop.porterful.com
+        </a>
+      </div>
     </div>
   )
 }
 
 export default function MarketplacePage() {
   const [loaded, setLoaded] = useState(false)
+  const [loadError, setLoadError] = useState(false)
+  const [loadingProgress, setLoadingProgress] = useState(0)
   const containerRef = useRef<HTMLDivElement>(null)
+
+  // Simulate loading progress for better UX
+  useEffect(() => {
+    if (loaded) return
+    const interval = setInterval(() => {
+      setLoadingProgress(prev => Math.min(prev + 12, 90))
+    }, 400)
+    return () => clearInterval(interval)
+  }, [loaded])
 
   // Force light theme on this page only
   useEffect(() => {
@@ -127,8 +153,13 @@ export default function MarketplacePage() {
                 }
               })
               setLoaded(true)
+            }).catch(() => {
+              setLoadError(true)
             })
           }
+        }}
+        onError={() => {
+          setLoadError(true)
         }}
       />
 
@@ -175,12 +206,19 @@ export default function MarketplacePage() {
           <div ref={containerRef} className="mb-8">
             {!loaded && (
               <div className="text-center py-12">
-                <div className="inline-block animate-spin w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full mb-4"></div>
+                <div className="w-48 mx-auto mb-4 bg-gray-200 rounded-full h-1.5">
+                  <div 
+                    className="bg-orange-500 h-1.5 rounded-full transition-all duration-300 ease-out"
+                    style={{ width: `${loadingProgress}%` }}
+                  />
+                </div>
+                <div className="inline-block animate-pulse w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full mb-3 opacity-70" />
                 <p className="text-gray-500">Loading products...</p>
+                <p className="text-xs text-gray-400 mt-1">This may take a few seconds</p>
               </div>
             )}
             <div id="shopify-collection"></div>
-            <TimeoutFallback />
+            {(loadError || loaded) && <TimeoutFallback hasError={loadError} />}
           </div>
 
           {/* How to Submit Your Own Merch */}
