@@ -136,8 +136,8 @@ export default function MarketplacePage() {
       : selectedCategory === 'trending' ? '🔥 Trending' 
       : CATEGORIES.find(c => c.id === selectedCategory)?.name || 'Shop'
     const title = search 
-      ? `Search: "${search}" — ${categoryLabel} | Porterful Shop`
-      : `${categoryLabel} | Porterful Shop`
+      ? `Search: "${search}" — ${categoryLabel} — Porterful`
+      : `${categoryLabel} — Porterful`
     document.title = title
   }, [selectedCategory, search])
 
