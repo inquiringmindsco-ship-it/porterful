@@ -1,79 +1,128 @@
 import { MetadataRoute } from 'next'
+import { PRODUCTS } from '@/lib/data'
+import { ARTISTS } from '@/lib/artists'
+import { TRACKS } from '@/lib/data'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://porterful.com'
-  const currentDate = new Date().toISOString().split('T')[0]
   
-  // Static pages (canonical URLs only — /competition → /apply, /store → /marketplace)
-  const staticPages = [
-    '',
-    '/apply',
-    '/digital',
-    '/marketplace',
-    '/shop',
-    '/radio',
-    '/playlists',
-    '/trending',
-    '/superfan',
-    '/signup',
-    '/signup/superfan',
-    '/login',
-    '/artist/od-porter',
-    '/dashboard',
-    '/dashboard/artist',
-    '/dashboard/upload',
-    '/terms',
-    '/privacy',
-    '/refund',
-    '/dmca',
-    '/press-kit',
-    '/onboarding',
-    '/resources',
-    '/verify',
-    '/wallet',
-    '/blog',
+  // Static pages
+  const staticPages: MetadataRoute.Sitemap = [
+    {
+      url: baseUrl,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 1,
+    },
+    {
+      url: `${baseUrl}/shop`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/artists`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/digital`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/playlists`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/trending`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/competition`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/about`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/contact`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.5,
+    },
+    {
+      url: `${baseUrl}/signup`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/superfan`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/brands`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/terms`,
+      lastModified: new Date(),
+      changeFrequency: 'yearly',
+      priority: 0.3,
+    },
+    {
+      url: `${baseUrl}/privacy`,
+      lastModified: new Date(),
+      changeFrequency: 'yearly',
+      priority: 0.3,
+    },
+    {
+      url: `${baseUrl}/faq`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.4,
+    },
   ]
-  
-  // Albums from data
-  const albums = [
-    'ambiguous',
-    'from-feast-to-famine',
-    'god-is-good',
-    'one-day',
-    'streets-thought-i-left',
-    'roxannity',
-    'artgasm',
-    'levi',
-  ]
-  
-  const albumPages = albums.map(album => `/album/${album}`)
-  
-  // All pages
-  const allPages = [...staticPages, ...albumPages]
-  
-  const getPriority = (page: string): number => {
-    if (page === '') return 1.0
-    if (page === '/apply') return 0.95
-    if (page === '/blog') return 0.7
-    if (page.startsWith('/album')) return 0.7
-    if (page === '/digital' || page === '/marketplace' || page === '/shop') return 0.9
-    if (page.startsWith('/dashboard')) return 0.5
-    return 0.8
-  }
 
-  const getChangeFrequency = (page: string): MetadataRoute.Sitemap[0]['changeFrequency'] => {
-    if (page === '' || page === '/apply') return 'daily'
-    if (page.startsWith('/album') || page === '/blog') return 'weekly'
-    if (page.startsWith('/dashboard')) return 'monthly'
-    if (page === '/terms' || page === '/privacy') return 'monthly'
-    if (page === '/shop') return 'daily'
-    return 'weekly'
-  }
-  
-  return allPages.map(page => ({
-    url: `${baseUrl}${page}`,
-    lastModified: currentDate,
-    changeFrequency: getChangeFrequency(page),
-    priority: getPriority(page),
+  // Product pages
+  const productPages: MetadataRoute.Sitemap = PRODUCTS.map((product) => ({
+    url: `${baseUrl}/product/${product.id}`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
   }))
+
+  // Artist pages
+  const artistPages: MetadataRoute.Sitemap = ARTISTS.map((artist) => ({
+    url: `${baseUrl}/artist/${artist.slug || artist.id}`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly' as const,
+    priority: 0.8,
+  }))
+
+  // Track/Album pages
+  const trackPages: MetadataRoute.Sitemap = TRACKS.map((track) => ({
+    url: `${baseUrl}/album/${track.id}`,
+    lastModified: new Date(),
+    changeFrequency: 'monthly' as const,
+    priority: 0.6,
+  }))
+
+  return [...staticPages, ...productPages, ...artistPages, ...trackPages]
 }
