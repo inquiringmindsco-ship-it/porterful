@@ -19,6 +19,25 @@ function SignupForm() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+
+  // Password strength checker
+  const getPasswordStrength = (pwd: string) => {
+    if (!pwd) return { strength: 0, label: '', color: '' }
+    let strength = 0
+    if (pwd.length >= 6) strength++
+    if (pwd.length >= 10) strength++
+    if (/[A-Z]/.test(pwd)) strength++
+    if (/[0-9]/.test(pwd)) strength++
+    if (/[^A-Za-z0-9]/.test(pwd)) strength++
+    
+    if (strength <= 2) return { strength: 1, label: 'Weak', color: 'bg-red-500' }
+    if (strength <= 3) return { strength: 2, label: 'Fair', color: 'bg-yellow-500' }
+    if (strength <= 4) return { strength: 3, label: 'Good', color: 'bg-blue-500' }
+    return { strength: 4, label: 'Strong', color: 'bg-green-500' }
+  }
+  
+  const passwordStrength = getPasswordStrength(password)
 
   // Read role from URL param on mount (e.g., /signup?role=artist)
   useEffect(() => {
@@ -158,15 +177,47 @@ function SignupForm() {
 
           <div>
             <label className="block text-sm font-medium mb-2">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
-              className="w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 focus:outline-none focus:border-[var(--pf-orange)]"
-              placeholder="At least 6 characters"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={6}
+                className="w-full bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-4 py-3 pr-12 focus:outline-none focus:border-[var(--pf-orange)]"
+                placeholder="At least 6 characters"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-[var(--pf-text-muted)] hover:text-[var(--pf-text)]"
+              >
+                {showPassword ? 'Hide' : 'Show'}
+              </button>
+            </div>
+            {/* Password strength indicator */}
+            {password && (
+              <div className="mt-2">
+                <div className="flex gap-1 mb-1">
+                  {[1, 2, 3, 4].map((level) => (
+                    <div
+                      key={level}
+                      className={`h-1 flex-1 rounded-full transition-colors ${
+                        level <= passwordStrength.strength ? passwordStrength.color : 'bg-[var(--pf-border)]'
+                      }`}
+                    />
+                  ))}
+                </div>
+                <p className={`text-xs ${
+                  passwordStrength.strength <= 1 ? 'text-red-400' :
+                  passwordStrength.strength <= 2 ? 'text-yellow-400' :
+                  passwordStrength.strength <= 3 ? 'text-blue-400' : 'text-green-400'
+                }`}>
+                  {passwordStrength.label}
+                  {password.length < 6 && ' — Must be at least 6 characters'}
+                </p>
+              </div>
+            )}
           </div>
 
           <div>
