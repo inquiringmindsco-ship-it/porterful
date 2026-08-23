@@ -4,6 +4,8 @@ import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowUp, ShoppingCart, Check } from 'lucide-react'
+import { useCart } from '@/lib/cart-context'
+import { useToast } from '@/components/Toast'
 
 // Custom Porterful Icons
 const Icon = {
@@ -125,6 +127,8 @@ export default function MarketplacePage() {
   const [showFilters, setShowFilters] = useState(false)
   const [addedProducts, setAddedProducts] = useState<Set<string>>(new Set())
   const searchTimeoutRef = useRef<NodeJS.Timeout>()
+  const { addItem } = useCart()
+  const { showToast } = useToast()
 
   // Active filters state
   const [activePriceRanges, setActivePriceRanges] = useState<string[]>([])
@@ -236,26 +240,17 @@ export default function MarketplacePage() {
         window.location.href = `/product/${product.id}`
         return
       }
-      // Simple add for single-option products
-      const cartItem = {
+      // Use proper cart context
+      addItem({
         productId: product.id,
         price: (product as any).salePrice || (product as any).price || 9.99,
         name: product.name,
         artist: 'Porterful',
         image: product.images[0],
         artistCut: (product as any).artistCut || 0,
-      }
-      // Use localStorage directly since we can't easily access cart context here
-      const existing = JSON.parse(localStorage.getItem('porterful-cart') || '[]')
-      const existingIdx = existing.findIndex((i: any) => i.productId === product.id)
-      if (existingIdx >= 0) {
-        existing[existingIdx].quantity += 1
-      } else {
-        existing.push({ ...cartItem, quantity: 1 })
-      }
-      localStorage.setItem('porterful-cart', JSON.stringify(existing))
-      window.dispatchEvent(new Event('storage'))
+      })
       setAddedProducts(prev => new Set(prev).add(product.id))
+      showToast(`${product.name} added to cart!`, 'success')
       setTimeout(() => {
         setAddedProducts(prev => {
           const next = new Set(prev)
@@ -265,6 +260,7 @@ export default function MarketplacePage() {
       }, 2000)
     } catch (err) {
       console.error('Failed to add to cart:', err)
+      showToast('Failed to add item', 'error')
     }
   }
 
