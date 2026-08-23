@@ -256,7 +256,7 @@ export default function RootLayout({
           <GlobalPlayer />
           <InstallPrompt />
           <IOSInstallInstructions />
-          </Providers>
+        </Providers>
       </body>
     </html>
   )

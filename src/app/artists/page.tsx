@@ -3,24 +3,36 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Music, Users, TrendingUp, Heart, ChevronRight, Search } from 'lucide-react'
+import { Music, Users, TrendingUp, Heart, ChevronRight, Search, ArrowUpDown } from 'lucide-react'
 import { ARTISTS } from '@/lib/artists'
 
 const GENRES = ['All', 'Hip-Hop', 'R&B', 'Indie Pop', 'Electronic', 'Alternative', 'Lo-Fi', 'Latin', 'Rock', 'Jazz']
+const SORT_OPTIONS = [
+  { value: 'default', label: 'Featured' },
+  { value: 'followers', label: 'Most Followers' },
+  { value: 'name', label: 'Name A-Z' },
+]
 
 export default function ArtistsPage() {
   const [activeGenre, setActiveGenre] = useState('All')
   const [searchQuery, setSearchQuery] = useState('')
+  const [sortBy, setSortBy] = useState('default')
   const [artists, setArtists] = useState(ARTISTS)
   
-  // Filter artists by genre and search
-  const filteredArtists = artists.filter(artist => {
-    const matchesGenre = activeGenre === 'All' || artist.genre?.toLowerCase().includes(activeGenre.toLowerCase())
-    const matchesSearch = !searchQuery || 
-      artist.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      artist.genre?.toLowerCase().includes(searchQuery.toLowerCase())
-    return matchesGenre && matchesSearch
-  })
+  // Filter and sort artists
+  const filteredArtists = artists
+    .filter(artist => {
+      const matchesGenre = activeGenre === 'All' || artist.genre?.toLowerCase().includes(activeGenre.toLowerCase())
+      const matchesSearch = !searchQuery || 
+        artist.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        artist.genre?.toLowerCase().includes(searchQuery.toLowerCase())
+      return matchesGenre && matchesSearch
+    })
+    .sort((a, b) => {
+      if (sortBy === 'followers') return (b.followers || 0) - (a.followers || 0)
+      if (sortBy === 'name') return a.name.localeCompare(b.name)
+      return 0 // default: keep original order
+    })
   
   // Featured artist (first in list, usually O D Porter)
   const featuredArtist = artists[0]
@@ -38,9 +50,9 @@ export default function ArtistsPage() {
           </p>
         </div>
 
-        {/* Search */}
-        <div className="max-w-md mx-auto mb-8">
-          <div className="relative">
+        {/* Search & Sort */}
+        <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto mb-8">
+          <div className="relative flex-1">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--pf-text-muted)]" size={20} />
             <input
               type="text"
@@ -49,6 +61,18 @@ export default function ArtistsPage() {
               placeholder="Search artists..."
               className="w-full py-3 pl-12 pr-4 bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-xl text-[var(--pf-text)] placeholder-[var(--pf-text-muted)] focus:outline-none focus:border-[var(--pf-orange)]"
             />
+          </div>
+          <div className="relative">
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="appearance-none py-3 pl-4 pr-10 bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-xl text-[var(--pf-text)] focus:outline-none focus:border-[var(--pf-orange)] cursor-pointer"
+            >
+              {SORT_OPTIONS.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+            <ArrowUpDown className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--pf-text-muted)] pointer-events-none" size={16} />
           </div>
         </div>
 
