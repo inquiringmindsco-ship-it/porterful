@@ -1,12 +1,12 @@
 'use client'
 
-import { Metadata } from 'next'
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowUp, ShoppingCart, Check } from 'lucide-react'
 import { useCart } from '@/lib/cart-context'
 import { useToast } from '@/components/Toast'
+import Script from 'next/script'
 
 export const metadata: Metadata = {
   title: 'Shop Merch - Official Artist Merchandise',
@@ -635,10 +635,53 @@ export default function MarketplacePage() {
 
             {/* Back to Top */}
             <BackToTop />
+
+            {/* Product Schema for SEO */}
+            <ProductSchema products={sortedProducts} />
           </div>
         </div>
       </div>
     </div>
+  )
+}
+
+// Product structured data for Google Shopping
+function ProductSchema({ products }: { products: any[] }) {
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    itemListElement: products.slice(0, 50).map((product, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      item: {
+        '@type': 'Product',
+        name: product.name,
+        image: product.images?.[0],
+        description: `${product.category} - ${product.subcategory || 'Premium quality merchandise'}`,
+        brand: { '@type': 'Brand', name: 'Porterful' },
+        offers: {
+          '@type': 'Offer',
+          price: ((product as any).salePrice || (product as any).price || 9.99).toFixed(2),
+          priceCurrency: 'USD',
+          availability: product.inStock
+            ? 'https://schema.org/InStock'
+            : 'https://schema.org/OutOfStock',
+        },
+        aggregateRating: product.rating > 0 ? {
+          '@type': 'AggregateRating',
+          ratingValue: product.rating.toFixed(1),
+          reviewCount: product.reviews,
+        } : undefined,
+      },
+    })),
+  }
+
+  return (
+    <Script
+      id="product-schema"
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+    />
   )
 }
 

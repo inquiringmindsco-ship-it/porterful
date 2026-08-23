@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next'
-import { PRODUCTS } from '@/lib/data'
+import { ALL_PRODUCTS } from '@/lib/products'
 import { ARTISTS } from '@/lib/artists'
 import { TRACKS } from '@/lib/data'
 
@@ -100,8 +100,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ]
 
-  // Product pages
-  const productPages: MetadataRoute.Sitemap = PRODUCTS.map((product) => ({
+  // Product pages (from ALL_PRODUCTS - 100+ print-on-demand items)
+  const productPages: MetadataRoute.Sitemap = ALL_PRODUCTS.map((product) => ({
     url: `${baseUrl}/product/${product.id}`,
     lastModified: new Date(),
     changeFrequency: 'weekly' as const,
