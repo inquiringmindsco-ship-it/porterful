@@ -145,13 +145,21 @@ export default function ProductClient({ productId }: { productId: string }) {
             )}
 
             {/* Price */}
-            <div className="flex items-baseline gap-4">
-              <span className="text-3xl font-bold text-[var(--pf-orange)]">
-                ${salePrice.toFixed(2)}
-              </span>
-              <span className="text-sm text-[var(--pf-text-muted)]">
+            <div className="space-y-2">
+              <div className="flex items-baseline gap-3 flex-wrap">
+                <span className="text-3xl font-bold text-[var(--pf-orange)]">
+                  ${salePrice.toFixed(2)}
+                </span>
+                <span className="text-lg text-[var(--pf-text-muted)] line-through">
+                  ${(salePrice * 1.3).toFixed(2)}
+                </span>
+                <span className="px-2 py-0.5 bg-green-500/20 text-green-400 text-sm font-medium rounded">
+                  Save 30%
+                </span>
+              </div>
+              <p className="text-sm text-[var(--pf-text-muted)]">
                 ${artistCut.toFixed(2)} goes to independent artists
-              </span>
+              </p>
             </div>
 
             {/* Description */}
