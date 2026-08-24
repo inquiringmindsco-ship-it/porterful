@@ -303,11 +303,23 @@ export default function MarketplacePage() {
                 placeholder="Search products..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full px-4 py-2.5 pl-10 rounded-lg border border-[var(--pf-border)] bg-[var(--pf-bg)] text-[var(--pf-text)] focus:border-[var(--pf-orange)] focus:outline-none"
+                className="w-full px-4 py-2.5 pl-10 pr-10 rounded-lg border border-[var(--pf-border)] bg-[var(--pf-bg)] text-[var(--pf-text)] focus:border-[var(--pf-orange)] focus:outline-none"
               />
               <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--pf-text-muted)]">
                 <Icon.Search />
               </div>
+              {search && (
+                <button
+                  onClick={() => setSearch('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--pf-text-muted)] hover:text-[var(--pf-text)] transition-colors"
+                  aria-label="Clear search"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                </button>
+              )}
             </div>
 
             {/* Filters Toggle */}
@@ -341,20 +353,22 @@ export default function MarketplacePage() {
             </select>
 
             {/* View Mode */}
-            <div className="hidden md:flex items-center gap-1 border border-[var(--pf-border)] rounded-lg p-1">
+            <div className="flex items-center gap-1 border border-[var(--pf-border)] rounded-lg p-1">
               <button
                 onClick={() => setViewMode('grid')}
-                className={`p-2 rounded-md transition-colors ${
+                className={`p-1.5 sm:p-2 rounded-md transition-colors ${
                   viewMode === 'grid' ? 'bg-[var(--pf-orange)] text-white' : 'text-[var(--pf-text-secondary)]'
                 }`}
+                aria-label="Grid view"
               >
                 <Icon.Grid />
               </button>
               <button
                 onClick={() => setViewMode('list')}
-                className={`p-2 rounded-md transition-colors ${
+                className={`p-1.5 sm:p-2 rounded-md transition-colors ${
                   viewMode === 'list' ? 'bg-[var(--pf-orange)] text-white' : 'text-[var(--pf-text-secondary)]'
                 }`}
+                aria-label="List view"
               >
                 <Icon.List />
               </button>
