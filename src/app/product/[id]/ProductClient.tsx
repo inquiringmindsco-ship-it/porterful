@@ -88,7 +88,7 @@ export default function ProductClient({ productId }: { productId: string }) {
         <nav className="text-sm text-[var(--pf-text-muted)] mb-6">
           <Link href="/" className="hover:text-[var(--pf-orange)]">Home</Link>
           <span className="mx-2">/</span>
-          <Link href="/shop" className="hover:text-[var(--pf-orange)]">Shop</Link>
+          <Link href="/store" className="hover:text-[var(--pf-orange)]">Store</Link>
           <span className="mx-2">/</span>
           <span className="text-[var(--pf-text)]">{product.name}</span>
         </nav>
