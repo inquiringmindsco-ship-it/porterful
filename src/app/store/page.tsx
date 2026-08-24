@@ -2,7 +2,10 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Play, Headphones, ShoppingBag, Heart, Share2 } from 'lucide-react';
+import Image from 'next/image';
+import { Play, Headphones, ShoppingBag, Heart, Share2, Star, Users, Disc3 } from 'lucide-react';
+import { useSupabase } from '@/app/providers';
+import { TRACKS } from '@/lib/data';
 
 // Artist data (will come from database)
 const ARTIST = {
@@ -17,47 +20,61 @@ const ARTIST = {
   verified: true,
 };
 
-// Releases (will come from database)
-const RELEASES = [
-  { 
-    id: 'ambiguous-ep', 
-    title: 'Ambiguous EP', 
-    type: 'EP', 
-    year: '2026', 
-    tracks: 5, 
-    price: 5,
-    image: '💿',
-    format: 'Digital'
-  },
-  { 
-    id: 'ambiguous-vinyl', 
-    title: 'Ambiguous Vinyl', 
-    type: 'Vinyl', 
-    year: '2026', 
-    price: 50,
-    image: '📀',
-    format: 'Digital',
-    physical: true,
-    limited: true
-  },
+// Artist products (from PRODUCTS data)
+const ARTIST_PRODUCTS = [
   { 
     id: 'ambiguous-tee', 
     title: 'Ambiguous Tour Tee', 
     type: 'Merch', 
-    price: 25,
-    image: '👕',
-    format: 'Merch'
+    price: 28,
+    image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500',
+    category: 'Apparel',
+    inStock: true,
+    rating: 4.8,
+    reviews: 89,
+    colors: ['Black', 'White', 'Orange'],
+    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
+  },
+  { 
+    id: 'ambiguous-hoodie', 
+    title: 'Ambiguous Hoodie', 
+    type: 'Merch', 
+    price: 65,
+    image: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=500',
+    category: 'Apparel',
+    inStock: true,
+    rating: 4.9,
+    reviews: 45,
+    colors: ['Black', 'Gray'],
+    sizes: ['S', 'M', 'L', 'XL'],
+  },
+  { 
+    id: 'ambiguous-vinyl', 
+    title: 'Ambiguous Vinyl', 
+    type: 'Music', 
+    price: 35,
+    image: 'https://images.unsplash.com/photo-1539185441755-7697f0f1e3ee?w=500',
+    category: 'Vinyl',
+    inStock: true,
+    rating: 5.0,
+    reviews: 67,
+    format: '12" Vinyl',
+    tracks: 21,
   },
 ];
 
-// Top tracks
-const TOP_TRACKS = [
-  { id: '1', title: 'Oddysee', plays: 125000 },
-  { id: '2', title: 'Midnight Drive', plays: 89000 },
-  { id: '3', title: 'Movement', plays: 67000 },
-  { id: '4', title: 'Vibes', plays: 45000 },
-  { id: '5', title: 'Ambiguous', plays: 32000 },
+// Albums for the artist
+const ALBUMS = [
+  { id: 'ambiguous', title: 'Ambiguous', year: '2026', tracks: 21, image: '/album-art/Ambiguous.jpg' },
+  { id: 'from-feast-to-famine', title: 'From Feast to Famine', year: '2025', tracks: 10, image: '/album-art/From_Feast_to_Famine.jpg' },
+  { id: 'god-is-good', title: 'God Is Good', year: '2024', tracks: 9, image: '/album-art/God_Is_Good.jpg' },
+  { id: 'one-day', title: 'One Day', year: '2023', tracks: 19, image: '/album-art/One_Day.jpg' },
 ];
+
+// Top 5 tracks by plays
+const TOP_TRACKS = TRACKS
+  .sort((a, b) => (b.plays || 0) - (a.plays || 0))
+  .slice(0, 5);
 
 export default function ArtistStorePage() {
   const [activeTab, setActiveTab] = useState<'all' | 'music' | 'merch'>('all');
@@ -67,6 +84,13 @@ export default function ArtistStorePage() {
     if (plays >= 1000) return `${(plays / 1000).toFixed(0)}K`;
     return plays.toString();
   };
+
+  const filteredProducts = ARTIST_PRODUCTS.filter(product => {
+    if (activeTab === 'all') return true;
+    if (activeTab === 'merch') return product.type === 'Merch';
+    if (activeTab === 'music') return product.type === 'Music';
+    return true;
+  });
 
   return (
     <div className="min-h-screen bg-[var(--pf-bg)]">
@@ -115,7 +139,7 @@ export default function ArtistStorePage() {
                   </div>
                   <div className="w-px h-8 bg-[var(--pf-border)]" />
                   <div>
-                    <p className="text-2xl font-bold">21</p>
+                    <p className="text-2xl font-bold">{TRACKS.length}</p>
                     <p className="text-sm text-[var(--pf-text-muted)]">Tracks</p>
                   </div>
                 </div>
@@ -141,12 +165,54 @@ export default function ArtistStorePage() {
         </div>
       </section>
 
-      {/* Releases */}
+      {/* Albums Section */}
+      <section className="py-12 bg-[var(--pf-bg-secondary)]">
+        <div className="pf-container">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-2xl font-bold">Albums</h2>
+              <Link href="/digital" className="text-[var(--pf-orange)] hover:underline text-sm font-medium flex items-center gap-1">
+                View all <Disc3 size={16} />
+              </Link>
+            </div>
+
+            {/* Albums Horizontal Scroll */}
+            <div className="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 scrollbar-hide">
+              {ALBUMS.map((album) => (
+                <Link
+                  key={album.id}
+                  href="/digital"
+                  className="flex-shrink-0 w-48 group"
+                >
+                  <div className="aspect-square rounded-xl overflow-hidden mb-3 relative bg-[var(--pf-surface)]">
+                    <Image
+                      src={album.image}
+                      alt={album.title}
+                      fill
+                      sizes="192px"
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <div className="w-12 h-12 rounded-full bg-[var(--pf-orange)] flex items-center justify-center">
+                        <Play size={20} className="text-white ml-1" />
+                      </div>
+                    </div>
+                  </div>
+                  <h3 className="font-semibold group-hover:text-[var(--pf-orange)] transition-colors truncate">{album.title}</h3>
+                  <p className="text-sm text-[var(--pf-text-muted)]">{album.year} • {album.tracks} tracks</p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Products / Merch */}
       <section className="py-12">
         <div className="pf-container">
           <div className="max-w-4xl mx-auto">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl font-bold">Releases</h2>
+              <h2 className="text-2xl font-bold">Shop</h2>
               
               {/* Tabs */}
               <div className="flex gap-2">
@@ -167,40 +233,55 @@ export default function ArtistStorePage() {
             </div>
 
             {/* Products Grid */}
-            <div className="grid md:grid-cols-3 gap-6">
-              {RELEASES
-                .filter(release => activeTab === 'all' || (activeTab === 'merch' ? release.format !== 'Digital' : release.format === 'Digital'))
-                .map((release) => (
+            {filteredProducts.length > 0 ? (
+              <div className="grid md:grid-cols-3 gap-6">
+                {filteredProducts.map((product) => (
                   <Link 
-                    key={release.id}
-                    href={`/product/${release.id}`}
+                    key={product.id}
+                    href={`/product/${product.id}`}
                     className="group"
                   >
-                    <div className="aspect-square bg-gradient-to-br from-[var(--pf-orange)]/10 to-purple-500/10 rounded-xl flex items-center justify-center text-6xl mb-4 relative overflow-hidden">
-                      {release.image}
-                      {release.limited && (
-                        <div className="absolute top-3 right-3 bg-[var(--pf-orange)] text-white text-xs font-bold px-2 py-1 rounded">
-                          LIMITED
+                    <div className="aspect-square rounded-xl overflow-hidden mb-4 relative bg-[var(--pf-surface)]">
+                      <Image
+                        src={product.image}
+                        alt={product.title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      {!product.inStock && (
+                        <div className="absolute top-3 right-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
+                          SOLD OUT
                         </div>
                       )}
                     </div>
                     <div className="flex items-start justify-between">
                       <div>
                         <p className="text-xs text-[var(--pf-text-muted)] uppercase tracking-wider mb-1">
-                          {release.format}
+                          {product.category}
                         </p>
                         <h3 className="text-lg font-semibold group-hover:text-[var(--pf-orange)] transition-colors">
-                          {release.title}
+                          {product.title}
                         </h3>
-                        <p className="text-sm text-[var(--pf-text-secondary)]">
-                          {release.type} {release.year ? `• ${release.year}` : ''}
-                        </p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <div className="flex items-center gap-1">
+                            <Star size={14} className="text-yellow-500 fill-yellow-500" />
+                            <span className="text-sm text-[var(--pf-text-secondary)]">{product.rating.toFixed(1)}</span>
+                          </div>
+                          <span className="text-xs text-[var(--pf-text-muted)]">({product.reviews} reviews)</span>
+                        </div>
                       </div>
-                      <span className="text-xl font-bold">${release.price}</span>
+                      <span className="text-xl font-bold">${product.price}</span>
                     </div>
                   </Link>
                 ))}
-            </div>
+              </div>
+            ) : (
+              <div className="text-center py-12 text-[var(--pf-text-muted)]">
+                <ShoppingBag size={48} className="mx-auto mb-4 opacity-50" />
+                <p>No products in this category yet.</p>
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -211,8 +292,8 @@ export default function ArtistStorePage() {
           <div className="max-w-4xl mx-auto">
             <div className="flex items-center justify-between mb-8">
               <h2 className="text-2xl font-bold">Top Tracks</h2>
-              <Link href="/digital" className="text-[var(--pf-orange)] hover:underline">
-                View all <Headphones className="inline ml-1" size={16} />
+              <Link href="/digital" className="text-[var(--pf-orange)] hover:underline flex items-center gap-1 text-sm">
+                View all <Headphones size={16} />
               </Link>
             </div>
 
@@ -227,11 +308,15 @@ export default function ArtistStorePage() {
                     <button className="w-10 h-10 rounded-lg bg-[var(--pf-surface)] flex items-center justify-center group-hover:bg-[var(--pf-orange)] transition-colors">
                       <Play size={16} className="text-white ml-0.5" />
                     </button>
-                    <div className="flex-1">
-                      <p className="font-semibold">{track.title}</p>
-                      <p className="text-sm text-[var(--pf-text-muted)]">{ARTIST.name}</p>
+                    <div className="w-12 h-12 rounded relative shrink-0 hidden sm:block">
+                      <Image src={track.image} alt={track.album || track.title} fill sizes="48px" className="object-cover rounded" />
                     </div>
-                    <span className="text-sm text-[var(--pf-text-muted)]">{formatPlays(track.plays)} plays</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold truncate group-hover:text-[var(--pf-orange)] transition-colors">{track.title}</p>
+                      <p className="text-sm text-[var(--pf-text-muted)] truncate">{track.album}</p>
+                    </div>
+                    <span className="text-sm text-[var(--pf-text-muted)] hidden sm:block">{formatPlays(track.plays || 0)} plays</span>
+                    <span className="text-sm font-medium">${track.price}</span>
                   </div>
                 ))}
               </div>
@@ -250,13 +335,13 @@ export default function ArtistStorePage() {
                 Every purchase supports independent art. 80% goes directly to the artist.
               </p>
               <div className="flex flex-wrap justify-center gap-4">
-                <Link href="/support" className="pf-btn pf-btn-primary">
+                <Link href="/signup/superfan" className="pf-btn pf-btn-primary">
                   <Heart className="inline mr-2" size={18} />
-                  Become a Supporter
+                  Become a Superfan
                 </Link>
-                <Link href="/store" className="pf-btn pf-btn-secondary">
+                <Link href="/marketplace" className="pf-btn pf-btn-secondary">
                   <ShoppingBag className="inline mr-2" size={18} />
-                  Shop All Products
+                  Browse Marketplace
                 </Link>
               </div>
             </div>
