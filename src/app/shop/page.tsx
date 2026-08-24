@@ -265,7 +265,7 @@ export default function MarketplacePage() {
         name: product.name,
         artist: 'Porterful',
         image: product.images[0],
-        artistCut: (product as any).artistCut || 0,
+        artistCut: ((product as any).salePrice || (product as any).price || 9.99) * 0.80,
       })
       setAddedProducts(prev => new Set(prev).add(product.id))
       showToast(`${product.name} added to cart!`, 'success')
