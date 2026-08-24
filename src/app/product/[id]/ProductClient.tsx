@@ -5,9 +5,9 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Star, Heart, Share2, ShoppingCart, Check } from 'lucide-react';
-import { PRODUCTS } from '@/lib/data';
 import { useCart } from '@/lib/cart-context';
 import { useToast } from '@/components/Toast';
+import { ALL_PRODUCTS } from '@/lib/products';
 
 export default function ProductClient({ productId }: { productId: string }) {
   const router = useRouter();
@@ -19,8 +19,8 @@ export default function ProductClient({ productId }: { productId: string }) {
   const quantityRef = useRef<HTMLButtonElement>(null);
   const [added, setAdded] = useState(false);
 
-  // Find product by ID
-  const product = PRODUCTS.find(p => p.id === productId);
+  // Find product by ID - use ALL_PRODUCTS for full catalog (100+ products)
+  const product = ALL_PRODUCTS.find(p => p.id === productId);
   
   if (!product) {
     return (
@@ -34,6 +34,14 @@ export default function ProductClient({ productId }: { productId: string }) {
       </div>
     );
   }
+  
+  // Handle product fields that may come from different sources
+  const productImage = product.images?.[0] || product.image;
+  const productArtist = product.artist || 'Porterful';
+  const productDescription = product.description || `Premium quality ${product.subcategory?.toLowerCase() || 'merchandise'} from Porterful. 80% of proceeds go directly to independent artists.`;
+  const basePrice = product.basePrice || product.price || 9.99;
+  const salePrice = Math.round(basePrice * 1.3 * 100) / 100;
+  const artistCut = Math.round(salePrice * 0.80 * 100) / 100;
   
   // Type guard for merch products
   const hasColors = 'colors' in product && product.colors?.length;
@@ -52,11 +60,11 @@ export default function ProductClient({ productId }: { productId: string }) {
 
     addItem({
       productId: product.id,
-      price: product.price,
+      price: salePrice,
       name: product.name,
-      artist: product.artist,
-      image: product.image,
-      artistCut: product.artistCut,
+      artist: productArtist,
+      image: productImage,
+      artistCut: artistCut,
       size: selectedSize || undefined,
       color: selectedColor || undefined,
     });
@@ -89,7 +97,7 @@ export default function ProductClient({ productId }: { productId: string }) {
           {/* Product Image */}
           <div className="relative aspect-square rounded-2xl overflow-hidden bg-[var(--pf-surface)]">
             <Image 
-              src={product.image}
+              src={productImage}
               alt={product.name}
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
@@ -107,12 +115,14 @@ export default function ProductClient({ productId }: { productId: string }) {
             {/* Header */}
             <div>
               <h1 className="text-3xl md:text-4xl font-bold mb-2">{product.name}</h1>
-              <Link 
-                href={`/artist/${product.artist.toLowerCase().replace(/\s+/g, '-')}`}
-                className="text-lg text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)]"
-              >
-                by {product.artist}
-              </Link>
+              {productArtist !== 'Porterful' && (
+                <Link 
+                  href={`/artist/${productArtist.toLowerCase().replace(/\s+/g, '-')}`}
+                  className="text-lg text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)]"
+                >
+                  by {productArtist}
+                </Link>
+              )}
             </div>
 
             {/* Rating */}
@@ -128,7 +138,7 @@ export default function ProductClient({ productId }: { productId: string }) {
                   ))}
                 </div>
                 <span className="text-[var(--pf-text-secondary)]">
-                  {product.rating} ({product.reviews} reviews)
+                  {product.rating.toFixed(1)} ({product.reviews} reviews)
                 </span>
               </div>
             )}
@@ -136,17 +146,15 @@ export default function ProductClient({ productId }: { productId: string }) {
             {/* Price */}
             <div className="flex items-baseline gap-4">
               <span className="text-3xl font-bold text-[var(--pf-orange)]">
-                ${product.price}
+                ${salePrice.toFixed(2)}
               </span>
-              {product.artistCut && (
-                <span className="text-sm text-[var(--pf-text-muted)]">
-                  ${product.artistCut} goes to {product.artist}
-                </span>
-              )}
+              <span className="text-sm text-[var(--pf-text-muted)]">
+                ${artistCut.toFixed(2)} goes to independent artists
+              </span>
             </div>
 
             {/* Description */}
-            <p className="text-[var(--pf-text-secondary)]">{product.description}</p>
+            <p className="text-[var(--pf-text-secondary)]">{productDescription}</p>
 
             {/* Color Selection */}
             {hasColors && (
