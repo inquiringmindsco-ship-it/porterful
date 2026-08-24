@@ -19,9 +19,13 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   return {
     title: `${product.name} | Porterful`,
     description: product.description || `${product.name} - Premium quality ${product.subcategory?.toLowerCase() || 'merchandise'} on Porterful. 80% of proceeds go directly to independent artists.`,
+    alternates: {
+      canonical: `https://porterful.com/product/${id}`,
+    },
     openGraph: {
       title: `${product.name} | Porterful`,
       description: product.description || `Shop ${product.name}. 80% goes to independent artists.`,
+      url: `https://porterful.com/product/${id}`,
       images: product.images?.[0] || product.image,
     },
     twitter: {
