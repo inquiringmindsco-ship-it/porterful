@@ -125,6 +125,10 @@ body {
   @apply bg-[var(--pf-surface)] border border-[var(--pf-border)] hover:border-[var(--pf-orange)] hover:text-[var(--pf-orange)];
 }
 
+.pf-btn-outline {
+  @apply bg-transparent border border-dashed border-[var(--pf-border)] hover:border-[var(--pf-orange)] hover:text-[var(--pf-orange)];
+}
+
 .pf-card {
   @apply bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-xl;
 }

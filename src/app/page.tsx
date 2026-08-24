@@ -41,9 +41,9 @@ export default function Home() {
                 </div>
 
                 {/* Headline */}
-                <h1 className="text-4xl md:text-6xl font-bold mb-4 leading-tight">
-                  Where Artists<br />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--pf-orange)] to-purple-500">
+                <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-4 leading-tight">
+                  <span className="block sm:inline">Where Artists </span>
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--pf-orange)] to-purple-500 block sm:inline">
                     Own Everything
                   </span>
                 </h1>
@@ -54,18 +54,18 @@ export default function Home() {
                 </p>
 
                 {/* CTAs */}
-                <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start mb-8">
-                  <Link href="/digital" className="pf-btn pf-btn-primary text-lg px-6 py-3 flex items-center justify-center gap-2">
-                    <Headphones size={20} />
-                    Listen Now
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center md:justify-start mb-8">
+                  <Link href="/digital" className="pf-btn pf-btn-primary text-base sm:text-lg px-4 sm:px-6 py-2.5 sm:py-3 flex items-center justify-center gap-2">
+                    <Headphones size={18} className="sm:w-5 sm:h-5" />
+                    <span>Listen Now</span>
                   </Link>
-                  <Link href="/marketplace" className="pf-btn pf-btn-secondary text-lg px-6 py-3 flex items-center justify-center gap-2">
-                    <ShoppingCart size={20} />
-                    Shop Merch
+                  <Link href="/marketplace" className="pf-btn pf-btn-secondary text-base sm:text-lg px-4 sm:px-6 py-2.5 sm:py-3 flex items-center justify-center gap-2">
+                    <ShoppingCart size={18} className="sm:w-5 sm:h-5" />
+                    <span>Shop Merch</span>
                   </Link>
-                  <Link href="/signup?role=artist" className="pf-btn pf-btn-secondary text-lg px-6 py-3 flex items-center justify-center gap-2 border border-dashed border-[var(--pf-border)]">
-                    <Upload size={20} />
-                    Sell Your Music
+                  <Link href="/signup?role=artist" className="pf-btn pf-btn-outline text-base sm:text-lg px-4 sm:px-6 py-2.5 sm:py-3 flex items-center justify-center gap-2">
+                    <Upload size={18} className="sm:w-5 sm:h-5" />
+                    <span>Sell Your Music</span>
                   </Link>
                 </div>
 
