@@ -34,7 +34,7 @@ export default function CartPage() {
               Looks like you haven't added anything yet.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link href="/store" className="pf-btn pf-btn-primary">
+              <Link href="/marketplace" className="pf-btn pf-btn-primary">
                 Browse Products
               </Link>
               <Link href="/artists" className="pf-btn pf-btn-secondary">

@@ -120,7 +120,7 @@ export function Footer() {
               <li><Link href="/digital" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">Music</Link></li>
               <li><Link href="/radio" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">Radio</Link></li>
               <li><Link href="/playlists" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">Playlists</Link></li>
-              <li><Link href="/competition" className="text-[var(--pf-orange)] hover:text-[var(--pf-orange)]/80 transition-colors text-sm font-medium">$10K Competition</Link></li>
+              <li><Link href="/apply" className="text-[var(--pf-orange)] hover:text-[var(--pf-orange)]/80 transition-colors text-sm font-medium">$10K Competition</Link></li>
               <li><Link href="/signup/superfan" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">⭐ Superfan Program</Link></li>
               <li><Link href="/support" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">Support Artists</Link></li>
             </ul>
