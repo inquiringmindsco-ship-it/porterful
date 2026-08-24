@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useSupabase } from '@/app/providers'
 import { useTheme } from '@/lib/theme-context'
 import { useWallet } from '@/lib/wallet-context'
+import { useCart } from '@/lib/cart-context'
 import { ArtistSearch } from '@/components/ArtistSearch'
 import { Search } from 'lucide-react'
 import { Trophy } from 'lucide-react'
@@ -175,6 +176,7 @@ export function Navbar() {
   const { user, supabase } = useSupabase()
   const { theme, toggleTheme } = useTheme()
   const { balance, formatBalance: formatWalletBalance } = useWallet()
+  const { itemCount } = useCart()
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
@@ -285,6 +287,14 @@ export function Navbar() {
                 <Search size={20} className="text-[var(--pf-text-secondary)]" />
               </button>
 
+              <Link href="/cart" className="relative hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl bg-[var(--pf-surface)] border border-[var(--pf-border)] hover:border-[var(--pf-orange)] transition-colors">
+                <PorterfulIcon name="cart" size={18} className="text-[var(--pf-text-secondary)]" />
+                {itemCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-[var(--pf-orange)] text-white text-xs font-bold rounded-full flex items-center justify-center">
+                    {itemCount > 9 ? '9+' : itemCount}
+                  </span>
+                )}
+              </Link>
               <Link href="/wallet" className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl bg-[var(--pf-surface)] border border-[var(--pf-border)] hover:border-[var(--pf-orange)] transition-colors">
                 <PorterfulIcon name="wallet" size={18} className="text-[var(--pf-orange)]" />
                 <span className="font-medium text-[var(--pf-text)]">{formatWalletBalance()}</span>
@@ -393,6 +403,15 @@ export function Navbar() {
           <Link href="/wallet" className="flex items-center gap-3 px-4 py-4 bg-[var(--pf-orange)]/10 rounded-xl text-[var(--pf-orange)] font-medium" onClick={closeMobile}>
             <PorterfulIcon name="wallet" size={20} />
             <span>Wallet: {formatWalletBalance()}</span>
+          </Link>
+          <Link href="/cart" className="flex items-center gap-3 px-4 py-4 bg-[var(--pf-surface)] rounded-xl text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] border border-[var(--pf-border)] relative" onClick={closeMobile}>
+            <PorterfulIcon name="cart" size={20} />
+            <span>Cart</span>
+            {itemCount > 0 && (
+              <span className="absolute right-4 w-6 h-6 bg-[var(--pf-orange)] text-white text-xs font-bold rounded-full flex items-center justify-center">
+                {itemCount > 9 ? '9+' : itemCount}
+              </span>
+            )}
           </Link>
 
           {/* Nav Links */}
