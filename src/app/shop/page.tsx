@@ -340,17 +340,27 @@ export default function MarketplacePage() {
             </button>
 
             {/* Sort */}
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="px-4 py-2.5 rounded-lg border border-[var(--pf-border)] bg-[var(--pf-bg)] text-[var(--pf-text)] focus:outline-none focus:border-[var(--pf-orange)]"
-            >
-              <option value="popular">Most Popular</option>
-              <option value="newest">Newest</option>
-              <option value="price-low">Price: Low to High</option>
-              <option value="price-high">Price: High to Low</option>
-              <option value="rating">Highest Rated</option>
-            </select>
+            <div className="flex items-center gap-2">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="px-4 py-2.5 rounded-lg border border-[var(--pf-border)] bg-[var(--pf-bg)] text-[var(--pf-text)] focus:outline-none focus:border-[var(--pf-orange)]"
+              >
+                <option value="popular">Most Popular</option>
+                <option value="newest">Newest</option>
+                <option value="price-low">Price: Low to High</option>
+                <option value="price-high">Price: High to Low</option>
+                <option value="rating">Highest Rated</option>
+              </select>
+              {hasActiveFilters && (
+                <button
+                  onClick={clearFilters}
+                  className="px-3 py-2.5 text-sm text-[var(--pf-orange)] hover:bg-[var(--pf-orange)]/10 rounded-lg transition-colors whitespace-nowrap"
+                >
+                  Clear filters
+                </button>
+              )}
+            </div>
 
             {/* View Mode */}
             <div className="flex items-center gap-1 border border-[var(--pf-border)] rounded-lg p-1">

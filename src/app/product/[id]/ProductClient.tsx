@@ -241,19 +241,19 @@ export default function ProductClient({ productId }: { productId: string }) {
             </div>
 
             {/* Free Shipping Progress */}
-            {product.price >= 50 ? (
+            {salePrice >= 50 ? (
               <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3">
                 <p className="text-sm text-green-500 font-medium">🎉 You qualify for FREE shipping!</p>
               </div>
             ) : (
               <div className="bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-lg p-3">
                 <p className="text-xs text-[var(--pf-text-muted)] mb-1.5">
-                  Add <span className="text-[var(--pf-orange)] font-medium">${(50 - product.price).toFixed(2)}</span> more for FREE shipping
+                  Add <span className="text-[var(--pf-orange)] font-medium">${(50 - salePrice).toFixed(2)}</span> more for FREE shipping
                 </p>
                 <div className="h-1.5 bg-[var(--pf-border)] rounded-full overflow-hidden">
                   <div 
                     className="h-full bg-[var(--pf-orange)] rounded-full transition-all"
-                    style={{ width: `${Math.min((product.price / 50) * 100, 100)}%` }}
+                    style={{ width: `${Math.min((salePrice / 50) * 100, 100)}%` }}
                   />
                 </div>
               </div>
