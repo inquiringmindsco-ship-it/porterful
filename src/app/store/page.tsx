@@ -254,7 +254,7 @@ export default function ArtistStorePage() {
                   <Heart className="inline mr-2" size={18} />
                   Become a Supporter
                 </Link>
-                <Link href="/shop" className="pf-btn pf-btn-secondary">
+                <Link href="/store" className="pf-btn pf-btn-secondary">
                   <ShoppingBag className="inline mr-2" size={18} />
                   Shop All Products
                 </Link>
