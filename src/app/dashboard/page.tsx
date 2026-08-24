@@ -200,7 +200,7 @@ export default function DashboardPage() {
               </p>
             </Link>
 
-            <Link href="/shop" className="pf-card p-6 hover:border-[var(--pf-orange)] transition-colors">
+            <Link href="/store" className="pf-card p-6 hover:border-[var(--pf-orange)] transition-colors">
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-10 h-10 rounded-lg bg-[var(--pf-orange)]/20 flex items-center justify-center">
                   <Store size={20} className="text-[var(--pf-orange)]" />

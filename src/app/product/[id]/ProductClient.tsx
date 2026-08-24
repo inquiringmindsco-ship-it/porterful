@@ -27,8 +27,8 @@ export default function ProductClient({ productId }: { productId: string }) {
       <div className="min-h-screen pt-24 pb-12">
         <div className="pf-container max-w-6xl text-center">
           <h1 className="text-2xl font-bold mb-4">Product Not Found</h1>
-          <Link href="/shop" className="pf-btn pf-btn-primary">
-            Browse Shop
+          <Link href="/store" className="pf-btn pf-btn-primary">
+            Browse Store
           </Link>
         </div>
       </div>
