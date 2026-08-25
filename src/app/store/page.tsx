@@ -71,7 +71,7 @@ export default function ArtistStorePage() {
         artist: p.artist || 'Porterful',
         image: p.images?.[0] || p.image,
         images: p.images,
-        price: p.salePrice || p.price || 0,
+        price: p.price || 0,
         salePrice: p.salePrice,
         inStock: p.inStock !== false && p.available !== false && p.purchasable !== false,
         available: p.available,
@@ -356,7 +356,16 @@ export default function ArtistStorePage() {
                           <span className="text-xs text-[var(--pf-text-muted)]">({product.reviews})</span>
                         </div>
                       </div>
-                      <span className="text-xl font-bold text-[var(--pf-orange)]">${product.price.toFixed(2)}</span>
+                      <div className="text-right">
+                        {product.salePrice && product.salePrice > product.price ? (
+                          <>
+                            <span className="text-lg font-bold text-[var(--pf-orange)]">${product.price.toFixed(2)}</span>
+                            <span className="text-sm text-[var(--pf-text-muted)] line-through ml-2">${product.salePrice.toFixed(2)}</span>
+                          </>
+                        ) : (
+                          <span className="text-lg font-bold text-[var(--pf-orange)]">${product.price.toFixed(2)}</span>
+                        )}
+                      </div>
                     </div>
                     <div className="mt-2">
                       <span className={`text-xs font-medium ${
