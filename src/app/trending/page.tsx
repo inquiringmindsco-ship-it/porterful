@@ -149,7 +149,7 @@ export default function TrendingPage() {
             What&#39;s <span className="text-[var(--pf-orange)]">Hot Right Now</span>
           </h1>
           <p className="text-xl text-[var(--pf-text-secondary)] max-w-2xl mx-auto">
-            The products everyone&#39;s browsing. Updated regularly. Every purchase supports independent artists.
+            Curated trending products from independent artists. Every purchase supports creators directly.
           </p>
         </div>
 
