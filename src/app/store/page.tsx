@@ -53,7 +53,7 @@ const TOP_TRACKS = TRACKS
   .slice(0, 5);
 
 export default function ArtistStorePage() {
-  const [activeTab, setActiveTab] = useState<'all' | 'apparel' | 'tech' | 'accessories'>('all');
+  const [activeTab, setActiveTab] = useState<'all' | 'merch' | 'apparel' | 'wellness' | 'essentials'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [products, setProducts] = useState<StoreProduct[]>([]);
   const [loading, setLoading] = useState(true);
@@ -112,9 +112,10 @@ export default function ArtistStorePage() {
     }
     // Apply category filter
     if (activeTab === 'all') return true;
+    if (activeTab === 'merch') return product.category === 'Merch' || product.category === 'Signal';
     if (activeTab === 'apparel') return product.category === 'Apparel';
-    if (activeTab === 'tech') return product.category === 'Tech';
-    if (activeTab === 'accessories') return product.category === 'Accessories';
+    if (activeTab === 'wellness') return product.category === 'Wellness & Hair Care';
+    if (activeTab === 'essentials') return product.category === 'Essential' || product.category === 'Art';
     return true;
   });
 
@@ -241,7 +242,7 @@ export default function ArtistStorePage() {
               
               {/* Tabs */}
               <div className="flex gap-2">
-                {(['all', 'apparel', 'tech', 'accessories'] as const).map((tab) => (
+                {(['all', 'merch', 'apparel', 'wellness', 'essentials'] as const).map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
@@ -251,7 +252,7 @@ export default function ArtistStorePage() {
                         : 'bg-[var(--pf-surface)] text-[var(--pf-text-secondary)] hover:text-white'
                     }`}
                   >
-                    {tab === 'all' ? 'All' : tab.charAt(0).toUpperCase() + tab.slice(1)}
+                    {tab === 'all' ? 'All' : tab === 'merch' ? 'Merch' : tab === 'wellness' ? 'Wellness' : tab.charAt(0).toUpperCase() + tab.slice(1)}
                   </button>
                 ))}
               </div>
@@ -320,13 +321,11 @@ export default function ArtistStorePage() {
                     </div>
                     <div className="mt-2">
                       <span className={`text-xs font-medium ${
-                        !product.inStock 
+                        !product.inStock || !product.purchasable
                           ? 'text-red-500' 
-                          : product.reviews < 10 
-                            ? 'text-yellow-500' 
-                            : 'text-green-500'
+                          : 'text-green-500'
                       }`}>
-                        {!product.inStock ? 'Out of Stock' : product.reviews < 10 ? 'Low Stock' : 'In Stock'}
+                        {!product.inStock || !product.purchasable ? 'Unavailable' : 'Available'}
                       </span>
                     </div>
                   </Link>
