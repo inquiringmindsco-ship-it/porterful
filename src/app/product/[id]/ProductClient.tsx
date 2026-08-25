@@ -99,7 +99,7 @@ export default function ProductClient({ productId }: { productId: string }) {
           <div className="relative aspect-square rounded-2xl overflow-hidden bg-[var(--pf-surface)]">
             <Image 
               src={productImage}
-              alt={product.name}
+              alt={`${product.name} by ${productArtist} - Premium ${product.category} on Porterful. Shop direct, support independent artists.`}
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
               className="object-cover"

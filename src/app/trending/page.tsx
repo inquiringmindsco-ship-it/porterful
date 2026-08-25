@@ -233,7 +233,7 @@ export default function TrendingPage() {
                 <div className="aspect-square relative bg-gradient-to-br from-[var(--pf-surface)] to-[var(--pf-bg)]">
                   <Image
                     src={product.image}
-                    alt={product.name}
+                    alt={`${product.name} - ${product.category} trending on Porterful. ${product.sales.toLocaleString()} sold`}
                     fill
                     className="object-cover object-center group-hover:scale-105 transition-transform duration-300"
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"

@@ -322,7 +322,7 @@ export default function ArtistStorePage() {
                     <div className="aspect-square rounded-xl overflow-hidden mb-4 relative bg-[var(--pf-surface)]">
                       <Image
                         src={product.image}
-                        alt={product.title}
+                        alt={`${product.title} by ${product.artist} - ${product.category} on Porterful`}
                         fill
                         sizes="(max-width: 768px) 100vw, 33vw"
                         className="object-cover group-hover:scale-105 transition-transform duration-300"
