@@ -54,6 +54,7 @@ const TOP_TRACKS = TRACKS
 
 export default function ArtistStorePage() {
   const [activeTab, setActiveTab] = useState<'all' | 'apparel' | 'tech' | 'accessories'>('all');
+  const [searchQuery, setSearchQuery] = useState('');
   const [products, setProducts] = useState<StoreProduct[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -99,6 +100,17 @@ export default function ArtistStorePage() {
   };
 
   const filteredProducts = products.filter(product => {
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      const matchesSearch = 
+        product.name.toLowerCase().includes(query) ||
+        product.title.toLowerCase().includes(query) ||
+        product.category.toLowerCase().includes(query) ||
+        product.artist.toLowerCase().includes(query);
+      if (!matchesSearch) return false;
+    }
+    // Apply category filter
     if (activeTab === 'all') return true;
     if (activeTab === 'apparel') return product.category === 'Apparel';
     if (activeTab === 'tech') return product.category === 'Tech';
