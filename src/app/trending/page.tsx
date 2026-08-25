@@ -103,6 +103,7 @@ const CATEGORIES = ['All', 'Apparel', 'Accessories', 'Home & Living', 'Art', 'Mu
 
 export default function TrendingPage() {
   const [selectedCategory, setSelectedCategory] = useState('All')
+  const [addedToCart, setAddedToCart] = useState<Record<string, boolean>>({})
   const { addItem, items } = useCart()
   const { showToast } = useToast()
 
@@ -111,14 +112,17 @@ export default function TrendingPage() {
     : TRENDING_PRODUCTS.filter(p => p.category === selectedCategory)
 
   const handleAddToCart = (product: typeof TRENDING_PRODUCTS[0]) => {
+    const sellingPrice = product.basePrice * 1.3
     addItem({
       productId: product.id,
-      price: product.basePrice * 1.3,
+      price: sellingPrice,
       name: product.name,
       artist: 'Porterful',
       image: product.image,
       artistCut: product.basePrice * 0.8,
     })
+    setAddedToCart(prev => ({ ...prev, [product.id]: true }))
+    setTimeout(() => setAddedToCart(prev => ({ ...prev, [product.id]: false })), 2000)
     showToast(`${product.name} added to cart`, 'success')
   }
 
@@ -240,7 +244,10 @@ export default function TrendingPage() {
 
                 {/* Price & CTA */}
                 <div className="flex items-center justify-between">
-                  <span className="text-lg font-bold">${product.basePrice}</span>
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="text-lg font-bold text-[var(--pf-orange)]">${(product.basePrice * 1.3).toFixed(2)}</span>
+                    <span className="text-xs text-[var(--pf-text-muted)] line-through">${(product.basePrice * 1.6).toFixed(2)}</span>
+                  </div>
                   <button
                     onClick={() => handleAddToCart(product)}
                     className={`pf-btn text-sm py-2 px-4 transition-all ${
