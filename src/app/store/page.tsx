@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Play, Headphones, ShoppingBag, Heart, Share2, Star, Disc3 } from 'lucide-react';
+import { Play, Headphones, ShoppingBag, Heart, Share2, Star, Disc3, Search } from 'lucide-react';
 import { TRACKS } from '@/lib/data';
 
 // Artist data
@@ -237,22 +237,61 @@ export default function ArtistStorePage() {
       <section className="py-12">
         <div className="pf-container">
           <div className="max-w-4xl mx-auto">
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
               <h2 className="text-2xl font-bold">Shop</h2>
               
-              {/* Tabs */}
-              <div className="flex gap-2">
-                {(['all', 'merch', 'apparel', 'wellness', 'essentials'] as const).map((tab) => (
+              {/* Search Input */}
+              <div className="relative w-full sm:w-auto sm:min-w-[240px]">
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full px-4 py-2 pl-10 rounded-lg bg-[var(--pf-surface)] border border-[var(--pf-border)] text-[var(--pf-text)] placeholder:text-[var(--pf-text-muted)] focus:outline-none focus:border-[var(--pf-orange)] transition-colors text-sm"
+                />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--pf-text-muted)]"
+                >
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <path d="m21 21-4.3-4.3"></path>
+                </svg>
+                {searchQuery && (
                   <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      activeTab === tab
-                        ? 'bg-[var(--pf-orange)] text-white'
-                        : 'bg-[var(--pf-surface)] text-[var(--pf-text-secondary)] hover:text-white'
-                    }`}
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--pf-text-muted)] hover:text-[var(--pf-text)]"
+                    aria-label="Clear search"
                   >
-                    {tab === 'all' ? 'All' : tab === 'merch' ? 'Merch' : tab === 'wellness' ? 'Wellness' : tab.charAt(0).toUpperCase() + tab.slice(1)}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M18 6 6 18"></path>
+                      <path d="m6 6 12 12"></path>
+                    </svg>
+                  </button>
+                )}
+              </div>
+            </div>
+            
+            {/* Tabs - horizontal scroll on mobile */}
+            <div className="flex gap-2 overflow-x-auto pb-2 -mb-2 scrollbar-hide md:overflow-visible md:pb-0 md:mb-0">
+              {(['all', 'merch', 'apparel', 'wellness', 'essentials'] as const).map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
+                    activeTab === tab
+                      ? 'bg-[var(--pf-orange)] text-white'
+                      : 'bg-[var(--pf-surface)] text-[var(--pf-text-secondary)] hover:text-white'
+                  }`}
+                >
+                    {tab === 'all' ? 'All' : tab === 'merch' ? 'Merch' : tab === 'wellness' ? 'Wellness' : tab === 'essentials' ? 'Essentials' : tab.charAt(0).toUpperCase() + tab.slice(1)}
                   </button>
                 ))}
               </div>
