@@ -1,9 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { TrendingUp, Flame, Clock, ShoppingCart, ChevronRight, Star } from 'lucide-react'
+import { useCart } from '@/lib/cart-context'
+import { useToast } from '@/components/Toast'
 
 // Real products from Printful catalog - curated trending items
 const TRENDING_PRODUCTS = [
@@ -101,20 +103,26 @@ const CATEGORIES = ['All', 'Apparel', 'Accessories', 'Home & Living', 'Art', 'Mu
 
 export default function TrendingPage() {
   const [selectedCategory, setSelectedCategory] = useState('All')
-  const [cart, setCart] = useState<{ [key: string]: number }>({})
-  const [addedToCart, setAddedToCart] = useState<{ [key: string]: boolean }>({})
+  const { addItem, items } = useCart()
+  const { showToast } = useToast()
 
   const filteredProducts = selectedCategory === 'All'
     ? TRENDING_PRODUCTS
     : TRENDING_PRODUCTS.filter(p => p.category === selectedCategory)
 
-  const handleAddToCart = (productId: string) => {
-    setCart(prev => ({ ...prev, [productId]: (prev[productId] || 0) + 1 }))
-    setAddedToCart(prev => ({ ...prev, [productId]: true }))
-    setTimeout(() => setAddedToCart(prev => ({ ...prev, [productId]: false })), 1500)
+  const handleAddToCart = (product: typeof TRENDING_PRODUCTS[0]) => {
+    addItem({
+      productId: product.id,
+      price: product.basePrice * 1.3,
+      name: product.name,
+      artist: 'Porterful',
+      image: product.image,
+      artistCut: product.basePrice * 0.8,
+    })
+    showToast(`${product.name} added to cart`, 'success')
   }
 
-  const getCartCount = () => Object.values(cart).reduce((sum, count) => sum + count, 0)
+  const getCartCount = () => items.reduce((sum, item) => sum + item.quantity, 0)
 
   return (
     <div className="min-h-screen pt-24 pb-12">
@@ -234,7 +242,7 @@ export default function TrendingPage() {
                 <div className="flex items-center justify-between">
                   <span className="text-lg font-bold">${product.basePrice}</span>
                   <button
-                    onClick={() => handleAddToCart(product.id)}
+                    onClick={() => handleAddToCart(product)}
                     className={`pf-btn text-sm py-2 px-4 transition-all ${
                       addedToCart[product.id]
                         ? 'bg-green-500 text-white'

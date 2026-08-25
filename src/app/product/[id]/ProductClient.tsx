@@ -150,11 +150,8 @@ export default function ProductClient({ productId }: { productId: string }) {
                 <span className="text-3xl font-bold text-[var(--pf-orange)]">
                   ${salePrice.toFixed(2)}
                 </span>
-                <span className="text-lg text-[var(--pf-text-muted)] line-through">
-                  ${(salePrice * 1.3).toFixed(2)}
-                </span>
-                <span className="px-2 py-0.5 bg-green-500/20 text-green-400 text-sm font-medium rounded">
-                  Save 30%
+                <span className="text-lg text-[var(--pf-text-muted)]">
+                  ${basePrice.toFixed(2)}
                 </span>
               </div>
               <p className="text-sm text-[var(--pf-text-muted)]">
