@@ -41,8 +41,8 @@ export default function ProductClient({ productId }: { productId: string }) {
   const productArtist = product.artist || 'Porterful';
   const productDescription = product.description || `Premium quality ${product.subcategory?.toLowerCase() || 'merchandise'} from Porterful. 80% of proceeds go directly to independent artists.`;
   const basePrice = product.basePrice || product.price || 9.99;
-  const salePrice = Math.round(basePrice * 1.3 * 100) / 100;
-  const artistCut = Math.round(salePrice * 0.80 * 100) / 100;
+  const compareAtPrice = Math.round(basePrice * 1.3 * 100) / 100;
+  const artistCut = Math.round(basePrice * 0.80 * 100) / 100;
   
   // Type guard for merch products
   const hasColors = 'colors' in product && product.colors?.length;
@@ -61,7 +61,7 @@ export default function ProductClient({ productId }: { productId: string }) {
 
     addItem({
       productId: product.id,
-      price: salePrice,
+      price: basePrice,
       name: product.name,
       artist: productArtist,
       image: productImage,
@@ -144,14 +144,17 @@ export default function ProductClient({ productId }: { productId: string }) {
               </div>
             )}
 
-            {/* Price */}
+            {/* Price - basePrice is selling price, compareAtPrice is the higher MSRP */}
             <div className="space-y-2">
               <div className="flex items-baseline gap-3 flex-wrap">
                 <span className="text-3xl font-bold text-[var(--pf-orange)]">
-                  ${salePrice.toFixed(2)}
-                </span>
-                <span className="text-lg text-[var(--pf-text-muted)]">
                   ${basePrice.toFixed(2)}
+                </span>
+                <span className="text-lg text-[var(--pf-text-muted)] line-through">
+                  ${compareAtPrice.toFixed(2)}
+                </span>
+                <span className="text-sm font-medium text-green-400 bg-green-400/10 px-2 py-0.5 rounded">
+                  Save 23%
                 </span>
               </div>
               <p className="text-sm text-[var(--pf-text-muted)]">
@@ -248,7 +251,7 @@ export default function ProductClient({ productId }: { productId: string }) {
 
             {/* Free Shipping Progress */}
             {(() => {
-              const effectivePrice = salePrice * quantity;
+              const effectivePrice = basePrice * quantity;
               const currentTotal = subtotal + effectivePrice;
               const progress = Math.min((currentTotal / FREE_SHIPPING_THRESHOLD) * 100, 100);
               const remaining = FREE_SHIPPING_THRESHOLD - currentTotal;
