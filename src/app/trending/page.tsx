@@ -110,7 +110,6 @@ export default function TrendingPage() {
 
   // Calculate selling price (30% markup on base) and artist cut (80% of base)
   const getSellingPrice = (basePrice: number) => basePrice * 1.3
-  const getCompareAtPrice = (basePrice: number) => basePrice * 1.6
   const getArtistCut = (basePrice: number) => basePrice * 0.8
 
   const filteredProducts = selectedCategory === 'All'
@@ -200,8 +199,6 @@ export default function TrendingPage() {
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {filteredProducts.map((product, i) => {
             const sellingPrice = getSellingPrice(product.basePrice)
-            const compareAtPrice = getCompareAtPrice(product.basePrice)
-            const savePercent = Math.round((1 - 1.3 / 1.6) * 100)
             
             return (
               <Link 
@@ -263,8 +260,6 @@ export default function TrendingPage() {
                   <div className="mt-auto flex items-center justify-between">
                     <div className="flex items-baseline gap-1.5">
                       <span className="text-lg font-bold text-[var(--pf-orange)]">${sellingPrice.toFixed(2)}</span>
-                      <span className="text-xs text-[var(--pf-text-muted)] line-through">${compareAtPrice.toFixed(2)}</span>
-                      <span className="text-xs font-medium text-green-400">Save {savePercent}%</span>
                     </div>
                     <button
                       onClick={(e) => handleAddToCart(product, e)}
