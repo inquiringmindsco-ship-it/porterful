@@ -362,6 +362,11 @@ export default function ArtistStorePage() {
                             <span className="text-lg font-bold text-[var(--pf-orange)]">${product.price.toFixed(2)}</span>
                             <span className="text-sm text-[var(--pf-text-muted)] line-through ml-2">${product.salePrice.toFixed(2)}</span>
                           </>
+                        ) : product.salePrice && product.salePrice < product.price ? (
+                          <>
+                            <span className="text-lg font-bold text-[var(--pf-orange)]">${product.salePrice.toFixed(2)}</span>
+                            <span className="text-sm text-[var(--pf-text-muted)] line-through ml-2">${product.price.toFixed(2)}</span>
+                          </>
                         ) : (
                           <span className="text-lg font-bold text-[var(--pf-orange)]">${product.price.toFixed(2)}</span>
                         )}
