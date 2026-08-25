@@ -8,7 +8,6 @@ import { useCart } from '@/lib/cart-context'
 import { useToast } from '@/components/Toast'
 
 // Real products from Printful catalog - curated trending items
-// Real products from Printful catalog - curated trending items
 // These map to actual product pages for better SEO and consistent cart experience
 const TRENDING_PRODUCTS = [
   {
