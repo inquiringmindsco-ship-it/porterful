@@ -8,6 +8,8 @@ import { useCart } from '@/lib/cart-context'
 import { useToast } from '@/components/Toast'
 
 // Real products from Printful catalog - curated trending items
+// Real products from Printful catalog - curated trending items
+// These map to actual product pages for better SEO and consistent cart experience
 const TRENDING_PRODUCTS = [
   {
     id: 'tshirt-classic-black',
@@ -107,19 +109,26 @@ export default function TrendingPage() {
   const { addItem, items } = useCart()
   const { showToast } = useToast()
 
+  // Calculate selling price (30% markup on base) and artist cut (80% of base)
+  const getSellingPrice = (basePrice: number) => basePrice * 1.3
+  const getCompareAtPrice = (basePrice: number) => basePrice * 1.6
+  const getArtistCut = (basePrice: number) => basePrice * 0.8
+
   const filteredProducts = selectedCategory === 'All'
     ? TRENDING_PRODUCTS
     : TRENDING_PRODUCTS.filter(p => p.category === selectedCategory)
 
-  const handleAddToCart = (product: typeof TRENDING_PRODUCTS[0]) => {
-    const sellingPrice = product.basePrice * 1.3
+  const handleAddToCart = (product: typeof TRENDING_PRODUCTS[0], e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const sellingPrice = getSellingPrice(product.basePrice)
     addItem({
       productId: product.id,
       price: sellingPrice,
       name: product.name,
       artist: 'Porterful',
       image: product.image,
-      artistCut: product.basePrice * 0.8,
+      artistCut: getArtistCut(product.basePrice),
     })
     setAddedToCart(prev => ({ ...prev, [product.id]: true }))
     setTimeout(() => setAddedToCart(prev => ({ ...prev, [product.id]: false })), 2000)
@@ -190,78 +199,89 @@ export default function TrendingPage() {
 
         {/* Trending Products */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {filteredProducts.map((product, i) => (
-            <div key={product.id} className="pf-card group overflow-hidden relative">
-              {/* Rank Badge */}
-              <div className="absolute top-3 left-3 z-10">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
-                  i === 0 ? 'bg-yellow-500 text-black' :
-                  i === 1 ? 'bg-gray-400 text-black' :
-                  i === 2 ? 'bg-amber-600 text-white' :
-                  'bg-[var(--pf-surface)] text-[var(--pf-text-muted)]'
-                }`}>
-                  {i + 1}
-                </div>
-              </div>
-
-              {/* Trend Badge */}
-              <div className="absolute top-3 right-3 z-10">
-                <div className="px-2 py-1 bg-green-500/20 text-green-400 rounded text-xs font-medium flex items-center gap-1">
-                  <TrendingUp size={12} />
-                  {product.trend}
-                </div>
-              </div>
-
-              {/* Product Image */}
-              <div className="aspect-square relative bg-gradient-to-br from-[var(--pf-surface)] to-[var(--pf-bg)]">
-                <Image
-                  src={product.image}
-                  alt={product.name}
-                  fill
-                  className="object-cover object-center"
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                  unoptimized
-                  priority={i < 4}
-                />
-              </div>
-
-              <div className="p-4">
-                {/* Sales & Rating */}
-                <div className="flex items-center justify-between text-xs text-[var(--pf-text-muted)] mb-2">
-                  <span className="flex items-center gap-1">
-                    <Clock size={12} />
-                    {product.sales.toLocaleString()} sold
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Star size={12} className="text-yellow-500 fill-yellow-500" />
-                    {product.rating} ({product.reviews})
-                  </span>
-                </div>
-
-                {/* Product Info */}
-                <p className="text-xs text-[var(--pf-text-muted)] mb-1">{product.category}</p>
-                <h3 className="font-semibold mb-2 truncate">{product.name}</h3>
-
-                {/* Price & CTA */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-baseline gap-1.5">
-                    <span className="text-lg font-bold text-[var(--pf-orange)]">${(product.basePrice * 1.3).toFixed(2)}</span>
-                    <span className="text-xs text-[var(--pf-text-muted)] line-through">${(product.basePrice * 1.6).toFixed(2)}</span>
+          {filteredProducts.map((product, i) => {
+            const sellingPrice = getSellingPrice(product.basePrice)
+            const compareAtPrice = getCompareAtPrice(product.basePrice)
+            const savePercent = Math.round((1 - 1.3 / 1.6) * 100)
+            
+            return (
+              <Link 
+                key={product.id} 
+                href={`/product/${product.id}`}
+                className="pf-card group overflow-hidden relative flex flex-col hover:border-[var(--pf-orange)] transition-colors"
+              >
+                {/* Rank Badge */}
+                <div className="absolute top-3 left-3 z-10">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shadow-lg ${
+                    i === 0 ? 'bg-yellow-500 text-black' :
+                    i === 1 ? 'bg-gray-400 text-black' :
+                    i === 2 ? 'bg-amber-600 text-white' :
+                    'bg-[var(--pf-surface)] text-[var(--pf-text-muted)]'
+                  }`}>
+                    {i + 1}
                   </div>
-                  <button
-                    onClick={() => handleAddToCart(product)}
-                    className={`pf-btn text-sm py-2 px-4 transition-all ${
-                      addedToCart[product.id]
-                        ? 'bg-green-500 text-white'
-                        : 'pf-btn-primary'
-                    }`}
-                  >
-                    {addedToCart[product.id] ? '✓ Added' : 'Add to Cart'}
-                  </button>
                 </div>
-              </div>
-            </div>
-          ))}
+
+                {/* Trend Badge */}
+                <div className="absolute top-3 right-3 z-10">
+                  <div className="px-2 py-1 bg-green-500/20 text-green-400 rounded text-xs font-medium flex items-center gap-1 shadow-lg">
+                    <TrendingUp size={12} />
+                    {product.trend}
+                  </div>
+                </div>
+
+                {/* Product Image */}
+                <div className="aspect-square relative bg-gradient-to-br from-[var(--pf-surface)] to-[var(--pf-bg)]">
+                  <Image
+                    src={product.image}
+                    alt={product.name}
+                    fill
+                    className="object-cover object-center group-hover:scale-105 transition-transform duration-300"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                    unoptimized
+                    priority={i < 4}
+                  />
+                </div>
+
+                <div className="p-4 flex-1 flex flex-col">
+                  {/* Sales & Rating */}
+                  <div className="flex items-center justify-between text-xs text-[var(--pf-text-muted)] mb-2">
+                    <span className="flex items-center gap-1">
+                      <Clock size={12} />
+                      {product.sales.toLocaleString()} sold
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Star size={12} className="text-yellow-500 fill-yellow-500" />
+                      {product.rating} ({product.reviews})
+                    </span>
+                  </div>
+
+                  {/* Product Info */}
+                  <p className="text-xs text-[var(--pf-text-muted)] mb-1">{product.category}</p>
+                  <h3 className="font-semibold mb-2 truncate">{product.name}</h3>
+
+                  {/* Price & CTA */}
+                  <div className="mt-auto flex items-center justify-between">
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="text-lg font-bold text-[var(--pf-orange)]">${sellingPrice.toFixed(2)}</span>
+                      <span className="text-xs text-[var(--pf-text-muted)] line-through">${compareAtPrice.toFixed(2)}</span>
+                      <span className="text-xs font-medium text-green-400">Save {savePercent}%</span>
+                    </div>
+                    <button
+                      onClick={(e) => handleAddToCart(product, e)}
+                      className={`pf-btn text-sm py-2 px-4 transition-all flex-shrink-0 ${
+                        addedToCart[product.id]
+                          ? 'bg-green-500 text-white hover:bg-green-600'
+                          : 'pf-btn-primary'
+                      }`}
+                    >
+                      {addedToCart[product.id] ? '✓ Added' : 'Add'}
+                    </button>
+                  </div>
+                </div>
+              </Link>
+            )
+          })}
         </div>
 
         {/* Shop All CTA */}
