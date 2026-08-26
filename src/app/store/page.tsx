@@ -3,8 +3,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Play, Headphones, ShoppingBag, Heart, Share2, Star, Disc3, Search } from 'lucide-react';
+import { Play, Headphones, ShoppingBag, Heart, Share2, Star, Disc3, Search, Plus } from 'lucide-react';
 import { TRACKS } from '@/lib/data';
+import { useCart } from '@/lib/cart-context';
+import { useToast } from '@/components/Toast';
 
 // Artist data
 const ARTIST = {
@@ -57,6 +59,8 @@ export default function ArtistStorePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [products, setProducts] = useState<StoreProduct[]>([]);
   const [loading, setLoading] = useState(true);
+  const { addItem } = useCart();
+  const { showToast } = useToast();
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
@@ -314,32 +318,53 @@ export default function ArtistStorePage() {
             ) : filteredProducts.length > 0 ? (
               <div className="grid md:grid-cols-3 gap-6">
                 {filteredProducts.slice(0, 12).map((product) => (
-                  <Link 
-                    key={product.id}
-                    href={`/product/${product.id}`}
-                    className="group"
-                  >
-                    <div className="aspect-square rounded-xl overflow-hidden mb-4 relative bg-[var(--pf-surface)]">
-                      <Image
-                        src={product.image}
-                        alt={`${product.title} by ${product.artist} - ${product.category} on Porterful`}
-                        fill
-                        sizes="(max-width: 768px) 100vw, 33vw"
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                      {!product.inStock && (
-                        <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-                          <span className="bg-white/90 text-gray-800 text-sm font-bold px-3 py-1 rounded-full">
-                            Sold Out
-                          </span>
-                        </div>
-                      )}
-                      {product.colors && product.colors.length > 1 && (
-                        <div className="absolute top-3 right-3 bg-[var(--pf-surface)]/90 backdrop-blur-sm text-[var(--pf-text)] text-xs px-2 py-0.5 rounded-full">
-                          {product.colors.length} colors
-                        </div>
-                      )}
-                    </div>
+                  <div key={product.id} className="group">
+                    {/* Image area */}
+                    <Link href={`/product/${product.id}`}>
+                      <div className="aspect-square rounded-xl overflow-hidden mb-4 relative bg-[var(--pf-surface)]">
+                        <Image
+                          src={product.image}
+                          alt={`${product.title} by ${product.artist} - ${product.category} on Porterful`}
+                          fill
+                          sizes="(max-width: 768px) 100vw, 33vw"
+                          className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                        {!product.inStock && (
+                          <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                            <span className="bg-white/90 text-gray-800 text-sm font-bold px-3 py-1 rounded-full">
+                              Sold Out
+                            </span>
+                          </div>
+                        )}
+                        {product.colors && product.colors.length > 1 && (
+                          <div className="absolute top-3 right-3 bg-[var(--pf-surface)]/90 backdrop-blur-sm text-[var(--pf-text)] text-xs px-2 py-0.5 rounded-full">
+                            {product.colors.length} colors
+                          </div>
+                        )}
+                        {/* Quick Add button */}
+                        {product.inStock && product.purchasable !== false && (
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              addItem({
+                                productId: product.id,
+                                name: product.title,
+                                artist: product.artist,
+                                price: product.salePrice || product.price,
+                                image: product.image,
+                                artistCut: (product.salePrice || product.price) * 0.8,
+                              });
+                              showToast(`${product.title} added to cart`, 'success');
+                            }}
+                            className="absolute bottom-3 right-3 bg-[var(--pf-orange)] hover:bg-[var(--pf-orange-dark)] text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+                            aria-label={`Add ${product.title} to cart`}
+                          >
+                            <Plus size={16} />
+                          </button>
+                        )}
+                      </div>
+                    </Link>
+                    {/* Product info */}
                     <div className="flex items-start justify-between">
                       <div>
                         <p className="text-xs text-[var(--pf-text-muted)] uppercase tracking-wider mb-1">
@@ -376,7 +401,7 @@ export default function ArtistStorePage() {
                         {!product.inStock || !product.purchasable ? 'Unavailable' : 'Available'}
                       </span>
                     </div>
-                  </Link>
+                  </div>
                 ))}
               </div>
             ) : (
