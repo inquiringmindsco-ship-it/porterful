@@ -40,9 +40,10 @@ export default function ProductClient({ productId }: { productId: string }) {
   const productImage = product.images?.[0] || product.image;
   const productArtist = product.artist || 'Porterful';
   const productDescription = product.description || `Premium quality ${product.subcategory?.toLowerCase() || 'merchandise'} from Porterful. 80% of proceeds go directly to independent artists.`;
-  const basePrice = product.basePrice || product.price || 9.99;
-  const compareAtPrice = Math.round(basePrice * 1.3 * 100) / 100;
-  const artistCut = Math.round(basePrice * 0.80 * 100) / 100;
+  // Use salePrice from API (basePrice * 1.3 markup) as the selling price; fall back to basePrice
+  const sellingPrice = (product as any).salePrice || product.basePrice || product.price || 9.99;
+  const compareAtPrice = Math.round(sellingPrice * 1.3 * 100) / 100; // MSRP is 30% higher than selling
+  const artistCut = Math.round(sellingPrice * 0.80 * 100) / 100;
   
   // Type guard for merch products
   const hasColors = 'colors' in product && product.colors?.length;
@@ -61,7 +62,7 @@ export default function ProductClient({ productId }: { productId: string }) {
 
     addItem({
       productId: product.id,
-      price: basePrice,
+      price: sellingPrice,
       name: product.name,
       artist: productArtist,
       image: productImage,
@@ -144,11 +145,11 @@ export default function ProductClient({ productId }: { productId: string }) {
               </div>
             )}
 
-            {/* Price - basePrice is selling price, compareAtPrice is the higher MSRP */}
+            {/* Price - sellingPrice is the current price; compareAtPrice is the higher MSRP */}
             <div className="space-y-2">
               <div className="flex items-baseline gap-3 flex-wrap">
                 <span className="text-3xl font-bold text-[var(--pf-orange)]">
-                  ${basePrice.toFixed(2)}
+                  ${sellingPrice.toFixed(2)}
                 </span>
                 <span className="text-lg text-[var(--pf-text-muted)] line-through">
                   ${compareAtPrice.toFixed(2)}
@@ -251,7 +252,7 @@ export default function ProductClient({ productId }: { productId: string }) {
 
             {/* Free Shipping Progress */}
             {(() => {
-              const effectivePrice = basePrice * quantity;
+              const effectivePrice = sellingPrice * quantity;
               const currentTotal = subtotal + effectivePrice;
               const progress = Math.min((currentTotal / FREE_SHIPPING_THRESHOLD) * 100, 100);
               const remaining = FREE_SHIPPING_THRESHOLD - currentTotal;

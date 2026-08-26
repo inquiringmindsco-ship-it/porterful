@@ -2,9 +2,6 @@ import { Metadata } from 'next'
 import { ALL_PRODUCTS } from '@/lib/products'
 import ProductClient from './ProductClient'
 
-// Calculate compare-at price (30% markup on basePrice) for "was X now Y" display
-const getCompareAtPrice = (basePrice: number) => Math.round(basePrice * 1.3 * 100) / 100
-
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params
   const product = ALL_PRODUCTS.find(p => p.id === id)
@@ -25,7 +22,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
       title: `${product.name} | Porterful`,
       description: product.description || `Shop ${product.name}. 80% goes to independent artists.`,
       url: `https://porterful.com/product/${id}`,
-      images: product.images?.[0] || product.image,
+      images: [{ url: product.images?.[0] || product.image, width: 800, height: 800 }],
     },
     twitter: {
       card: 'summary_large_image',
@@ -39,8 +36,10 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const product = ALL_PRODUCTS.find(p => p.id === id)
-  const compareAtPrice = product ? getCompareAtPrice(product.basePrice || 5) : 0
-  const sellingPrice = product?.basePrice || 5
+  // API computes: salePrice = basePrice * 1.3; compareAtPrice = salePrice * 1.3
+  const basePrice = product?.basePrice || 5
+  const sellingPrice = Math.round(basePrice * 1.3 * 100) / 100
+  const compareAtPrice = Math.round(sellingPrice * 1.3 * 100) / 100
   
   // JSON-LD structured data for SEO
   const jsonLd = product ? {
