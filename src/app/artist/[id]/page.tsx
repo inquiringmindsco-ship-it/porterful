@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import Image from 'next/image';
 import { useAudio } from '@/lib/audio-context';
 import { TRACKS, ALBUMS, PRODUCTS } from '@/lib/data';
@@ -56,7 +56,8 @@ const SAMPLE_SUPPORTERS = [
   { name: 'Amber W.', handle: '@amberwave', date: '2024-03-18', amount: 30 },
 ];
 
-export default function ArtistProfilePage({ params }: { params: { id: string } }) {
+export default function ArtistProfilePage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = use(params);
   const { currentTrack, isPlaying, playTrack, setQueue } = useAudio();
   const [activeTab, setActiveTab] = useState<'music' | 'store' | 'videos' | 'about'>('music');
   const [following, setFollowing] = useState(false);
@@ -65,16 +66,16 @@ export default function ArtistProfilePage({ params }: { params: { id: string } }
   const [notFound, setNotFound] = useState(false);
 
   // Look up artist by ID from URL
-  const artistData = getArtistById(params.id);
+  const artistData = getArtistById(resolvedParams.id);
   
   // Redirect to /artists if artist not found
   const router = useRouter();
   useEffect(() => {
-    if (!artistData && params.id) {
+    if (!artistData && resolvedParams.id) {
       setNotFound(true);
       // Could redirect: router.push('/artists');
     }
-  }, [artistData, params.id, router]);
+  }, [artistData, resolvedParams.id, router]);
 
   // Show 404 message if artist not found
   if (notFound || !artistData) {
