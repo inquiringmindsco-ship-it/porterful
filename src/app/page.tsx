@@ -54,17 +54,26 @@ export default function Home() {
                 </p>
 
                 {/* CTAs */}
-                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center md:justify-start mb-8">
-                  <Link href="/digital" className="pf-btn pf-btn-primary text-base sm:text-lg px-4 sm:px-6 py-2.5 sm:py-3 flex items-center justify-center gap-2">
-                    <Headphones size={18} className="sm:w-5 sm:h-5" />
+                <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start mb-8">
+                  <Link 
+                    href="/digital" 
+                    className="pf-btn pf-btn-primary text-base sm:text-lg px-6 py-3 flex items-center justify-center gap-2 min-h-[48px]"
+                  >
+                    <Headphones size={20} />
                     <span>Listen Now</span>
                   </Link>
-                  <Link href="/marketplace" className="pf-btn pf-btn-secondary text-base sm:text-lg px-4 sm:px-6 py-2.5 sm:py-3 flex items-center justify-center gap-2">
-                    <ShoppingCart size={18} className="sm:w-5 sm:h-5" />
+                  <Link 
+                    href="/marketplace" 
+                    className="pf-btn pf-btn-secondary text-base sm:text-lg px-6 py-3 flex items-center justify-center gap-2 min-h-[48px]"
+                  >
+                    <ShoppingCart size={20} />
                     <span>Shop Merch</span>
                   </Link>
-                  <Link href="/signup?role=artist" className="pf-btn pf-btn-outline text-base sm:text-lg px-4 sm:px-6 py-2.5 sm:py-3 flex items-center justify-center gap-2">
-                    <Upload size={18} className="sm:w-5 sm:h-5" />
+                  <Link 
+                    href="/signup?role=artist" 
+                    className="pf-btn pf-btn-outline text-base sm:text-lg px-6 py-3 flex items-center justify-center gap-2 min-h-[48px]"
+                  >
+                    <Upload size={20} />
                     <span>Sell Your Music</span>
                   </Link>
                 </div>
