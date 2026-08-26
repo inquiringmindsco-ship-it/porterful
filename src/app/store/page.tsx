@@ -247,7 +247,9 @@ export default function ArtistStorePage() {
               
               {/* Search Input */}
               <div className="relative w-full sm:w-auto sm:min-w-[240px]">
+                <label htmlFor="product-search" className="sr-only">Search products</label>
                 <input
+                  id="product-search"
                   type="text"
                   placeholder="Search products..."
                   value={searchQuery}
