@@ -128,7 +128,11 @@ export default function MarketplacePage() {
   const [showFilters, setShowFilters] = useState(false)
   const [addedProducts, setAddedProducts] = useState<Set<string>>(new Set())
   const searchTimeoutRef = useRef<NodeJS.Timeout>()
-  const { addItem } = useCart()
+  const { addItem, subtotal } = useCart()
+  const FREE_SHIPPING_THRESHOLD = 50
+  const shippingProgress = Math.min((subtotal / FREE_SHIPPING_THRESHOLD) * 100, 100)
+  const shippingRemaining = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal)
+  const hasFreeShipping = subtotal >= FREE_SHIPPING_THRESHOLD
   const { showToast } = useToast()
 
   // Active filters state
@@ -236,11 +240,14 @@ export default function MarketplacePage() {
     e.preventDefault()
     e.stopPropagation()
     try {
-      // If product has colors/sizes, link to product page for proper selection
+      // If product has multiple colors/sizes, link to product page for proper selection
       if ((product.colors?.length ?? 0) > 1 || (product.sizes?.length ?? 0) > 1) {
         window.location.href = `/product/${product.id}`
         return
       }
+      // Auto-select single color or size if present
+      const selectedColor = product.colors?.[0]
+      const selectedSize = product.sizes?.[0]
       // Use proper cart context
       addItem({
         productId: product.id,
@@ -249,6 +256,8 @@ export default function MarketplacePage() {
         artist: 'Porterful',
         image: product.images[0],
         artistCut: ((product as any).salePrice || (product as any).price || 9.99) * 0.80,
+        ...(selectedColor && { color: selectedColor }),
+        ...(selectedSize && { size: selectedSize }),
       })
       setAddedProducts(prev => new Set(prev).add(product.id))
       showToast(`${product.name} added to cart!`, 'success')
@@ -639,6 +648,20 @@ export default function MarketplacePage() {
                 )}
               </p>
             )}
+
+            {/* Free Shipping Progress */}
+            <div className="mt-6 max-w-md mx-auto">
+              <div className="flex items-center justify-between text-xs text-[var(--pf-text-secondary)] mb-1.5">
+                <span>{hasFreeShipping ? '🎉 FREE shipping unlocked!' : 'Free shipping progress'}</span>
+                <span>{hasFreeShipping ? '✓' : `$${shippingRemaining.toFixed(2)} away`}</span>
+              </div>
+              <div className="h-2 bg-[var(--pf-surface)] rounded-full overflow-hidden border border-[var(--pf-border)]">
+                <div 
+                  className="h-full bg-gradient-to-r from-[var(--pf-orange)] to-[var(--pf-orange-light)] transition-all duration-500 rounded-full"
+                  style={{ width: `${shippingProgress}%` }}
+                />
+              </div>
+            </div>
 
             {/* Back to Top */}
             <BackToTop />
