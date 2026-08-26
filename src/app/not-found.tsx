@@ -37,7 +37,7 @@ export default function NotFound() {
             <Link href="/trending" className="text-sm text-[var(--pf-orange)] hover:underline">Trending</Link>
             <span className="text-[var(--pf-border)]">•</span>
             <Link href="/signup" className="text-sm text-[var(--pf-orange)] hover:underline">Sell</Link>
-            <span className="text-[(--pf-border)]">•</span>
+            <span className="text-[var(--pf-border)]">•</span>
             <Link href="/faq" className="text-sm text-[var(--pf-orange)] hover:underline">FAQ</Link>
           </div>
         </div>
