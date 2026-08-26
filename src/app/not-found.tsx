@@ -20,7 +20,7 @@ export default function NotFound() {
             <Home size={18} />
             Go Home
           </Link>
-          <Link href="/marketplace" className="pf-btn pf-btn-secondary flex items-center justify-center gap-2">
+          <Link href="/shop" className="pf-btn pf-btn-secondary flex items-center justify-center gap-2">
             <Search size={18} />
             Browse Shop
           </Link>
@@ -32,7 +32,7 @@ export default function NotFound() {
           <div className="flex flex-wrap gap-2 justify-center">
             <Link href="/digital" className="text-sm text-[var(--pf-orange)] hover:underline">Music</Link>
             <span className="text-[var(--pf-border)]">•</span>
-            <Link href="/marketplace" className="text-sm text-[var(--pf-orange)] hover:underline">Merch</Link>
+            <Link href="/shop" className="text-sm text-[var(--pf-orange)] hover:underline">Merch</Link>
             <span className="text-[var(--pf-border)]">•</span>
             <Link href="/trending" className="text-sm text-[var(--pf-orange)] hover:underline">Trending</Link>
             <span className="text-[var(--pf-border)]">•</span>
