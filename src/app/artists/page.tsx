@@ -119,7 +119,7 @@ export default function ArtistsPage() {
                 <div className="flex justify-center">
                   <Link href={`/artist/${featuredArtist.slug || featuredArtist.id}`} className="w-48 h-48 rounded-2xl bg-gradient-to-br from-[var(--pf-orange)] to-[var(--pf-orange-dark)] flex items-center justify-center text-8xl shadow-2xl shadow-[var(--pf-orange)]/30 overflow-hidden relative">
                     {featuredArtist.image ? (
-                      <Image src={featuredArtist.image} alt={featuredArtist.name} fill sizes="192px" className="object-cover" />
+                      <Image src={featuredArtist.image} alt={featuredArtist.name} fill sizes="192px" className="object-cover" priority />
                     ) : (
                       <span className="text-white">{featuredArtist.name.charAt(0)}</span>
                     )}

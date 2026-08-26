@@ -221,7 +221,8 @@ export default function ArtistStorePage() {
                       fill
                       sizes="192px"
                       className="object-cover group-hover:scale-105 transition-transform duration-300"
-                      loading="lazy"
+                      loading={album.id === 'ambiguous' ? 'eager' : 'lazy'}
+                      priority={album.id === 'ambiguous'}
                     />
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                       <div className="w-12 h-12 rounded-full bg-[var(--pf-orange)] flex items-center justify-center">
