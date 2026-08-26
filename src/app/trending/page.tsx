@@ -7,18 +7,6 @@ import { TrendingUp, Flame, Clock, ShoppingCart, ChevronRight, Star } from 'luci
 import { useCart } from '@/lib/cart-context'
 import { useToast } from '@/components/Toast'
 
-// SEO metadata for trending page
-export const metadata = {
-  title: 'Trending Products - Hot Items from Independent Artists',
-  description: 'Discover what\'s hot in independent artist merchandise. Trending t-shirts, hoodies, accessories and more. 80% of every sale goes directly to creators.',
-  keywords: ['trending merchandise', 'hot products', 'artist merch', 'best selling', 'popular products', 'independent artist products'],
-  openGraph: {
-    title: 'Trending Now - Porterful',
-    description: 'Discover what\'s hot in independent artist merchandise.',
-    images: ['/og-image.png'],
-  },
-}
-
 // Real products from Printful catalog - curated trending items
 // These map to actual product pages for better SEO and consistent cart experience
 const TRENDING_PRODUCTS = [
