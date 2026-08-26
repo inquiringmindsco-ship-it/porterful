@@ -172,11 +172,13 @@ export default function ProductClient({ productId }: { productId: string }) {
                 <label className="block text-sm font-medium mb-3">
                   Color: <span className="text-[var(--pf-orange)]">{selectedColor}</span>
                 </label>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
                   {product.colors?.map((color: string) => (
                     <button
                       key={color}
                       onClick={() => setSelectedColor(color)}
+                      aria-pressed={selectedColor === color}
+                      aria-label={`Select ${color} color`}
                       className={`px-4 py-2 rounded-lg border transition-all ${
                         selectedColor === color 
                           ? 'border-[var(--pf-orange)] bg-[var(--pf-orange)]/10 text-[var(--pf-orange)]' 
@@ -203,6 +205,8 @@ export default function ProductClient({ productId }: { productId: string }) {
                       key={size}
                       onClick={() => !product.inStock || setSelectedSize(size)}
                       disabled={!product.inStock}
+                      aria-pressed={selectedSize === size}
+                      aria-label={`Select ${size} size${!product.inStock ? ' (sold out)' : ''}`}
                       className={`w-12 h-12 rounded-lg border font-medium transition-all ${
                         selectedSize === size 
                           ? 'border-[var(--pf-orange)] bg-[var(--pf-orange)] text-white' 
