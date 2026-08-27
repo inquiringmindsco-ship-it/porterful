@@ -4,7 +4,7 @@ export const metadata: Metadata = {
   title: 'Store',
   description: 'Shop music, merch, and products from independent creators. Live products available now. Preview products coming soon.',
   alternates: {
-    canonical: 'https://porterful.com/store',
+    canonical: 'https://porterful.com/shop',
   },
   openGraph: {
     title: 'Store | Porterful',
