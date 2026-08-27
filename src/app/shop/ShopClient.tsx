@@ -411,7 +411,84 @@ export default function MarketplacePage() {
 
       <div className="pf-container py-6">
         <div className="flex gap-6">
-          {/* Sidebar Filters */}
+          {/* Mobile Filter Drawer */}
+          {showFilters && (
+            <div className="fixed inset-0 z-50 md:hidden">
+              {/* Backdrop */}
+              <div 
+                className="absolute inset-0 bg-black/50" 
+                onClick={() => setShowFilters(false)}
+              />
+              {/* Drawer */}
+              <div className="absolute bottom-0 left-0 right-0 bg-[var(--pf-surface)] rounded-t-2xl max-h-[70vh] overflow-auto">
+                <div className="sticky top-0 bg-[var(--pf-surface)] border-b border-[var(--pf-border)] p-4 flex items-center justify-between">
+                  <h3 className="font-bold text-[var(--pf-text)]">Filters</h3>
+                  <button 
+                    onClick={() => setShowFilters(false)}
+                    className="p-2 hover:bg-[var(--pf-bg)] rounded-lg"
+                    aria-label="Close filters"
+                  >
+                    <Icon.X />
+                  </button>
+                </div>
+                <div className="p-4">
+                  {/* Price Range */}
+                  <div className="mb-6">
+                    <h4 className="text-sm font-semibold mb-2 text-[var(--pf-text)]">Price Range</h4>
+                    <div className="space-y-2">
+                      {PRICE_RANGES.map(range => (
+                        <label key={range.id} className="flex items-center gap-2 text-sm text-[var(--pf-text-secondary)] cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={activePriceRanges.includes(range.id)}
+                            onChange={() => togglePriceRange(range.id)}
+                            className="rounded border-[var(--pf-border)] text-[var(--pf-orange)] focus:ring-[var(--pf-orange)]"
+                          />
+                          {range.label}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Rating */}
+                  <div className="mb-6">
+                    <h4 className="text-sm font-semibold mb-2 text-[var(--pf-text)]">Rating</h4>
+                    <div className="space-y-2">
+                      {RATING_OPTIONS.map(opt => (
+                        <label key={opt.id} className="flex items-center gap-2 text-sm text-[var(--pf-text-secondary)] cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={activeMinRating === opt.minRating}
+                            onChange={() => toggleRating(opt.minRating)}
+                            className="rounded border-[var(--pf-border)] text-[var(--pf-orange)] focus:ring-[var(--pf-orange)]"
+                          />
+                          <span className="flex items-center">
+                            {opt.label} <Icon.Star />
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="sticky bottom-0 bg-[var(--pf-surface)] border-t border-[var(--pf-border)] p-4 flex gap-3">
+                  <button
+                    onClick={clearFilters}
+                    className="flex-1 py-3 border border-[var(--pf-border)] rounded-xl font-semibold text-[var(--pf-text)]"
+                  >
+                    Clear all
+                  </button>
+                  <button
+                    onClick={() => setShowFilters(false)}
+                    className="flex-1 py-3 bg-[var(--pf-orange)] text-white rounded-xl font-semibold"
+                  >
+                    Show {sortedProducts.length} results
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Desktop Sidebar Filters */}
           {showFilters && (
             <div id="filter-sidebar" className="w-64 shrink-0 hidden md:block">
               <div className="bg-[var(--pf-surface)] rounded-xl p-4 sticky top-40">
