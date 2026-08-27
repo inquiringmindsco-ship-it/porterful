@@ -8,6 +8,7 @@ import { Star, Heart, Share2, ShoppingCart, Check, ShoppingBag } from 'lucide-re
 import { useCart } from '@/lib/cart-context';
 import { useToast } from '@/components/Toast';
 import { ALL_PRODUCTS } from '@/lib/products';
+import Script from 'next/script';
 
 const FREE_SHIPPING_THRESHOLD = 50;
 
@@ -94,6 +95,23 @@ export default function ProductClient({ productId }: { productId: string }) {
           <span className="mx-2">/</span>
           <span className="text-[var(--pf-text)]">{product.name}</span>
         </nav>
+
+        {/* Breadcrumb Schema for Google Rich Results */}
+        <Script
+          id="breadcrumb-schema"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'BreadcrumbList',
+              itemListElement: [
+                { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://porterful.com' },
+                { '@type': 'ListItem', position: 2, name: 'Shop', item: 'https://porterful.com/shop' },
+                { '@type': 'ListItem', position: 3, name: product.name, item: `https://porterful.com/product/${product.id}` },
+              ],
+            }),
+          }}
+        />
 
         <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
           {/* Product Image */}
