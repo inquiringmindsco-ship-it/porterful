@@ -122,6 +122,7 @@ export default function ProductClient({ productId }: { productId: string }) {
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
               className="object-cover"
+              onError={(e) => { (e.target as HTMLImageElement).src = '/product-placeholder.svg' }}
             />
             {!product.inStock && (
               <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
