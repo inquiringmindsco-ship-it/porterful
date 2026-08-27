@@ -565,7 +565,13 @@ export default function MarketplacePage() {
               <div className="text-center py-16">
                 <div className="text-6xl mb-4">🔍</div>
                 <h3 className="text-xl font-bold text-[var(--pf-text)] mb-2">No products found</h3>
-                <p className="text-[var(--pf-text-secondary)] mb-4">Try adjusting your search or filters</p>
+                <p className="text-[var(--pf-text-secondary)] mb-6 max-w-md mx-auto">
+                  {search 
+                    ? `No results for "${search}". Try different keywords or browse our categories.`
+                    : hasActiveFilters 
+                      ? "No products match your current filters."
+                      : "No products available right now. Check back soon!"}
+                </p>
                 {hasActiveFilters && (
                   <button
                     onClick={clearFilters}
@@ -574,6 +580,14 @@ export default function MarketplacePage() {
                     Clear all filters
                   </button>
                 )}
+                <div className="mt-4">
+                  <Link 
+                    href="/shop" 
+                    className="text-[var(--pf-orange)] hover:underline text-sm"
+                  >
+                    Browse all products →
+                  </Link>
+                </div>
               </div>
             ) : (
               <div className={viewMode === 'grid' 
@@ -818,6 +832,8 @@ function BackToTop() {
     const toggleVisibility = () => {
       setVisible(window.scrollY > 600)
     }
+    // Check initial scroll position on mount (fixes SSR hydration mismatch)
+    toggleVisibility()
     window.addEventListener('scroll', toggleVisibility, { passive: true })
     return () => window.removeEventListener('scroll', toggleVisibility)
   }, [])
