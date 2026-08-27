@@ -139,10 +139,13 @@ export default function MarketplacePage() {
   const [activePriceRanges, setActivePriceRanges] = useState<string[]>([])
   const [activeMinRating, setActiveMinRating] = useState<number | null>(null)
 
-  // Set page title for SEO
+  // Set page title for SEO — only override when meaningful (preserves default title for /shop)
   useEffect(() => {
-    const categoryLabel = selectedCategory === 'all' ? 'All Products' 
-      : selectedCategory === 'trending' ? '🔥 Trending' 
+    // Skip if default state (no filters, no search) — let metadata title serve for better SEO
+    if (selectedCategory === 'all' && !search) return
+    
+    const categoryLabel = selectedCategory === 'trending' 
+      ? '🔥 Trending' 
       : CATEGORIES.find(c => c.id === selectedCategory)?.name || 'Shop'
     const title = search 
       ? `Search: "${search}" — ${categoryLabel} — Porterful`
@@ -295,6 +298,12 @@ export default function MarketplacePage() {
                 placeholder="Search products..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Escape') {
+                    setSearch('')
+                    setShowFilters(false)
+                  }
+                }}
                 className="w-full px-4 py-2.5 pl-10 pr-10 rounded-lg border border-[var(--pf-border)] bg-[var(--pf-bg)] text-[var(--pf-text)] focus:border-[var(--pf-orange)] focus:outline-none"
               />
               <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--pf-text-muted)]">
@@ -317,6 +326,9 @@ export default function MarketplacePage() {
             {/* Filters Toggle */}
             <button
               onClick={() => setShowFilters(!showFilters)}
+              aria-expanded={showFilters}
+              aria-controls="filter-sidebar"
+              aria-label="Toggle filters"
               className={`p-2.5 rounded-lg border transition-colors relative ${
                 showFilters 
                   ? 'bg-[var(--pf-orange)] text-white border-[var(--pf-orange)]' 
@@ -401,7 +413,7 @@ export default function MarketplacePage() {
         <div className="flex gap-6">
           {/* Sidebar Filters */}
           {showFilters && (
-            <div className="w-64 shrink-0 hidden md:block">
+            <div id="filter-sidebar" className="w-64 shrink-0 hidden md:block">
               <div className="bg-[var(--pf-surface)] rounded-xl p-4 sticky top-40">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="font-bold text-[var(--pf-text)]">Filters</h3>
