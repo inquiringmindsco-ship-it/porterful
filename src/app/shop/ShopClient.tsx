@@ -251,14 +251,15 @@ export default function MarketplacePage() {
       // Auto-select single color or size if present
       const selectedColor = product.colors?.[0]
       const selectedSize = product.sizes?.[0]
-      // Use proper cart context
+      const productPrice = (product as any).salePrice || (product as any).price || 9.99
+      // Use proper cart context with null-safe image
       addItem({
         productId: product.id,
-        price: (product as any).salePrice || (product as any).price || 9.99,
+        price: productPrice,
         name: product.name,
         artist: 'Porterful',
-        image: product.images[0],
-        artistCut: ((product as any).salePrice || (product as any).price || 9.99) * 0.80,
+        image: product.images?.[0] || '/product-placeholder.svg',
+        artistCut: productPrice * 0.80,
         ...(selectedColor && { color: selectedColor }),
         ...(selectedSize && { size: selectedSize }),
       })
@@ -789,6 +790,7 @@ function ProductSchema({ products }: { products: any[] }) {
           availability: product.inStock
             ? 'https://schema.org/InStock'
             : 'https://schema.org/OutOfStock',
+          image: product.images?.[0],
         },
         aggregateRating: product.rating > 0 ? {
           '@type': 'AggregateRating',
