@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -10,8 +9,6 @@ import { useCart } from '@/lib/cart-context';
 export default function CartPage() {
   const router = useRouter();
   const { items, removeItem, updateQuantity, clearCart, subtotal, artistCut } = useCart();
-  const [referralCode, setReferralCode] = useState('');
-  const [appliedReferral, setAppliedReferral] = useState(false);
   const total = subtotal + (subtotal >= 50 ? 0 : 5);
   const itemCount = items.reduce((s, i) => s + i.quantity, 0);
 
@@ -125,20 +122,17 @@ export default function CartPage() {
                       value={referralCode}
                       onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
                       placeholder="PF-XXXXXXXX"
-                      className="flex-1 bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-3 py-2 focus:outline-none focus:border-[var(--pf-orange)]"
+                      disabled
+                      className="flex-1 bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-3 py-2 focus:outline-none focus:border-[var(--pf-orange)] opacity-60 cursor-not-allowed"
                     />
                     <button
-                      onClick={() => referralCode.trim() && setAppliedReferral(true)}
-                      className="px-4 py-2 bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-lg hover:border-[var(--pf-orange)]"
+                      disabled
+                      className="px-4 py-2 bg-[var(--pf-surface)] border border-[var(--pf-border)] rounded-lg opacity-60 cursor-not-allowed"
                     >
                       Apply
                     </button>
                   </div>
-                  {appliedReferral && (
-                    <p className="text-sm text-green-400 mt-2">
-                      ✓ Referral applied! Superfan earns 5%
-                    </p>
-                  )}
+                  <p className="text-xs text-[var(--pf-text-muted)] mt-2">Referral codes coming soon!</p>
                 </div>
 
                 {/* Line Items */}
