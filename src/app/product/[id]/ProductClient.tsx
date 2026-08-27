@@ -90,7 +90,7 @@ export default function ProductClient({ productId }: { productId: string }) {
         <nav className="text-sm text-[var(--pf-text-muted)] mb-6">
           <Link href="/" className="hover:text-[var(--pf-orange)]">Home</Link>
           <span className="mx-2">/</span>
-          <Link href="/shop" className="hover:text-[var(--pf-orange)]">Store</Link>
+          <Link href="/shop" className="hover:text-[var(--pf-orange)]">Shop</Link>
           <span className="mx-2">/</span>
           <span className="text-[var(--pf-text)]">{product.name}</span>
         </nav>
@@ -151,12 +151,11 @@ export default function ProductClient({ productId }: { productId: string }) {
                 <span className="text-3xl font-bold text-[var(--pf-orange)]">
                   ${sellingPrice.toFixed(2)}
                 </span>
-                <span className="text-lg text-[var(--pf-text-muted)] line-through">
-                  ${compareAtPrice.toFixed(2)}
-                </span>
-                <span className="text-sm font-medium text-green-400 bg-green-400/10 px-2 py-0.5 rounded">
-                  Save 23%
-                </span>
+                {(product as any).salePrice && (product as any).salePrice < (product as any).price && (
+                  <span className="text-sm font-medium text-green-400 bg-green-400/10 px-2 py-0.5 rounded">
+                    Save {Math.round((1 - (product as any).salePrice / (product as any).price) * 100)}%
+                  </span>
+                )}
               </div>
               <p className="text-sm text-[var(--pf-text-muted)]">
                 ${artistCut.toFixed(2)} goes to independent artists

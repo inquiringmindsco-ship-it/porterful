@@ -490,7 +490,7 @@ export default function MarketplacePage() {
                 ? 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4'
                 : 'space-y-3'
               }>
-                {sortedProducts.map(product => (
+                {sortedProducts.map((product, idx) => (
                   <Link 
                     key={product.id}
                     href={`/product/${product.id}`}
@@ -506,7 +506,7 @@ export default function MarketplacePage() {
                         fill
                         sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                         className="object-cover group-hover:scale-105 transition-transform"
-                        priority={index < 8} // Prioritize above-the-fold images for LCP
+                        priority={idx < 8} // Prioritize above-the-fold images for LCP
                       />
                       {product.category && (
                         <div className="absolute top-2 left-2 bg-[var(--pf-orange)] text-white text-xs px-2 py-0.5 rounded-full">
