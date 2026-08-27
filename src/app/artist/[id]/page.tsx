@@ -412,7 +412,7 @@ export default function ArtistProfilePage({ params }: { params: Promise<{ id: st
                 >
                   <div className="aspect-square relative overflow-hidden">
                     <Image 
-                      src={product.image || '/product-placeholder.jpg'} 
+                      src={product.image || '/product-placeholder.svg'} 
                       alt={product.name}
                       fill
                       sizes="(max-width: 768px) 50vw, 33vw"
