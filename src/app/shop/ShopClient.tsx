@@ -650,18 +650,20 @@ export default function MarketplacePage() {
             )}
 
             {/* Free Shipping Progress */}
-            <div className="mt-6 max-w-md mx-auto">
-              <div className="flex items-center justify-between text-xs text-[var(--pf-text-secondary)] mb-1.5">
-                <span>{hasFreeShipping ? '🎉 FREE shipping unlocked!' : 'Free shipping progress'}</span>
-                <span>{hasFreeShipping ? '✓' : `$${shippingRemaining.toFixed(2)} away`}</span>
+            {subtotal > 0 && (
+              <div className="mt-6 max-w-md mx-auto">
+                <div className="flex items-center justify-between text-xs text-[var(--pf-text-secondary)] mb-1.5">
+                  <span>{hasFreeShipping ? '🎉 FREE shipping unlocked!' : 'Free shipping progress'}</span>
+                  <span>{hasFreeShipping ? '✓' : `$${shippingRemaining.toFixed(2)} away`}</span>
+                </div>
+                <div className="h-2 bg-[var(--pf-surface)] rounded-full overflow-hidden border border-[var(--pf-border)]">
+                  <div 
+                    className="h-full bg-gradient-to-r from-[var(--pf-orange)] to-[var(--pf-orange-light)] transition-all duration-500 rounded-full"
+                    style={{ width: `${hasFreeShipping ? 100 : shippingProgress}%` }}
+                  />
+                </div>
               </div>
-              <div className="h-2 bg-[var(--pf-surface)] rounded-full overflow-hidden border border-[var(--pf-border)]">
-                <div 
-                  className="h-full bg-gradient-to-r from-[var(--pf-orange)] to-[var(--pf-orange-light)] transition-all duration-500 rounded-full"
-                  style={{ width: `${shippingProgress}%` }}
-                />
-              </div>
-            </div>
+            )}
 
             {/* Back to Top */}
             <BackToTop />

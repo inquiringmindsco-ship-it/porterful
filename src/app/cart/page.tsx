@@ -168,10 +168,10 @@ export default function CartPage() {
                   <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3 mb-4">
                     <p className="text-sm text-green-500 font-medium text-center">🎉 FREE shipping unlocked!</p>
                   </div>
-                ) : (
+                ) : subtotal > 0 ? (
                   <div className="bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg p-3 mb-4">
                     <p className="text-xs text-[var(--pf-text-muted)] mb-1.5 text-center">
-                      Add <span className="text-[var(--pf-orange)] font-medium">${(50 - subtotal).toFixed(2)}</span> more for <span className="text-green-500 font-medium">FREE shipping</span>
+                      Add <span className="text-[var(--pf-orange)] font-medium">${Math.max(0, 50 - subtotal).toFixed(2)}</span> more for <span className="text-green-500 font-medium">FREE shipping</span>
                     </p>
                     <div className="h-1.5 bg-[var(--pf-border)] rounded-full overflow-hidden">
                       <div
@@ -180,7 +180,7 @@ export default function CartPage() {
                       />
                     </div>
                   </div>
-                )}
+                ) : null}
 
                 <button 
                   onClick={handleCheckout}
