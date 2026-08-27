@@ -506,6 +506,7 @@ export default function MarketplacePage() {
                         fill
                         sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                         className="object-cover group-hover:scale-105 transition-transform"
+                        priority={index < 8} // Prioritize above-the-fold images for LCP
                       />
                       {product.category && (
                         <div className="absolute top-2 left-2 bg-[var(--pf-orange)] text-white text-xs px-2 py-0.5 rounded-full">
