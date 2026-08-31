@@ -695,11 +695,21 @@ export default function MarketplacePage() {
                       </div>
 
                       <div className="flex items-center justify-between mt-2">
-                        <div>
-                          <span className="font-bold text-[var(--pf-orange)]">${((product as any).salePrice || (product as any).price || 9.99).toFixed(2)}</span>
+                        <div className="flex items-center gap-2">
+                          {(product as any).salePrice ? (
+                            <>
+                              <span className="font-bold text-[var(--pf-orange)]">${((product as any).salePrice).toFixed(2)}</span>
+                              <span className="text-xs text-[var(--pf-text-muted)] line-through">${((product as any).price || 9.99).toFixed(2)}</span>
+                              <span className="text-xs bg-red-500 text-white px-1.5 py-0.5 rounded-full font-semibold">
+                                -{Math.round((1 - (product as any).salePrice / ((product as any).price || 9.99)) * 100)}%
+                              </span>
+                            </>
+                          ) : (
+                            <span className="font-bold text-[var(--pf-orange)]">${((product as any).price ?? 9.99).toFixed(2)}</span>
+                          )}
                           {product.colors && product.colors.length > 1 && (
-                            <span className="text-xs text-[var(--pf-text-muted)] ml-2">
-                              {product.colors.length} colors
+                            <span className="text-xs text-[var(--pf-text-muted)]">
+                              · {product.colors.length} colors
                             </span>
                           )}
                         </div>
@@ -799,12 +809,15 @@ function ProductSchema({ products }: { products: any[] }) {
         brand: { '@type': 'Brand', name: 'Porterful' },
         offers: {
           '@type': 'Offer',
-          price: ((product as any).salePrice || (product as any).price || 9.99).toFixed(2),
+          price: ((product as any).salePrice ?? (product as any).price ?? 9.99).toFixed(2),
           priceCurrency: 'USD',
           availability: product.inStock
             ? 'https://schema.org/InStock'
             : 'https://schema.org/OutOfStock',
           image: product.images?.[0],
+          ...((product as any).salePrice && {
+            'priceValidUntil': new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          }),
         },
         aggregateRating: product.rating > 0 ? {
           '@type': 'AggregateRating',
