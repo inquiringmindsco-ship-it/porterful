@@ -301,7 +301,7 @@ export function Navbar() {
               <Link href="/cart" className="relative sm:hidden p-2 rounded-xl bg-[var(--pf-surface)] border border-[var(--pf-border)] hover:border-[var(--pf-orange)] transition-colors" aria-label={`Cart with ${itemCount} items`}>
                 <PorterfulIcon name="cart" size={18} className="text-[var(--pf-text-secondary)]" />
                 {itemCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 w-4.5 h-4.5 min-w-[18px] bg-[var(--pf-orange)] text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-pulse">
+                  <span className="absolute -top-0.5 -right-0.5 w-4.5 h-4.5 min-w-[18px] min-h-[18px] bg-[var(--pf-orange)] text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-pulse">
                     {itemCount > 9 ? '9+' : itemCount}
                   </span>
                 )}

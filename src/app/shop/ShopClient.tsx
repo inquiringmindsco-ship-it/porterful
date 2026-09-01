@@ -265,6 +265,7 @@ export default function MarketplacePage() {
       })
       setAddedProducts(prev => new Set(prev).add(product.id))
       showToast(`${product.name} added to cart!`, 'success')
+      // Reset button after 2s so user can add again
       setTimeout(() => {
         setAddedProducts(prev => {
           const next = new Set(prev)
@@ -636,10 +637,10 @@ export default function MarketplacePage() {
                           <button
                             onClick={(e) => handleQuickAdd(e, product)}
                             disabled={addedProducts.has(product.id)}
-                            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold transition-all active:scale-95 ${
+                            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold transition-all transform hover:scale-105 active:scale-95 ${
                               addedProducts.has(product.id)
-                                ? 'bg-green-500 text-white'
-                                : 'bg-[var(--pf-orange)] text-white hover:bg-[var(--pf-orange-dark)]'
+                                ? 'bg-green-500 text-white shadow-lg shadow-green-500/30'
+                                : 'bg-[var(--pf-orange)] text-white hover:bg-[var(--pf-orange-dark)] shadow-lg shadow-orange-500/30'
                             }`}
                           >
                             {addedProducts.has(product.id) ? (
@@ -662,10 +663,10 @@ export default function MarketplacePage() {
                           <button
                             onClick={(e) => handleQuickAdd(e, product)}
                             disabled={addedProducts.has(product.id)}
-                            className={`w-full flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold transition-all active:scale-95 ${
+                            className={`w-full flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold transition-all transform active:scale-95 ${
                               addedProducts.has(product.id)
-                                ? 'bg-green-500 text-white'
-                                : 'bg-[var(--pf-orange)] text-white'
+                                ? 'bg-green-500 text-white shadow-lg shadow-green-500/25'
+                                : 'bg-[var(--pf-orange)] text-white shadow-lg shadow-orange-500/25'
                             }`}
                           >
                             {addedProducts.has(product.id) ? <Check size={12} /> : <ShoppingCart size={12} />}
@@ -736,10 +737,10 @@ export default function MarketplacePage() {
                           <button
                             onClick={(e) => handleQuickAdd(e, product)}
                             disabled={addedProducts.has(product.id)}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all active:scale-95 ${
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all transform active:scale-95 ${
                               addedProducts.has(product.id)
-                                ? 'bg-green-500 text-white'
-                                : 'bg-[var(--pf-orange)] text-white hover:brightness-110'
+                                ? 'bg-green-500 text-white shadow-lg shadow-green-500/25'
+                                : 'bg-[var(--pf-orange)] text-white hover:bg-[var(--pf-orange-dark)] shadow-md shadow-orange-500/20'
                             }`}
                           >
                             {addedProducts.has(product.id) ? <Check size={12} /> : <ShoppingCart size={12} />}
