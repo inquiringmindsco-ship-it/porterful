@@ -31,7 +31,7 @@ export default function CartPage() {
               Looks like you haven't added anything yet.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link href="/shop" className="pf-btn pf-btn-primary">
+              <Link href="/store" className="pf-btn pf-btn-primary">
                 Browse Products
               </Link>
               <Link href="/artists" className="pf-btn pf-btn-secondary">
@@ -119,8 +119,6 @@ export default function CartPage() {
                   <div className="flex gap-2">
                     <input
                       type="text"
-                      value={referralCode}
-                      onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
                       placeholder="PF-XXXXXXXX"
                       disabled
                       className="flex-1 bg-[var(--pf-bg)] border border-[var(--pf-border)] rounded-lg px-3 py-2 focus:outline-none focus:border-[var(--pf-orange)] opacity-60 cursor-not-allowed"
@@ -183,7 +181,7 @@ export default function CartPage() {
                   Proceed to Checkout
                 </button>
 
-                <Link href="/shop" className="block text-center text-[var(--pf-text-secondary)] hover:text-white text-sm mt-4">
+                <Link href="/store" className="block text-center text-[var(--pf-text-secondary)] hover:text-white text-sm mt-4">
                   Continue Shopping
                 </Link>
               </div>
