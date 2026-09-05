@@ -398,7 +398,7 @@ export default function ArtistProfilePage({ params }: { params: Promise<{ id: st
           <div>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold">Artist Store</h2>
-              <Link href="/shop" className="text-[var(--pf-orange)] hover:underline text-sm flex items-center gap-1">
+              <Link href="/store" className="text-[var(--pf-orange)] hover:underline text-sm flex items-center gap-1">
                 View All Products <ExternalLink size={14} />
               </Link>
             </div>

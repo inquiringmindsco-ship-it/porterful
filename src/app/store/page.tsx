@@ -417,7 +417,7 @@ export default function ArtistStorePage() {
             
             {!loading && filteredProducts.length > 12 && (
               <div className="text-center mt-8">
-                <Link href="/shop" className="pf-btn pf-btn-secondary">
+                <Link href="/store" className="pf-btn pf-btn-secondary">
                   View All Products →
                 </Link>
               </div>
@@ -479,7 +479,7 @@ export default function ArtistStorePage() {
                   <Heart className="inline mr-2" size={18} />
                   Become a Superfan
                 </Link>
-                <Link href="/shop" className="pf-btn pf-btn-secondary">
+                <Link href="/store" className="pf-btn pf-btn-secondary">
                   <ShoppingBag className="inline mr-2" size={18} />
                   Browse Marketplace
                 </Link>

@@ -29,7 +29,7 @@ export default function ProductClient({ productId }: { productId: string }) {
       <div className="min-h-screen pt-24 pb-12">
         <div className="pf-container max-w-6xl text-center">
           <h1 className="text-2xl font-bold mb-4">Product Not Found</h1>
-          <Link href="/shop" className="pf-btn pf-btn-primary">
+          <Link href="/store" className="pf-btn pf-btn-primary">
             Browse Store
           </Link>
         </div>
@@ -91,7 +91,7 @@ export default function ProductClient({ productId }: { productId: string }) {
         <nav className="text-sm text-[var(--pf-text-muted)] mb-6">
           <Link href="/" className="hover:text-[var(--pf-orange)]">Home</Link>
           <span className="mx-2">/</span>
-          <Link href="/shop" className="hover:text-[var(--pf-orange)]">Shop</Link>
+          <Link href="/store" className="hover:text-[var(--pf-orange)]">Shop</Link>
           <span className="mx-2">/</span>
           <span className="text-[var(--pf-text)]">{product.name}</span>
         </nav>

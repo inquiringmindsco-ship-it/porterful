@@ -74,7 +74,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
     '@type': 'BreadcrumbList',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://porterful.com' },
-      { '@type': 'ListItem', position: 2, name: 'Shop', item: 'https://porterful.com/shop' },
+      { '@type': 'ListItem', position: 2, name: 'Shop', item: 'https://porterful.com/store' },
       { '@type': 'ListItem', position: 3, name: product?.name || 'Product', item: `https://porterful.com/product/${id}` },
     ],
   }

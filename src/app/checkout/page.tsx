@@ -228,7 +228,7 @@ export default function CheckoutPage() {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/shop" className="pf-btn pf-btn-primary">Continue Shopping</Link>
+              <Link href="/store" className="pf-btn pf-btn-primary">Continue Shopping</Link>
               <Link href="/dashboard/artist" className="pf-btn pf-btn-secondary">View Your Library</Link>
             </div>
           </div>
