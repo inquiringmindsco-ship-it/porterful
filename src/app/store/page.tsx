@@ -217,12 +217,16 @@ export default function ArtistStorePage() {
                   <div className="aspect-square rounded-xl overflow-hidden mb-3 relative bg-[var(--pf-surface)]">
                     <Image
                       src={album.image}
-                      alt={album.title}
+                      alt={`${album.title} album cover by ${ARTIST.name}`}
                       fill
                       sizes="192px"
                       className="object-cover group-hover:scale-105 transition-transform duration-300"
                       loading={album.id === 'ambiguous' ? 'eager' : 'lazy'}
                       priority={album.id === 'ambiguous'}
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%23374151' width='100' height='100'/><text x='50' y='50' dominant-baseline='middle' text-anchor='middle' fill='%239ca3af' font-size='12'>${encodeURIComponent(album.title)}</text></svg>`;
+                      }}
                     />
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                       <div className="w-12 h-12 rounded-full bg-[var(--pf-orange)] flex items-center justify-center">
@@ -332,6 +336,10 @@ export default function ArtistStorePage() {
                           fill
                           sizes="(max-width: 768px) 100vw, 33vw"
                           className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%23374151' width='100' height='100'/><text x='50' y='50' dominant-baseline='middle' text-anchor='middle' fill='%239ca3af' font-size='10'>${encodeURIComponent(product.title)}</text></svg>`;
+                          }}
                         />
                         {!product.inStock && (
                           <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
@@ -412,6 +420,17 @@ export default function ArtistStorePage() {
               <div className="text-center py-12 text-[var(--pf-text-muted)]">
                 <ShoppingBag size={48} className="mx-auto mb-4 opacity-50" />
                 <p>No products in this category yet.</p>
+                    {searchQuery && (
+                      <>
+                        <p className="text-sm mt-1">Try a different search term</p>
+                        <button
+                          onClick={() => setSearchQuery('')}
+                          className="mt-1 text-[var(--pf-orange)] hover:underline text-sm"
+                        >
+                          Clear search
+                        </button>
+                      </>
+                    )}
               </div>
             )}
             
@@ -449,7 +468,10 @@ export default function ArtistStorePage() {
                       <Play size={16} className="text-white ml-0.5" />
                     </button>
                     <div className="w-12 h-12 rounded relative shrink-0 hidden sm:block">
-                      <Image src={track.image} alt={track.album || track.title} fill sizes="48px" className="object-cover rounded" />
+                      <Image src={track.image} alt={`${track.title} album art`} fill sizes="48px" className="object-cover rounded" onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                      }} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold truncate group-hover:text-[var(--pf-orange)] transition-colors">{track.title}</p>

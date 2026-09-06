@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     description: 'Official artist merchandise. Support independent artists directly.',
   },
   alternates: {
-    canonical: 'https://porterful.com/shop',
+    canonical: 'https://porterful.com/store',
   },
 }
 
