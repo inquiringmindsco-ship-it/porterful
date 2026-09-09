@@ -142,10 +142,6 @@ export default async function ArtistPage({ params }: PageProps) {
   if (dbArtistRecord?.id) {
     dbTracksRaw = await getServerTracksByArtistId(dbArtistRecord.id)
   }
-  // Fallback: also try by artist name if no tracks found by ID (legacy compat)
-  if (dbTracksRaw.length === 0) {
-    dbTracksRaw = await getServerTracksByArtistId(dbArtistRecord.id)
-  }
   if (dbTracksRaw.length > 0) {
     const collaboratorMap = await loadTrackCollaboratorMap(
       getServerSupabase(),
@@ -182,7 +178,7 @@ export default async function ArtistPage({ params }: PageProps) {
   }
 
   // Fetch custom album order
-  const albumOrder = await getArtistAlbumOrder(artistId)
+  const albumOrder = dbArtistRow?.id ? await getArtistAlbumOrder(artistId) : {}
 
   // Dedupe queue before passing to player
   const dedupedTracks = dedupeQueueTracks(tracks)

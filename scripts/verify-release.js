@@ -108,6 +108,14 @@ async function main() {
     assert.ok(payload.summary?.passing > 0)
   })
 
+  await check('canonical health endpoint is fully passing', async () => {
+    const response = await request('/api/health')
+    assert.equal(response.status, 200)
+    const payload = await response.json()
+    assert.equal(payload.ok, true)
+    assert.equal(payload.summary?.failing, 0)
+  })
+
   await check('public product catalog returns products', async () => {
     const response = await request('/api/products?scope=store&limit=200')
     assert.equal(response.status, 200)
@@ -130,6 +138,29 @@ async function main() {
     const payload = await response.json()
     assert.ok(payload.counts?.publicArtists > 0)
     assert.ok(payload.counts?.activeTracks > 0)
+  })
+
+  await check('Rob Soule public artist page renders', async () => {
+    const response = await request('/artist/rob-soule')
+    assert.equal(response.status, 200)
+    const html = await response.text()
+    assert.match(html, /Rob Soule/i)
+  })
+
+  await check('product detail metadata names the product', async () => {
+    const catalogResponse = await request('/api/products?scope=store&limit=1')
+    assert.equal(catalogResponse.status, 200)
+    const catalog = await catalogResponse.json()
+    const product = catalog.products?.[0]
+    assert.ok(product?.id)
+    assert.ok(product?.name)
+
+    const response = await request(`/product/${encodeURIComponent(product.id)}`)
+    assert.equal(response.status, 200)
+    const html = await response.text()
+    const title = html.match(/<title>([^<]+)<\/title>/i)?.[1] || ''
+    assert.match(title, new RegExp(product.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'))
+    assert.notEqual(title, 'Porterful | Porterful')
   })
 
   await check('invalid contact submission is rejected without sending', async () => {
