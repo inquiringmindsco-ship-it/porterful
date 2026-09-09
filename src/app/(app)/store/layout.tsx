@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Store | Porterful',
   description: 'Shop music, merch, and products from independent creators. Live products available now. Preview products coming soon.',
+  alternates: { canonical: '/store' },
   openGraph: {
     title: 'Store | Porterful',
     description: 'Shop music, merch, and products from independent creators.',

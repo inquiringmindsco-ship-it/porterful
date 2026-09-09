@@ -4,6 +4,7 @@ import { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Refunds',
   description: 'How Porterful handles refund requests.',
+  alternates: { canonical: '/refund' },
 }
 
 export default function RefundPage() {

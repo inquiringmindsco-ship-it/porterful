@@ -19,7 +19,6 @@ export const metadata: Metadata = {
   creator: 'Porterful',
   publisher: 'Porterful',
   metadataBase: new URL('https://porterful.com'),
-  alternates: { canonical: '/' },
   openGraph: {
     type: 'website',
     locale: 'en_US',

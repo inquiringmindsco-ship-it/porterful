@@ -3,6 +3,7 @@ import { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Blog - Porterful | Building the Artist Economy',
   description: 'Updates, insights, and stories from the team building a platform where artists own everything. Learn about the artist economy, superfan revenue, and more.',
+  alternates: { canonical: '/blog' },
   keywords: [
     'artist economy blog',
     'independent music industry',

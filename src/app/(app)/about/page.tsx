@@ -27,6 +27,7 @@ async function getPublicArtistCount() {
 export const metadata: Metadata = {
   title: 'About Porterful - The Artist Economy Platform',
   description: 'Porterful is a music and merch platform built to keep artists at the center of every sale.',
+  alternates: { canonical: '/about' },
   keywords: [
     'independent artist platform',
     'artist economy',

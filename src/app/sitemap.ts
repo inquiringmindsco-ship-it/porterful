@@ -7,41 +7,39 @@ export default function sitemap(): MetadataRoute.Sitemap {
   // Static pages
   const staticPages = [
     '',
-    '/competition',
-    '/digital',
-    '/marketplace',
-    '/shop',
     '/store',
     '/tap',
     '/radio',
     '/playlists',
     '/trending',
     '/superfan',
+    '/artists',
     '/artist/od-porter',
+    '/brands',
+    '/collections/coming-home',
+    '/music',
     '/about',
     '/contact',
     '/faq',
     '/support',
     '/signal',
-    '/register',
+    '/apply',
     '/signup',
     '/signup/superfan',
-    '/login',
-    '/dashboard',
-    '/dashboard/access',
-    '/dashboard/catalog',
-    '/dashboard/artist',
-    '/dashboard/upload',
-    '/products',
     '/terms',
     '/privacy',
+    '/refund',
+    '/dmca',
+    '/moral-policy',
     '/press-kit',
     '/onboarding',
     '/challenge',
     '/resources',
-    '/unlock',
-    '/verify',
-    '/wallet',
+    '/blog',
+    '/ecosystem',
+    '/systems',
+    '/kids-chains',
+    '/proud-to-pay',
   ]
   
   // Albums from data
@@ -63,9 +61,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
   
   const getPriority = (page: string): number => {
     if (page === '') return 1.0
-    if (page === '/competition') return 0.95  // High priority - active campaign
     if (page.startsWith('/album')) return 0.7
-    if (page === '/digital' || page === '/marketplace' || page === '/store' || page === '/products') return 0.9
+    if (page === '/store' || page === '/artists' || page === '/music') return 0.9
     return 0.8
   }
   

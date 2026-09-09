@@ -3,6 +3,7 @@ import { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Playlists - Curated Music Collections',
   description: 'Explore curated playlists on Porterful. Discover new music, support independent artists, find your next favorite track.',
+  alternates: { canonical: '/playlists' },
   keywords: ['playlists', 'curated music', 'music collections', 'discover music', 'independent playlists'],
   openGraph: {
     title: 'Playlists - Porterful',

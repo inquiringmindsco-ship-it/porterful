@@ -4,6 +4,7 @@ import { Suspense } from 'react'
 export const metadata: Metadata = {
   title: 'Signup - Porterful',
   description: 'Create a Porterful account as an artist, fan, business, or brand.',
+  alternates: { canonical: '/signup' },
 }
 
 function LoadingSignup() {

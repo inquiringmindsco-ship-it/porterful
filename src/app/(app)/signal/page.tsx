@@ -3,6 +3,7 @@ import { SignalShirtViewer } from '@/components/signal/SignalShirtViewer'
 export const metadata = {
   title: 'Signal Shirt — LIKENESS',
   description: 'Wear your signal. Let people tap in.',
+  alternates: { canonical: '/signal' },
 }
 
 export default function SignalPage() {

@@ -64,6 +64,7 @@ export async function middleware(request: NextRequest) {
   const requiresAuth =
     pathname === '/dashboard' ||
     pathname.startsWith('/dashboard/') ||
+    pathname === '/wallet' ||
     pathname === '/settings' ||
     pathname.startsWith('/settings/')
   const requiresAdminGate = pathname === '/api/admin' || pathname.startsWith('/api/admin/')
