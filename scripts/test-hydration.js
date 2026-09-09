@@ -28,6 +28,12 @@ const ROUTES = [
   { url: '/artists', name: '/artists' },
   { url: '/store', name: '/store' },
   { url: '/trending', name: '/trending' },
+  { url: '/artist/rob-soule', name: '/artist/rob-soule' },
+  {
+    url: '/product/75006c54-3f40-4309-81a1-a85de8f34841',
+    name: '/product/Coming Home Tee',
+    verifyReadableHeading: true,
+  },
   { url: '/signup', name: '/signup' },
   { url: '/', name: 'Homepage (return)' },
 ];
@@ -40,6 +46,16 @@ const FAIL_PATTERNS = [
   /a client-side exception/i,
   /Application Error/i,
 ];
+
+function relativeLuminance(rgb) {
+  const channels = rgb.match(/[0-9.]+/g)?.slice(0, 3).map(Number) || [];
+  if (channels.length !== 3) return null;
+  const linear = channels.map(channel => {
+    const value = channel / 255;
+    return value <= 0.03928 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2];
+}
 
 async function runTest(browser, viewport) {
   const ctx = await browser.newContext({ ...viewport });
@@ -56,14 +72,37 @@ async function runTest(browser, viewport) {
     
     const matched = errors.filter(e => FAIL_PATTERNS.some(p => p.test(e)));
     const crash = (await page.textContent('body').catch(() => '')).includes('Application Error');
+    let visualFailure = null;
+
+    if (route.verifyReadableHeading) {
+      const heading = page.locator('h1').first();
+      const headingVisible = await heading.isVisible().catch(() => false);
+      const colors = headingVisible
+        ? await heading.evaluate(element => {
+            const headingStyle = getComputedStyle(element);
+            const themedRoot = element.closest('[style*="--pf-bg"]');
+            const rootStyle = themedRoot ? getComputedStyle(themedRoot) : getComputedStyle(document.body);
+            return { foreground: headingStyle.color, background: rootStyle.backgroundColor };
+          })
+        : null;
+      const foreground = colors ? relativeLuminance(colors.foreground) : null;
+      const background = colors ? relativeLuminance(colors.background) : null;
+      const contrast = foreground === null || background === null
+        ? 0
+        : (Math.max(foreground, background) + 0.05) / (Math.min(foreground, background) + 0.05);
+
+      if (!headingVisible || contrast < 4.5) {
+        visualFailure = `Unreadable product heading (contrast ${contrast.toFixed(2)}:1)`;
+      }
+    }
     
-    if (matched.length > 0 || crash) {
+    if (matched.length > 0 || crash || visualFailure) {
       await ctx.close();
       return {
         pass: false,
         route: route.name,
-        errors: matched.length,
-        sample: matched[0]?.substring(0, 200) || 'crash',
+        errors: matched.length + (visualFailure ? 1 : 0),
+        sample: visualFailure || matched[0]?.substring(0, 200) || 'crash',
       };
     }
   }

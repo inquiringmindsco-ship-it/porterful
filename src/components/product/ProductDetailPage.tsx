@@ -68,7 +68,7 @@ export function ProductDetailPage({ product: initialProduct }: { product?: any |
   }
 
   return (
-    <div className="min-h-screen pt-20 pb-24 bg-[var(--pf-bg)]" style={getArtistThemeStyles(appearance)}>
+    <div className="min-h-screen pt-20 pb-24 bg-[var(--pf-bg)] text-[var(--pf-text)]" style={getArtistThemeStyles(appearance)}>
       <ArtistThemeBridge appearance={appearance} />
       <div className="pf-container">
         <Link href="/store" className="inline-flex items-center gap-2 text-sm text-[var(--pf-text-muted)] hover:text-white mb-6 transition-colors">
