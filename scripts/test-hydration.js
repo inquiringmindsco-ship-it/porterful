@@ -27,6 +27,7 @@ const ROUTES = [
   { url: '/', name: 'Homepage' },
   { url: '/artists', name: '/artists' },
   { url: '/store', name: '/store' },
+  { url: '/trending', name: '/trending' },
   { url: '/signup', name: '/signup' },
   { url: '/', name: 'Homepage (return)' },
 ];

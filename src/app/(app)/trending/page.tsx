@@ -1,256 +1,185 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import Link from 'next/link'
+import { useEffect, useMemo, useState } from 'react'
 import Image from 'next/image'
-import { TrendingUp, Flame, ShoppingCart, ChevronRight } from 'lucide-react'
+import Link from 'next/link'
+import { ArrowRight, CheckCircle2, Clock3, Flame, Package, Sparkles } from 'lucide-react'
+import { PRODUCTS, type Product, isPurchasable } from '@/lib/products'
 
-// Real products from Printful catalog - curated trending items
-const TRENDING_PRODUCTS = [
-  {
-    id: 'tshirt-classic-black',
-    name: 'Classic Black Tee',
-    category: 'Apparel',
-    basePrice: 8.50,
-    image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500',
-  },
-  {
-    id: 'hoodie-classic-black',
-    name: 'Classic Black Hoodie',
-    category: 'Apparel',
-    basePrice: 22.00,
-    image: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=500',
-  },
-  {
-    id: 'mug-11oz-black',
-    name: 'Black Mug 11oz',
-    category: 'Home & Living',
-    basePrice: 4.50,
-    image: 'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?w=500',
-  },
-  {
-    id: 'tote-natural',
-    name: 'Natural Canvas Tote',
-    category: 'Accessories',
-    basePrice: 5.00,
-    image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500',
-  },
-  {
-    id: 'poster-18x24',
-    name: 'Poster 18x24',
-    category: 'Art',
-    basePrice: 4.00,
-    image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=500',
-  },
-  {
-    id: 'snapback-black',
-    name: 'Black Snapback',
-    category: 'Accessories',
-    basePrice: 7.00,
-    image: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=500',
-  },
-  {
-    id: 'vinyl-12',
-    name: '12" Vinyl Record',
-    category: 'Music',
-    basePrice: 12.00,
-    image: 'https://images.unsplash.com/photo-1539185441755-7697f0f1e3ee?w=500',
-  },
-  {
-    id: 'bottle-20oz',
-    name: 'Water Bottle 20oz',
-    category: 'Accessories',
-    basePrice: 7.00,
-    image: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=500',
-  },
-]
+const CATALOG_LIMIT = 12
 
-const CATEGORIES = ['All', 'Apparel', 'Accessories', 'Home & Living', 'Art', 'Music']
+function formatPrice(price: number) {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+  }).format(price)
+}
 
 export default function TrendingPage() {
+  const [products, setProducts] = useState<Product[]>(PRODUCTS)
   const [selectedCategory, setSelectedCategory] = useState('All')
-  const [cart, setCart] = useState<{ [key: string]: number }>({})
-  const [addedToCart, setAddedToCart] = useState<{ [key: string]: boolean }>({})
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function loadCatalog() {
+      try {
+        const response = await fetch(`/api/products?scope=store&limit=${CATALOG_LIMIT}`, {
+          cache: 'no-store',
+        })
+        const payload = await response.json().catch(() => ({}))
+        if (!cancelled && response.ok && Array.isArray(payload.products)) {
+          setProducts(payload.products)
+        }
+      } catch {
+        // Keep the verified local catalog as a resilient visual fallback.
+      }
+    }
+
+    void loadCatalog()
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const visibleProducts = useMemo(() => {
+    return products
+      .filter((product) => product.storeVisible !== false)
+      .sort((left, right) => Number(isPurchasable(right)) - Number(isPurchasable(left)))
+      .slice(0, CATALOG_LIMIT)
+  }, [products])
+
+  const categories = useMemo(
+    () => ['All', ...Array.from(new Set(visibleProducts.map((product) => product.category)))],
+    [visibleProducts]
+  )
 
   const filteredProducts = selectedCategory === 'All'
-    ? TRENDING_PRODUCTS
-    : TRENDING_PRODUCTS.filter(p => p.category === selectedCategory)
-
-  const handleAddToCart = (productId: string) => {
-    setCart(prev => ({ ...prev, [productId]: (prev[productId] || 0) + 1 }))
-    setAddedToCart(prev => ({ ...prev, [productId]: true }))
-    setTimeout(() => setAddedToCart(prev => ({ ...prev, [productId]: false })), 1500)
-  }
-
-  const getCartCount = () => Object.values(cart).reduce((sum, count) => sum + count, 0)
+    ? visibleProducts
+    : visibleProducts.filter((product) => product.category === selectedCategory)
 
   return (
-    <div className="min-h-screen pt-24 pb-12">
-      <div className="pf-container">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-red-500/10 border border-red-500/30 rounded-full text-red-400 text-sm font-medium mb-4">
-            <Flame size={16} />
-            <span>Trending Now</span>
-          </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            What's <span className="text-[var(--pf-orange)]">Hot Right Now</span>
-          </h1>
-          <p className="text-xl text-[var(--pf-text-secondary)] max-w-2xl mx-auto">
-            The products everyone's browsing. Updated regularly. Every purchase is designed to support independent artists.
-          </p>
-        </div>
-
-        {/* How It Works Banner */}
-        <div className="bg-gradient-to-r from-[var(--pf-orange)]/10 to-purple-500/10 rounded-2xl p-6 mb-12 border border-[var(--pf-orange)]/20">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-xl bg-[var(--pf-orange)]/20 flex items-center justify-center">
-                <TrendingUp className="text-[var(--pf-orange)]" size={28} />
-              </div>
-              <div>
-                <h3 className="font-bold text-lg">Products That Support Artists</h3>
-                <p className="text-sm text-[var(--pf-text-secondary)]">Every purchase is designed to support artists</p>
-              </div>
+    <main className="min-h-screen bg-[var(--pf-bg)] pb-20 pt-20">
+      <div className="pf-container max-w-6xl">
+        <section className="relative overflow-hidden rounded-[32px] border border-[var(--pf-border)]/70 bg-[radial-gradient(circle_at_top_right,rgba(249,115,22,0.18),transparent_35%),linear-gradient(145deg,rgba(18,18,20,0.98),rgba(10,10,11,0.98))] px-6 py-10 shadow-[0_24px_90px_rgba(0,0,0,0.24)] sm:px-10 sm:py-14">
+          <div className="relative z-10 max-w-2xl">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[var(--pf-orange)]/25 bg-[var(--pf-orange)]/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--pf-orange)]">
+              <Flame size={14} />
+              Featured now
             </div>
-            <div className="flex items-center gap-3">
-              {getCartCount() > 0 && (
-                <Link href="/cart" className="pf-btn pf-btn-secondary flex items-center gap-2">
-                  <ShoppingCart size={18} />
-                  <span>Cart ({getCartCount()})</span>
-                </Link>
-              )}
-              <Link href="/about" className="pf-btn pf-btn-secondary whitespace-nowrap">
-                Learn More
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        {/* Category Filter */}
-        <div className="flex flex-wrap justify-center gap-2 mb-8">
-          {CATEGORIES.map((category) => (
-            <button
-              key={category}
-              onClick={() => setSelectedCategory(category)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                selectedCategory === category
-                  ? 'bg-[var(--pf-orange)] text-white'
-                  : 'bg-[var(--pf-surface)] text-[var(--pf-text-secondary)] hover:text-white hover:bg-[var(--pf-surface-hover)]'
-              }`}
+            <h1 className="mt-5 text-4xl font-black tracking-tight text-white sm:text-5xl">
+              Creator products worth discovering.
+            </h1>
+            <p className="mt-4 max-w-xl text-base leading-relaxed text-white/70 sm:text-lg">
+              A current look at products from Porterful creators and founding brands. Availability is shown clearly on every item.
+            </p>
+            <Link
+              href="/store"
+              className="mt-7 inline-flex min-h-11 items-center gap-2 rounded-xl bg-[var(--pf-orange)] px-5 py-3 text-sm font-semibold text-[#111111] transition-all hover:brightness-110 active:scale-[0.98]"
             >
-              {category}
-            </button>
-          ))}
-        </div>
+              Shop the full store
+              <ArrowRight size={16} />
+            </Link>
+          </div>
+        </section>
 
-        {/* Trending Products */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {filteredProducts.map((product, i) => (
-            <div key={product.id} className="pf-card group overflow-hidden relative">
-              {/* Rank Badge */}
-              <div className="absolute top-3 left-3 z-10">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
-                  i === 0 ? 'bg-yellow-500 text-black' :
-                  i === 1 ? 'bg-gray-400 text-black' :
-                  i === 2 ? 'bg-amber-600 text-white' :
-                  'bg-[var(--pf-surface)] text-[var(--pf-text-muted)]'
-                }`}>
-                  {i + 1}
-                </div>
-              </div>
-
-              {/* Product Image */}
-              <div className="aspect-square relative bg-gradient-to-br from-[var(--pf-surface)] to-[var(--pf-bg)]">
-                <Image
-                  src={product.image}
-                  alt={product.name}
-                  fill
-                  className="object-cover object-center"
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                  unoptimized
-                  priority={i < 4}
-                />
-              </div>
-
-              <div className="p-4">
-                {/* Category */}
-                <p className="text-xs text-[var(--pf-text-muted)] mb-1">{product.category}</p>
-                <h3 className="font-semibold mb-2 truncate">{product.name}</h3>
-
-                {/* Price & CTA */}
-                <div className="flex items-center justify-between">
-                  <span className="text-lg font-bold">${product.basePrice}</span>
-                  <button
-                    onClick={() => handleAddToCart(product.id)}
-                    className={`pf-btn text-sm py-2 px-4 transition-all ${
-                      addedToCart[product.id]
-                        ? 'bg-green-500 text-white'
-                        : 'pf-btn-primary'
-                    }`}
-                  >
-                    {addedToCart[product.id] ? '✓ Added' : 'Add to Cart'}
-                  </button>
-                </div>
-              </div>
+        <section className="py-10 sm:py-12">
+          <div className="mb-6 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--pf-orange)]">Porterful catalog</p>
+              <h2 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">Featured products</h2>
             </div>
-          ))}
-        </div>
-
-        {/* Shop All CTA */}
-        <div className="mt-12 text-center">
-          <p className="text-[var(--pf-text-secondary)] mb-4">
-            Want to see all products?
-          </p>
-          <Link href="/shop" className="pf-btn pf-btn-primary inline-flex items-center gap-2">
-            Browse Full Shop <ChevronRight size={16} />
-          </Link>
-        </div>
-
-        {/* Why Trending */}
-        <div className="mt-16 pf-card p-8">
-          <h2 className="text-2xl font-bold mb-6 text-center">Why These Products Are Featured</h2>
-          <div className="grid md:grid-cols-3 gap-6">
-            <div className="text-center">
-              <div className="w-12 h-12 mx-auto mb-4 rounded-xl bg-[var(--pf-orange)]/20 flex items-center justify-center">
-                <TrendingUp className="text-[var(--pf-orange)]" size={24} />
-              </div>
-              <h3 className="font-semibold mb-2">Catalog Picks</h3>
-              <p className="text-sm text-[var(--pf-text-secondary)]">
-                A curated selection of products for independent artist stores.
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="w-12 h-12 mx-auto mb-4 rounded-xl bg-blue-500/20 flex items-center justify-center">
-                <Flame className="text-blue-400" size={24} />
-              </div>
-              <h3 className="font-semibold mb-2">Artist-Curated</h3>
-              <p className="text-sm text-[var(--pf-text-secondary)]">
-                Each product is part of an independent artist's store.
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="w-12 h-12 mx-auto mb-4 rounded-xl bg-purple-500/20 flex items-center justify-center">
-                <ShoppingCart className="text-purple-400" size={24} />
-              </div>
-              <h3 className="font-semibold mb-2">Artist support</h3>
-              <p className="text-sm text-[var(--pf-text-secondary)]">
-                Every sale is designed to put artists first.
-              </p>
+            <div className="flex max-w-full items-center gap-2 overflow-x-auto pb-1">
+              {categories.map((category) => (
+                <button
+                  key={category}
+                  type="button"
+                  onClick={() => setSelectedCategory(category)}
+                  className={`min-h-11 whitespace-nowrap rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
+                    selectedCategory === category
+                      ? 'border-[var(--pf-orange)] bg-[var(--pf-orange)] text-[#111111]'
+                      : 'border-[var(--pf-border)] bg-[var(--pf-surface)] text-[var(--pf-text-secondary)] hover:border-[var(--pf-orange)]/35 hover:text-[var(--pf-text)]'
+                  }`}
+                >
+                  {category}
+                </button>
+              ))}
             </div>
           </div>
-        </div>
 
-        {/* CTA */}
-        <div className="mt-12 text-center">
-          <p className="text-[var(--pf-text-secondary)] mb-4">
-            Want your product featured here?
-          </p>
-          <Link href="/signup?role=business" className="pf-btn pf-btn-secondary">
-            List Your Products <ChevronRight className="inline ml-1" size={16} />
-          </Link>
-        </div>
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {filteredProducts.map((product) => {
+              const purchasable = product.purchasable ?? isPurchasable(product)
+              return (
+                <article
+                  key={product.id}
+                  className="group overflow-hidden rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] shadow-sm transition-all hover:-translate-y-1 hover:border-[var(--pf-orange)]/30 hover:shadow-xl"
+                >
+                  <Link href={`/product/${product.id}`} className="block">
+                    <div className="relative aspect-square overflow-hidden bg-[var(--pf-bg-secondary)]">
+                      <Image
+                        src={product.image}
+                        alt={product.name}
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                      />
+                      <div className="absolute left-3 top-3">
+                        <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold backdrop-blur-md ${
+                          purchasable
+                            ? 'border-emerald-400/30 bg-emerald-950/80 text-emerald-300'
+                            : 'border-white/15 bg-black/65 text-white/80'
+                        }`}>
+                          {purchasable ? <CheckCircle2 size={13} /> : <Clock3 size={13} />}
+                          {purchasable ? 'Available now' : 'Preview'}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="p-4">
+                      <p className="text-xs font-medium uppercase tracking-[0.14em] text-[var(--pf-text-muted)]">{product.category}</p>
+                      <h3 className="mt-2 line-clamp-2 text-base font-semibold text-[var(--pf-text)]">{product.name}</h3>
+                      <p className="mt-1 text-sm text-[var(--pf-text-secondary)]">{product.artist}</p>
+                      <div className="mt-4 flex items-center justify-between gap-3 border-t border-[var(--pf-border)] pt-4">
+                        <span className="font-bold text-[var(--pf-text)]">{formatPrice(product.price)}</span>
+                        <span className="inline-flex items-center gap-1 text-sm font-semibold text-[var(--pf-orange)]">
+                          View
+                          <ArrowRight size={14} />
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                </article>
+              )
+            })}
+          </div>
+
+          {filteredProducts.length === 0 && (
+            <div className="rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-10 text-center">
+              <Package className="mx-auto text-[var(--pf-text-muted)]" size={28} />
+              <h3 className="mt-4 text-lg font-semibold">No products in this category yet</h3>
+              <p className="mt-2 text-sm text-[var(--pf-text-secondary)]">Choose another category or browse the full store.</p>
+            </div>
+          )}
+        </section>
+
+        <section className="rounded-[28px] border border-[var(--pf-border)] bg-[var(--pf-surface)] p-6 sm:p-8">
+          <div className="grid gap-6 md:grid-cols-[auto_1fr_auto] md:items-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--pf-orange)]/10 text-[var(--pf-orange)]">
+              <Sparkles size={24} />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold">One catalog. Clear availability.</h2>
+              <p className="mt-1 text-sm leading-relaxed text-[var(--pf-text-secondary)]">
+                This page uses the same product catalog as the Porterful Store, so preview products are never presented as available purchases.
+              </p>
+            </div>
+            <Link href="/store" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[var(--pf-border)] px-4 py-3 text-sm font-semibold hover:border-[var(--pf-orange)]/40">
+              Browse store
+              <ArrowRight size={15} />
+            </Link>
+          </div>
+        </section>
       </div>
-    </div>
+    </main>
   )
 }
