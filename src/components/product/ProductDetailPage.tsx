@@ -76,8 +76,8 @@ export function ProductDetailPage({ product: initialProduct }: { product?: any |
         </Link>
 
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-16">
-          <div>
-            <div className="aspect-square rounded-2xl overflow-hidden bg-[var(--pf-surface)] border border-[var(--pf-border)] mb-4">
+          <div data-product-gallery>
+            <div className="relative aspect-square rounded-2xl overflow-hidden bg-[var(--pf-surface)] border border-[var(--pf-border)] mb-4">
               <Image
                 src={images[activeImage]}
                 alt={product.name}
@@ -103,7 +103,7 @@ export function ProductDetailPage({ product: initialProduct }: { product?: any |
             )}
           </div>
 
-          <div>
+          <div data-product-details>
             <div className="mb-2">
               <span className="text-xs uppercase tracking-wider text-[var(--pf-text-muted)]">
                 {product.category} • {product.artist}

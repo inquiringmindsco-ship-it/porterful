@@ -94,6 +94,16 @@ async function runTest(browser, viewport) {
       if (!headingVisible || contrast < 4.5) {
         visualFailure = `Unreadable product heading (contrast ${contrast.toFixed(2)}:1)`;
       }
+
+      const [galleryBox, detailsBox] = await Promise.all([
+        page.locator('[data-product-gallery]').boundingBox(),
+        page.locator('[data-product-details]').boundingBox(),
+      ]);
+      if (!galleryBox || !detailsBox) {
+        visualFailure ||= 'Product gallery or details panel is missing';
+      } else if (detailsBox.y < galleryBox.y + galleryBox.height - 1) {
+        visualFailure ||= 'Product gallery overlaps the details panel on mobile';
+      }
     }
     
     if (matched.length > 0 || crash || visualFailure) {
