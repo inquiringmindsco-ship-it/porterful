@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { TrendingUp, Flame, Clock, ShoppingCart, ChevronRight, Star } from 'lucide-react'
+import { TrendingUp, Flame, ShoppingCart, ChevronRight } from 'lucide-react'
 
 // Real products from Printful catalog - curated trending items
 const TRENDING_PRODUCTS = [
@@ -12,88 +12,56 @@ const TRENDING_PRODUCTS = [
     name: 'Classic Black Tee',
     category: 'Apparel',
     basePrice: 8.50,
-    sales: 2847,
-    trend: '+127%',
     image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500',
-    rating: 4.8,
-    reviews: 342,
   },
   {
     id: 'hoodie-classic-black',
     name: 'Classic Black Hoodie',
     category: 'Apparel',
     basePrice: 22.00,
-    sales: 1956,
-    trend: '+89%',
     image: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=500',
-    rating: 4.9,
-    reviews: 218,
   },
   {
     id: 'mug-11oz-black',
     name: 'Black Mug 11oz',
     category: 'Home & Living',
     basePrice: 4.50,
-    sales: 1834,
-    trend: '+75%',
     image: 'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?w=500',
-    rating: 4.7,
-    reviews: 567,
   },
   {
     id: 'tote-natural',
     name: 'Natural Canvas Tote',
     category: 'Accessories',
     basePrice: 5.00,
-    sales: 1567,
-    trend: '+62%',
     image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500',
-    rating: 4.6,
-    reviews: 189,
   },
   {
     id: 'poster-18x24',
     name: 'Poster 18x24',
     category: 'Art',
     basePrice: 4.00,
-    sales: 1234,
-    trend: '+58%',
     image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=500',
-    rating: 4.5,
-    reviews: 98,
   },
   {
     id: 'snapback-black',
     name: 'Black Snapback',
     category: 'Accessories',
     basePrice: 7.00,
-    sales: 1098,
-    trend: '+45%',
     image: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=500',
-    rating: 4.4,
-    reviews: 156,
   },
   {
     id: 'vinyl-12',
     name: '12" Vinyl Record',
     category: 'Music',
     basePrice: 12.00,
-    sales: 987,
-    trend: '+41%',
     image: 'https://images.unsplash.com/photo-1539185441755-7697f0f1e3ee?w=500',
-    rating: 4.9,
-    reviews: 74,
   },
   {
     id: 'bottle-20oz',
     name: 'Water Bottle 20oz',
     category: 'Accessories',
     basePrice: 7.00,
-    sales: 876,
-    trend: '+38%',
     image: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=500',
-    rating: 4.7,
-    reviews: 203,
   },
 ]
 
@@ -192,14 +160,6 @@ export default function TrendingPage() {
                 </div>
               </div>
 
-              {/* Trend Badge */}
-              <div className="absolute top-3 right-3 z-10">
-                <div className="px-2 py-1 bg-green-500/20 text-green-400 rounded text-xs font-medium flex items-center gap-1">
-                  <TrendingUp size={12} />
-                  {product.trend}
-                </div>
-              </div>
-
               {/* Product Image */}
               <div className="aspect-square relative bg-gradient-to-br from-[var(--pf-surface)] to-[var(--pf-bg)]">
                 <Image
@@ -215,9 +175,6 @@ export default function TrendingPage() {
 
               <div className="p-4">
                 {/* Category */}
-                <p className="text-xs text-[var(--pf-text-muted)] mb-1">{product.category}</p>
-
-                {/* Product Info */}
                 <p className="text-xs text-[var(--pf-text-muted)] mb-1">{product.category}</p>
                 <h3 className="font-semibold mb-2 truncate">{product.name}</h3>
 
@@ -252,15 +209,15 @@ export default function TrendingPage() {
 
         {/* Why Trending */}
         <div className="mt-16 pf-card p-8">
-          <h2 className="text-2xl font-bold mb-6 text-center">Why These Products Trend</h2>
+          <h2 className="text-2xl font-bold mb-6 text-center">Why These Products Are Featured</h2>
           <div className="grid md:grid-cols-3 gap-6">
             <div className="text-center">
               <div className="w-12 h-12 mx-auto mb-4 rounded-xl bg-[var(--pf-orange)]/20 flex items-center justify-center">
                 <TrendingUp className="text-[var(--pf-orange)]" size={24} />
               </div>
-              <h3 className="font-semibold mb-2">Real Sales Data</h3>
+              <h3 className="font-semibold mb-2">Catalog Picks</h3>
               <p className="text-sm text-[var(--pf-text-secondary)]">
-                Rankings based on actual purchase activity, not fake numbers.
+                A curated selection of products for independent artist stores.
               </p>
             </div>
             <div className="text-center">

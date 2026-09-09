@@ -13,7 +13,7 @@ const ALBUM_ART = {
   GodIsGood: '/album-art/God_Is_Good.jpg',
   OneDay: '/album-art/One_Day.jpg',
   StreetsThoughtILeft: '/album-art/Streets_Thought_I_Left.jpg',
-  Roxanity: '/album-art/Roxanity.jpg',
+  Roxanity: '/album-art/Roxannity.jpg',
   Artgasm: '/album-art/Artgasm.jpg',
   Levi: '/album-art/Levi.jpg',
   Singles: '/album-art/Singles.jpg',
