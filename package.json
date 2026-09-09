@@ -8,7 +8,11 @@
     "start": "next start",
     "lint": "next lint",
     "check-layouts": "node scripts/check-layout-guards.js",
-    "test-hydration": "node scripts/test-hydration.js"
+    "test-hydration": "node scripts/test-hydration.js",
+    "preflight": "bash scripts/preflight.sh",
+    "preflight:production": "bash scripts/preflight.sh --production",
+    "deploy:preview": "npm run preflight && vercel deploy",
+    "deploy:production": "npm run preflight:production && vercel deploy --prod"
   },
   "dependencies": {
     "@sentry/nextjs": "^10.49.0",

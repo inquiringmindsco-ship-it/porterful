@@ -2,9 +2,9 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [main]
+    branches: [codex/porterful-production-recovery]
   pull_request:
-    branches: [main]
+    branches: [codex/porterful-production-recovery]
 
 env:
   NODE_VERSION: '20'

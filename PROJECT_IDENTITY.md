@@ -1,47 +1,22 @@
-# PROJECT IDENTITY — PORTERFUL
+# Porterful Project Identity
 
-**THIS IS THE ONLY TRUE PORTERFUL SOURCE**
+This file records the verified recovery identity as of September 8, 2026.
 
-## Domain
-https://porterful.com
+## Canonical infrastructure
 
-## Vercel
-- **Team:** inquiringmindsco-ship-its-projects
-- **Team ID:** team_SgVobhtThOM1FwJ86K9cYrRg
-- **Project:** porterful
-- **Project ID:** prj_WTDTDRhVtON6ROzD5VAP2xDqzZxa
-- **Latest Production Deployment:** https://porterful-pdymq34yj-inquiringmindsco-ship-its-projects.vercel.app
+- Domain: `https://porterful.com`
+- Vercel team ID: `team_SgVobhtThOM1FwJ86K9cYrRg`
+- Vercel project ID: `prj_WTDTDRhVtON6ROzD5VAP2xDqzZxa`
+- Vercel project name: `porterful`
+- GitHub repository: `git@github.com:inquiringmindsco-ship-it/porterful.git`
+- Canonical recovery/production branch: `codex/porterful-production-recovery`
+- Baseline tag: `production-baseline-2026-09-08`
+- Baseline commit: `f3b56727752060214b4023673f05795ba12c920d`
+- Audited production deployment: `dpl_FFW9HCgF87PkqEDct7hvKDtj6cTV`
 
-## GitHub
-- **Repo:** git@github.com:odporter/porterful.git
-- **Owner:** odporter
-- **Branch:** main
-- **Latest Commit:** 7c01b3a0 (fix: uncommitted - hide theme toggle, clean footer, more store fixes)
+At audit time, the Vercel project had no Git integration. Its production deployment
+was created from the baseline commit above. GitHub `main` pointed to unrelated
+commit `43c18054f58e3048c38d5971fd7e10fb8f0c9b27` and did not contain `package.json`.
 
-## Local Path
-`~/Documents/porterful` (lowercase)
-**Note:** On macOS case-insensitive FS, `~/Documents/Porterful` also resolves here.
-
-## Verification Commands
-```bash
-cat .vercel/project.json
-git remote get-url origin
-git branch --show-current
-git log --oneline -1
-```
-
-## DO NOT EDIT IF
-- .vercel/project.json shows "porterful-app" instead of "porterful"
-- git remote is not git@github.com:odporter/porterful.git
-- You are in ~/Documents/porterful/porterful-app subfolder
-
-## WRONG FOLDER (AVOID)
-- **Path:** ~/Documents/porterful/porterful-app
-- **Why:** Different Vercel project (porterful-app, ID: prj_amoYvIWtL127u3JTo0D6GiHOpRae)
-- **Action:** Never edit. Contains stale documentation only.
-
-## Live Verification
-```bash
-curl -s https://porterful.com | head -1
-# Should return: <!DOCTYPE html>
-```
+Run `npm run preflight` from a clean worktree before every preview or deployment.
+Do not infer project identity from a local folder name.

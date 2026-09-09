@@ -1,57 +1,29 @@
 # Porterful Deployment Passport
 
-This document is the shared source of truth for Porterful deployment identity.
-If a future report conflicts with this file, treat this file as the baseline until verified otherwise on `porterful.com`.
+## Verified baseline
 
-## Canonical Production
+| Field | Canonical value |
+| --- | --- |
+| Public domain | `https://porterful.com` |
+| Vercel project | `inquiringmindsco-ship-its-projects/porterful` |
+| Project ID | `prj_WTDTDRhVtON6ROzD5VAP2xDqzZxa` |
+| Repository | `inquiringmindsco-ship-it/porterful` |
+| Canonical branch | `codex/porterful-production-recovery` |
+| Baseline tag | `production-baseline-2026-09-08` |
+| Baseline commit | `f3b56727752060214b4023673f05795ba12c920d` |
+| Audited production deployment | `dpl_FFW9HCgF87PkqEDct7hvKDtj6cTV` |
 
-- **Domain:** `https://porterful.com`
-- **Vercel team/account:** `inquiringmindsco-ship-its-projects` (`Pro`)
-- **Vercel project:** `porterful`
-- **Project ID:** `prj_WTDTDRhVtON6ROzD5VAP2xDqzZxa`
-- **Team ID:** `team_SgVobhtThOM1FwJ86K9cYrRg`
-- **GitHub repo:** `git@github.com:inquiringmindsco-ship-it/porterful.git`
-- **GitHub branch:** `main`
-- **Supabase project ref:** `tsdjmiqczgxnkpvirkya`
+The baseline tag and branch are preserved on GitHub. Two isolated previews of the
+baseline were independently compared with production on September 8, 2026; the
+second-agent check reported route parity on 22 of 22 sampled routes and matching
+desktop/mobile visuals.
 
-## Current Production Deployment
+## Promotion gate
 
-- **Deployment ID:** `2SLT75tiJvYUW6DsHvQvrAFaV4cv`
-- **Deployment URL:** `https://porterful-5t1whc2ir-inquiringmindsco-ship-its-projects.vercel.app`
-- **Production status:** `Ready`
-- **Production branch:** `main`
-- **Current production commit:** `bcfef46eb86074a02a97d08af23baffa5f11a3ea`
-- **Commit message:** `fix: backfill track durations + fix iamodmusic artist metadata`
+A preview is not production proof. A production change is complete only when the
+approved canonical-branch deployment is Ready, `porterful.com` maps to it, the live
+route/redirect matrix passes, desktop and mobile rendering match the approved
+preview, authentication boundaries pass, and runtime logs contain no new errors.
 
-## Canonical Rules
-
-- `porterful.com` is the only production truth.
-- Production verification must be done against `porterful.com`, not a preview URL.
-- The canonical production project is `porterful` under `inquiringmindsco-ship-its-projects`.
-- The canonical project is connected to `main` on `inquiringmindsco-ship-it/porterful`.
-
-## Known Non-Canonical or Do-Not-Use Entries
-
-- **Old project:** `porterful-app`
-  - `porterful-app.vercel.app`
-  - No production deployment for Porterful
-  - Not the canonical project
-  - Do not use for production verification
-
-## Preview-Only Noise Inside the Canonical Project
-
-These are not production truth. They may be useful for branch testing, but they do not prove a live fix:
-
-- `accent-v2-clean`
-- `fix/accent-system-safe-v2`
-- `fix/accent-system-safe`
-
-## How To Verify A Fix Is Truly Live
-
-1. Confirm the change is present in the canonical project `porterful` on Vercel.
-2. Confirm the deployment is on branch `main` unless a deliberate production branch change was made.
-3. Confirm the production deployment status is `Ready`.
-4. Confirm the deployment domain includes `porterful.com`.
-5. Open `https://porterful.com` and verify the user-facing behavior there.
-6. Do not treat preview URLs, old projects, or branch deployments as production proof.
-
+See `DEPLOYMENT_RULES.md` and use the guarded package scripts. Production promotion
+requires Jonathan's explicit final approval for the preview being promoted.
