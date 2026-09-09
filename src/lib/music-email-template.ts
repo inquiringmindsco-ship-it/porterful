@@ -111,7 +111,7 @@ export function buildPurchaseEmailHTML(data: PurchaseEmailData): string {
 
               <!-- Support -->
               <p style="margin: 0; font-size: 13px; color: #6a6a7a; line-height: 1.5;">
-                Questions? Reply to this email or contact <a href="mailto:support@porterful.com" style="color: #8a8a9a; text-decoration: underline;">support@porterful.com</a>
+                Questions? Reply to this email or use the <a href="https://porterful.com/contact" style="color: #8a8a9a; text-decoration: underline;">Porterful contact form</a>
               </p>
 
             </td>
@@ -145,7 +145,7 @@ export function buildPurchaseEmailText(data: PurchaseEmailData): string {
     return `Track: ${t.trackTitle}\nArtist: ${t.artistName}\nDownload: ${t.accessUrl}\nExpires: ${expiryDate}`
   }).join('\n---\n')
 
-  return `Porterful — Your music is ready\n\n${trackList}\n\n---\n\nLink expired or lost?\nVisit https://porterful.com/music/recover and enter your email for a fresh link.\n\nQuestions? Reply to this email or contact support@porterful.com\n\n—\nPorterful\nSt. Louis, MO\nhttps://porterful.com\n`
+  return `Porterful — Your music is ready\n\n${trackList}\n\n---\n\nLink expired or lost?\nVisit https://porterful.com/music/recover and enter your email for a fresh link.\n\nQuestions? Reply to this email or visit https://porterful.com/contact\n\n—\nPorterful\nSt. Louis, MO\nhttps://porterful.com\n`
 }
 
 function escapeHtml(text: string): string {

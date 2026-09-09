@@ -15,8 +15,6 @@ export default function ContactPage() {
     message: '',
   })
 
-  const supportEmail = 'support@porterful.com'
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSubmitting(true)
@@ -31,10 +29,10 @@ export default function ContactPage() {
       if (res.ok && data.success) {
         setSubmitted(true)
       } else {
-        setError(data.error || `Failed to send. Email ${supportEmail} directly.`)
+        setError(data.error || 'Failed to send. Please try again later.')
       }
     } catch {
-      setError(`Failed to send. Email ${supportEmail} directly.`)
+      setError('Failed to send. Please try again later.')
     }
     setSubmitting(false)
   }
@@ -134,10 +132,7 @@ export default function ContactPage() {
             </button>
 
             <p className="text-center text-sm text-[var(--pf-text-muted)]">
-              Or email us directly at{' '}
-              <a href={`mailto:${supportEmail}`} className="text-[var(--pf-orange)] hover:underline">
-                {supportEmail}
-              </a>
+              This form is the verified way to reach Porterful support.
             </p>
           </form>
         )}
@@ -148,7 +143,7 @@ export default function ContactPage() {
               <Mail className="h-8 w-8" />
             </div>
             <h3 className="mb-1 font-semibold">Email</h3>
-            <p className="text-sm text-[var(--pf-text-muted)]">{supportEmail}</p>
+            <p className="text-sm text-[var(--pf-text-muted)]">Use the verified contact form above.</p>
           </div>
           <div className="rounded-xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-6 text-center">
             <div className="mb-2 flex justify-center text-[var(--pf-orange)]">

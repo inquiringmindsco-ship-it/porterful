@@ -65,7 +65,7 @@ const jsonLd = {
     'https://discord.gg/porterful',
     'https://tiktok.com/@Porterful',
   ],
-  contactPoint: { '@type': 'ContactPoint', email: 'support@porterful.com', contactType: 'customer service' },
+  contactPoint: { '@type': 'ContactPoint', url: 'https://porterful.com/contact', contactType: 'customer service' },
 }
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {

@@ -190,8 +190,8 @@ export default function BlogPage() {
             >
               Download Press Kit
             </a>
-            <a 
-              href="mailto:press@porterful.com" 
+            <a
+              href="/contact"
               className="pf-btn pf-btn-secondary"
             >
               Contact Press Team

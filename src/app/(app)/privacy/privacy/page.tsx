@@ -95,10 +95,10 @@ export default function PrivacyPage() {
               <li>Opt-out of marketing communications</li>
             </ul>
             <p className="text-[var(--pf-text-secondary)] mt-4">
-              To exercise these rights, email us at{' '}
-              <a href="mailto:privacy@porterful.com" className="text-[var(--pf-orange)] hover:underline">
-                privacy@porterful.com
-              </a>
+              To exercise these rights, use the{' '}
+              <Link href="/contact" className="text-[var(--pf-orange)] hover:underline">
+                Porterful contact form
+              </Link>
             </p>
           </section>
 
@@ -169,10 +169,7 @@ export default function PrivacyPage() {
             </p>
             <div className="bg-[#1a1a1a] rounded-lg p-4 mt-2">
               <p className="text-[var(--pf-text-secondary)]">
-                📧 <a href="mailto:privacy@porterful.com" className="text-[var(--pf-orange)] hover:underline">privacy@porterful.com</a>
-              </p>
-              <p className="text-[var(--pf-text-secondary)] mt-2">
-                📧 <a href="mailto:legal@porterful.com" className="text-[var(--pf-orange)] hover:underline">legal@porterful.com</a>
+                <Link href="/contact" className="text-[var(--pf-orange)] hover:underline">Submit a privacy or legal request</Link>
               </p>
             </div>
           </section>

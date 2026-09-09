@@ -125,7 +125,7 @@ export default function ClaimPage() {
         )}
 
         <p className="text-center text-xs text-gray-600 mt-8">
-          Need help? Contact <a href="mailto:support@porterful.com" className="text-gray-500 hover:text-gray-400">support@porterful.com</a>
+          Need help? Use the <a href="/contact" className="text-gray-500 hover:text-gray-400">Porterful contact form</a>
         </p>
       </motion.div>
     </main>

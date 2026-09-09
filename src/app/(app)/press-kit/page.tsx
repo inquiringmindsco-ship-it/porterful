@@ -185,13 +185,13 @@ export default function PressKitPage() {
         <div className="pf-card p-8">
           <h2 className="text-2xl font-bold mb-6">Press Contact</h2>
           <div className="flex flex-wrap gap-4">
-            <a 
-              href="mailto:press@porterful.com" 
+            <Link
+              href="/contact"
               className="pf-btn pf-btn-primary flex items-center gap-2"
             >
               <Mail size={18} />
-              press@porterful.com
-            </a>
+              Contact Porterful
+            </Link>
             <a 
               href="https://twitter.com/porterful" 
               target="_blank" 

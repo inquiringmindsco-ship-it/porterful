@@ -121,10 +121,10 @@ export default function TermsPage() {
           <section className="mb-8">
             <h2 className="text-2xl font-bold mb-4">12. Contact</h2>
             <p className="text-[var(--pf-text-secondary)]">
-              Questions? Contact us at{' '}
-              <a href="mailto:legal@porterful.com" className="text-[#ff6b00] hover:underline">
-                legal@porterful.com
-              </a>
+              Questions? Use the{' '}
+              <Link href="/contact" className="text-[#ff6b00] hover:underline">
+                Porterful contact form
+              </Link>
             </p>
           </section>
         </div>

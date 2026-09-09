@@ -157,7 +157,7 @@ export default function PilotOnboardingPDFPage() {
         <div className="footer-logo">PORTERFUL</div>
         <div className="footer-links">
           <a href="https://porterful.com" target="_blank" className="footer-link">porterful.com</a>
-          <span>support@porterful.com</span>
+          <span>porterful.com/contact</span>
         </div>
         <p className="footer-tagline">Your feedback shapes what we build.</p>
       </footer>

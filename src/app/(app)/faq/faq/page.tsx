@@ -47,7 +47,7 @@ export default function FAQPage() {
         { q: 'Is Porterful free to join?', a: 'Yes, completely free. No monthly fees, no setup costs. You only pay fees when you sell.' },
         { q: 'What payment methods do you accept?', a: 'Credit/debit cards, Apple Pay, Google Pay, PayPal, and buy-now-pay-later options.' },
         { q: 'Is my data safe?', a: 'We never sell your data. Artists only see aggregated stats, never individual customer info.' },
-        { q: 'How do I contact support?', a: 'Email support@porterful.com or use our contact form. Response time is typically under 24 hours.' },
+        { q: 'How do I contact support?', a: 'Use the verified contact form on Porterful. Include your order or account details so the team can help.' },
         { q: 'Can I sell internationally?', a: 'Yes. Porterful supports worldwide shipping. Buyers see prices in their local currency.' },
       ]
     }
