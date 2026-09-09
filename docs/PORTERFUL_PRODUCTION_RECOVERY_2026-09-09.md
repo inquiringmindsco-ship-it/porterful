@@ -8,7 +8,7 @@
 - Immutable baseline tag: `production-baseline-2026-09-08`
 - Canonical recovery branch: `codex/porterful-production-recovery`
 - Canonical Vercel project: `prj_WTDTDRhVtON6ROzD5VAP2xDqzZxa`
-- Canonical Vercel team: `team_bfFfWfQ7d9kIPGK7X6GdmaOP`
+- Canonical Vercel team: `team_SgVobhtThOM1FwJ86K9cYrRg`
 
 Production promotion is intentionally blocked until Jonathan reviews the final
 preview and gives explicit approval.
@@ -29,11 +29,18 @@ branch, tag, and an isolated worktree.
 - `004fd06` — broken catalog art paths fixed and unsupported trending metrics removed
 - `ca97288` — featured catalog rebuilt from real store data with consistent visual states
 - `245ff79` — repeatable route, auth, API, metadata, security, and sitemap release gate
+- `b112f4a` — Sentinel's divergent visual branch reconciled as reference-only
+- `485cbce` — mobile hydration checks enforced in CI
+- `7f4941a` — Rob Soule profile, product metadata, and `/api/health` defects fixed
+- `5abe6b3` — product-detail text contrast fixed and added to mobile regression checks
+- `d6d529d` — mobile product-gallery containment fixed and added to regression checks
 
-## Final review preview
+## Final review candidate
 
-- Deployment: `dpl_DVhBqdYFRmQ7pGAom91hfowrSfu4`
-- URL: `https://porterful-h8kg698hp-inquiringmindsco-ship-its-projects.vercel.app`
+The exact preview URL and Vercel deployment ID are issued from the clean final
+commit after this recovery record is committed. They must be paired with that
+commit in the owner handoff and Sentinel's independent verification report; an
+older preview must never be substituted merely because it has a similar URL.
 
 ## Verified behavior
 
@@ -50,6 +57,14 @@ branch, tag, and an isolated worktree.
 - `npm run verify:release` checks public routes, redirects, authentication boundaries,
   APIs, canonical metadata, security headers, support routing, catalog trust copy, and
   every sitemap route against an exact `TEST_URL`.
+- The release gate currently contains 43 checks and passes against the candidate.
+- The product-detail mobile check asserts readable heading contrast and proves the
+  gallery does not overlap the details panel on both iPhone 12 and Pixel 5 profiles.
+- GitHub Actions run `34366420389` passed lint, type checking, security checks,
+  the production build, and mobile hydration for commit `d6d529d`.
+- Sentinel's earlier failure was against commit `485cbce`, before the Rob Soule,
+  product metadata, health endpoint, contrast, and gallery fixes. A fresh Sentinel
+  result is required against the exact final candidate before owner approval.
 
 ## Sentinel visual branch reconciliation
 
