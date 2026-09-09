@@ -27,11 +27,13 @@ branch, tag, and an isolated worktree.
 - `5afc12e` — canonical public routes, metadata, security headers, and wallet gate
 - `06d12e1` — public support links routed through the working contact form
 - `004fd06` — broken catalog art paths fixed and unsupported trending metrics removed
+- `ca97288` — featured catalog rebuilt from real store data with consistent visual states
+- `245ff79` — repeatable route, auth, API, metadata, security, and sitemap release gate
 
 ## Final review preview
 
-- Deployment: `dpl_6pCuptUPqH797Lp21HHtT6j6pseL`
-- URL: `https://porterful-5lsodlx8j-inquiringmindsco-ship-its-projects.vercel.app`
+- Deployment: `dpl_DVhBqdYFRmQ7pGAom91hfowrSfu4`
+- URL: `https://porterful-h8kg698hp-inquiringmindsco-ship-its-projects.vercel.app`
 
 ## Verified behavior
 
@@ -45,6 +47,17 @@ branch, tag, and an isolated worktree.
 - Sitemap contains only canonical public pages, and every preview sitemap URL returns HTTP 200.
 - Public pages no longer advertise domain email addresses that have no MX delivery path.
 - Trending no longer claims fabricated sales growth, review counts, or “real sales data.”
+- `npm run verify:release` checks public routes, redirects, authentication boundaries,
+  APIs, canonical metadata, security headers, support routing, catalog trust copy, and
+  every sitemap route against an exact `TEST_URL`.
+
+## Sentinel visual branch reconciliation
+
+The separate `sentinel/porterful-visual-recovery` worktree is preserved and was
+inspected read-only. Its merge base predates the recovered production lineage and
+its tree removes substantial production functionality and assets. It must not be
+merged, rebased onto, or deployed wholesale. Individual ideas from that branch may
+only be reimplemented and tested independently on the canonical recovery branch.
 
 ## Release procedure
 
