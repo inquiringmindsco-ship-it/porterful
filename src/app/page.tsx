@@ -11,7 +11,7 @@ import { TRACKS } from '@/lib/data'
 import type { ArtistData } from '@/lib/artists'
 import { filterPublicArtists } from '@/lib/public-artists'
 import { getTrackArtwork } from '@/lib/artwork'
-import { PRODUCTS, isPurchasable } from '@/lib/products'
+import { PUBLIC_STORE_PRODUCTS, isPurchasable } from '@/lib/products'
 
 export default function HomePage() {
   const { currentTrack, isPlaying, playTrack, togglePlay, setQueue, setMode } = useAudio()
@@ -139,8 +139,8 @@ export default function HomePage() {
 
   const spotlightTrack = featuredTracks?.[0] ?? null
   const homepageProducts = useMemo(() => {
-    const visibleProducts = Array.isArray(homepageData?.products) ? homepageData.products : PRODUCTS
-    return visibleProducts as typeof PRODUCTS
+    const visibleProducts = Array.isArray(homepageData?.products) ? homepageData.products : PUBLIC_STORE_PRODUCTS
+    return visibleProducts as typeof PUBLIC_STORE_PRODUCTS
   }, [homepageData])
 
   useEffect(() => {
@@ -530,7 +530,7 @@ export default function HomePage() {
                   {purchasableProducts.slice(0, 4).map((product) => (
                     <Link
                       key={product.id}
-                      href={`/store`}
+                      href={`/product/${product.id}`}
                       className="pf-reveal-child group rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-4 shadow-[0_12px_40px_rgba(0,0,0,0.2)] transition-transform duration-200 hover:-translate-y-0.5"
                     >
                       <div className="relative aspect-square overflow-hidden rounded-xl bg-[var(--pf-bg)]">
@@ -812,62 +812,6 @@ export default function HomePage() {
                 ))}
               </div>
             )}
-          </div>
-        </section>
-
-        {/* Coming Home Collection™ Section */}
-        <section className="pf-reveal-group border-t border-[var(--pf-border)]">
-          <div className="pf-container py-12 md:py-16">
-            <div className="pf-reveal-child mb-8 flex items-end justify-between gap-4">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#C4956A]">
-                  Collection
-                </p>
-                <h2 className="mt-2 text-3xl font-bold text-white md:text-4xl">
-                  Coming Home Collection™
-                </h2>
-              </div>
-              <Link
-                href="/collections/coming-home"
-                className="text-sm font-medium text-[#C4956A] hover:underline"
-              >
-                View collection →
-              </Link>
-            </div>
-            <p className="pf-reveal-child mb-8 text-[var(--pf-text-secondary)] max-w-2xl">
-              Products inspired by resilience, rebuilding, second chances, and new beginnings.
-            </p>
-            
-            <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-              {homepageProducts.filter(p => p.collection === 'coming-home' && ((p as any).purchasable ?? isPurchasable(p))).slice(0, 4).map(product => (
-                <Link key={product.id} href={`/store/${product.id}`} className="group block pf-reveal-child">
-                  <article className="h-full rounded-[24px] border border-[var(--pf-border)] bg-[var(--pf-surface)] p-4 transition-all hover:border-[#C4956A]/50 hover:shadow-lg">
-                    <div className="relative aspect-square overflow-hidden rounded-[16px] bg-[var(--pf-bg-secondary)]">
-                      <Image
-                        src={product.image}
-                        alt={product.name}
-                        fill
-                        className="object-cover transition-transform group-hover:scale-105"
-                        sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 25vw"
-                      />
-                      <div className="absolute top-3 left-3 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold"
-                        style={{ backgroundColor: '#C4956A20', color: '#C4956A', border: '1px solid #C4956A30' }}
-                      >
-                        🏠 Coming Home™
-                      </div>
-                    </div>
-                    <div className="mt-4">
-                      <h3 className="font-semibold text-[var(--pf-text)] group-hover:text-[#C4956A] transition-colors">{product.name}</h3>
-                      <p className="mt-1 text-sm text-[var(--pf-text-secondary)]">{product.artist}</p>
-                      <div className="mt-2 flex items-center justify-between">
-                        <span className="font-bold text-[var(--pf-text)]">${product.price}</span>
-                        <span className="text-xs font-medium text-emerald-400">In Stock</span>
-                      </div>
-                    </div>
-                  </article>
-                </Link>
-              ))}
-            </div>
           </div>
         </section>
 

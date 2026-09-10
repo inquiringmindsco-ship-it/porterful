@@ -4,9 +4,11 @@ import { COMING_HOME_COLLECTION, getCollectionProducts } from '@/lib/products'
 import { isPurchasable } from '@/lib/products'
 import { loadCatalogProducts } from '@/lib/product-visibility'
 import { Home, ArrowLeft, Play, Eye } from 'lucide-react'
+import { notFound } from 'next/navigation'
 
 export default async function ComingHomeCollectionPage() {
   const collection = COMING_HOME_COLLECTION
+  if (!collection.publicVisible) notFound()
   const products = getCollectionProducts(await loadCatalogProducts('store'), collection.slug)
   const liveProducts = products.filter(p => (p.purchasable ?? isPurchasable(p)))
   const previewProducts = products.filter(p => !(p.purchasable ?? isPurchasable(p)))

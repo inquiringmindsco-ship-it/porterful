@@ -1,5 +1,5 @@
 import { TRACKS } from '@/lib/data'
-import { PRODUCTS, isPurchasable } from '@/lib/products'
+import { PRODUCTS, isPublicStorefrontProduct, isPurchasable } from '@/lib/products'
 import { mergeProductVisibility, type ProductVisibilityRecord } from '@/lib/product-visibility'
 
 type CheckoutInputItem = {
@@ -193,6 +193,10 @@ function resolveProduct(
   const product = PRODUCTS.find((entry) => entry.id === id)
   if (!product) {
     throw new CheckoutCatalogError(`Unknown product: ${id}`)
+  }
+
+  if (!isPublicStorefrontProduct(product.id)) {
+    throw new CheckoutCatalogError(`This product is not available for purchase: ${product.name}`)
   }
 
   const visibility = options?.productVisibility?.[id] || null

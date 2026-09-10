@@ -114,7 +114,7 @@ function ProductBadge({ product }: { product: Product }) {
           <Shield size={11} />
           Live
         </span>
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--pf-orange)]/15 border border-[var(--pf-orange)]/30 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-[var(--pf-orange)] backdrop-blur-sm">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--pf-orange)]/15 border border-[var(--pf-orange)]/30 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-[var(--pf-accent-text)] backdrop-blur-sm">
           <Package size={11} />
           IMG Fulfilled
         </span>
@@ -128,7 +128,7 @@ function ProductBadge({ product }: { product: Product }) {
 
   if (purchasable) {
     return (
-      <div className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-[var(--pf-orange)]/15 border border-[var(--pf-orange)]/30 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-[var(--pf-orange)] backdrop-blur-sm">
+      <div className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-[var(--pf-orange)]/15 border border-[var(--pf-orange)]/30 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-[var(--pf-accent-text)] backdrop-blur-sm">
         <Play size={11} />
         Live
       </div>
@@ -308,7 +308,7 @@ function StoreProductCard({
               </div>
               <span className={`shrink-0 rounded-2xl px-3 py-2 text-sm font-bold ${
                 purchasable
-                  ? 'bg-[var(--pf-orange)]/12 text-[var(--pf-orange)]'
+                  ? 'bg-[var(--pf-orange)]/12 text-[var(--pf-accent-text)]'
                   : 'bg-[var(--pf-bg)] text-[var(--pf-text-muted)]'
               }`}>
                 ${product.price.toFixed(2)}
@@ -415,6 +415,7 @@ export default function StorePage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [activeCategory, setActiveCategory] = useState('All')
   const [catalogProducts, setCatalogProducts] = useState<Product[]>(PUBLIC_STORE_PRODUCTS)
+  const [catalogResolved, setCatalogResolved] = useState(false)
 
   useEffect(() => {
     const ref = queryRef || readReferralCookie()
@@ -445,6 +446,7 @@ export default function StorePage() {
         const data = await res.json().catch(() => ({}))
         if (!cancelled && res.ok && Array.isArray(data.products)) {
           setCatalogProducts(data.products)
+          setCatalogResolved(true)
         }
       } catch (error) {
         console.error('[store] failed to load catalog', error)
@@ -459,7 +461,7 @@ export default function StorePage() {
   }, [])
 
   // Separate live from preview
-  const visibleCatalog = catalogProducts.length > 0 ? catalogProducts : PUBLIC_STORE_PRODUCTS
+  const visibleCatalog = catalogResolved ? catalogProducts : PUBLIC_STORE_PRODUCTS
   const liveProducts = useMemo(() => visibleCatalog.filter((p) => (p.purchasable ?? isPurchasable(p))), [visibleCatalog])
   const previewProducts = useMemo(() => visibleCatalog.filter((p) => !(p.purchasable ?? isPurchasable(p))), [visibleCatalog])
 
@@ -503,7 +505,7 @@ export default function StorePage() {
               <div className="mb-6 flex items-center gap-3">
                 <BrandMark brand={PUBLIC_BRANDS[0]} size="lg" />
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--pf-orange)]">Noble Naturals on Porterful</p>
+                  <p data-contrast-text className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--pf-accent-text)]">Noble Naturals on Porterful</p>
                   <p className="mt-1 text-sm text-[var(--pf-text-muted)]">Wellness &amp; hair care</p>
                 </div>
               </div>
@@ -538,7 +540,7 @@ export default function StorePage() {
         {/* Search + Filter */}
         <div id="noble-collection" className="mb-8 scroll-mt-24">
           <div className="mb-5 max-w-2xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--pf-orange)]">The collection</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--pf-accent-text)]">The collection</p>
             <h2 className="mt-2 text-2xl font-semibold tracking-[-0.025em] text-[var(--pf-text)] sm:text-3xl">Noble Naturals essentials</h2>
             <p className="mt-2 text-sm leading-6 text-[var(--pf-text-secondary)]">Three thoughtfully selected products. Availability is shown clearly on every item.</p>
           </div>
@@ -637,7 +639,7 @@ export default function StorePage() {
           <div className="mt-8 rounded-xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-4 text-center">
             <p className="text-sm text-[var(--pf-text-secondary)]">
               Founder view:{' '}
-              <Link href="/dashboard/founder" className="text-[var(--pf-orange)] hover:underline font-medium">
+              <Link href="/dashboard/founder" className="text-[var(--pf-accent-text)] hover:underline font-medium">
                 Manage products →
               </Link>
             </p>

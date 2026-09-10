@@ -230,6 +230,7 @@ export function getArtistThemeStyles(appearance: ArtistAppearance): CSSPropertie
   return {
     '--pf-accent': appearance.accentColor,
     '--pf-accent-rgb': hexToRgbTriplet(appearance.accentColor),
+    '--pf-accent-text': appearance.colorMode === 'light' ? appearance.primaryColor : appearance.accentColor,
     '--artist-primary': appearance.primaryColor,
     '--artist-primary-rgb': hexToRgbTriplet(appearance.primaryColor),
     '--artist-secondary': appearance.secondaryColor,

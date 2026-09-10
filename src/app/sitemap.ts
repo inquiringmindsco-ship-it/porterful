@@ -16,7 +16,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/artists',
     '/artist/od-porter',
     '/brands',
-    '/collections/coming-home',
     '/music',
     '/about',
     '/contact',

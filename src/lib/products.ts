@@ -14,6 +14,7 @@ export interface Collection {
   badge: string          // badge label
   image?: string
   featured: boolean
+  publicVisible: boolean
 }
 
 export interface Brand {
@@ -110,6 +111,7 @@ For now, we hope you wear them as a reminder: every day is a new beginning.`,
   badge: '🏠 Coming Home™',
   image: '/images/collections/coming-home-banner.svg',
   featured: true,
+  publicVisible: false,
 }
 
 export const PRODUCT_COLLECTIONS: Record<string, Collection> = {

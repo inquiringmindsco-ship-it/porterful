@@ -118,7 +118,7 @@ export function ProductDetailPage({ product: initialProduct }: { product?: any |
                     Live
                   </span>
                   {controlled && (
-                    <span className="rounded-full border border-[rgba(249,115,22,0.25)] bg-[rgba(249,115,22,0.12)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--pf-orange)]">
+                    <span className="rounded-full border border-[rgba(249,115,22,0.25)] bg-[rgba(249,115,22,0.12)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--pf-accent-text)]">
                       Controlled Drop
                     </span>
                   )}
@@ -152,7 +152,7 @@ export function ProductDetailPage({ product: initialProduct }: { product?: any |
               </div>
             )}
 
-            <div className="text-4xl font-bold text-[var(--pf-orange)] mb-6">${product.price.toFixed(2)}</div>
+            <div className="text-4xl font-bold text-[var(--pf-accent-text)] mb-6">${product.price.toFixed(2)}</div>
 
             {product.description && (
               <p className="text-[var(--pf-text-secondary)] mb-6 leading-relaxed">{product.description}</p>
@@ -175,7 +175,7 @@ export function ProductDetailPage({ product: initialProduct }: { product?: any |
                       onClick={() => setSelectedColor(color)}
                       className={`px-4 py-2 rounded-lg text-sm border transition-colors ${
                         selectedColor === color
-                          ? 'border-[var(--pf-orange)] bg-[var(--pf-orange)]/10 text-[var(--pf-orange)]'
+                          ? 'border-[var(--pf-orange)] bg-[var(--pf-orange)]/10 text-[var(--pf-accent-text)]'
                           : 'border-[var(--pf-border)] hover:border-white/50'
                       }`}
                     >
@@ -196,7 +196,7 @@ export function ProductDetailPage({ product: initialProduct }: { product?: any |
                       onClick={() => setSelectedSize(size)}
                       className={`px-4 py-2 rounded-lg text-sm border transition-colors ${
                         selectedSize === size
-                          ? 'border-[var(--pf-orange)] bg-[var(--pf-orange)]/10 text-[var(--pf-orange)]'
+                          ? 'border-[var(--pf-orange)] bg-[var(--pf-orange)]/10 text-[var(--pf-accent-text)]'
                           : 'border-[var(--pf-border)] hover:border-white/50'
                       }`}
                     >
@@ -242,7 +242,7 @@ export function ProductDetailPage({ product: initialProduct }: { product?: any |
 
             <Link
               href={`/artist/${product.artist.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/\s+/g, '-')}`}
-              className="block text-center text-sm text-[var(--pf-text-muted)] hover:text-[var(--pf-orange)] mb-4 transition-colors"
+              className="block text-center text-sm text-[var(--pf-text-muted)] hover:text-[var(--pf-accent-text)] mb-4 transition-colors"
             >
               More from {product.artist} →
             </Link>
@@ -251,7 +251,7 @@ export function ProductDetailPage({ product: initialProduct }: { product?: any |
             {sizes.length > 0 && (
               <div className="mb-4 rounded-xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <Ruler size={16} className="text-[var(--pf-orange)]" />
+                  <Ruler size={16} className="text-[var(--pf-accent-text)]" />
                   <span className="text-sm font-medium">Size Guide</span>
                 </div>
                 <div className="grid grid-cols-5 gap-2 text-center text-xs">
@@ -268,7 +268,7 @@ export function ProductDetailPage({ product: initialProduct }: { product?: any |
             {/* Shipping Info */}
             <div className="mb-4 rounded-xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-4">
               <div className="flex items-center gap-2 mb-2">
-                <Package size={16} className="text-[var(--pf-orange)]" />
+                <Package size={16} className="text-[var(--pf-accent-text)]" />
                 <span className="text-sm font-medium">Shipping & Delivery</span>
               </div>
               <ul className="space-y-1.5 text-xs text-[var(--pf-text-secondary)]">
@@ -293,7 +293,7 @@ export function ProductDetailPage({ product: initialProduct }: { product?: any |
                 <p className="text-xs text-[var(--pf-text-muted)]">Secure Checkout</p>
               </div>
               <div className="text-center">
-                <Heart size={18} className="mx-auto text-[var(--pf-orange)] mb-1" />
+                <Heart size={18} className="mx-auto text-[var(--pf-accent-text)] mb-1" />
                 <p className="text-xs text-[var(--pf-text-muted)]">Artist-linked product</p>
               </div>
               <div className="text-center">
@@ -307,7 +307,7 @@ export function ProductDetailPage({ product: initialProduct }: { product?: any |
         {/* From the Creator — Value Visibility Section */}
         <div data-contrast-surface className="mt-16 rounded-[24px] border border-[var(--pf-border)] bg-[var(--pf-surface)] p-8">
           <div className="flex items-center gap-2 mb-6">
-            <Star size={20} className="text-[var(--pf-orange)]" />
+            <Star size={20} className="text-[var(--pf-accent-text)]" />
             <h2 data-contrast-text className="text-xl font-semibold text-[var(--pf-text)]">From the Creator</h2>
           </div>
           <div className="grid gap-8 md:grid-cols-2">
@@ -330,8 +330,9 @@ export function ProductDetailPage({ product: initialProduct }: { product?: any |
                 not a marketplace middleman.
               </p>
               <Link
+                data-contrast-text
                 href={`/artist/${product.artist.toLowerCase().replace(/\s+/g, '-')}`}
-                className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-[var(--pf-orange)] hover:underline"
+                className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-[var(--pf-accent-text)] hover:underline"
               >
                 See more from {product.artist} →
               </Link>
@@ -341,20 +342,20 @@ export function ProductDetailPage({ product: initialProduct }: { product?: any |
               <div className="grid gap-3">
                 <Link href="/store" className="flex items-center gap-3 rounded-xl border border-[var(--pf-border)] p-3 transition-colors hover:border-[var(--pf-orange)]/30">
                   <div className="h-10 w-10 rounded-lg bg-[var(--pf-bg)] flex items-center justify-center">
-                    <Package size={18} className="text-[var(--pf-orange)]" />
+                    <Package size={18} className="text-[var(--pf-accent-text)]" />
                   </div>
                   <div>
                     <p className="text-sm font-medium text-[var(--pf-text)]">Browse the Store</p>
                     <p className="text-xs text-[var(--pf-text-muted)]">Discover more products</p>
                   </div>
                 </Link>
-                <Link href="/collections/coming-home" className="flex items-center gap-3 rounded-xl border border-[var(--pf-border)] p-3 transition-colors hover:border-[#C4956A]/30">
-                  <div className="h-10 w-10 rounded-lg bg-[#C4956A]/10 flex items-center justify-center">
-                    <Heart size={18} className="text-[#C4956A]" />
+                <Link href="/brands/noble-naturals" className="flex items-center gap-3 rounded-xl border border-[var(--pf-border)] p-3 transition-colors hover:border-[var(--pf-orange)]/30">
+                  <div className="h-10 w-10 rounded-lg bg-[var(--pf-orange)]/10 flex items-center justify-center">
+                    <Heart size={18} className="text-[var(--pf-accent-text)]" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-[var(--pf-text)]">Coming Home Collection™</p>
-                    <p className="text-xs text-[var(--pf-text-muted)]">Products with meaning</p>
+                    <p className="text-sm font-medium text-[var(--pf-text)]">Meet Noble Naturals™</p>
+                    <p className="text-xs text-[var(--pf-text-muted)]">Explore the founding brand</p>
                   </div>
                 </Link>
               </div>

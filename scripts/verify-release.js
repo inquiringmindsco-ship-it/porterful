@@ -52,7 +52,6 @@ async function main() {
     '/artists',
     '/blog',
     '/brands',
-    '/collections/coming-home',
     '/contact',
     '/faq',
     '/privacy',
@@ -129,17 +128,41 @@ async function main() {
   })
 
   await check('inactive brands and archived products are absent from public pages', async () => {
-    const [storeResponse, brandsResponse, inactiveBrandResponse] = await Promise.all([
+    const [storeResponse, brandsResponse, inactiveBrandResponse, inactiveCollectionResponse, archivedProductResponse] = await Promise.all([
       request('/store'),
       request('/brands'),
       request('/brands/marvelous-black'),
+      request('/collections/coming-home'),
+      request('/product/75006c54-3f40-4309-81a1-a85de8f34841'),
     ])
     assert.equal(storeResponse.status, 200)
     assert.equal(brandsResponse.status, 200)
     assert.equal(inactiveBrandResponse.status, 404)
+    assert.equal(inactiveCollectionResponse.status, 404)
+    assert.equal(archivedProductResponse.status, 404)
     const publicHtml = `${await storeResponse.text()} ${await brandsResponse.text()}`
     assert.doesNotMatch(publicHtml, /Marvelous Black|Coming Home Tee|LIKENESS Signal Shirt/i)
     assert.match(publicHtml, /Noble Naturals/i)
+  })
+
+  await check('homepage fallback contains no archived storefront products', async () => {
+    const response = await request('/')
+    assert.equal(response.status, 200)
+    const html = await response.text()
+    assert.doesNotMatch(html, /Coming Home Tee|LIKENESS Signal Shirt|Marvelous Black/i)
+  })
+
+  await check('checkout rejects archived product IDs', async () => {
+    const response = await request('/api/checkout', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        items: [{ id: '75006c54-3f40-4309-81a1-a85de8f34841', type: 'product', quantity: 1, size: 'L' }],
+      }),
+    })
+    assert.equal(response.status, 400)
+    const payload = await response.json()
+    assert.match(String(payload.error || ''), /not available for purchase/i)
   })
 
   await check('public artist directory returns artists', async () => {

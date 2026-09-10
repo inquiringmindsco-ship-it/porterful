@@ -14,8 +14,8 @@ export default async function BrandsPage() {
         {/* Header */}
         <div data-contrast-surface className="mb-10 rounded-[32px] border border-[var(--pf-border)] bg-[var(--pf-surface)] p-8 shadow-[0_24px_80px_rgba(0,0,0,0.1)] sm:p-12">
           <div className="flex items-center gap-2 mb-4">
-            <Star size={20} className="text-[var(--pf-orange)]" />
-            <span className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--pf-orange)]">
+            <Star size={20} className="text-[var(--pf-accent-text)]" />
+            <span data-contrast-text className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--pf-accent-text)]">
               Featured Brands
             </span>
           </div>
@@ -51,8 +51,8 @@ function BrandCard({ brand, catalogProducts }: { brand: Brand; catalogProducts: 
             {brand.logo && <Image src={brand.logo} alt={`${brand.name} logo`} fill className="object-contain p-2" sizes="64px" />}
           </div>
           <div>
-            <h2 data-contrast-text className="text-xl font-semibold text-[var(--pf-text)] group-hover:text-[var(--pf-orange)] transition-colors">{brand.name}</h2>
-            <p className="text-sm text-[var(--pf-orange)]">{brand.tagline}</p>
+            <h2 data-contrast-text className="text-xl font-semibold text-[var(--pf-text)] group-hover:text-[var(--pf-accent-text)] transition-colors">{brand.name}</h2>
+            <p data-contrast-text className="text-sm text-[var(--pf-accent-text)]">{brand.tagline}</p>
           </div>
         </div>
 
@@ -69,7 +69,7 @@ function BrandCard({ brand, catalogProducts }: { brand: Brand; catalogProducts: 
           </span>
         </div>
 
-        <div className="mt-4 flex items-center gap-1 text-sm font-medium text-[var(--pf-orange)]">
+        <div className="mt-4 flex items-center gap-1 text-sm font-medium text-[var(--pf-accent-text)]">
           Explore {brand.name}
           <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
         </div>

@@ -33,14 +33,14 @@ export default async function BrandPage({ params }: PageProps) {
         </Link>
 
         {/* Brand Header */}
-        <div className="mb-10 rounded-[32px] border border-[var(--pf-border)] bg-[var(--pf-surface)] p-8 shadow-[0_24px_80px_rgba(0,0,0,0.1)] sm:p-12">
+        <div data-contrast-surface className="mb-10 rounded-[32px] border border-[var(--pf-border)] bg-[var(--pf-surface)] p-8 shadow-[0_24px_80px_rgba(0,0,0,0.1)] sm:p-12">
           <div className="flex items-center gap-6">
             <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-3xl border border-[var(--pf-border)] bg-[var(--pf-bg)]">
               {brand.logo && <Image src={brand.logo} alt={`${brand.name} logo`} fill className="object-contain p-3" sizes="96px" />}
             </div>
             <div>
               <h1 className="mb-2 text-4xl font-semibold tracking-[-0.04em] text-[var(--pf-text)] sm:text-5xl">{brand.name}</h1>
-              <p className="text-lg text-[var(--pf-orange)] font-medium mb-3">{brand.tagline}</p>
+              <p data-contrast-text className="text-lg text-[var(--pf-accent-text)] font-medium mb-3">{brand.tagline}</p>
               <p className="max-w-xl text-[var(--pf-text-secondary)]">{brand.description}</p>
             </div>
           </div>
@@ -112,7 +112,7 @@ function ProductCard({ product }: { product: Product }) {
         </div>
 
         <div className="mt-4">
-          <h3 className="font-semibold text-[var(--pf-text)] group-hover:text-[var(--pf-orange)] transition-colors">{product.name}</h3>
+          <h3 className="font-semibold text-[var(--pf-text)] group-hover:text-[var(--pf-accent-text)] transition-colors">{product.name}</h3>
           <p className="mt-1 text-sm text-[var(--pf-text-secondary)]">{product.artist}</p>
           <div className="mt-2 flex items-center justify-between">
             <span className="font-bold text-[var(--pf-text)]">${product.price}</span>

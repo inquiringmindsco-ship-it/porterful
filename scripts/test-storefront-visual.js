@@ -73,6 +73,9 @@ async function main() {
         assert.doesNotMatch(await page.locator('body').innerText(), /Marvelous Black|Coming Home Collection/i)
         await verifyContrast(page, `/brands (${theme}, ${viewport.name})`)
 
+        await page.goto(`${BASE_URL}/brands/noble-naturals`, { waitUntil: 'networkidle' })
+        await verifyContrast(page, `/brands/noble-naturals (${theme}, ${viewport.name})`)
+
         await page.goto(`${BASE_URL}/product/noble-naturals-oil-2oz`, { waitUntil: 'networkidle' })
         await verifyContrast(page, `/product/noble-naturals-oil-2oz (${theme}, ${viewport.name})`)
         await context.close()

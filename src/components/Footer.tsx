@@ -16,7 +16,6 @@ export function Footer() {
     { href: '/artists', label: 'Artists' },
     { href: '/store', label: 'Store' },
     { href: '/brands', label: 'Brands' },
-    { href: '/collections/coming-home', label: 'Collections' },
     { href: '/contact', label: 'Contact' },
     { href: '/terms', label: 'Terms' },
     { href: '/privacy', label: 'Privacy' },
