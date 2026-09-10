@@ -1,6 +1,6 @@
 import { getAdminClient } from './admin-client'
 import { CONTROLLED_MERCH, isControlledMerchProductId } from './controlled-merch'
-import { PRODUCTS, isPurchasable, type Product } from './products'
+import { PRODUCTS, isPublicStorefrontProduct, isPurchasable, type Product } from './products'
 
 export type ProductCatalogScope = 'public' | 'store' | 'admin'
 
@@ -234,7 +234,9 @@ export function filterCatalogByScope(products: CatalogProduct[], scope: ProductC
   }
 
   const publicField = scope === 'public' ? 'publicVisible' : 'storeVisible'
-  return products.filter((product) => product[publicField] !== false)
+  return products.filter((product) => (
+    isPublicStorefrontProduct(product.id) && product[publicField] !== false
+  ))
 }
 
 export function isCatalogPurchasable(product: Pick<CatalogProduct, 'available' | 'fulfillment' | 'purchasable'>) {

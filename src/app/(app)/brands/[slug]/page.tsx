@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { BRANDS, getBrandBySlug, getBrandProducts, isPurchasable } from '@/lib/products'
+import { getBrandBySlug, getBrandProducts, isPurchasable, type Product } from '@/lib/products'
 import { ArrowLeft, Play, Eye } from 'lucide-react'
 import { loadCatalogProducts } from '@/lib/product-visibility'
 
@@ -13,15 +13,13 @@ export default async function BrandPage({ params }: PageProps) {
   const { slug } = await params
   const brand = getBrandBySlug(slug)
 
-  if (!brand) {
+  if (!brand || !brand.publicVisible) {
     notFound()
   }
 
   const products = getBrandProducts(await loadCatalogProducts('store'), slug)
   const liveProducts = products.filter(p => (p.purchasable ?? isPurchasable(p)))
   const previewProducts = products.filter(p => !(p.purchasable ?? isPurchasable(p)))
-
-  const brandEmoji = slug === 'noble-naturals' ? '🌿' : slug === 'marvelous-black' ? '⚫' : '🏠'
 
   return (
     <div className="min-h-screen bg-[var(--pf-bg)] pt-20 pb-16">
@@ -35,15 +33,15 @@ export default async function BrandPage({ params }: PageProps) {
         </Link>
 
         {/* Brand Header */}
-        <div className="mb-10 rounded-[32px] border border-[var(--pf-border)]/70 bg-[radial-gradient(circle_at_top_left,rgba(249,115,22,0.12),transparent_34%),linear-gradient(180deg,rgba(18,18,20,0.96),rgba(11,11,12,0.96))] p-8 shadow-[0_24px_90px_rgba(0,0,0,0.28)] sm:p-12">
+        <div className="mb-10 rounded-[32px] border border-[var(--pf-border)] bg-[var(--pf-surface)] p-8 shadow-[0_24px_80px_rgba(0,0,0,0.1)] sm:p-12">
           <div className="flex items-center gap-6">
-            <div className="h-24 w-24 rounded-3xl bg-[var(--pf-bg)] flex items-center justify-center text-5xl shrink-0">
-              {brandEmoji}
+            <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-3xl border border-[var(--pf-border)] bg-[var(--pf-bg)]">
+              {brand.logo && <Image src={brand.logo} alt={`${brand.name} logo`} fill className="object-contain p-3" sizes="96px" />}
             </div>
             <div>
-              <h1 className="text-4xl font-black tracking-tight sm:text-5xl text-white mb-2">{brand.name}</h1>
+              <h1 className="mb-2 text-4xl font-semibold tracking-[-0.04em] text-[var(--pf-text)] sm:text-5xl">{brand.name}</h1>
               <p className="text-lg text-[var(--pf-orange)] font-medium mb-3">{brand.tagline}</p>
-              <p className="text-[var(--pf-text-secondary)] max-w-xl">{brand.description}</p>
+              <p className="max-w-xl text-[var(--pf-text-secondary)]">{brand.description}</p>
             </div>
           </div>
         </div>
@@ -90,11 +88,11 @@ export default async function BrandPage({ params }: PageProps) {
   )
 }
 
-function ProductCard({ product }: { product: any }) {
+function ProductCard({ product }: { product: Product }) {
   const purchasable = product.purchasable ?? isPurchasable(product)
 
   return (
-    <Link href={`/store/${product.id}`} className="group block">
+    <Link href={`/product/${product.id}`} className="group block">
       <article className="h-full rounded-[24px] border border-[var(--pf-border)] bg-[var(--pf-surface)] p-4 transition-all hover:border-[var(--pf-orange)]/30">
         <div className="relative aspect-square overflow-hidden rounded-[16px] bg-[var(--pf-bg-secondary)]">
           <Image

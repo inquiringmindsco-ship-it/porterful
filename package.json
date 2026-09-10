@@ -10,6 +10,7 @@
     "check-layouts": "node scripts/check-layout-guards.js",
     "check-assets": "node scripts/check-catalog-assets.js",
     "test-hydration": "node scripts/test-hydration.js",
+    "test-storefront-visual": "node scripts/test-storefront-visual.js",
     "verify:release": "node scripts/verify-release.js",
     "preflight": "bash scripts/preflight.sh",
     "preflight:production": "bash scripts/preflight.sh --production",

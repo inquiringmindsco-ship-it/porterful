@@ -16,16 +16,15 @@ import {
   Eye,
   Shield,
   Package,
-  Home,
-  Star,
 } from 'lucide-react'
 import { useSupabase } from '@/app/providers'
 import { useToast } from '@/components/Toast'
 import {
-  PRODUCTS,
+  BRANDS,
+  PUBLIC_BRANDS,
+  PUBLIC_STORE_PRODUCTS,
   isPurchasable,
   type Product,
-  BRANDS,
   getProductGallery,
   requiresSizeSelection,
 } from '@/lib/products'
@@ -260,16 +259,17 @@ function StoreProductCard({
 
   return (
     <article
+      data-contrast-surface
       className={`group relative overflow-hidden rounded-[28px] border transition-all duration-300 ${
         purchasable
-          ? 'border-[var(--pf-border)]/80 bg-[radial-gradient(circle_at_top_left,rgba(249,115,22,0.08),transparent_36%),linear-gradient(180deg,rgba(18,18,20,0.98),rgba(13,13,14,0.98))] shadow-[0_18px_60px_rgba(0,0,0,0.22)] hover:-translate-y-1 hover:border-[var(--pf-orange)]/40 hover:shadow-[0_24px_80px_rgba(0,0,0,0.3)]'
-          : 'border-[var(--pf-border)]/55 bg-[linear-gradient(180deg,rgba(18,18,20,0.78),rgba(13,13,14,0.72))] opacity-85'
+          ? 'border-[var(--pf-border)] bg-[var(--pf-surface)] shadow-[0_18px_60px_rgba(0,0,0,0.12)] hover:-translate-y-1 hover:border-[var(--pf-orange)]/40 hover:shadow-[0_24px_70px_rgba(0,0,0,0.16)]'
+          : 'border-[var(--pf-border)] bg-[var(--pf-surface)] shadow-[0_14px_45px_rgba(0,0,0,0.08)] hover:-translate-y-1 hover:border-[var(--pf-orange)]/30'
       }`}
       data-tour-id={product.skuCode === 'COMING-HOME-TEE-001' ? 'controlled-merch-card' : undefined}
     >
       <Link href={detailsHref} className="block">
         {/* Image */}
-        <div className="relative aspect-[4/5] overflow-hidden bg-[var(--pf-bg)]">
+        <div className="relative aspect-[4/5] overflow-hidden bg-[var(--pf-bg-secondary)]">
           <Image
             src={gallery[0] || product.image}
             alt={product.name}
@@ -301,7 +301,7 @@ function StoreProductCard({
             </div>
             <div className="flex items-start justify-between gap-3">
               <div className="space-y-1">
-                <h2 className="text-[1.05rem] font-bold leading-tight text-[var(--pf-text)]">{product.name}</h2>
+                <h2 data-contrast-text className="text-[1.05rem] font-semibold leading-tight text-[var(--pf-text)]">{product.name}</h2>
                 <p className="max-w-[18ch] text-xs leading-relaxed text-[var(--pf-text-secondary)]">
                   {purchasable ? 'Available now as a controlled drop.' : 'Preview only. Not live yet.'}
                 </p>
@@ -414,7 +414,7 @@ export default function StorePage() {
   const [referralHandle, setReferralHandle] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [activeCategory, setActiveCategory] = useState('All')
-  const [catalogProducts, setCatalogProducts] = useState<Product[]>(PRODUCTS)
+  const [catalogProducts, setCatalogProducts] = useState<Product[]>(PUBLIC_STORE_PRODUCTS)
 
   useEffect(() => {
     const ref = queryRef || readReferralCookie()
@@ -459,7 +459,7 @@ export default function StorePage() {
   }, [])
 
   // Separate live from preview
-  const visibleCatalog = catalogProducts.length > 0 ? catalogProducts : PRODUCTS
+  const visibleCatalog = catalogProducts.length > 0 ? catalogProducts : PUBLIC_STORE_PRODUCTS
   const liveProducts = useMemo(() => visibleCatalog.filter((p) => (p.purchasable ?? isPurchasable(p))), [visibleCatalog])
   const previewProducts = useMemo(() => visibleCatalog.filter((p) => !(p.purchasable ?? isPurchasable(p))), [visibleCatalog])
 
@@ -496,119 +496,53 @@ export default function StorePage() {
   return (
     <main className="min-h-screen bg-[var(--pf-bg)] pt-20 pb-16">
       <div className="pf-container max-w-6xl">
-        {/* Header */}
-        <div className="mb-8 rounded-[32px] border border-[var(--pf-border)]/70 bg-[radial-gradient(circle_at_top_left,rgba(249,115,22,0.12),transparent_34%),linear-gradient(180deg,rgba(18,18,20,0.96),rgba(11,11,12,0.96))] p-6 shadow-[0_24px_90px_rgba(0,0,0,0.28)] sm:p-8">
-          <div className="flex items-center gap-2 mb-2">
-            <Package size={20} className="text-[var(--pf-orange)]" />
-            <span className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--pf-orange)]">
-              Porterful Store
-            </span>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--pf-orange)]/20 bg-[var(--pf-orange)]/10 px-2.5 py-0.5 text-[10px] font-medium text-[var(--pf-orange)]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[var(--pf-orange)] animate-pulse" />
-              Founding Beta
-            </span>
-          </div>
-          <h1 className="text-3xl font-black tracking-tight sm:text-4xl text-white">
-            Shop Creator Products
-          </h1>
-          <p className="mt-3 max-w-2xl text-sm sm:text-base text-[var(--pf-text-secondary)] leading-relaxed">
-            Products from independent creators — music, brands, and everything in between.
-            <span className="text-[var(--pf-text)]"> Live products</span> can be purchased now.
-            <span className="text-[var(--pf-text-muted)]"> Preview products</span> are coming soon.
-          </p>
-
-          <div className="mt-5">
-            <div className="mb-3 flex items-center gap-3">
-              <div className="h-px flex-1 bg-white/10" />
-              <span className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[var(--pf-text-muted)]">Founding Brands</span>
-              <div className="h-px flex-1 bg-white/10" />
-            </div>
-            <div className="grid gap-3 sm:grid-cols-3">
-              {BRANDS.filter((b) => b.foundingBrand).map((brand) => (
-                <Link
-                  key={brand.id}
-                  href={`/brands/${brand.slug}`}
-                  className="group flex items-center gap-3 rounded-2xl border border-[var(--pf-border)]/80 bg-[linear-gradient(180deg,rgba(20,20,22,0.95),rgba(12,12,13,0.92))] px-3 py-3 transition-all hover:-translate-y-0.5 hover:border-[var(--pf-orange)]/35"
-                >
-                  <BrandMark brand={brand} size="lg" />
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold text-white transition-colors group-hover:text-[var(--pf-orange)]">{brand.name}</p>
-                    <p className="truncate text-xs text-[var(--pf-text-muted)]">{brand.tagline}</p>
-                  </div>
-                  <ArrowRight size={16} className="shrink-0 text-[var(--pf-text-muted)] transition-colors group-hover:text-[var(--pf-orange)]" />
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          {/* Coming Home Collection link */}
-          <Link
-            href="/collections/coming-home"
-            className="mt-4 inline-flex items-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium transition-colors hover:border-[#C4956A]/50 hover:bg-[#C4956A]/5"
-            style={{ borderColor: '#C4956A30', color: '#C4956A' }}
-          >
-            <Home size={16} />
-            Explore the Coming Home Collection™ — Products inspired by resilience and new beginnings
-            <ArrowRight size={14} />
-          </Link>
-
-          {/* Noble Naturals brand announcement */}
-          <div className="mt-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4 flex items-start gap-3">
-            <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0 mt-0.5">
-              <Sparkles size={16} className="text-emerald-400" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-emerald-400">Noble Naturals joins the Founding Beta</p>
-              <p className="text-xs text-[var(--pf-text-secondary)] mt-1">
-                Noble Naturals brings wellness and hair care products into the Porterful Store. 
-                Natural ingredients for all hair types. <span className="text-[var(--pf-text-muted)]">Preview products coming soon.</span>
-              </p>
-            </div>
-          </div>
-
-          {/* Member promo box */}
-          {isArtistMember && !roleLoading && (
-            <div className="mt-5 rounded-xl border border-[var(--pf-orange)]/20 bg-[var(--pf-orange)]/5 p-4">
-              <p className="text-sm font-medium text-[var(--pf-text)]">
-                Promote this product to your audience
-              </p>
-              <p className="mt-1 text-xs text-[var(--pf-text-secondary)]">
-                Share the product link from any live product card. Track activity from your dashboard.
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* FEATURED BRANDS SECTION */}
-        <section className="mb-12">
-          <div className="mb-5 flex items-center gap-3">
-            <div className="h-px flex-1 bg-[var(--pf-orange)]/20" />
-            <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--pf-orange)]">
-              <Star size={12} />
-              Featured Brands
-            </span>
-            <div className="h-px flex-1 bg-[var(--pf-orange)]/20" />
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {BRANDS.filter(b => b.foundingBrand).map(brand => (
-              <Link
-                key={brand.id}
-                href={`/brands/${brand.slug}`}
-                className="group flex items-center gap-4 rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface)] p-4 transition-all hover:border-[var(--pf-orange)]/30"
-              >
-                <BrandMark brand={brand} size="lg" />
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-white truncate group-hover:text-[var(--pf-orange)] transition-colors">{brand.name}</p>
-                  <p className="text-xs text-[var(--pf-text-muted)] truncate">{brand.tagline}</p>
+        {/* Curated storefront hero */}
+        <section data-contrast-surface className="relative mb-10 overflow-hidden rounded-[36px] border border-[var(--pf-border)] bg-[var(--pf-surface)] shadow-[0_30px_90px_rgba(0,0,0,0.12)]">
+          <div className="grid items-center lg:grid-cols-[1.05fr_0.95fr]">
+            <div className="relative z-10 px-7 py-10 sm:px-12 sm:py-14 lg:pr-4">
+              <div className="mb-6 flex items-center gap-3">
+                <BrandMark brand={PUBLIC_BRANDS[0]} size="lg" />
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--pf-orange)]">Noble Naturals on Porterful</p>
+                  <p className="mt-1 text-sm text-[var(--pf-text-muted)]">Wellness &amp; hair care</p>
                 </div>
-                <ArrowRight size={16} className="text-[var(--pf-text-muted)] group-hover:text-[var(--pf-orange)] transition-colors shrink-0" />
-              </Link>
-            ))}
+              </div>
+              <h1 data-contrast-text className="max-w-xl text-4xl font-semibold tracking-[-0.045em] text-[var(--pf-text)] sm:text-6xl sm:leading-[1.02]">
+                Care, made intentional.
+              </h1>
+              <p className="mt-5 max-w-lg text-base leading-7 text-[var(--pf-text-secondary)] sm:text-lg">
+                A focused collection of natural hair-care essentials, presented directly by an independent founding brand.
+              </p>
+              <div className="mt-7 flex flex-wrap items-center gap-3">
+                <a href="#noble-collection" className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[var(--pf-text)] px-5 py-3 text-sm font-semibold text-[var(--pf-bg)] transition-transform hover:-translate-y-0.5">
+                  Explore the collection
+                  <ArrowRight size={16} />
+                </a>
+                <Link href="/brands/noble-naturals" className="inline-flex min-h-11 items-center gap-2 rounded-full border border-[var(--pf-border)] px-5 py-3 text-sm font-semibold text-[var(--pf-text)] transition-colors hover:border-[var(--pf-orange)]/50">
+                  About Noble Naturals
+                </Link>
+              </div>
+              {isArtistMember && !roleLoading && (
+                <p className="mt-6 text-xs text-[var(--pf-text-muted)]">Share any available product from its product page and track activity in your dashboard.</p>
+              )}
+            </div>
+            <div className="relative min-h-[340px] overflow-hidden bg-[linear-gradient(145deg,#f7f3ea,#e9dfce)] sm:min-h-[460px] lg:h-full">
+              <Image src="/images/products/noble-naturals-2oz.png" alt="Noble Naturals premium hair growth oil" fill priority className="object-contain p-8 sm:p-12" sizes="(max-width: 1024px) 100vw, 46vw" />
+              <div className="absolute bottom-5 left-5 rounded-full border border-black/10 bg-white/80 px-4 py-2 text-xs font-medium text-[#1b1b1b] shadow-sm backdrop-blur-md">
+                Founding brand · Coming soon
+              </div>
+            </div>
           </div>
         </section>
 
         {/* Search + Filter */}
-        <div className="mb-8 grid gap-4 lg:grid-cols-[1fr_auto] lg:items-center">
+        <div id="noble-collection" className="mb-8 scroll-mt-24">
+          <div className="mb-5 max-w-2xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--pf-orange)]">The collection</p>
+            <h2 className="mt-2 text-2xl font-semibold tracking-[-0.025em] text-[var(--pf-text)] sm:text-3xl">Noble Naturals essentials</h2>
+            <p className="mt-2 text-sm leading-6 text-[var(--pf-text-secondary)]">Three thoughtfully selected products. Availability is shown clearly on every item.</p>
+          </div>
+          <div className="relative max-w-xl">
           <div className="relative">
             <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[var(--pf-text-muted)]" size={16} />
             <input
@@ -619,7 +553,7 @@ export default function StorePage() {
             />
           </div>
 
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 lg:justify-end">
+          <div className="mt-3 flex items-center gap-2 overflow-x-auto pb-1">
             {categories.map((category) => (
               <button
                 key={category}
@@ -634,6 +568,7 @@ export default function StorePage() {
                 {category}
               </button>
             ))}
+          </div>
           </div>
         </div>
 

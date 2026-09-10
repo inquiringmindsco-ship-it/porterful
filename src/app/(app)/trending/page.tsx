@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, CheckCircle2, Clock3, Flame, Package, Sparkles } from 'lucide-react'
-import { PRODUCTS, type Product, isPurchasable } from '@/lib/products'
+import { PUBLIC_STORE_PRODUCTS, type Product, isPurchasable } from '@/lib/products'
 
 const CATALOG_LIMIT = 12
 
@@ -16,7 +16,7 @@ function formatPrice(price: number) {
 }
 
 export default function TrendingPage() {
-  const [products, setProducts] = useState<Product[]>(PRODUCTS)
+  const [products, setProducts] = useState<Product[]>(PUBLIC_STORE_PRODUCTS)
   const [selectedCategory, setSelectedCategory] = useState('All')
 
   useEffect(() => {

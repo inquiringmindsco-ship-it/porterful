@@ -30,8 +30,8 @@ const ROUTES = [
   { url: '/trending', name: '/trending' },
   { url: '/artist/rob-soule', name: '/artist/rob-soule' },
   {
-    url: '/product/75006c54-3f40-4309-81a1-a85de8f34841',
-    name: '/product/Coming Home Tee',
+    url: '/product/noble-naturals-oil-2oz',
+    name: '/product/Noble Naturals Hair Growth Oil',
     verifyReadableHeading: true,
   },
   { url: '/signup', name: '/signup' },

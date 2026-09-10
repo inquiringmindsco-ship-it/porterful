@@ -116,12 +116,30 @@ async function main() {
     assert.equal(payload.summary?.failing, 0)
   })
 
-  await check('public product catalog returns products', async () => {
+  await check('public product catalog contains only the Noble Naturals collection', async () => {
     const response = await request('/api/products?scope=store&limit=200')
     assert.equal(response.status, 200)
     const payload = await response.json()
     assert.ok(Array.isArray(payload.products))
-    assert.ok(payload.products.length > 0)
+    assert.deepEqual(
+      payload.products.map((product) => product.id).sort(),
+      ['noble-naturals-comb', 'noble-naturals-oil-2oz', 'noble-naturals-starter-kit'],
+    )
+    assert.ok(payload.products.every((product) => /noble naturals/i.test(product.artist)))
+  })
+
+  await check('inactive brands and archived products are absent from public pages', async () => {
+    const [storeResponse, brandsResponse, inactiveBrandResponse] = await Promise.all([
+      request('/store'),
+      request('/brands'),
+      request('/brands/marvelous-black'),
+    ])
+    assert.equal(storeResponse.status, 200)
+    assert.equal(brandsResponse.status, 200)
+    assert.equal(inactiveBrandResponse.status, 404)
+    const publicHtml = `${await storeResponse.text()} ${await brandsResponse.text()}`
+    assert.doesNotMatch(publicHtml, /Marvelous Black|Coming Home Tee|LIKENESS Signal Shirt/i)
+    assert.match(publicHtml, /Noble Naturals/i)
   })
 
   await check('public artist directory returns artists', async () => {

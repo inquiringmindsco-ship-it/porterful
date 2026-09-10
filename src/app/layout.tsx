@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next'
+import localFont from 'next/font/local'
 import './globals.css'
 import { Providers } from '@/app/providers'
 import { Navbar } from '@/components/Navbar'
@@ -9,6 +10,12 @@ import { getServerUser } from '@/lib/supabase-auth'
 import { getThemeBootstrapScript } from '@/lib/theme'
 
 const ICON_VERSION = '20260608a'
+
+const geistSans = localFont({
+  src: './fonts/GeistVF.woff',
+  variable: '--font-geist-sans',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   title: {
@@ -47,7 +54,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           }}
         />
       </head>
-      <body suppressHydrationWarning style={{ margin: 0, padding: 0, overflow: 'visible' }}>
+      <body className={geistSans.variable} suppressHydrationWarning style={{ margin: 0, padding: 0, overflow: 'visible' }}>
         <Providers initialUser={initialUser}>
           <Navbar />
           <div data-tour-id="porterful-shell">{children}</div>

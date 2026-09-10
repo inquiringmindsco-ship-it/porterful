@@ -26,6 +26,8 @@ export interface Brand {
   logo?: string
   featured: boolean
   foundingBrand: boolean
+  /** Public storefront lifecycle. Hidden brands remain preserved for future reactivation. */
+  publicVisible: boolean
 }
 
 export const BRANDS: Brand[] = [
@@ -39,6 +41,7 @@ export const BRANDS: Brand[] = [
     logo: '/brand/noble-naturals-mark.svg',
     featured: true,
     foundingBrand: true,
+    publicVisible: true,
   },
   {
     id: 'marvelous-black',
@@ -50,6 +53,7 @@ export const BRANDS: Brand[] = [
     logo: '/brand/marvelous-black-mark.svg',
     featured: true,
     foundingBrand: true,
+    publicVisible: false,
   },
   {
     id: 'coming-home',
@@ -61,12 +65,15 @@ export const BRANDS: Brand[] = [
     logo: '/images/collections/coming-home-badge.svg',
     featured: true,
     foundingBrand: true,
+    publicVisible: false,
   },
 ]
 
 export function getBrandBySlug(slug: string): Brand | undefined {
   return BRANDS.find(b => b.slug === slug)
 }
+
+export const PUBLIC_BRANDS = BRANDS.filter((brand) => brand.publicVisible)
 
 export function getBrandProducts(products: Product[], brandSlug: string): Product[] {
   // Match by artist name or collection
@@ -83,7 +90,7 @@ export function getBrandProducts(products: Product[], brandSlug: string): Produc
   )
 }
 
-export const FOUNDING_BRANDS = BRANDS.filter(b => b.foundingBrand)
+export const FOUNDING_BRANDS = BRANDS.filter(b => b.foundingBrand && b.publicVisible)
 
 export const COMING_HOME_COLLECTION: Collection = {
   id: 'coming-home',
@@ -481,6 +488,22 @@ export const PRODUCTS: Product[] = [
     reviews: 0,
   },
 ]
+
+/**
+ * The customer storefront is intentionally curated. Archived concepts remain in PRODUCTS
+ * for founder/admin workflows, but cannot leak into public catalog responses or first paint.
+ */
+export const PUBLIC_STOREFRONT_PRODUCT_IDS = new Set([
+  'noble-naturals-oil-2oz',
+  'noble-naturals-starter-kit',
+  'noble-naturals-comb',
+])
+
+export function isPublicStorefrontProduct(productId: string) {
+  return PUBLIC_STOREFRONT_PRODUCT_IDS.has(productId)
+}
+
+export const PUBLIC_STORE_PRODUCTS = PRODUCTS.filter((product) => isPublicStorefrontProduct(product.id))
 
 export function getProductById(id: string): Product | undefined {
   return PRODUCTS.find(p => p.id === id)

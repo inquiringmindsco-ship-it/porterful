@@ -305,10 +305,10 @@ export function ProductDetailPage({ product: initialProduct }: { product?: any |
         </div>
 
         {/* From the Creator — Value Visibility Section */}
-        <div className="mt-16 rounded-[24px] border border-[var(--pf-border)] bg-[var(--pf-surface)] p-8">
+        <div data-contrast-surface className="mt-16 rounded-[24px] border border-[var(--pf-border)] bg-[var(--pf-surface)] p-8">
           <div className="flex items-center gap-2 mb-6">
             <Star size={20} className="text-[var(--pf-orange)]" />
-            <h2 className="text-xl font-bold text-white">From the Creator</h2>
+            <h2 data-contrast-text className="text-xl font-semibold text-[var(--pf-text)]">From the Creator</h2>
           </div>
           <div className="grid gap-8 md:grid-cols-2">
             <div>
@@ -321,7 +321,7 @@ export function ProductDetailPage({ product: initialProduct }: { product?: any |
                   className="ring-2 ring-white/10"
                 />
                 <div>
-                  <p className="font-semibold text-white">{product.artist}</p>
+                  <p className="font-semibold text-[var(--pf-text)]">{product.artist}</p>
                   <p className="text-sm text-[var(--pf-text-muted)]">Creator on Porterful</p>
                 </div>
               </div>              <p className="text-sm text-[var(--pf-text-secondary)]">
@@ -337,14 +337,14 @@ export function ProductDetailPage({ product: initialProduct }: { product?: any |
               </Link>
             </div>
             <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-white">Related from Porterful</h3>
+              <h3 className="text-sm font-semibold text-[var(--pf-text)]">Related from Porterful</h3>
               <div className="grid gap-3">
                 <Link href="/store" className="flex items-center gap-3 rounded-xl border border-[var(--pf-border)] p-3 transition-colors hover:border-[var(--pf-orange)]/30">
                   <div className="h-10 w-10 rounded-lg bg-[var(--pf-bg)] flex items-center justify-center">
                     <Package size={18} className="text-[var(--pf-orange)]" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-white">Browse the Store</p>
+                    <p className="text-sm font-medium text-[var(--pf-text)]">Browse the Store</p>
                     <p className="text-xs text-[var(--pf-text-muted)]">Discover more products</p>
                   </div>
                 </Link>
@@ -353,7 +353,7 @@ export function ProductDetailPage({ product: initialProduct }: { product?: any |
                     <Heart size={18} className="text-[#C4956A]" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-white">Coming Home Collection™</p>
+                    <p className="text-sm font-medium text-[var(--pf-text)]">Coming Home Collection™</p>
                     <p className="text-xs text-[var(--pf-text-muted)]">Products with meaning</p>
                   </div>
                 </Link>
