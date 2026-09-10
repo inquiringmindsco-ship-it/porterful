@@ -583,7 +583,7 @@ export default function MarketplacePage() {
                 )}
                 <div className="mt-4">
                   <Link 
-                    href="/shop" 
+                    href="/store" 
                     className="text-[var(--pf-orange)] hover:underline text-sm"
                   >
                     Browse all products →
