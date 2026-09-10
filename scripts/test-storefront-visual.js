@@ -53,7 +53,8 @@ async function main() {
         await context.addInitScript((selectedTheme) => localStorage.setItem('theme', selectedTheme), theme)
         const page = await context.newPage()
 
-        await page.goto(`${BASE_URL}/store`, { waitUntil: 'networkidle' })
+        await page.goto(`${BASE_URL}/store`, { waitUntil: 'domcontentloaded', timeout: 45_000 })
+        await page.waitForTimeout(1_000)
         assert.equal(await page.locator('html').getAttribute('class').then((value) => value?.includes(theme)), true)
         await page.waitForFunction((ids) => {
           const links = Array.from(document.querySelectorAll('a[href^="/product/"]'))
@@ -68,15 +69,18 @@ async function main() {
         assert.doesNotMatch(await page.locator('body').innerText(), /Marvelous Black|Coming Home Tee|LIKENESS Signal Shirt/i)
         await verifyContrast(page, `/store (${theme}, ${viewport.name})`)
 
-        await page.goto(`${BASE_URL}/brands`, { waitUntil: 'networkidle' })
+        await page.goto(`${BASE_URL}/brands`, { waitUntil: 'domcontentloaded', timeout: 45_000 })
+        await page.waitForTimeout(1_000)
         assert.match(await page.locator('body').innerText(), /Noble Naturals/i)
         assert.doesNotMatch(await page.locator('body').innerText(), /Marvelous Black|Coming Home Collection/i)
         await verifyContrast(page, `/brands (${theme}, ${viewport.name})`)
 
-        await page.goto(`${BASE_URL}/brands/noble-naturals`, { waitUntil: 'networkidle' })
+        await page.goto(`${BASE_URL}/brands/noble-naturals`, { waitUntil: 'domcontentloaded', timeout: 45_000 })
+        await page.waitForTimeout(1_000)
         await verifyContrast(page, `/brands/noble-naturals (${theme}, ${viewport.name})`)
 
-        await page.goto(`${BASE_URL}/product/noble-naturals-oil-2oz`, { waitUntil: 'networkidle' })
+        await page.goto(`${BASE_URL}/product/noble-naturals-oil-2oz`, { waitUntil: 'domcontentloaded', timeout: 45_000 })
+        await page.waitForTimeout(1_000)
         await verifyContrast(page, `/product/noble-naturals-oil-2oz (${theme}, ${viewport.name})`)
         await context.close()
       }

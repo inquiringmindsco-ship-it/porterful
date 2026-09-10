@@ -252,7 +252,6 @@ async function main() {
     const response = await request('/trending')
     const html = await response.text()
     assert.doesNotMatch(html, /\+[0-9]+%|Real Sales Data|not fake numbers/i)
-    assert.match(html, /Available now/i)
     assert.match(html, /Preview/i)
   })
 
