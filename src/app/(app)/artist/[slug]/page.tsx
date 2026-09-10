@@ -229,7 +229,7 @@ export default async function ArtistPage({ params }: PageProps) {
 
   return (
     <div
-      className="min-h-screen overflow-x-hidden pb-32"
+      className="min-h-screen overflow-x-hidden bg-[var(--pf-bg)] pb-32 text-[var(--pf-text)]"
       style={getArtistThemeStyles(appearance)}
     >
       <ArtistThemeBridge appearance={appearance} />

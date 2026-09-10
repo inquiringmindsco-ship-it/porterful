@@ -82,6 +82,11 @@ async function main() {
         await page.goto(`${BASE_URL}/product/noble-naturals-oil-2oz`, { waitUntil: 'domcontentloaded', timeout: 45_000 })
         await page.waitForTimeout(1_000)
         await verifyContrast(page, `/product/noble-naturals-oil-2oz (${theme}, ${viewport.name})`)
+
+        await page.goto(`${BASE_URL}/artist/atm-trap`, { waitUntil: 'domcontentloaded', timeout: 45_000 })
+        await page.waitForTimeout(1_000)
+        assert.match(await page.locator('body').innerText(), /Thought We Was Bruddaz/i)
+        await verifyContrast(page, `/artist/atm-trap (${theme}, ${viewport.name})`)
         await context.close()
       }
     }

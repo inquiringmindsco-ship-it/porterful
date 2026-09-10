@@ -77,7 +77,7 @@ export function ArtistTrackList({ tracks }: ArtistTrackListProps) {
   }, [])
 
   return (
-    <div className="bg-[var(--pf-surface)] rounded-2xl border border-[var(--pf-border)] overflow-hidden">
+    <div data-contrast-surface className="bg-[var(--pf-surface)] rounded-2xl border border-[var(--pf-border)] overflow-hidden">
       <div className="divide-y divide-[var(--pf-border)]">
         {playableTracks.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
@@ -114,7 +114,7 @@ export function ArtistTrackList({ tracks }: ArtistTrackListProps) {
 
                 {/* Track info */}
                 <div className="flex-1 min-w-0 overflow-hidden">
-                  <p className={`font-medium text-sm sm:text-base truncate ${isActive ? 'text-[var(--pf-orange)]' : ''}`}>
+                  <p data-contrast-text className={`font-medium text-sm sm:text-base truncate ${isActive ? 'text-[var(--pf-orange)]' : ''}`}>
                     {track.title}
                   </p>
                   <p className="text-xs sm:text-sm text-[var(--pf-text-muted)] truncate">{track.album}</p>

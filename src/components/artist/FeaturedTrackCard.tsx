@@ -72,6 +72,7 @@ export function FeaturedTrackCard({ track, queue }: FeaturedTrackCardProps) {
   return (
     <div
       onClick={handlePlay}
+      data-contrast-surface
       className={`relative flex items-center gap-4 sm:gap-5 p-4 sm:p-5 rounded-2xl bg-[var(--pf-surface)] border cursor-pointer transition-colors overflow-hidden ${
         isActive ? 'border-[var(--pf-orange)]' : 'border-[var(--pf-border)] hover:border-[var(--pf-text-muted)]'
       }`}
@@ -93,7 +94,7 @@ export function FeaturedTrackCard({ track, queue }: FeaturedTrackCardProps) {
           <Star size={11} className="fill-[var(--pf-orange)]" />
           Top Track
         </div>
-        <h3 className={`text-lg sm:text-xl font-bold truncate ${isActive ? 'text-[var(--pf-orange)]' : ''}`}>
+        <h3 data-contrast-text className={`text-lg sm:text-xl font-bold truncate ${isActive ? 'text-[var(--pf-orange)]' : ''}`}>
           {track.title}
         </h3>
         {track.album && (
