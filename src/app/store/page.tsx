@@ -211,7 +211,7 @@ export default function ArtistStorePage() {
               {ALBUMS.map((album) => (
                 <Link
                   key={album.id}
-                  href="/digital"
+                  href={`/album/${album.id}`}
                   className="flex-shrink-0 w-48 group"
                 >
                   <div className="aspect-square rounded-xl overflow-hidden mb-3 relative bg-[var(--pf-surface)]">
@@ -436,9 +436,12 @@ export default function ArtistStorePage() {
             
             {!loading && filteredProducts.length > 12 && (
               <div className="text-center mt-8">
-                <Link href="/store" className="pf-btn pf-btn-secondary">
-                  View All Products →
-                </Link>
+                <button 
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className="pf-btn pf-btn-secondary"
+                >
+                  View All Products ↑
+                </button>
               </div>
             )}
           </div>
