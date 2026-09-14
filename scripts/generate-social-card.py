@@ -10,7 +10,7 @@ from PIL import Image, ImageDraw, ImageFont
 ROOT = Path(__file__).resolve().parent.parent
 PUBLIC = ROOT / "public"
 SOURCE = Path.home() / "Downloads" / "porterful aws logo.png"
-OUT = PUBLIC / "og-image-v2.png"
+OUT = PUBLIC / "og-image-v3.png"
 
 BG = (17, 17, 17)
 ACCENT = (198, 167, 94)  # metallic gold

@@ -9,7 +9,7 @@ import { GlobalPlayer } from '@/components/GlobalPlayer'
 import { getServerUser } from '@/lib/supabase-auth'
 import { getThemeBootstrapScript } from '@/lib/theme'
 
-const ICON_VERSION = 'v2-20260914'
+const ICON_VERSION = 'v3-20260914'
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',

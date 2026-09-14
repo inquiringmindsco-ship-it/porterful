@@ -7,13 +7,14 @@ Outputs to public/ with versioned filenames and updates manifest/layout.
 import os
 import json
 import shutil
+import re
 from pathlib import Path
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parent.parent
 PUBLIC = ROOT / "public"
 SOURCE = Path.home() / "Downloads" / "porterful aws logo.png"
-VERSION = "v2-20260914"
+VERSION = "v3-20260914"
 
 # Background color per spec: black premium rounded-square icon.
 BG = (17, 17, 17)  # #111111 — Porterful dark
@@ -83,6 +84,10 @@ def main():
         old.unlink()
     for old in PUBLIC.glob("*v2-*.ico"):
         old.unlink()
+    for old in PUBLIC.glob("*v3-*.png"):
+        old.unlink()
+    for old in PUBLIC.glob("*v3-*.ico"):
+        old.unlink()
 
     # Master sizes
     outputs = {
@@ -140,10 +145,10 @@ def main():
     ]
     manifest_path.write_text(json.dumps(manifest, indent=2) + "\n")
 
-    # Update layout.tsx icon version constant
+    # Update layout.tsx icon version constant (handles any previous version)
     layout_path = ROOT / "src" / "app" / "layout.tsx"
     content = layout_path.read_text()
-    content = content.replace('const ICON_VERSION = \'20260608a\'', f"const ICON_VERSION = '{VERSION}'")
+    content = re.sub(r"const ICON_VERSION = 'v\d+-\d{8}'", f"const ICON_VERSION = '{VERSION}'", content)
     layout_path.write_text(content)
 
     # Add explicit metadata icons/openGraph/twitter if missing
@@ -208,7 +213,8 @@ def main():
             layout_path.write_text(content)
 
     print("Icon package generated and metadata updated.")
-    for p in sorted(PUBLIC.glob("*porterful*") | PUBLIC.glob("*icon*") | PUBLIC.glob("*favicon*") | PUBLIC.glob("*apple*")):
+    paths = list(PUBLIC.glob("*porterful*")) + list(PUBLIC.glob("*icon*")) + list(PUBLIC.glob("*favicon*")) + list(PUBLIC.glob("*apple*"))
+    for p in sorted(paths):
         if p.is_file():
             print(f"  {p.name}: {p.stat().st_size} bytes")
 
