@@ -9,7 +9,7 @@ import { GlobalPlayer } from '@/components/GlobalPlayer'
 import { getServerUser } from '@/lib/supabase-auth'
 import { getThemeBootstrapScript } from '@/lib/theme'
 
-const ICON_VERSION = '20260608a'
+const ICON_VERSION = 'v2-20260914'
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -18,11 +18,50 @@ const geistSans = localFont({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://porterful.com'),
   title: {
     default: 'Porterful — Music, Merch, and Direct Support',
     template: '%s | Porterful'
   },
   description: 'Music, merch, and direct support for independent artists.',
+  openGraph: {
+    type: 'website',
+    url: 'https://porterful.com',
+    siteName: 'Porterful',
+    title: 'Porterful — Music, Merch, and Direct Support',
+    description: 'Music, merch, and direct support for independent artists.',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Porterful — Music, Merch, and Direct Support',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Porterful — Music, Merch, and Direct Support',
+    description: 'Music, merch, and direct support for independent artists.',
+    images: ['/og-image.png'],
+  },
+  icons: {
+    icon: [
+      { url: `/favicon.ico?v=${ICON_VERSION}`, type: 'image/x-icon', sizes: 'any' },
+      { url: `/favicon-32x32.png?v=${ICON_VERSION}`, type: 'image/png', sizes: '32x32' },
+      { url: `/favicon-16x16.png?v=${ICON_VERSION}`, type: 'image/png', sizes: '16x16' },
+      { url: `/icon.svg?v=${ICON_VERSION}`, type: 'image/svg+xml' },
+    ],
+    apple: [
+      { url: `/apple-touch-icon.png?v=${ICON_VERSION}`, type: 'image/png', sizes: '180x180' },
+    ],
+  },
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'Porterful',
+  },
 }
 
 export const viewport: Viewport = {

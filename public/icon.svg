@@ -1,4 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Porterful">
-  <rect width="512" height="512" rx="124" fill="#0b0b0c" />
-  <image href="/brand/porterful_icon_512.png" x="0" y="0" width="512" height="512" preserveAspectRatio="xMidYMid meet" />
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#111111"/>
+  <image href="/icon-512.png" width="512" height="512"/>
 </svg>
