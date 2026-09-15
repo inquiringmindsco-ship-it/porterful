@@ -35,6 +35,7 @@ interface StoreProduct {
   inStock: boolean;
   available?: boolean;
   purchasable?: boolean;
+  visibilityStatus?: string;
   rating: number;
   reviews: number;
   colors?: string[];
@@ -80,6 +81,7 @@ export default function ArtistStorePage() {
         inStock: p.inStock !== false && p.available !== false && p.purchasable !== false,
         available: p.available,
         purchasable: p.purchasable,
+        visibilityStatus: p.visibilityStatus,
         rating: p.rating || 0,
         reviews: p.reviews || 0,
         colors: p.colors,
