@@ -15,13 +15,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1,
     },
     {
-      url: `${baseUrl}/store`,
+      url: `${baseUrl}/shop`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.9,
     },
+    // /radio redirects to /music which is aliased to /digital
     {
-      url: `${baseUrl}/radio`,
+      url: `${baseUrl}/music`,
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 0.8,
@@ -38,12 +39,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'weekly',
       priority: 0.8,
     },
-    {
-      url: `${baseUrl}/collections/coming-home`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    },
+
     {
       url: `${baseUrl}/apply`,
       lastModified: new Date(),
