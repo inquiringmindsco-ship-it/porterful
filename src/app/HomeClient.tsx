@@ -67,7 +67,7 @@ export function HomeClient() {
                     className="pf-btn pf-btn-secondary text-base sm:text-lg px-6 py-3 flex items-center justify-center gap-2 min-h-[48px]"
                   >
                     <ShoppingCart size={20} />
-                    <span>Shop Merch</span>
+                    <span>Shop Merch & Music</span>
                   </Link>
                   <Link 
                     href="/signup?role=artist" 
