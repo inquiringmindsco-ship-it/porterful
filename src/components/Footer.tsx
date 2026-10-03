@@ -118,7 +118,7 @@ export function Footer() {
           <div>
             <h3 className="font-semibold mb-4 text-[var(--pf-text)]">Platform</h3>
             <ul className="space-y-2">
-              <li><Link href="/store" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">Shop</Link></li>
+              <li><Link href="/shop" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">Shop</Link></li>
               <li><Link href="/digital" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">Music</Link></li>
               <li><Link href="/radio" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">Radio</Link></li>
               <li><Link href="/playlists" className="text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] transition-colors text-sm">Playlists</Link></li>
