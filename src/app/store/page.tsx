@@ -28,8 +28,8 @@ export const metadata: Metadata = {
     images: ['https://porterful.com/og-image.png'],
   },
   robots: {
-    index: false,
-    follow: false,
+    index: true,
+    follow: true,
   },
 }
 

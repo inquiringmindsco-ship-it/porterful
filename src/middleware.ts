@@ -29,16 +29,17 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // Allow public paths
-  if (PUBLIC_PATHS.some(p => pathname.startsWith(p))) {
-    return NextResponse.next()
-  }
-
-  // Redirect old shop URLs to canonical /shop
+  // Redirect old shop URLs to canonical /shop BEFORE checking public paths
+  // /store is in PUBLIC_PATHS so we must check redirect first
   if (pathname === '/store' || pathname === '/marketplace') {
     const url = request.nextUrl.clone()
     url.pathname = '/shop'
     return NextResponse.redirect(url)
+  }
+
+  // Allow public paths
+  if (PUBLIC_PATHS.some(p => pathname.startsWith(p))) {
+    return NextResponse.next()
   }
 
   // Protect dashboard and all sub-routes under (app)
