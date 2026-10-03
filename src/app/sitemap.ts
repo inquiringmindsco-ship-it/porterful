@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next'
 
+// Sitemap for Porterful — refresh dates updated for SEO
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://porterful.com'
 
