@@ -865,7 +865,7 @@ export function StoreClient() {
                   <Heart className="inline mr-2" size={18} />
                   Become a Superfan
                 </Link>
-                <Link href="/store" className="pf-btn pf-btn-secondary">
+                <Link href="/shop" className="pf-btn pf-btn-secondary">
                   <ShoppingBag className="inline mr-2" size={18} />
                   Browse Marketplace
                 </Link>
