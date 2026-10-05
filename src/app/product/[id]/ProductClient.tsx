@@ -106,7 +106,7 @@ export default function ProductClient({ productId }: { productId: string }) {
               '@type': 'BreadcrumbList',
               itemListElement: [
                 { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://porterful.com' },
-                { '@type': 'ListItem', position: 2, name: 'Shop', item: 'https://porterful.com/shop' },
+                { '@type': 'ListItem', position: 2, name: 'Store', item: 'https://porterful.com/store' },
                 { '@type': 'ListItem', position: 3, name: product.name, item: `https://porterful.com/product/${product.id}` },
               ],
             }),

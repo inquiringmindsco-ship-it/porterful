@@ -34,19 +34,19 @@
       "name": "Music",
       "short_name": "Music",
       "description": "Stream and buy music",
-      "url": "/digital"
+      "url": "/music"
     },
     {
       "name": "Marketplace",
       "short_name": "Shop",
       "description": "Shop artist merch",
-      "url": "/shop"
+      "url": "/store"
     },
     {
-      "name": "Radio",
-      "short_name": "Radio",
-      "description": "Listen to radio",
-      "url": "/radio"
+      "name": "Artists",
+      "short_name": "Artists",
+      "description": "Browse artists",
+      "url": "/artists"
     },
     {
       "name": "Artist",
