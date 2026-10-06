@@ -33,10 +33,10 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Redirect /store and /marketplace to /shop (canonical shop URL per sitemap)
-  if (request.nextUrl.pathname === '/store' || request.nextUrl.pathname === '/marketplace') {
+  // Redirect /shop and /marketplace to /store (canonical store URL per sitemap)
+  if (request.nextUrl.pathname === '/shop' || request.nextUrl.pathname === '/marketplace') {
     const url = request.nextUrl.clone()
-    url.pathname = '/shop'
+    url.pathname = '/store'
     return NextResponse.redirect(url)
   }
   
