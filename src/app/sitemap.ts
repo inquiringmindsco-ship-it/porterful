@@ -6,7 +6,7 @@ import { TRACKS } from '@/lib/data'
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://porterful.com'
   
-  // Static pages
+  // Static pages - aligned with actual deployed routes
   const staticPages: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
@@ -20,24 +20,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'weekly',
       priority: 0.9,
     },
-    // /digital is the canonical music page (/music and /radio redirect there)
     {
-      url: `${baseUrl}/digital`,
+      url: `${baseUrl}/music`,
       lastModified: new Date(),
       changeFrequency: 'daily',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/trending`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.8,
+      priority: 0.9,
     },
     {
       url: `${baseUrl}/artists`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
-      priority: 0.8,
+      priority: 0.9,
     },
     {
       url: `${baseUrl}/artist/od-porter`,
@@ -50,6 +43,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/trending`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.8,
     },
     {
       url: `${baseUrl}/about`,
@@ -68,18 +67,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/faq`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/resources`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.5,
     },
     {
       url: `${baseUrl}/terms`,
@@ -123,7 +110,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }))
 
-  // Track/Album pages
+  // Album pages
   const trackPages: MetadataRoute.Sitemap = TRACKS.map((track) => ({
     url: `${baseUrl}/album/${track.id}`,
     lastModified: new Date(),
