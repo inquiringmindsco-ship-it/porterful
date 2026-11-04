@@ -1,7 +1,6 @@
 import { MetadataRoute } from 'next'
 import { ALL_PRODUCTS } from '@/lib/products'
 import { ARTISTS } from '@/lib/artists'
-import { TRACKS } from '@/lib/data'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://porterful.com'
@@ -57,18 +56,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.6,
     },
     {
-      url: `${baseUrl}/contact`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/signup`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.6,
-    },
-    {
       url: `${baseUrl}/terms`,
       lastModified: new Date(),
       changeFrequency: 'yearly',
@@ -76,18 +63,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     {
       url: `${baseUrl}/privacy`,
-      lastModified: new Date(),
-      changeFrequency: 'yearly',
-      priority: 0.3,
-    },
-    {
-      url: `${baseUrl}/refund`,
-      lastModified: new Date(),
-      changeFrequency: 'yearly',
-      priority: 0.3,
-    },
-    {
-      url: `${baseUrl}/dmca`,
       lastModified: new Date(),
       changeFrequency: 'yearly',
       priority: 0.3,
@@ -110,13 +85,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }))
 
-  // Album pages
-  const trackPages: MetadataRoute.Sitemap = TRACKS.map((track) => ({
-    url: `${baseUrl}/album/${track.id}`,
-    lastModified: new Date(),
-    changeFrequency: 'monthly' as const,
-    priority: 0.6,
-  }))
-
-  return [...staticPages, ...productPages, ...artistPages, ...trackPages]
+  return [...staticPages, ...productPages, ...artistPages]
 }
