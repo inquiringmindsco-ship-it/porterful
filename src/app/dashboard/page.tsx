@@ -212,15 +212,15 @@ export default function DashboardPage() {
               </p>
             </Link>
 
-            <Link href="/radio" className="pf-card p-6 hover:border-[var(--pf-orange)] transition-colors">
+            <Link href="/trending" className="pf-card p-6 hover:border-[var(--pf-orange)] transition-colors">
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-10 h-10 rounded-lg bg-[var(--pf-orange)]/20 flex items-center justify-center">
                   <TrendingUp size={20} className="text-[var(--pf-orange)]" />
                 </div>
-                <h2 className="font-semibold">Radio</h2>
+                <h2 className="font-semibold">Trending</h2>
               </div>
               <p className="text-sm text-[var(--pf-text-secondary)]">
-                Listen to independent artists
+                See what's popular this week
               </p>
             </Link>
           </div>
