@@ -1,4 +1,29 @@
-'use client';
+import { Metadata } from 'next'
+export const metadata: Metadata = {
+  title: 'Porterful — The Artist Economy',
+  description: 'Sell music and merch. Keep 80% of every sale. No label. No middleman. Join Porterful, the platform where independent artists own everything.',
+  alternates: {
+    canonical: 'https://porterful.com',
+  },
+  openGraph: {
+    title: 'Porterful — The Artist Economy',
+    description: 'Sell music and merch. Keep 80% of every sale. No label. No middleman.',
+    images: ['/og-image.png'],
+    url: 'https://porterful.com',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Porterful — The Artist Economy',
+    description: 'Sell music and merch. Keep 80% of every sale. No label. No middleman.',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+}
+
+export default function Home() {
 
 import Link from 'next/link';
 import Image from 'next/image';
