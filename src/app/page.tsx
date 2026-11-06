@@ -28,7 +28,7 @@ export default function Home() {
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
-import { Play, Headphones, Music, Star, Users, DollarSign, Upload, ShoppingCart, Package, Radio, Disc3, ArrowUp } from 'lucide-react';
+import { Play, Headphones, Music, Star, Users, DollarSign, Upload, ShoppingCart, Package, ArrowUp } from 'lucide-react';
 import { useSupabase } from '@/app/providers';
 import { TRACKS } from '@/lib/data';
 import { ArtistSearch } from '@/components/ArtistSearch';
@@ -365,21 +365,7 @@ export default function Home() {
               <p className="text-sm text-[var(--pf-text-secondary)]">Merch and products</p>
             </Link>
             
-            <Link href="/digital" className="group bg-[var(--pf-bg)] rounded-xl p-6 border border-[var(--pf-border)] hover:border-[var(--pf-orange)] transition-colors">
-              <div className="w-12 h-12 rounded-lg bg-[var(--pf-orange)]/10 flex items-center justify-center mb-4 group-hover:bg-[var(--pf-orange)]/20 transition-colors">
-                <Radio size={24} className="text-[var(--pf-orange)]" />
-              </div>
-              <h3 className="font-bold mb-1">Radio</h3>
-              <p className="text-sm text-[var(--pf-text-secondary)]">24/7 streaming</p>
-            </Link>
-            
-            <Link href="/playlists" className="group bg-[var(--pf-bg)] rounded-xl p-6 border border-[var(--pf-border)] hover:border-[var(--pf-orange)] transition-colors">
-              <div className="w-12 h-12 rounded-lg bg-[var(--pf-orange)]/10 flex items-center justify-center mb-4 group-hover:bg-[var(--pf-orange)]/20 transition-colors">
-                <Disc3 size={24} className="text-[var(--pf-orange)]" />
-              </div>
-              <h3 className="font-bold mb-1">Playlists</h3>
-              <p className="text-sm text-[var(--pf-text-secondary)]">Curated collections</p>
-            </Link>
+
           </div>
         </div>
       </section>

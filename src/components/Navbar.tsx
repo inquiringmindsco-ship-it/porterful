@@ -247,10 +247,7 @@ export function Navbar() {
                 <span>Music</span>
               </Link>
               {/* Radio hidden - causes playback issues when browsing store */}
-              <Link href="/playlists" aria-label="Playlists" className="flex items-center gap-2 px-4 py-2 rounded-lg text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] hover:bg-[var(--pf-surface)] transition-colors">
-                <PorterfulIcon name="playlist" size={18} />
-                <span>Playlists</span>
-              </Link>
+
               <Link href="/signup/superfan" className="flex items-center gap-2 px-4 py-2 rounded-lg text-[var(--pf-orange)] bg-[var(--pf-orange)]/10 hover:bg-[var(--pf-orange)]/20 transition-colors font-medium">
                 <span className="text-base">⭐</span>
                 <span>Superfan</span>
@@ -432,10 +429,7 @@ export function Navbar() {
               <span>Music</span>
             </Link>
             {/* Radio hidden - causes playback issues when browsing */}
-            <Link href="/playlists" className="flex items-center gap-3 px-4 py-4 text-[var(--pf-text-secondary)] hover:text-[var(--pf-orange)] hover:bg-[var(--pf-surface)] rounded-xl transition-colors" onClick={closeMobile}>
-              <PorterfulIcon name="playlist" size={20} />
-              <span>Playlists</span>
-            </Link>
+
             <Link href="/brands" className="flex items-center gap-3 px-4 py-4 text-[var(--pf-orange)] bg-[var(--pf-orange)]/10 font-semibold hover:bg-[var(--pf-orange)]/20 rounded-xl transition-colors" onClick={closeMobile}>
               <PorterfulIcon name="trophy" size={20} />
               <span>For Brands</span>
